@@ -4,7 +4,7 @@ Laboratories are classified into different biosafety levels depending on the typ
 ## Manual
 
 ### Frontend
-- Move to Frontend folder
+- Move to the Frontend folder
 - Run in terminal:
   ```bash
   npm install
@@ -12,7 +12,7 @@ Laboratories are classified into different biosafety levels depending on the typ
   ```
 
 ### Backend
-- Move to Backend folder
+- Move to the Backend folder
 - Run in terminal:
   ```bash
   npm install
