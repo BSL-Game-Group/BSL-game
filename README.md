@@ -25,7 +25,7 @@ Laboratories are classified into different biosafety levels depending on the typ
 
 [ToDo](https://helsinkifi-my.sharepoint.com/:w:/r/personal/kaeerola_ad_helsinki_fi/_layouts/15/Doc.aspx?sourcedoc=%7B057F66C8-1D9B-49ED-9733-FC9002613191%7D&file=To%20Do.docx&fromShare=true&action=default&mobileredirect=true)
 
-## Used technologies
+## Used Technologies
 - React (frontend)
 - Express (backend)
 - Node.js (backend)
