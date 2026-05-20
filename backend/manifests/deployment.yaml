@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: bsl-backend
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: bsl-backend
+
+  template:
+    metadata:
+      labels:
+        app: bsl-backend
+
+    spec:
+      containers:
+        - name: bsl-backend
+          image: jvilo/bsl-backend:staging
+
+          ports:
+            - containerPort: 3001

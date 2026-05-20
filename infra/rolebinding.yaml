@@ -1,0 +1,17 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ohtu-namespace-adminit
+  namespace: bsl-game-ohtu-k2026
+subjects:  #Lista esimerkkikäyttäjiä, korvaa nämä oman ryhmän jäsenillä
+  - kind: User
+    apiGroup: rbac.authorization.k8s.io
+    name: sadlaiho
+  - kind: User
+    apiGroup: rbac.authorization.k8s.io
+    name: ehuuki
+
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin

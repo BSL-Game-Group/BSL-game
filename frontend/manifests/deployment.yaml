@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: bsl-frontend
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: bsl-frontend
+
+  template:
+    metadata:
+      labels:
+        app: bsl-frontend
+
+    spec:
+      containers:
+        - name: bsl-frontend
+          image: jvilo/bsl-frontend:staging
+
+          ports:
+            - containerPort: 8080
+
+          env:
+            - name: VITE_API_URL
+              value: http://bsl-backend-service:3001
