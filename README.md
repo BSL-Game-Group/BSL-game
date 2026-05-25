@@ -3,22 +3,26 @@ Laboratories are classified into different biosafety levels depending on the typ
 
 ## Manual
 
-### Frontend
-- Move to the Frontend folder
-- Run in terminal:
-  ```bash
-  npm install
-  npm run dev
-  ```
+## Run project with Docker
 
-### Backend
-- Move to the Backend folder
-- Run in terminal:
-  ```bash
-  npm install
-  npm start
-  ```
-- Server now runs on [localhost:3001](http://localhost:3001/). Make sure you don't have anything else running on that port.
+Requirements:
+- Docker
+- Docker Compose
+
+Start application if you have made changes to the code:
+
+```bash
+docker compose up --build -d
+```
+otherwise start application:
+```bash
+docker compose up -d
+```
+stop application:
+```bash
+docker compose down
+```
+Frontend is reachable at: [http://localhost:5173/](http://localhost:5173/) and bakcend at: [http://localhost:3001/](http://localhost:3001/)
 
 ## Work Management
 [Backlog](https://docs.google.com/spreadsheets/d/1bEsBqh-Pxz0nya1yIio4sEbJgoIu545pj67PdxWBZqk/edit?pli=1&gid=215085718#gid=215085718)
