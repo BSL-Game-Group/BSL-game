@@ -1,0 +1,29 @@
+services:
+
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: bsluser
+      POSTGRES_PASSWORD: bslpassword
+      POSTGRES_DB: bsldb
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3001"
+    environment:
+      DB_HOST: postgres
+      DB_USER: bsluser
+      DB_PASSWORD: bslpassword
+      DB_NAME: bsldb
+    depends_on:
+      - postgres
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:8080"
+    depends_on:
+      - backend
