@@ -1,7 +1,7 @@
 const App = () => {
   return (
     <div>
-      <p>Hello world</p>
+      <p>BSL-game frontend</p>
     </div>
   )
 }
