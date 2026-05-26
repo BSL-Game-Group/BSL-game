@@ -25,11 +25,14 @@ Frontend is reachable at: [http://localhost:5173/](http://localhost:5173/) and b
 
 ### Testing
 
+Install dependencies:
+```bash
+npm install
+```
 Run tests:
 ```bash
 npm test
 ```
-
 Run tests with UI:
 ```bash
 npm run test:ui
