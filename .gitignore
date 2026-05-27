@@ -1,4 +1,5 @@
-
+#editor configurations
+.idea/
 # Playwright
 node_modules/
 /test-results/
