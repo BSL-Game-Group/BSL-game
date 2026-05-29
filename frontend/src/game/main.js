@@ -1,4 +1,3 @@
-import { Game as MainGame } from './scenes/Game';
 import { AUTO, Game } from 'phaser';
 
 const config = {
@@ -6,7 +5,7 @@ const config = {
     width: 1280,
     height: 720,
     parent: 'game-container',
-    backgroundColor: '#a48a6c'
+    backgroundColor: '#a48a6c',
 }
 
 const StartGame = (parent) => {
