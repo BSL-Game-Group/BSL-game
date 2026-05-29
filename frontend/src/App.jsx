@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import Game from './Game.jsx'
 
 const App = () => {
   useEffect(() => {
@@ -15,6 +16,7 @@ const App = () => {
   return (
     <div>
       <p>BSL-game frontend</p>
+      <Game />
     </div>
   )
 }
