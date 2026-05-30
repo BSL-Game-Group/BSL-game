@@ -20,6 +20,7 @@ spec:
       containers:
         - name: bsl-frontend
           image: jvilo/bsl-frontend:staging
+          imagePullPolicy: Always
 
           ports:
             - containerPort: 8080

@@ -2,6 +2,7 @@
 .idea/
 # Playwright
 node_modules/
+frontend/test-results/
 /test-results/
 /playwright-report/
 /blob-report/
