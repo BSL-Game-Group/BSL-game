@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
   },
   "author": "BSL-game group",
   "license": "MIT",
@@ -13,5 +14,10 @@
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.4.1",
+    "globals": "^17.6.0"
   }
 }

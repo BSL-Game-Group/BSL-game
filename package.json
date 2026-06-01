@@ -9,7 +9,8 @@
   "scripts": {
     "test": "playwright test",
     "test:report": "playwright show-report",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "lint": "npm --prefix frontend run lint && npm --prefix backend run lint"
   },
   "repository": {
     "type": "git",
