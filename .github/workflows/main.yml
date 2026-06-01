@@ -1,4 +1,4 @@
-name: CI - Build, Test and Push
+name: CI - Full Stack Test and Build
 
 on:
   push:
@@ -7,49 +7,15 @@ on:
 
 jobs:
   test:
-    name: Test (Backend + DB + E2E)
+    name: Test (Full Stack via Docker)
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: bsl
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # ---------- Backend ----------
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install backend deps
-        working-directory: ./backend
-        run: npm ci
-
-      - name: Run backend lint
-        working-directory: ./backend
-        run: npm run lint
-
-      - name: Start backend (background)
-        working-directory: ./backend
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/bsl
-        run: |
-          nohup npm start &
+      - name: Start full stack (docker compose)
+        run: docker compose up -d --build
 
       - name: Wait for backend
         run: |
@@ -57,31 +23,32 @@ jobs:
             curl -fs http://localhost:3001/ && exit 0
             sleep 1
           done
+          echo "Backend not ready"
+          docker compose logs
           exit 1
 
-      # ---------- Frontend ----------
-      - name: Install frontend deps
-        working-directory: ./frontend
+      - name: Wait for frontend
+        run: |
+          for i in $(seq 1 30); do
+            curl -fs http://localhost:5173 && exit 0
+            sleep 1
+          done
+          echo "Frontend not ready"
+          docker compose logs
+          exit 1
+
+      - name: Install Playwright dependencies
         run: npm ci
 
-      - name: Run frontend lint
-        working-directory: ./frontend
-        run: npm run lint
-
-      - name: Build frontend
-        working-directory: ./frontend
-        run: npm run build
-
-      # ---------- ROOT (FIX FOR PLAYWRIGHT) ----------
-      - name: Install root dependencies
-        run: npm ci
-
-      # ---------- E2E Tests ----------
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
         run: npx playwright test
+
+      - name: Stop services
+        if: always()
+        run: docker compose down
 
   build-and-push:
     name: Build & Push Docker Images
@@ -98,7 +65,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # ---------- Backend image ----------
       - name: Build and push backend
         uses: docker/build-push-action@v5
         with:
@@ -107,7 +73,6 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/bsl-backend:staging
 
-      # ---------- Frontend image ----------
       - name: Build and push frontend
         uses: docker/build-push-action@v5
         with:
