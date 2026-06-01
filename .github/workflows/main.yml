@@ -14,38 +14,66 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Start full stack (docker compose)
+      # ---------------------------
+      # Start full stack
+      # ---------------------------
+      - name: Start services
         run: docker compose up -d --build
 
+      # ---------------------------
+      # Wait for backend
+      # ---------------------------
       - name: Wait for backend
         run: |
-          for i in $(seq 1 30); do
-            curl -fs http://localhost:3001/ && exit 0
-            sleep 1
+          echo "Waiting for backend..."
+          for i in $(seq 1 60); do
+            if curl -fs http://localhost:3001/ >/dev/null; then
+              echo "Backend ready"
+              exit 0
+            fi
+            sleep 2
           done
-          echo "Backend not ready"
-          docker compose logs
+
+          echo "Backend failed"
+          docker compose logs backend
           exit 1
 
+      # ---------------------------
+      # Wait for frontend
+      # ---------------------------
       - name: Wait for frontend
         run: |
-          for i in $(seq 1 30); do
-            curl -fs http://localhost:5173 && exit 0
-            sleep 1
+          echo "Waiting for frontend..."
+          for i in $(seq 1 60); do
+            if curl -fs http://localhost:5173/ >/dev/null; then
+              echo "Frontend ready"
+              exit 0
+            fi
+            sleep 2
           done
-          echo "Frontend not ready"
-          docker compose logs
+
+          echo "Frontend failed"
+          docker compose logs frontend
           exit 1
 
-      - name: Install Playwright dependencies
+      # ---------------------------
+      # Install Playwright
+      # ---------------------------
+      - name: Install dependencies
         run: npm ci
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      # ---------------------------
+      # Run tests
+      # ---------------------------
       - name: Run Playwright tests
         run: npx playwright test
 
+      # ---------------------------
+      # Always cleanup
+      # ---------------------------
       - name: Stop services
         if: always()
         run: docker compose down
@@ -65,6 +93,9 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # ---------------------------
+      # Backend image
+      # ---------------------------
       - name: Build and push backend
         uses: docker/build-push-action@v5
         with:
@@ -73,6 +104,9 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/bsl-backend:staging
 
+      # ---------------------------
+      # Frontend image
+      # ---------------------------
       - name: Build and push frontend
         uses: docker/build-push-action@v5
         with:
