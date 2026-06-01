@@ -1,4 +1,4 @@
-name: Build and Push Docker Images
+name: CI - Build, Test and Push
 
 on:
   push:
@@ -6,7 +6,82 @@ on:
       - main
 
 jobs:
-  build-backend:
+  test:
+    name: Test (Backend + DB + E2E)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: bsl
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ---------- Backend ----------
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install backend deps
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Run backend lint
+        working-directory: ./backend
+        run: npm run lint
+
+      - name: Start backend (background)
+        working-directory: ./backend
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/bsl
+        run: |
+          nohup npm start &
+
+      - name: Wait for backend
+        run: |
+          for i in $(seq 1 30); do
+            curl -fs http://localhost:3001/ && exit 0
+            sleep 1
+          done
+          exit 1
+
+      # ---------- Frontend ----------
+      - name: Install frontend deps
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run frontend lint
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      # ---------- E2E Tests ----------
+      - name: Install Playwright deps
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: npx playwright test
+
+  build-and-push:
+    name: Build & Push Docker Images
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
@@ -19,7 +94,8 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push backend image
+      # ---------- Backend image ----------
+      - name: Build and push backend
         uses: docker/build-push-action@v5
         with:
           context: ./backend
@@ -27,20 +103,8 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/bsl-backend:staging
 
-  build-frontend:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build and push frontend image
+      # ---------- Frontend image ----------
+      - name: Build and push frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
