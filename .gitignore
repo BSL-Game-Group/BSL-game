@@ -1,5 +1,11 @@
 #editor configurations
 .idea/
+
+# OpenShift
+infra/rolebinding.yaml
+backend/manifests/secret.yaml
+backend/manifests/configmap.yaml
+
 # Playwright
 node_modules/
 frontend/test-results/

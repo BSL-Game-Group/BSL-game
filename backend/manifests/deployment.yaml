@@ -1,39 +1,48 @@
 apiVersion: apps/v1
 kind: Deployment
-
 metadata:
   name: bsl-backend
-
+  annotations:
+    alpha.image.policy.openshift.io/resolve-names: "*"
+    image.openshift.io/triggers: >
+      [{"from":{"kind":"ImageStreamTag","name":"bsl-backend-service:staging"},"fieldPath":"spec.template.spec.containers[?(@.name==\"bsl-backend\")].image","pause":"false"}]
 spec:
   replicas: 1
-
   selector:
     matchLabels:
       app: bsl-backend
-
   template:
     metadata:
       labels:
         app: bsl-backend
-
     spec:
       containers:
         - name: bsl-backend
-          image: jvilo/bsl-backend:staging
+          image: bsl-backend-service:staging
           imagePullPolicy: Always
-
           ports:
             - containerPort: 3001
-
           env:
             - name: DB_HOST
-              value: bsl-postgres-service
+              valueFrom:
+                configMapKeyRef:
+                  name: bsl-backend-config
+                  key: DB_HOST
 
             - name: DB_USER
-              value: bsluser
-
-            - name: DB_PASSWORD
-              value: bslpassword
+              valueFrom:
+                configMapKeyRef:
+                  name: bsl-backend-config
+                  key: DB_USER
 
             - name: DB_NAME
-              value: bsldb
+              valueFrom:
+                configMapKeyRef:
+                  name: bsl-backend-config
+                  key: DB_NAME
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bsl-backend-secret
+                  key: DB_PASSWORD

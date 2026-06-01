@@ -1,14 +1,10 @@
 apiVersion: v1
 kind: Service
-
 metadata:
   name: bsl-frontend-service
-
 spec:
   selector:
     app: bsl-frontend
-
   ports:
-    - protocol: TCP
-      port: 8080
+    - port: 80
       targetPort: 8080
