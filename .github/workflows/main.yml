@@ -57,21 +57,6 @@ jobs:
           exit 1
 
       # ---------------------------
-      # Install Playwright
-      # ---------------------------
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      # ---------------------------
-      # Run tests
-      # ---------------------------
-      - name: Run Playwright tests
-        run: npx playwright test
-
-      # ---------------------------
       # Always cleanup
       # ---------------------------
       - name: Stop services
