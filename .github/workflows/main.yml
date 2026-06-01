@@ -72,8 +72,12 @@ jobs:
         working-directory: ./frontend
         run: npm run build
 
+      # ---------- ROOT (FIX FOR PLAYWRIGHT) ----------
+      - name: Install root dependencies
+        run: npm ci
+
       # ---------- E2E Tests ----------
-      - name: Install Playwright deps
+      - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
