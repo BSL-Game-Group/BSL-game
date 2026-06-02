@@ -23,7 +23,6 @@ spec:
       containers:
         - name: postgres
           image: postgres:17
-          imagePullPolicy: Always
 
           ports:
             - containerPort: 5432
@@ -53,5 +52,4 @@ spec:
 
       volumes:
         - name: postgres-storage
-          persistentVolumeClaim:
-            claimName: postgres-pvc
+          emptyDir: { }
