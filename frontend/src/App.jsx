@@ -7,12 +7,6 @@ function App() {
   useEffect(() => {
     fetch('/api/test')
       .then((res) => res.json())
-      .then((data) => {
-        console.log('Backend response:', data)
-      })
-      .catch((err) => {
-        console.error('API error:', err)
-      })
   }, [])
 
   return (

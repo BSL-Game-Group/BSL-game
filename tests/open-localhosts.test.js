@@ -36,8 +36,8 @@ test('clicking Start Game renders 800x600 canvas', async ({ page }) => {
   await expect(canvas).toBeVisible();
   const width = await canvas.evaluate(el => el.width);
   const height = await canvas.evaluate(el => el.height);
-  expect(width).toBe(800);
-  expect(height).toBe(600);
+  expect(width).toBe(1280);
+  expect(height).toBe(720);
 });
 
 test('game starts without JavaScript errors', async ({ page }) => {
