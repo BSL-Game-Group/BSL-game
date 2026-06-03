@@ -5,7 +5,7 @@ const Game = () => {
   const gameRef = useRef();
 
   useLayoutEffect(() => {
-    if (gameRef.current) return;
+    if (gameRef.current) { return; }
     gameRef.current = StartGame('game-container');
 
     return () => {

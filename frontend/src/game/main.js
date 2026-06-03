@@ -1,5 +1,4 @@
 import { AUTO, Game } from 'phaser';
-import LabScene from '../scenes/LabScene';
 import MainScene from './scenes/main_scene';
 
 const config = {
@@ -14,7 +13,7 @@ const config = {
             debug: false
         }
     },
-    scene: [LabScene, MainScene],
+    scene: [MainScene],
 };
 
 const StartGame = (parent) => {

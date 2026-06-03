@@ -16,7 +16,7 @@ function App() {
   }, [])
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', paddingTop: '24px' }}>
       <p>BSL-game frontend</p>
 
       {!gameStarted ? (
