@@ -1,14 +1,16 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Game from './Game.jsx'
 
-const App = () => {
+function App() {
+  const [gameStarted, setGameStarted] = useState(false)
+
   useEffect(() => {
     fetch('/api/test')
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         console.log('Backend response:', data)
       })
-      .catch(err => {
+      .catch((err) => {
         console.error('API error:', err)
       })
   }, [])
@@ -16,7 +18,14 @@ const App = () => {
   return (
     <div>
       <p>BSL-game frontend</p>
-      <Game />
+
+      {!gameStarted ? (
+        <button onClick={() => setGameStarted(true)}>
+          Start Game
+        </button>
+      ) : (
+        <Game />
+      )}
     </div>
   )
 }
