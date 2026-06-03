@@ -1,21 +1,20 @@
-import { useLayoutEffect, useRef } from 'react'
-import StartGame from './game/main'
+import { useLayoutEffect, useRef } from 'react';
+import StartGame from './game/main';
 
 const Game = () => {
-    const game = useRef()
-    
-    useLayoutEffect(() => {
-        game.current = StartGame("game-container")
+  const gameRef = useRef();
 
-        return () => {
-            game.current.destroy(true)
-            game.current = undefined
-        }
-    }, [])
+  useLayoutEffect(() => {
+    if (gameRef.current) return;
+    gameRef.current = StartGame('game-container');
 
-    return (
-        <div id='game-container'></div>
-    )
-}
+    return () => {
+      gameRef.current?.destroy(true);
+      gameRef.current = undefined;
+    };
+  }, []);
 
-export default Game
+  return <div id="game-container" />;
+};
+
+export default Game;
