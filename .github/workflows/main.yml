@@ -75,8 +75,10 @@ jobs:
       # Run Jest tests
       # ---------------------------
       - name: Run Jest tests
-        run: npm test
         working-directory: ./frontend
+        run: |
+          npm ci
+          npm test
 
       # ---------------------------
       # Always cleanup
