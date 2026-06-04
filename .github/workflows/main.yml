@@ -70,6 +70,13 @@ jobs:
       # ---------------------------
       - name: Run Playwright tests
         run: npx playwright test
+      
+      # ---------------------------
+      # Run Jest tests
+      # ---------------------------
+      - name: Run Jest tests
+        run: npm test
+        working-directory: ./frontend
 
       # ---------------------------
       # Always cleanup
