@@ -39,6 +39,7 @@ function drawLectureRoom(scene) {
     };
 
     scene.lectureRoomZone = { x: left, y: top, width: w, height: h };
+    window.__gameData = { ...window.__gameData, lectureRoomZone: scene.lectureRoomZone };
 
     return [
         makeWall(cx, top, w, t),

@@ -48,3 +48,19 @@ test('game starts without JavaScript errors', async ({ page }) => {
   await page.waitForLoadState('networkidle');
   expect(errors).toHaveLength(0);
 });
+
+test('MainScene is active after starting the game', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+  await page.getByRole('button', { name: 'Start Game' }).click();
+  await page.waitForFunction(() => !!window.__phaserGame);
+  const isSet = await page.evaluate(() => !!window.__phaserGame);
+  expect(isSet).toBe(true);
+});
+
+test('lecture room zone has correct position and size', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+  await page.getByRole('button', { name: 'Start Game' }).click();
+  await page.waitForFunction(() => !!window.__gameData?.lectureRoomZone);
+  const zone = await page.evaluate(() => window.__gameData.lectureRoomZone);
+  expect(zone).toEqual({ x: 44, y: 44, width: 280, height: 220 });
+});
