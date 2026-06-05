@@ -1,10 +1,5 @@
 import Phaser from 'phaser';
-
-const COLORS = {
-  fieldBorder: 0x2c3038,
-  roomBorder:  0x6a7180,
-  text:        '#2c3038',
-};
+import { createRooms } from './rooms';
 
 class MainScene extends Phaser.Scene {
     constructor() {
@@ -16,7 +11,7 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
-        this.drawPlayField();
+        const walls = createRooms(this);
 
         this.physics.world.setBounds(20, 20, 1240, 680);
 
@@ -24,15 +19,8 @@ class MainScene extends Phaser.Scene {
         this.player.setCollideWorldBounds(true);
         this.cursors = this.input.keyboard.createCursorKeys();
         this.player.setScale(0.3);
-    }
 
-    drawPlayField() {
-        this.add
-            .rectangle(640, 360, 1240, 680)
-            .setStrokeStyle(2, COLORS.fieldBorder);
-
-        // Bounds for movement team — world-space top-left of lecture room area
-        this.lectureRoomZone = { x: 80, y: 100, width: 210, height: 160 };
+        this.physics.add.collider(this.player, walls);
     }
 
     update() {
