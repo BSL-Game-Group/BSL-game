@@ -64,3 +64,11 @@ test('lecture room zone has correct position and size', async ({ page }) => {
   const zone = await page.evaluate(() => window.__gameData.lectureRoomZone);
   expect(zone).toEqual({ x: 44, y: 44, width: 280, height: 220 });
 });
+
+test('PPE room zone has correct position and size', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+  await page.getByRole('button', { name: 'Start Game' }).click();
+  await page.waitForFunction(() => !!window.__gameData?.ppeRoomZone);
+  const zone = await page.evaluate(() => window.__gameData.ppeRoomZone);
+  expect(zone).toEqual({ x: 44, y: 294, width: 280, height: 220 });
+});
