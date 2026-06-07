@@ -38,6 +38,15 @@ class MainScene extends Phaser.Scene {
         } else if (this.cursors.down.isDown) {
             this.player.setVelocityY(160);
         }
+
+        const pointer = this.input.activePointer;
+        const distance = Phaser.Math.Distance.Between(
+            this.player.x, this.player.y, pointer.x, pointer.y
+        );
+
+        if (pointer.isDown && distance > 10) {
+            this.physics.moveToObject(this.player, pointer, 160);
+        }
     }
 }
 
