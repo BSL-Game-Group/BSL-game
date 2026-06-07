@@ -72,3 +72,15 @@ test('PPE room zone has correct position and size', async ({ page }) => {
   const zone = await page.evaluate(() => window.__gameData.ppeRoomZone);
   expect(zone).toEqual({ x: 44, y: 294, width: 280, height: 220 });
 });
+
+test('BSL room zones have correct positions and sizes', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+  await page.getByRole('button', { name: 'Start Game' }).click();
+  await page.waitForFunction(() => !!window.__gameData?.bslRoomZones);
+  const zones = await page.evaluate(() => window.__gameData.bslRoomZones);
+  expect(zones).toHaveLength(4);
+  expect(zones[0]).toEqual({ key: 'BSL-1', x: 92,  y: 550, width: 220, height: 140 });
+  expect(zones[1]).toEqual({ key: 'BSL-2', x: 384, y: 550, width: 220, height: 140 });
+  expect(zones[2]).toEqual({ key: 'BSL-3', x: 676, y: 550, width: 220, height: 140 });
+  expect(zones[3]).toEqual({ key: 'BSL-4', x: 968, y: 550, width: 220, height: 140 });
+});
