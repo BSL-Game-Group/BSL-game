@@ -48,3 +48,39 @@ test('game starts without JavaScript errors', async ({ page }) => {
   await page.waitForLoadState('networkidle');
   expect(errors).toHaveLength(0);
 });
+
+test('MainScene is active after starting the game', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+  await page.getByRole('button', { name: 'Start Game' }).click();
+  await page.waitForFunction(() => !!window.__phaserGame);
+  const isSet = await page.evaluate(() => !!window.__phaserGame);
+  expect(isSet).toBe(true);
+});
+
+test('lecture room zone has correct position and size', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+  await page.getByRole('button', { name: 'Start Game' }).click();
+  await page.waitForFunction(() => !!window.__gameData?.lectureRoomZone);
+  const zone = await page.evaluate(() => window.__gameData.lectureRoomZone);
+  expect(zone).toEqual({ x: 44, y: 44, width: 280, height: 220 });
+});
+
+test('PPE room zone has correct position and size', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+  await page.getByRole('button', { name: 'Start Game' }).click();
+  await page.waitForFunction(() => !!window.__gameData?.ppeRoomZone);
+  const zone = await page.evaluate(() => window.__gameData.ppeRoomZone);
+  expect(zone).toEqual({ x: 44, y: 294, width: 280, height: 220 });
+});
+
+test('BSL room zones have correct positions and sizes', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+  await page.getByRole('button', { name: 'Start Game' }).click();
+  await page.waitForFunction(() => !!window.__gameData?.bslRoomZones);
+  const zones = await page.evaluate(() => window.__gameData.bslRoomZones);
+  expect(zones).toHaveLength(4);
+  expect(zones[0]).toEqual({ key: 'BSL-1', x: 92,  y: 550, width: 220, height: 140 });
+  expect(zones[1]).toEqual({ key: 'BSL-2', x: 384, y: 550, width: 220, height: 140 });
+  expect(zones[2]).toEqual({ key: 'BSL-3', x: 676, y: 550, width: 220, height: 140 });
+  expect(zones[3]).toEqual({ key: 'BSL-4', x: 968, y: 550, width: 220, height: 140 });
+});

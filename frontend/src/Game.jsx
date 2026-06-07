@@ -7,6 +7,7 @@ const Game = () => {
   useLayoutEffect(() => {
     if (gameRef.current) { return; }
     gameRef.current = StartGame('game-container');
+    window.__phaserGame = gameRef.current;
 
     return () => {
       gameRef.current?.destroy(true);
