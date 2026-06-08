@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import App from '../src/App'
 
 global.fetch = jest.fn(() =>
@@ -35,4 +36,26 @@ describe('Start button', () => {
       screen.queryByRole('button', { name: /start game/i })
     ).not.toBeInTheDocument()
   })
+})
+
+jest.mock('../game/main', () => jest.fn(() => ({ destroy: jest.fn() })))
+
+test('lecture panel is hidden before entering lecture room', () => {
+  render(<App />)
+  fireEvent.click(screen.getByRole('button', { name: 'Start Game' }))
+  expect(screen.getByTestId('lecture-panel')).not.toBeVisible()
+})
+
+test('lecture-room-entered event shows the lecture panel', () => {
+  render(<App />)
+  fireEvent.click(screen.getByRole('button', { name: 'Start Game' }))
+  act(() => window.dispatchEvent(new Event('lecture-room-entered')))
+  expect(screen.getByTestId('lecture-panel')).toBeVisible()
+})
+
+test('lecture panel shows the title', () => {
+  render(<App />);
+  fireEvent.click(screen.getByRole('button', { name: 'Start Game' }))
+  act(() => window.dispatchEvent(new Event('lecture-room-entered')))
+  expect(screen.getByRole('heading')).toHaveTextContent('Luento-materiaali')
 })
