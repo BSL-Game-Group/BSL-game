@@ -59,3 +59,14 @@ test('lecture panel shows the title', () => {
   act(() => window.dispatchEvent(new Event('lecture-room-entered')))
   expect(screen.getByRole('heading')).toHaveTextContent('Luento-materiaali')
 })
+
+test('lecture panel contains material links', () => {
+  render(<App />)
+  fireEvent.click(screen.getByRole('button', { name: 'Start Game' }))
+  act(() => window.dispatchEvent(new Event('lecture-room-entered')))
+  const links = screen.getAllByRole('link')
+  expect(links).toHaveLength(3)
+  expect(links[0]).toHaveAttribute('href', 'https://consteril.com/biosafety-levels-difference/')
+  expect(links[1]).toHaveAttribute('href', 'https://www.ncbi.nlm.nih.gov/books/NBK535351/')
+  expect(links[2]).toHaveAttribute('href', 'https://www.sciencedirect.com/science/chapter/monograph/pii/B9780128092316000119')
+})
