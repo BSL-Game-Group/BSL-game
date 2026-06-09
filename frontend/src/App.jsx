@@ -18,24 +18,22 @@ function App() {
   }, [])
 
   return (
-    <div style={{ display: 'flex'}}>
-      <div
-        data-testid="lecture-panel"
-        style={{ display: lectureOpen ? 'block' : 'none', width: 220, alignItems: 'flex-start'  }}
-      >
-        <h2>Luento-materiaali</h2>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', paddingTop: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', paddingTop: '24px' }}>
       <p>BSL-game frontend</p>
 
       {!gameStarted ? (
-        <button onClick={() => setGameStarted(true)}>
-          Start Game
-        </button>
+        <button onClick={() => setGameStarted(true)}>Start Game</button>
       ) : (
-        <Game />
+        <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+          <div
+            data-testid="lecture-panel"
+            style={{ display: lectureOpen ? 'block' : 'none', width: 220 }}
+          >
+            <h2>Luento-materiaali</h2>
+          </div>
+          <Game />
+        </div>
       )}
-    </div>
     </div>
   )
 }
