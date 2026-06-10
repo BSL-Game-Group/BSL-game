@@ -24,7 +24,7 @@ class MainScene extends Phaser.Scene {
 
         this.physics.world.setBounds(20, 20, 1240, 680);
 
-        this.player = this.physics.add.sprite(640, 500, 'player');
+        this.player = this.physics.add.sprite(700, 300, 'player');
         this.player.setCollideWorldBounds(true);
         this.cursors = this.input.keyboard.createCursorKeys();
         this.player.setScale(0.3);

@@ -62,7 +62,7 @@ test('lecture room zone has correct position and size', async ({ page }) => {
   await page.getByRole('button', { name: 'Start Game' }).click();
   await page.waitForFunction(() => !!window.__gameData?.lectureRoomZone);
   const zone = await page.evaluate(() => window.__gameData.lectureRoomZone);
-  expect(zone).toEqual({ x: 44, y: 44, width: 280, height: 220 });
+  expect(zone).toEqual({ x: 30, y: 30, width: 280, height: 250 });
 });
 
 test('PPE room zone has correct position and size', async ({ page }) => {
@@ -70,7 +70,7 @@ test('PPE room zone has correct position and size', async ({ page }) => {
   await page.getByRole('button', { name: 'Start Game' }).click();
   await page.waitForFunction(() => !!window.__gameData?.ppeRoomZone);
   const zone = await page.evaluate(() => window.__gameData.ppeRoomZone);
-  expect(zone).toEqual({ x: 44, y: 294, width: 280, height: 220 });
+  expect(zone).toEqual({ x: 30, y: 440, width: 280, height: 250 });
 });
 
 test('BSL room zones have correct positions and sizes', async ({ page }) => {
@@ -79,8 +79,8 @@ test('BSL room zones have correct positions and sizes', async ({ page }) => {
   await page.waitForFunction(() => !!window.__gameData?.bslRoomZones);
   const zones = await page.evaluate(() => window.__gameData.bslRoomZones);
   expect(zones).toHaveLength(4);
-  expect(zones[0]).toEqual({ key: 'BSL-1', x: 92,  y: 550, width: 220, height: 140 });
-  expect(zones[1]).toEqual({ key: 'BSL-2', x: 384, y: 550, width: 220, height: 140 });
-  expect(zones[2]).toEqual({ key: 'BSL-3', x: 676, y: 550, width: 220, height: 140 });
-  expect(zones[3]).toEqual({ key: 'BSL-4', x: 968, y: 550, width: 220, height: 140 });
+  expect(zones[0]).toEqual({ key: 'BSL-1', x: 330, y: 500, width: 200, height: 150 });
+  expect(zones[1]).toEqual({ key: 'BSL-2', x: 550, y: 500, width: 200, height: 150 });
+  expect(zones[2]).toEqual({ key: 'BSL-3', x: 770, y: 500, width: 200, height: 150 });
+  expect(zones[3]).toEqual({ key: 'BSL-4', x: 990, y: 500, width: 200, height: 150 });
 });
