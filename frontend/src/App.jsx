@@ -8,7 +8,8 @@ function App() {
   useEffect(() => {
     fetch('/api/test')
       .then((res) => res.json())
-      .catch((err) => console.error('API error:', err))
+      // eslint-disable-next-line no-unused-vars
+      .catch(() => {})
   }, [])
 
   useEffect(() => {

@@ -74,10 +74,10 @@ function drawPPERoom(scene) {
         .setOrigin(0.5);
 
     // Add closet button in upper left corner
-    const closetButton = scene.add.rectangle(left + 35, top + 60, 60, 90, 0xcccccc)
+    scene.add.rectangle(left + 35, top + 60, 60, 90, 0xcccccc)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-            console.log('Closet button clicked');
+            // TODO: Open closet popup window
         });
     
     // Add glow effect to indicate button is clickable

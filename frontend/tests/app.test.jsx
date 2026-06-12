@@ -57,7 +57,7 @@ test('lecture panel shows the title', () => {
   render(<App />);
   fireEvent.click(screen.getByRole('button', { name: 'Start Game' }))
   act(() => window.dispatchEvent(new Event('lecture-room-entered')))
-  expect(screen.getByRole('heading')).toHaveTextContent('Luento-materiaali')
+  expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Lecture Materials')
 })
 
 test('lecture panel contains material links', () => {

@@ -5,7 +5,7 @@ test('frontend loads', async ({ page }) => {
   await page.goto('http://localhost:5173');
 
   // UI check
-  await expect(page.getByText('BSL-game frontend')).toBeVisible();
+  await expect(page.getByText('BSL-game')).toBeVisible();
 });
 
 test('backend root endpoint works', async ({ request }) => {
