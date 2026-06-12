@@ -35,7 +35,7 @@ function drawLectureRoom(scene) {
     g.strokePath();
 
     scene.add
-        .text(cx, cy, 'Luento', { color: COLORS.text, fontSize: '14px' })
+        .text(cx, cy, 'lecture', { color: COLORS.text, fontSize: '14px' })
         .setOrigin(0.5);
 
     const t = 4;
@@ -70,8 +70,35 @@ function drawPPERoom(scene) {
     g.strokePath();
 
     scene.add
-        .text(cx, cy, 'Pukeutumishuone', { color: COLORS.text, fontSize: '14px' })
+        .text(cx, cy, 'Dressing room', { color: COLORS.text, fontSize: '14px' })
         .setOrigin(0.5);
+
+    // Add closet button in upper left corner
+    const closetButton = scene.add.rectangle(left + 35, top + 60, 60, 90, 0xcccccc)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+            console.log('Closet button clicked');
+        });
+    
+    // Add glow effect to indicate button is clickable
+    const glow = scene.add.graphics();
+    glow.lineStyle(3, 0xffff00);
+    glow.strokeCircle(left + 35, top + 60, 55);
+    glow.setAlpha(1.0);
+    
+    // Pulsate glow effect
+    scene.tweens.add({
+        targets: [glow],
+        alpha: { from: 1.0, to: 0.3 },
+        duration: 1500,
+        yoyo: true,
+        repeat: -1
+    });
+    
+    scene.add
+        .image(left + 35, top + 60, 'dresser')
+        .setOrigin(0.5)
+        .setScale(1.5);
 
     const t = 4;
     scene.ppeRoomZone = { x: left, y: top, width: w, height: h };

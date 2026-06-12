@@ -17,6 +17,7 @@ class MainScene extends Phaser.Scene {
 
     preload() {
         this.load.image('player', 'assets/player.png');
+        this.load.image('dresser', 'assets/dresser.png');
     }
 
     create() {

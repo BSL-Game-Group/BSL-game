@@ -19,7 +19,7 @@ function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', paddingTop: '24px' }}>
-      <p>BSL-game frontend</p>
+      <h1>BSL-game</h1>
 
       {!gameStarted ? (
         <button onClick={() => setGameStarted(true)}>Start Game</button>
@@ -29,7 +29,7 @@ function App() {
             data-testid="lecture-panel"
             style={{ display: lectureOpen ? 'block' : 'none', width: 220 }}
           >
-            <h2>Luento-materiaali</h2>
+            <h2>Lecture Materials</h2>
             <ul>
               <li><a href="https://consteril.com/biosafety-levels-difference/" target="_blank" rel="noreferrer">Biosafety Levels – Consteril</a></li>
               <li><a href="https://www.ncbi.nlm.nih.gov/books/NBK535351/" target="_blank" rel="noreferrer">Biosafety in Microbiological Laboratories – NCBI</a></li>
