@@ -77,7 +77,7 @@ function drawPPERoom(scene) {
     scene.add.rectangle(left + 35, top + 60, 60, 90, 0xcccccc)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-            // TODO: Open closet popup window
+            window.dispatchEvent(new Event('closet-popup-opened'))
         });
     
     // Add glow effect to indicate button is clickable
