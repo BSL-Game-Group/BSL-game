@@ -75,7 +75,7 @@ function drawPPERoom(scene) {
 
     // Add closet button in upper left corner (invisible initially)
     scene.closetButton = scene.add.rectangle(left + 35, top + 60, 50, 70, 0xcccccc);
-    scene.closetButton.setFillStyle(0xcccccc, 0); // fully transparent fill
+    scene.closetButton.setFillStyle(0xcccccc, 0);
     scene.closetButton.setVisible(false);
     
     // Add glow effect to indicate button is clickable (hidden initially)
@@ -89,7 +89,7 @@ function drawPPERoom(scene) {
     // Pulsate glow effect (brighter pulse)
     scene.closetGlowTween = scene.tweens.add({
         targets: [scene.closetGlow],
-        alpha: { from: 1.0, to: 0.3 }, // higher minimum brightness
+        alpha: { from: 1.0, to: 0.3 },
         duration: 1000,
         yoyo: true,
         repeat: -1
