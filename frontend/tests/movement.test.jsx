@@ -15,7 +15,6 @@ jest.mock('../src/game/scenes/rooms', () => ({
   createRooms: jest.fn(() => ({})),
 }));
 
-
 describe('Player movement', () => {
   let scene;
 
@@ -47,6 +46,10 @@ describe('Player movement', () => {
     scene.physics = {
       moveToObject: jest.fn(),
     };
+    
+    scene.playArea = {
+      contains: jest.fn(() => true),
+    };
   });
 
   test('moves left with keyboard', () => {
@@ -59,7 +62,8 @@ describe('Player movement', () => {
 
   test('moves right with keyboard', () => {
     scene.cursors.right.isDown = true;
-scene.update();
+
+    scene.update();
 
     expect(scene.player.setVelocityX).toHaveBeenCalledWith(160);
   });
@@ -93,6 +97,8 @@ scene.update();
   });
 
   test('does not move if mouse click is too close', () => {
+    scene.playArea.contains.mockReturnValue(true);
+
     scene.input.activePointer = {
       x: 645,
       y: 505,

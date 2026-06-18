@@ -9,9 +9,6 @@ function App() {
 
   useEffect(() => {
     fetch('/api/test')
-      .then((res) => res.json())
-      // eslint-disable-next-line no-unused-vars
-      .catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -31,7 +28,7 @@ function App() {
       <h1>BSL-game</h1>
 
       {!gameStarted ? (
-        <button onClick={() => setGameStarted(true)}>Start Game</button>
+        <button onClick={() => setGameStarted(true)} style={{ cursor: 'pointer' }}>Start Game</button>
       ) : (
         <div style={{ display: 'flex', alignItems: 'flex-start' }}>
           <div
