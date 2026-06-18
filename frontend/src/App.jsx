@@ -5,6 +5,7 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false)
   const [lectureOpen, setLectureOpen] = useState(false)
   const [linksVisible, setLinksVisible] = useState(true)
+  const [isPopupOpen, setPopupOpen] = useState(false);
 
   useEffect(() => {
     fetch('/api/test')
@@ -17,6 +18,12 @@ function App() {
     const handler = () => setLectureOpen(true)
     window.addEventListener('lecture-room-entered', handler)
     return () => window.removeEventListener('lecture-room-entered', handler)
+  }, [])
+
+  useEffect(() => {
+    const handleClosetClick = () => setPopupOpen(true)
+    window.addEventListener('closet-popup-opened', handleClosetClick)
+    return () => window.removeEventListener('closet-popup-opened', handleClosetClick)
   }, [])
 
   return (
@@ -33,7 +40,7 @@ function App() {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <h2 style={{ margin: 0 }}>Lecture Materials</h2>
-              <button onClick={() => setLinksVisible(!linksVisible)} style={{ marginLeft: '8px', fontSize: '0.9rem' }}>
+              <button onClick={() => setLinksVisible(!linksVisible)} style={{ marginLeft: '8px', fontSize: '0.9rem', cursor: 'pointer' }}>
                 {linksVisible ? 'Hide' : 'Show'}
               </button>
             </div>
@@ -45,7 +52,40 @@ function App() {
               </ul>
             )}
           </div>
-          <Game />
+
+          <div style={{ position: 'relative' }}>
+            {isPopupOpen && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                zIndex: 1000,
+              }}>
+                <div style={{
+                  background: '#fff',
+                  padding: '32px',
+                  borderRadius: '12px',
+                  width: '80%',
+                  maxWidth: '820px',
+                  minHeight: '520px',
+                  boxShadow: '0 16px 48px rgba(0, 0, 0, 0.25)',
+                  position: 'relative',
+                }}>
+                  <button onClick={() => setPopupOpen(false)} style={{ position: 'absolute', top: '12px', right: '12px', padding: '8px 16px', backgroundColor: '#c51a1a', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}>
+                    Close
+                  </button>
+                  <p>Choose equipment for BSL Laboratory</p>
+                </div>
+              </div>
+            )}
+            <Game />
+          </div>
         </div>
       )}
     </div>
