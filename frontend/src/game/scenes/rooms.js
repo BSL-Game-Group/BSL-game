@@ -73,32 +73,35 @@ function drawPPERoom(scene) {
         .text(cx, cy, 'Dressing room', { color: COLORS.text, fontSize: '14px' })
         .setOrigin(0.5);
 
-    // Add closet button in upper left corner
-    scene.add.rectangle(left + 35, top + 60, 60, 90, 0xcccccc)
-        .setInteractive({ useHandCursor: true })
-        .on('pointerdown', () => {
-            window.dispatchEvent(new Event('closet-popup-opened'))
-        });
+    // Add closet button in upper left corner (invisible initially)
+    scene.closetButton = scene.add.rectangle(left + 35, top + 60, 50, 70, 0xcccccc);
+    scene.closetButton.setFillStyle(0xcccccc, 0); // fully transparent fill
+    scene.closetButton.setVisible(false);
     
-    // Add glow effect to indicate button is clickable
-    const glow = scene.add.graphics();
-    glow.lineStyle(3, 0xffff00);
-    glow.strokeCircle(left + 35, top + 60, 55);
-    glow.setAlpha(1.0);
+    // Add glow effect to indicate button is clickable (hidden initially)
+    scene.closetGlow = scene.add.graphics();
+    scene.closetGlow.fillStyle(0xffff00, 0.8); // fill circle with yellow
+    scene.closetGlow.fillCircle(left + 35, top + 60, 55);
+    scene.closetGlow.lineStyle(3, 0xffff00); // bright yellow outline
+    scene.closetGlow.strokeCircle(left + 35, top + 60, 55);
+    scene.closetGlow.setVisible(false);
     
-    // Pulsate glow effect
-    scene.tweens.add({
-        targets: [glow],
-        alpha: { from: 1.0, to: 0.3 },
-        duration: 1500,
+    // Pulsate glow effect (brighter pulse)
+    scene.closetGlowTween = scene.tweens.add({
+        targets: [scene.closetGlow],
+        alpha: { from: 1.0, to: 0.3 }, // higher minimum brightness
+        duration: 1000,
         yoyo: true,
         repeat: -1
     });
+    scene.closetGlowTween.pause();
     
-    scene.add
+    // Add dresser image (hidden initially)
+    scene.closetImage = scene.add
         .image(left + 35, top + 60, 'dresser')
         .setOrigin(0.5)
-        .setScale(1.5);
+        .setScale(1.5)
+        .setVisible(false);
 
     const t = 4;
     scene.ppeRoomZone = { x: left, y: top, width: w, height: h };

@@ -33,6 +33,7 @@ class MainScene extends Phaser.Scene {
         this.physics.add.collider(this.player, walls);
 
         this.playerInsideLectureRoom = false;
+        this.playerInsideDressingRoom = false;
     }
 
     update() {
@@ -67,6 +68,42 @@ class MainScene extends Phaser.Scene {
                 this.playerInsideLectureRoom = true;
             } else if (!inside) {
                 this.playerInsideLectureRoom = false;
+            }
+        }
+
+        // Show/hide closet button and glow based on dressing room presence
+        if (this.ppeRoomZone) {
+            const inside = playerIsInsideZone(this.player, this.ppeRoomZone);
+            if (inside && !this.playerInsideDressingRoom) {
+                // Show closet elements
+                if (this.closetImage) this.closetImage.setVisible(true);
+                if (this.closetGlow) {
+                    this.closetGlow.setVisible(true);
+                    if (this.closetGlowTween) this.closetGlowTween.resume();
+                }
+                if (this.closetButton) {
+                    this.closetButton.setVisible(true);
+                    this.closetButton.setInteractive({ useHandCursor: true });
+                    if (!this.closetButtonHandlerAdded) {
+                        this.closetButton.on('pointerdown', () => {
+                            window.dispatchEvent(new Event('closet-popup-opened'));
+                        });
+                        this.closetButtonHandlerAdded = true;
+                    }
+                }
+                this.playerInsideDressingRoom = true;
+            } else if (!inside && this.playerInsideDressingRoom) {
+                // Hide closet elements
+                if (this.closetImage) this.closetImage.setVisible(false);
+                if (this.closetGlow) {
+                    this.closetGlow.setVisible(false);
+                    if (this.closetGlowTween) this.closetGlowTween.pause();
+                }
+                if (this.closetButton) {
+                    this.closetButton.setVisible(false);
+                    this.closetButton.disableInteractive();
+                }
+                this.playerInsideDressingRoom = false;
             }
         }
     }
