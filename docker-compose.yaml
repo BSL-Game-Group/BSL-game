@@ -14,10 +14,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      DB_HOST: postgres
-      DB_USER: bsluser
-      DB_PASSWORD: bslpassword
-      DB_NAME: bsldb
+      DB_URL: postgresql://bsluser:bslpassword@postgres:5432/bsldb
     depends_on:
       - postgres
 

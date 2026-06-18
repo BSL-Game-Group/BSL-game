@@ -11,11 +11,7 @@ app.use(cors({
 app.use(express.json())
 
 const pool = new Pool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: 5432
+  connectionString: process.env.DB_URL
 })
 
 app.get('/', (req, res) => {
