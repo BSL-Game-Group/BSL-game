@@ -23,6 +23,25 @@ docker compose down
 ```
 Frontend is reachable at: [http://localhost:5173/](http://localhost:5173/) and backend at: [http://localhost:3001/](http://localhost:3001/)
 
+### Database
+
+The backend uses Sequelize against PostgreSQL. Schema lives in `backend/migrations/`, seed data in `backend/seeders/`.
+
+First-time setup (Postgres must be running — `docker compose up -d postgres`):
+```bash
+cd backend
+npx sequelize-cli db:migrate     # create tables
+npx sequelize-cli db:seed:all    # load BSL classes + 60 organisms
+```
+
+Data persists in the `postgres_data` Docker volume across restarts. To wipe and start fresh:
+```bash
+docker compose down -v && docker compose up -d postgres
+cd backend && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all
+```
+
+Read endpoints: `GET /api/bsl-classes`, `GET /api/microbes`, `GET /api/microbes/:id`.
+
 ### Testing
 
 Install dependencies:
