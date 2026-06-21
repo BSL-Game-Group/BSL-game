@@ -17,7 +17,12 @@ const sequelize = new Sequelize(
 );
 
 const BSLClass = require('./bslclass')(sequelize, DataTypes);
+const Microbe = require('./microbe')(sequelize, DataTypes);
 
-const db = { sequelize, Sequelize, BSLClass };
+// A microbe belongs to one BSL class; a class has many microbes.
+Microbe.belongsTo(BSLClass, { foreignKey: 'bsl_level', targetKey: 'class_number', as: 'bsl_class' });
+BSLClass.hasMany(Microbe, { foreignKey: 'bsl_level', sourceKey: 'class_number', as: 'microbes' });
+
+const db = { sequelize, Sequelize, BSLClass, Microbe };
 
 module.exports = db;

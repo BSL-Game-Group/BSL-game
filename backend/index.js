@@ -34,6 +34,34 @@ app.get('/api/bsl-classes', async (req, res) => {
   }
 })
 
+app.get('/api/microbes', async (req, res) => {
+  try {
+    const microbes = await db.Microbe.findAll({
+      include: { model: db.BSLClass, as: 'bsl_class' },
+      order: [['id', 'ASC']],
+    })
+    res.json(microbes)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Failed to fetch microbes' })
+  }
+})
+
+app.get('/api/microbes/:id', async (req, res) => {
+  try {
+    const microbe = await db.Microbe.findByPk(req.params.id, {
+      include: { model: db.BSLClass, as: 'bsl_class' },
+    })
+    if (!microbe) {
+      return res.status(404).json({ error: 'Microbe not found' })
+    }
+    res.json(microbe)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Failed to fetch microbe' })
+  }
+})
+
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
