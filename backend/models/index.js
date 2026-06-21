@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
 const configByEnv = require('../config/config');
 
 const env = process.env.NODE_ENV || 'development';
@@ -16,6 +16,8 @@ const sequelize = new Sequelize(
   }
 );
 
-const db = { sequelize, Sequelize };
+const BSLClass = require('./bslclass')(sequelize, DataTypes);
+
+const db = { sequelize, Sequelize, BSLClass };
 
 module.exports = db;

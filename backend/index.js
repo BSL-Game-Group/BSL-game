@@ -24,6 +24,16 @@ app.get('/api/test', async (req, res) => {
   }
 })
 
+app.get('/api/bsl-classes', async (req, res) => {
+  try {
+    const classes = await db.BSLClass.findAll({ order: [['class_number', 'ASC']] })
+    res.json(classes)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Failed to fetch BSL classes' })
+  }
+})
+
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
