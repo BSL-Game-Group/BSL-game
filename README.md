@@ -55,6 +55,11 @@ Run tests with UI:
 npm run test:ui
 ```
 
+Backend unit tests (run from the repo root, no database required):
+```bash
+npm --prefix backend test
+```
+
 ## Work Management
 [Backlog](https://docs.google.com/spreadsheets/d/1bEsBqh-Pxz0nya1yIio4sEbJgoIu545pj67PdxWBZqk/edit?pli=1&gid=215085718#gid=215085718)
 
