@@ -16,6 +16,16 @@ spec:
       labels:
         app: bsl-backend
     spec:
+      initContainers:
+        - name: db-init
+          image: bsl-backend-service:staging
+          command: ["npm", "run", "db:init"]
+          env:
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: bsl-backend-secret
+                  key: DB_URL
       containers:
         - name: bsl-backend
           image: bsl-backend-service:staging
