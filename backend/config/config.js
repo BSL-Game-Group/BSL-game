@@ -1,17 +1,5 @@
-const parseDbUrl = (url) => {
-  const u = new URL(url);
-  return {
-    username: u.username,
-    password: u.password,
-    database: u.pathname.slice(1),
-    host: u.hostname,
-    port: Number(u.port) || 5432,
-    dialect: 'postgres',
-  };
-};
-
 const common = process.env.DB_URL
-  ? parseDbUrl(process.env.DB_URL)
+  ? { url: process.env.DB_URL, dialect: 'postgres' }
   : {
       username: process.env.DB_USER || 'bsluser',
       password: process.env.DB_PASSWORD || 'bslpassword',
