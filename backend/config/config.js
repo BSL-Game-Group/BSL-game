@@ -1,5 +1,19 @@
-const common = process.env.DB_URL
-  ? { url: process.env.DB_URL, dialect: 'postgres', seederStorage: 'sequelize' }
+const url = process.env.DB_URL;
+
+// sequelize-cli drops the URL's `?ssl=true` query param, so TLS must be set
+// explicitly here — but only when the URL actually requests it, so the local
+// (non-TLS) Postgres in docker-compose is left untouched.
+const useSsl = !!url && /[?&]ssl=true/i.test(url);
+
+const common = url
+  ? {
+      url,
+      dialect: 'postgres',
+      seederStorage: 'sequelize',
+      ...(useSsl && {
+        dialectOptions: { ssl: { require: true, rejectUnauthorized: true } },
+      }),
+    }
   : {
       username: process.env.DB_USER || 'bsluser',
       password: process.env.DB_PASSWORD || 'bslpassword',
