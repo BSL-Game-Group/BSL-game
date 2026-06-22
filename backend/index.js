@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { Pool } = require('pg')
+const db = require('./models')
 
 const app = express()
 
@@ -10,25 +10,55 @@ app.use(cors({
 
 app.use(express.json())
 
-const pool = new Pool({
-  connectionString: process.env.DB_URL
-})
-
 app.get('/', (req, res) => {
   res.send('Backend is running')
 })
 
 app.get('/api/test', async (req, res) => {
   try {
-    const result = await pool.query('SELECT NOW()')
-
-    res.json({
-      message: 'Database connection works',
-      time: result.rows[0]
-    })
+    const result = await db.sequelize.query('SELECT NOW() AS time')
+    res.json({ message: 'Database connection works', time: result[0][0].time })
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: 'Database connection failed' })
+  }
+})
+
+app.get('/api/bsl-classes', async (req, res) => {
+  try {
+    const classes = await db.BSLClass.findAll({ order: [['class_number', 'ASC']] })
+    res.json(classes)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Failed to fetch BSL classes' })
+  }
+})
+
+app.get('/api/microbes', async (req, res) => {
+  try {
+    const microbes = await db.Microbe.findAll({
+      include: { model: db.BSLClass, as: 'bsl_class' },
+      order: [['id', 'ASC']],
+    })
+    res.json(microbes)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Failed to fetch microbes' })
+  }
+})
+
+app.get('/api/microbes/:id', async (req, res) => {
+  try {
+    const microbe = await db.Microbe.findByPk(req.params.id, {
+      include: { model: db.BSLClass, as: 'bsl_class' },
+    })
+    if (!microbe) {
+      return res.status(404).json({ error: 'Microbe not found' })
+    }
+    res.json(microbe)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Failed to fetch microbe' })
   }
 })
 
