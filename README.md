@@ -13,7 +13,7 @@ Start application if you have made changes to the code:
 ```bash
 docker compose up --build -d
 ```
-Otherwise start application:
+Otherwise, start application:
 ```bash
 docker compose up -d
 ```
@@ -46,7 +46,12 @@ Install dependencies:
 ```bash
 npm install
 ```
-Run tests:
+start the game:
+```bash
+docker compose up --build -d
+```
+
+Run  end-to-end tests:
 ```bash
 npm test
 ```
@@ -54,6 +59,11 @@ Run tests with UI:
 ```bash
 npm run test:ui
 ```
+frontend tests:
+```bash
+npm --prefix frontend test
+```
+
 
 ## Work Management
 [Backlog](https://docs.google.com/spreadsheets/d/1bEsBqh-Pxz0nya1yIio4sEbJgoIu545pj67PdxWBZqk/edit?pli=1&gid=215085718#gid=215085718)
