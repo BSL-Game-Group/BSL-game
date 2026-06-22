@@ -1,5 +1,5 @@
 const common = process.env.DB_URL
-  ? { url: process.env.DB_URL, dialect: 'postgres' }
+  ? { url: process.env.DB_URL, dialect: 'postgres', seederStorage: 'sequelize' }
   : {
       username: process.env.DB_USER || 'bsluser',
       password: process.env.DB_PASSWORD || 'bslpassword',
@@ -7,6 +7,7 @@ const common = process.env.DB_URL
       host: process.env.DB_HOST || 'localhost',
       port: Number(process.env.DB_PORT) || 5432,
       dialect: 'postgres',
+      seederStorage: 'sequelize',
     };
 
 module.exports = {

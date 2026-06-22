@@ -27,17 +27,15 @@ Frontend is reachable at: [http://localhost:5173/](http://localhost:5173/) and b
 
 The backend uses Sequelize against PostgreSQL. Schema lives in `backend/migrations/`, seed data in `backend/seeders/`.
 
-First-time setup (Postgres must be running — `docker compose up -d postgres`):
+Migrations and seeders run **automatically** when the stack starts: a one-off `migrate` service runs `npm run db:init` (`db:migrate && db:seed:all`) once Postgres is healthy, and the backend starts only after it finishes. Re-runs are safe — already-applied migrations and seeders are skipped.
+
 ```bash
-cd backend
-npx sequelize-cli db:migrate     # create tables
-npx sequelize-cli db:seed:all    # load BSL classes + 60 organisms
+docker compose up -d            # postgres → migrate (auto) → backend → frontend
 ```
 
-Data persists in the `postgres_data` Docker volume across restarts. To wipe and start fresh:
+Data persists in the `postgres_data` Docker volume across restarts. To wipe and re-seed from scratch:
 ```bash
-docker compose down -v && docker compose up -d postgres
-cd backend && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all
+docker compose down -v && docker compose up -d
 ```
 
 Read endpoints: `GET /api/bsl-classes`, `GET /api/microbes`, `GET /api/microbes/:id`.

@@ -5,7 +5,10 @@
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:seed": "sequelize-cli db:seed:all",
+    "db:init": "sequelize-cli db:migrate && sequelize-cli db:seed:all"
   },
   "author": "BSL-game group",
   "license": "MIT",
