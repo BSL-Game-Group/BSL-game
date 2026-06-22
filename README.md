@@ -59,7 +59,7 @@ Run tests with UI:
 ```bash
 npm run test:ui
 ```
-frontend tests:
+frontend unit tests (run from the repo root):
 ```bash
 npm --prefix frontend test
 ```
