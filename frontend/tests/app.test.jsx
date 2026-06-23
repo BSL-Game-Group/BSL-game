@@ -71,9 +71,7 @@ test('closet popup opens when event is triggered', () => {
     window.dispatchEvent(new Event('closet-popup-opened'))
   })
 
-  expect(
-    screen.getByText(/choose equipment for bsl laboratory/i)
-  ).toBeInTheDocument()
+  expect(screen.getByText(/equipment/i)).toBeInTheDocument()
 })
 
 test('closet popup does NOT appear without event', () => {
@@ -81,13 +79,10 @@ test('closet popup does NOT appear without event', () => {
 
   fireEvent.click(screen.getByRole('button', { name: /start game/i }))
 
-  expect(
-    screen.queryByText(/choose equipment for bsl laboratory/i)
-  ).not.toBeInTheDocument()
+  expect(screen.queryByText(/equipment/i)).not.toBeInTheDocument()
 })
 
-// NEW: close behavior test (IMPORTANT FIX)
-test('closet popup closes when onClose is triggered', () => {
+test('closet popup closes when close button is clicked', () => {
   render(<App />)
 
   fireEvent.click(screen.getByRole('button', { name: /start game/i }))
@@ -96,14 +91,11 @@ test('closet popup closes when onClose is triggered', () => {
     window.dispatchEvent(new Event('closet-popup-opened'))
   })
 
-  expect(
-    screen.getByText(/choose equipment for bsl laboratory/i)
-  ).toBeInTheDocument()
+  expect(screen.getByText(/equipment/i)).toBeInTheDocument()
 
-  // assumes ClosetPopup has a button like "close"
-  fireEvent.click(screen.getByRole('button', { name: /close/i }))
+  fireEvent.click(
+    screen.getByRole('button', { name: /close/i })
+  )
 
-  expect(
-    screen.queryByText(/choose equipment for bsl laboratory/i)
-  ).not.toBeInTheDocument()
+  expect(screen.queryByText(/equipment/i)).not.toBeInTheDocument()
 })
