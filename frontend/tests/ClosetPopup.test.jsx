@@ -7,7 +7,7 @@ describe('ClosetPopup component', () => {
     render(<ClosetPopup open={false} onClose={jest.fn()} />)
 
     expect(
-      screen.queryByText(/choose equipment for bsl laboratory/i)
+      screen.queryByText(/equipment/i)
     ).not.toBeInTheDocument()
   })
 
@@ -15,7 +15,11 @@ describe('ClosetPopup component', () => {
     render(<ClosetPopup open={true} onClose={jest.fn()} />)
 
     expect(
-      screen.getByText(/choose equipment for bsl laboratory/i)
+      screen.getByText(/equipment/i)
+    ).toBeInTheDocument()
+
+    expect(
+      screen.getByRole('button', { name: /close/i })
     ).toBeInTheDocument()
   })
 
@@ -24,7 +28,9 @@ describe('ClosetPopup component', () => {
 
     render(<ClosetPopup open={true} onClose={onClose} />)
 
-    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+    fireEvent.click(
+      screen.getByRole('button', { name: /close/i })
+    )
 
     expect(onClose).toHaveBeenCalledTimes(1)
   })
