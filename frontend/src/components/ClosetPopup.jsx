@@ -49,5 +49,5 @@ function ClosetPopup({ open, onClose }) {
     </div>
   )
 }
-
+ 
 export default ClosetPopup
