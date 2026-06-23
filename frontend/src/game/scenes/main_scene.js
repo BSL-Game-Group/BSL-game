@@ -32,11 +32,34 @@ class MainScene extends Phaser.Scene {
         this.player.setCollideWorldBounds(true);
         this.cursors = this.input.keyboard.createCursorKeys();
         this.player.setScale(0.3);
+        this.keyE = this.input.keyboard.addKey(
+            Phaser.Input.Keyboard.KeyCodes.E
+        );
+        this.pressEText = this.add.text(0, 0, "Press E to open", {
+            fontSize: "14px",
+            backgroundColor: "#000",
+            color: "#fff",
+            padding: { x: 6, y: 3 }
+        }).setDepth(1000).setVisible(false);
 
         this.physics.add.collider(this.player, walls);
 
         this.playerInsideLectureRoom = false;
         this.playerInsideDressingRoom = false;
+        this.closetHint = this.add.text(0, 0, "Open Closet", {
+            fontSize: "14px",
+            backgroundColor: "#222222",
+            color: "#ffffff",
+            padding: {
+                left: 6,
+                right: 6,
+                top: 3,
+                bottom: 3
+            }
+        });
+
+        this.closetHint.setDepth(1000);
+        this.closetHint.setVisible(false);
     }
 
     update() {
@@ -57,6 +80,9 @@ class MainScene extends Phaser.Scene {
         }
 
         const pointer = this.input.activePointer;
+        if (this.closetImage && this.closetHint.visible) {
+            this.closetHint.setPosition(pointer.x + 15, pointer.y + 15);
+        }
 
         if (
             pointer.isDown &&
@@ -93,6 +119,7 @@ class MainScene extends Phaser.Scene {
             if (inside && !this.playerInsideDressingRoom) {
                 if (this.closetImage) {
                     this.closetImage.setVisible(true);
+                    this.closetImage.setInteractive({useHandCursor: true});
                 }
 
                 if (this.closetGlow) {
@@ -103,31 +130,11 @@ class MainScene extends Phaser.Scene {
                     }
                 }
 
-                if (this.closetButton) {
-                    this.closetButton.setVisible(true);
-                    this.closetButton.setInteractive({ useHandCursor: true });
-
-                    if (!this.closetButtonHandlerAdded) {
-                        this.closetButton.on(
-                            'pointerdown',
-                            (pointer, localX, localY, event) => {
-                                event.stopPropagation();
-                                this.player.body.setVelocity(0);
-
-                                window.dispatchEvent(
-                                    new Event('closet-popup-opened')
-                                );
-                            }
-                        );
-
-                        this.closetButtonHandlerAdded = true;
-                    }
-                }
-
                 this.playerInsideDressingRoom = true;
             } else if (!inside && this.playerInsideDressingRoom) {
                 if (this.closetImage) {
                     this.closetImage.setVisible(false);
+                    this.closetImage.disableInteractive();
                 }
 
                 if (this.closetGlow) {
@@ -138,12 +145,45 @@ class MainScene extends Phaser.Scene {
                     }
                 }
 
-                if (this.closetButton) {
-                    this.closetButton.setVisible(false);
-                    this.closetButton.disableInteractive();
-                }
 
                 this.playerInsideDressingRoom = false;
+            }
+
+            // Open with E
+            if (
+                inside &&
+                Phaser.Input.Keyboard.JustDown(this.keyE)
+            ) {
+                window.dispatchEvent(new Event('closet-popup-opened'));
+            }
+            const closetCenter = this.closetZone
+                ? {
+                    x: this.closetZone.x + 35,
+                    y: this.closetZone.y + 60
+                }
+                : null;
+
+            if (closetCenter) {
+                const dist = Phaser.Math.Distance.Between(
+                    this.player.x,
+                    this.player.y,
+                    closetCenter.x,
+                    closetCenter.y
+                );
+
+                const closeEnough = dist < 90;
+
+                if (closeEnough) {
+                    this.pressEText.setVisible(true);
+                    this.pressEText.setPosition(
+                        closetCenter.x - 40,
+                        closetCenter.y - 80
+                    );
+                } else {
+                    this.pressEText.setVisible(false);
+                }
+            } else {
+                this.pressEText.setVisible(false);
             }
         }
     }

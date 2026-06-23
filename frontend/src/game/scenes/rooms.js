@@ -73,39 +73,77 @@ function drawPPERoom(scene) {
         .text(cx, cy, 'Dressing room', { color: COLORS.text, fontSize: '14px' })
         .setOrigin(0.5);
 
-    // Add closet button in upper left corner (invisible initially)
-    scene.closetButton = scene.add.rectangle(left + 35, top + 60, 50, 70, 0xcccccc);
-    scene.closetButton.setFillStyle(0xcccccc, 0);
-    scene.closetButton.setVisible(false);
-    
-    // Add glow effect to indicate button is clickable (hidden initially)
+    //
+    // Closet interaction zone
+    //
+    scene.closetZone = {
+        x: left,
+        y: top + 20,
+        width: 80,
+        height: 80
+    };
+
+    //
+    // Glow effect (hidden initially)
+    //
     scene.closetGlow = scene.add.graphics();
-    scene.closetGlow.fillStyle(0xffff00, 0.8); // fill circle with yellow
+    scene.closetGlow.fillStyle(0xffff00, 0.8);
     scene.closetGlow.fillCircle(left + 35, top + 60, 55);
-    scene.closetGlow.lineStyle(3, 0xffff00); // bright yellow outline
+    scene.closetGlow.lineStyle(3, 0xffff00);
     scene.closetGlow.strokeCircle(left + 35, top + 60, 55);
     scene.closetGlow.setVisible(false);
-    
-    // Pulsate glow effect (brighter pulse)
+
     scene.closetGlowTween = scene.tweens.add({
-        targets: [scene.closetGlow],
+        targets: scene.closetGlow,
         alpha: { from: 1.0, to: 0.3 },
         duration: 1000,
         yoyo: true,
         repeat: -1
     });
+
     scene.closetGlowTween.pause();
-    
-    // Add dresser image (hidden initially)
+
+    //
+    // Dresser image
+    //
     scene.closetImage = scene.add
         .image(left + 35, top + 60, 'dresser')
         .setOrigin(0.5)
         .setScale(1.5)
-        .setVisible(false);
+        .setVisible(false)
+        .setInteractive({ useHandCursor: true });
+
+    scene.closetImage.on('pointerover', () => {
+        if (!scene.playerInsideDressingRoom) {
+            return;
+        }
+
+        scene.closetHint.setVisible(true);
+    });
+    scene.closetImage.on('pointerout', () => {
+        scene.closetHint.setVisible(false);
+    });
+    scene.closetImage.on('pointerdown', () => {
+        if (!scene.playerInsideDressingRoom) {
+            return;
+        }
+        window.dispatchEvent(new Event('closet-popup-opened'));
+    });
 
     const t = 4;
-    scene.ppeRoomZone = { x: left, y: top, width: w, height: h };
-    window.__gameData = { ...window.__gameData, ppeRoomZone: scene.ppeRoomZone };
+
+    scene.ppeRoomZone = {
+        x: left,
+        y: top,
+        width: w,
+        height: h
+    };
+
+    window.__gameData = {
+        ...window.__gameData,
+        ppeRoomZone: scene.ppeRoomZone,
+        closetZone: scene.closetZone
+    };
 
     return [
         makeWall(scene, (left + doorLeft) / 2, top, doorLeft - left, t),
