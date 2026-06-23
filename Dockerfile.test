@@ -1,0 +1,15 @@
+FROM mcr.microsoft.com/playwright:v1.60.0-jammy
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY backend/package*.json backend/
+COPY frontend/package*.json frontend/
+
+RUN npm install
+RUN npm --prefix backend install
+RUN npm --prefix frontend install
+
+COPY . .
+
+CMD ["bash"]

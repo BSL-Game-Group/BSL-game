@@ -39,11 +39,22 @@ services:
         condition: service_completed_successfully
 
   frontend:
+    image: bsl-frontend
     build: ./frontend
     ports:
       - "5173:8080"
     depends_on:
       - backend
+
+  tester:
+    image: bsl-tester
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+      - backend
+      - frontend
+    network_mode: "host"
 
 volumes:
   postgres_data:
