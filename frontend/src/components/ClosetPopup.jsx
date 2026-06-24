@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
@@ -173,6 +173,14 @@ function ClosetPopup({ open, onClose }) {
     lab_coat: false,
     glasses: false,
   })
+
+  // NEW: Broadcast equipment changes to the global window object
+  useEffect(() => {
+    const event = new CustomEvent('equipment-changed', { 
+      detail: equipped 
+    });
+    window.dispatchEvent(event);
+  }, [equipped]);
 
   if (!open) { return null }
 
