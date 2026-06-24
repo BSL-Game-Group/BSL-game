@@ -59,6 +59,40 @@ test('lecture-room-entered event shows lecture panel', () => {
   expect(screen.getByTestId('lecture-panel')).toBeVisible()
 })
 
+test('hide button collapses lecture links and updates label', () => {
+  render(<App />)
+
+  fireEvent.click(screen.getByRole('button', { name: /start game/i }))
+
+  act(() => {
+    window.dispatchEvent(new Event('lecture-room-entered'))
+  })
+
+  const toggle = screen.getByRole('button', { name: /hide/i })
+  expect(toggle).toBeInTheDocument()
+
+  fireEvent.click(toggle)
+
+  expect(screen.queryByRole('link', { name: /Consteril/i })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /show/i })).toBeInTheDocument()
+})
+
+test('show button expands lecture links after hiding them', () => {
+  render(<App />)
+
+  fireEvent.click(screen.getByRole('button', { name: /start game/i }))
+
+  act(() => {
+    window.dispatchEvent(new Event('lecture-room-entered'))
+  })
+
+  fireEvent.click(screen.getByRole('button', { name: /hide/i }))
+  fireEvent.click(screen.getByRole('button', { name: /show/i }))
+
+  expect(screen.getByRole('link', { name: /Consteril/i })).toBeInTheDocument()
+  expect(screen.getAllByRole('link')).toHaveLength(3)
+})
+
 // -----------------------------
 // CLOSET FEATURE TESTS
 // -----------------------------
