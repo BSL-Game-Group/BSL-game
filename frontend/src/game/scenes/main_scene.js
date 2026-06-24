@@ -72,6 +72,22 @@ class MainScene extends Phaser.Scene {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
         });
 
+        // NEW: Track if the React popup is open
+        this.isPopupOpen = false;
+
+        this.handlePopupOpen = () => { this.isPopupOpen = true; };
+        this.handlePopupClosed = () => { this.isPopupOpen = false; };
+
+        window.addEventListener('popup-opened', this.handlePopupOpen);
+        window.addEventListener('popup-closed', this.handlePopupClosed);
+
+        // Clean up event listeners if the scene ever restarts/destroys
+        this.events.on('shutdown', () => {
+            window.removeEventListener('equipment-changed', this.handleEquipmentChange);
+            window.removeEventListener('popup-opened', this.handlePopupOpen);
+            window.removeEventListener('popup-closed', this.handlePopupClosed);
+        });
+
         // Setup inputs, text and colliders
         this.cursors = this.input.keyboard.createCursorKeys();
         this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
@@ -99,21 +115,39 @@ class MainScene extends Phaser.Scene {
         this.player.setVelocityX(0);
         this.player.setVelocityY(0);
 
-        // Keyboard movement
-        if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-160);
-        } else if (this.cursors.right.isDown) {
-            this.player.setVelocityX(160);
+        // 1. MOVEMENT CONTROLS (Locked when popup is open)
+        if (!this.isPopupOpen) {
+            // Keyboard movement
+            if (this.cursors.left.isDown) {
+                this.player.setVelocityX(-160);
+            } else if (this.cursors.right.isDown) {
+                this.player.setVelocityX(160);
+            }
+
+            if (this.cursors.up.isDown) {
+                this.player.setVelocityY(-160);
+            } else if (this.cursors.down.isDown) {
+                this.player.setVelocityY(160);
+            }
+
+            // Mouse click movement tracking
+            const pointer = this.input.activePointer;
+            if (pointer.isDown && this.playArea && this.playArea.contains(pointer.x, pointer.y)) {
+                const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, pointer.x, pointer.y);
+                if (distance > 10) {
+                    this.physics.moveToObject(this.player, pointer, 160);
+                }
+            }
+        } // <-- END OF POPUP CHECK
+
+        // 2. UI HINTS (Always running)
+        const pointer = this.input.activePointer;
+        if (this.closetImage && this.closetHint.visible) {
+            this.closetHint.setPosition(pointer.x + 15, pointer.y + 15);
         }
 
-        if (this.cursors.up.isDown) {
-            this.player.setVelocityY(-160);
-        } else if (this.cursors.down.isDown) {
-            this.player.setVelocityY(160);
-        }
-
-        // FIX: Glue the equipment to the player's position *every frame* inside update loop
-        // It applies the offsets dynamically relative to wherever the player is moving
+        // 3. EQUIPMENT GLUEING (Always running)
+        // Keep this right here, outside the movement lock!
         if (this.equipment) {
             this.equipment.lab_coat.setPosition(
                 this.player.x + this.equipmentConfig.lab_coat.offsetX, 
@@ -127,19 +161,6 @@ class MainScene extends Phaser.Scene {
                 this.player.x + this.equipmentConfig.glasses.offsetX, 
                 this.player.y + this.equipmentConfig.glasses.offsetY
             );
-        }
-
-        // Mouse click movement tracking
-        const pointer = this.input.activePointer;
-        if (this.closetImage && this.closetHint.visible) {
-            this.closetHint.setPosition(pointer.x + 15, pointer.y + 15);
-        }
-
-        if (pointer.isDown && this.playArea && this.playArea.contains(pointer.x, pointer.y)) {
-            const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, pointer.x, pointer.y);
-            if (distance > 10) {
-                this.physics.moveToObject(this.player, pointer, 160);
-            }
         }
 
         // Zone checks

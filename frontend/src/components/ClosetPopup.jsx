@@ -182,6 +182,15 @@ function ClosetPopup({ open, onClose }) {
     window.dispatchEvent(event);
   }, [equipped]);
 
+  // 2. NEW EFFECT: Broadcast when the popup opens or closes
+  useEffect(() => {
+    if (open) {
+      window.dispatchEvent(new Event('popup-opened'));
+    } else {
+      window.dispatchEvent(new Event('popup-closed'));
+    }
+  }, [open]);
+
   if (!open) { return null }
 
   return (
