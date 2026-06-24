@@ -1,4 +1,5 @@
-import MainScene from '../src/game/scenes/main_scene'
+/*--import MainScene from '../src/game/scenes/main_scene' --*/
+import MainScene, { playerIsInsideZone } from '../src/game/scenes/main_scene'
 import Phaser from 'phaser'
 
 /* -----------------------------
@@ -66,6 +67,18 @@ describe('Player movement', () => {
     scene.playArea = {
       contains: jest.fn(() => true),
     }
+    scene.pressEText = {
+      setVisible: jest.fn(),
+      setPosition: jest.fn(),
+    }
+
+    scene.input = {
+      activePointer: {
+        x: 700,
+        y: 500,
+        isDown: false,
+      },
+    }
   })
 
   test('moves left with keyboard', () => {
@@ -119,6 +132,40 @@ describe('Player movement', () => {
     scene.update()
 
     expect(scene.physics.moveToObject).not.toHaveBeenCalled()
+  })
+  test('preload loads all game assets', () => {
+  const scene = new MainScene()
+
+  scene.load = {
+    image: jest.fn(),
+  }
+
+  scene.preload()
+
+  expect(scene.load.image).toHaveBeenCalledWith(
+    'player_base',
+    'assets/player/base.png'
+  )
+
+  expect(scene.load.image).toHaveBeenCalledWith(
+    'lab_coat',
+    'assets/equipment/equipment_on_character/lab_coat.png'
+  )
+
+  expect(scene.load.image).toHaveBeenCalledWith(
+    'mask',
+    'assets/equipment/equipment_on_character/mask.png'
+  )
+
+  expect(scene.load.image).toHaveBeenCalledWith(
+    'glasses',
+    'assets/equipment/equipment_on_character/glasses.png'
+  )
+
+  expect(scene.load.image).toHaveBeenCalledWith(
+    'dresser',
+    'assets/dresser.png'
+  )
   })
 
   /* -----------------------------
@@ -192,5 +239,214 @@ describe('Player movement', () => {
   )
 
   dispatchSpy.mockRestore()
-})
+  })
+  /* -------------------------------
+  TEST: handlePopupOpen sets popup state
+  ------------------------------- */
+  test('popup state can be opened', () => {
+    scene.isPopupOpen = false
+
+    scene.isPopupOpen = true
+
+    expect(scene.isPopupOpen).toBe(true)
+  })
+
+  test('player inside zone returns true', () => {
+    expect(
+      playerIsInsideZone(
+        { x: 50, y: 50 },
+        { x: 0, y: 0, width: 100, height: 100 }
+      )
+    ).toBe(true)
+  })
+
+  test('player outside zone returns false', () => {
+    expect(
+      playerIsInsideZone(
+        { x: 200, y: 200 },
+        { x: 0, y: 0, width: 100, height: 100 }
+      )
+    ).toBe(false)
+  })
+
+  test('movement is skipped when popup is open', () => {
+    scene.isPopupOpen = true
+
+    scene.cursors.left.isDown = true
+
+    scene.update()
+
+    expect(scene.player.setVelocityX).toHaveBeenCalledWith(0)
+    expect(scene.player.setVelocityX).not.toHaveBeenCalledWith(-160)
+  })
+
+  test('shows closet when entering dressing room', () => {
+    scene.ppeRoomZone = {
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 200,
+    }
+
+    scene.player.x = 100
+    scene.player.y = 100
+
+    scene.closetImage = {
+      setVisible: jest.fn(),
+      setInteractive: jest.fn(),
+    }
+
+    scene.closetHint = {
+      visible: false,
+      setPosition: jest.fn(),
+    }
+
+    scene.update()
+
+    expect(scene.closetImage.setVisible)
+      .toHaveBeenCalledWith(true)
+  })
+
+  test('hides closet when leaving dressing room', () => {
+    scene.playerInsideDressingRoom = true
+
+    scene.player.x = 500
+    scene.player.y = 500
+
+    scene.ppeRoomZone = {
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100,
+    }
+
+    scene.closetImage = {
+      setVisible: jest.fn(),
+      disableInteractive: jest.fn(),
+    }
+
+    scene.closetHint = {
+      visible: false,
+      setPosition: jest.fn(),
+    }
+
+    scene.update()
+
+    expect(scene.closetImage.setVisible)
+      .toHaveBeenCalledWith(false)
+  })
+
+  test('hides press E hint when far from closet', () => {
+    scene.player.x = 500
+    scene.player.y = 500
+
+    scene.ppeRoomZone = {
+      x: 0,
+      y: 0,
+      width: 1000,
+      height: 1000,
+    }
+
+    scene.closetZone = {
+      x: 0,
+      y: 0,
+    }
+
+    scene.pressEText = {
+      setVisible: jest.fn(),
+      setPosition: jest.fn(),
+    }
+
+    scene.update()
+
+    expect(scene.pressEText.setVisible)
+      .toHaveBeenCalledWith(false)
+  })
+
+  test('resumes closet glow animation when entering dressing room', () => {
+    scene.player.x = 100
+    scene.player.y = 100
+
+    scene.ppeRoomZone = {
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 200,
+    }
+
+    scene.closetHint = {
+      visible: false,
+      setPosition: jest.fn(),
+    }
+
+    scene.pressEText = {
+      setVisible: jest.fn(),
+      setPosition: jest.fn(),
+    }
+
+    scene.closetGlow = {
+      setVisible: jest.fn(),
+    }
+
+    scene.closetGlowTween = {
+      resume: jest.fn(),
+    }
+
+    scene.update()
+
+    expect(scene.closetGlowTween.resume).toHaveBeenCalled()
+  })
+  test('pauses closet glow animation when leaving dressing room', () => {
+    scene.playerInsideDressingRoom = true
+
+    scene.player.x = 500
+    scene.player.y = 500
+
+    scene.ppeRoomZone = {
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 200,
+    }
+
+    scene.closetHint = {
+      visible: false,
+      setPosition: jest.fn(),
+    }
+
+    scene.pressEText = {
+      setVisible: jest.fn(),
+      setPosition: jest.fn(),
+    }
+
+    scene.closetGlow = {
+      setVisible: jest.fn(),
+    }
+
+    scene.closetGlowTween = {
+      pause: jest.fn(),
+    }
+
+    scene.update()
+
+    expect(scene.closetGlowTween.pause).toHaveBeenCalled()
+  })
+  
+  test('resets lecture room state when player leaves room', () => {
+    scene.playerInsideLectureRoom = true
+
+    scene.player.x = 500
+    scene.player.y = 500
+
+    scene.lectureRoomZone = {
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100,
+    }
+
+    scene.update()
+
+    expect(scene.playerInsideLectureRoom).toBe(false)
+  })
 })
