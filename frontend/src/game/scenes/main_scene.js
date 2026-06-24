@@ -163,7 +163,9 @@ class MainScene extends Phaser.Scene {
                 }
                 if (this.closetGlow) {
                     this.closetGlow.setVisible(true);
-                    if (this.closetGlowTween) this.closetGlowTween.resume();
+                    if (this.closetGlowTween) {
+                        this.closetGlowTween.resume();
+                    }
                 }
                 this.playerInsideDressingRoom = true;
             } else if (!inside && this.playerInsideDressingRoom) {
@@ -173,7 +175,9 @@ class MainScene extends Phaser.Scene {
                 }
                 if (this.closetGlow) {
                     this.closetGlow.setVisible(false);
-                    if (this.closetGlowTween) this.closetGlowTween.pause();
+                    if (this.closetGlowTween) {
+                        this.closetGlowTween.pause();
+                    }
                 }
                 this.playerInsideDressingRoom = false;
             }
