@@ -9,6 +9,7 @@ backend/manifests/configmap.yaml
 # Playwright
 node_modules/
 frontend/test-results/
+frontend/coverage/
 /test-results/
 /playwright-report/
 /blob-report/

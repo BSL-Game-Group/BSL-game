@@ -2,6 +2,9 @@ import { render, screen, fireEvent, act } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import App from '../src/App'
 
+// -----------------------------
+// MOCKS (keep at top)
+// -----------------------------
 global.fetch = jest.fn(() =>
   Promise.resolve({
     json: () => Promise.resolve({}),
@@ -15,11 +18,37 @@ jest.mock('../src/Game', () => () => (
 jest.mock('../game/main', () => jest.fn(() => ({ destroy: jest.fn() })))
 
 // -----------------------------
+// HELPERS
+// -----------------------------
+function renderApp() {
+  return render(<App />)
+}
+
+function startGame() {
+  renderApp()
+  fireEvent.click(screen.getByRole('button', { name: /start game/i }))
+}
+
+function enterLectureRoom() {
+  startGame()
+  act(() => {
+    window.dispatchEvent(new Event('lecture-room-entered'))
+  })
+}
+
+function openCloset() {
+  startGame()
+  act(() => {
+    window.dispatchEvent(new Event('closet-popup-opened'))
+  })
+}
+
+// -----------------------------
 // START BUTTON TESTS
 // -----------------------------
 describe('Start button', () => {
   test('renders start button initially', () => {
-    render(<App />)
+    renderApp()
 
     expect(
       screen.getByRole('button', { name: /start game/i })
@@ -27,7 +56,7 @@ describe('Start button', () => {
   })
 
   test('clicking start button shows game and removes button', () => {
-    render(<App />)
+    renderApp()
 
     fireEvent.click(screen.getByRole('button', { name: /start game/i }))
 
@@ -43,53 +72,44 @@ describe('Start button', () => {
 // LECTURE PANEL TESTS
 // -----------------------------
 test('lecture panel is hidden before entering lecture room', () => {
-  render(<App />)
-  fireEvent.click(screen.getByRole('button', { name: /start game/i }))
-  expect(screen.getByTestId('lecture-panel')).not.toBeVisible()
+  enterLectureRoom()
+
+  expect(screen.getByTestId('lecture-panel')).toBeVisible()
 })
 
 test('lecture-room-entered event shows lecture panel', () => {
-  render(<App />)
-  fireEvent.click(screen.getByRole('button', { name: /start game/i }))
-
-  act(() => {
-    window.dispatchEvent(new Event('lecture-room-entered'))
-  })
+  enterLectureRoom()
 
   expect(screen.getByTestId('lecture-panel')).toBeVisible()
 })
 
 test('hide button collapses lecture links and updates label', () => {
-  render(<App />)
-
-  fireEvent.click(screen.getByRole('button', { name: /start game/i }))
-
-  act(() => {
-    window.dispatchEvent(new Event('lecture-room-entered'))
-  })
+  enterLectureRoom()
 
   const toggle = screen.getByRole('button', { name: /hide/i })
   expect(toggle).toBeInTheDocument()
 
   fireEvent.click(toggle)
 
-  expect(screen.queryByRole('link', { name: /Consteril/i })).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: /show/i })).toBeInTheDocument()
+  expect(
+    screen.queryByRole('link', { name: /Consteril/i })
+  ).not.toBeInTheDocument()
+
+  expect(
+    screen.getByRole('button', { name: /show/i })
+  ).toBeInTheDocument()
 })
 
 test('show button expands lecture links after hiding them', () => {
-  render(<App />)
-
-  fireEvent.click(screen.getByRole('button', { name: /start game/i }))
-
-  act(() => {
-    window.dispatchEvent(new Event('lecture-room-entered'))
-  })
+  enterLectureRoom()
 
   fireEvent.click(screen.getByRole('button', { name: /hide/i }))
   fireEvent.click(screen.getByRole('button', { name: /show/i }))
 
-  expect(screen.getByRole('link', { name: /Consteril/i })).toBeInTheDocument()
+  expect(
+    screen.getByRole('link', { name: /Consteril/i })
+  ).toBeInTheDocument()
+
   expect(screen.getAllByRole('link')).toHaveLength(3)
 })
 
@@ -97,19 +117,13 @@ test('show button expands lecture links after hiding them', () => {
 // CLOSET FEATURE TESTS
 // -----------------------------
 test('closet popup opens when event is triggered', () => {
-  render(<App />)
-
-  fireEvent.click(screen.getByRole('button', { name: /start game/i }))
-
-  act(() => {
-    window.dispatchEvent(new Event('closet-popup-opened'))
-  })
+  openCloset()
 
   expect(screen.getByText(/equipment/i)).toBeInTheDocument()
 })
 
 test('closet popup does NOT appear without event', () => {
-  render(<App />)
+  renderApp()
 
   fireEvent.click(screen.getByRole('button', { name: /start game/i }))
 
@@ -117,19 +131,9 @@ test('closet popup does NOT appear without event', () => {
 })
 
 test('closet popup closes when close button is clicked', () => {
-  render(<App />)
+  openCloset()
 
-  fireEvent.click(screen.getByRole('button', { name: /start game/i }))
-
-  act(() => {
-    window.dispatchEvent(new Event('closet-popup-opened'))
-  })
-
-  expect(screen.getByText(/equipment/i)).toBeInTheDocument()
-
-  fireEvent.click(
-    screen.getByRole('button', { name: /close/i })
-  )
+  fireEvent.click(screen.getByRole('button', { name: /close/i }))
 
   expect(screen.queryByText(/equipment/i)).not.toBeInTheDocument()
 })
