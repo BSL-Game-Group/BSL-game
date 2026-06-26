@@ -1,0 +1,4 @@
+.env
+
+./manifests/secret.yaml
+./manifests/configmap.yaml

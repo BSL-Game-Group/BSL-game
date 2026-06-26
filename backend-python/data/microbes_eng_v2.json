@@ -1,0 +1,602 @@
+[
+  {
+    "id": 1,
+    "common_name": "Baker's yeast",
+    "scientific_name": "Saccharomyces cerevisiae",
+    "type": "Fungus",
+    "bsl_level": 1,
+    "lecture_text": "The same organism used in bread and beer production. A model organism for eukaryotic cell biology in laboratories. Does not cause disease in healthy humans and does not spread between people.",
+    "feedback_correct": "Correct! BSL-1 is sufficient — basic lab coat and gloves when needed.",
+    "feedback_incorrect": "Incorrect! Baker's yeast is completely harmless to healthy adults. BSL-1 is the only level required."
+  },
+  {
+    "id": 2,
+    "common_name": "Soil bacterium",
+    "scientific_name": "Bacillus subtilis",
+    "type": "Bacterium",
+    "bsl_level": 1,
+    "lecture_text": "A common soil bacterium widely used in molecular biology research. Not pathogenic to healthy humans. Used as a model in sporulation research.",
+    "feedback_correct": "Correct! BSL-1 is sufficient — no infection risk for healthy individuals.",
+    "feedback_incorrect": "Incorrect! Bacillus subtilis is a BSL-1 organism — it does not cause disease."
+  },
+  {
+    "id": 3,
+    "common_name": "Laboratory E. coli",
+    "scientific_name": "Escherichia coli (laboratory strains, non-pathogenic)",
+    "type": "Bacterium",
+    "bsl_level": 1,
+    "lecture_text": "A genetically weakened laboratory version of E. coli. Unable to colonize the human intestine. The most commonly used research bacterium in molecular biology worldwide.",
+    "feedback_correct": "Correct! Laboratory E. coli is BSL-1 — a weakened strain with no infection risk.",
+    "feedback_incorrect": "Incorrect! Laboratory strains are specifically weakened. BSL-1 is sufficient."
+  },
+  {
+    "id": 4,
+    "common_name": "Dairy yeast",
+    "scientific_name": "Kluyveromyces lactis",
+    "type": "Fungus",
+    "bsl_level": 1,
+    "lecture_text": "A yeast found in dairy products, used in protein production. Does not cause disease. A GRAS organism (generally regarded as safe).",
+    "feedback_correct": "Correct! BSL-1 is sufficient for this safe yeast.",
+    "feedback_incorrect": "Incorrect! Kluyveromyces lactis is a BSL-1 fungus — completely safe."
+  },
+  {
+    "id": 5,
+    "common_name": "Adeno-associated virus (AAV)",
+    "scientific_name": "Adeno-associated virus",
+    "type": "Virus",
+    "bsl_level": 1,
+    "lecture_text": "A virus used as a gene therapy vector. Cannot replicate without a helper virus. In its natural form, does not cause disease in humans. Used in medical gene therapy.",
+    "feedback_correct": "Correct! AAV is BSL-1 — a gene vector that does not cause illness.",
+    "feedback_incorrect": "Incorrect! AAV is a safe gene vector, BSL-1 is sufficient."
+  },
+  {
+    "id": 6,
+    "common_name": "Lactic acid bacterium",
+    "scientific_name": "Lactobacillus acidophilus",
+    "type": "Bacterium",
+    "bsl_level": 1,
+    "lecture_text": "A bacterium that is part of the normal gut microbiome, found in yogurt and probiotic products. A beneficial organism, not a pathogen. No infection risk.",
+    "feedback_correct": "Correct! Lactobacillus is a BSL-1 probiotic organism.",
+    "feedback_incorrect": "Incorrect! This lactic acid bacterium is part of normal gut flora — BSL-1 is sufficient."
+  },
+  {
+    "id": 7,
+    "common_name": "Caulobacter (model bacterium)",
+    "scientific_name": "Caulobacter crescentus",
+    "type": "Bacterium",
+    "bsl_level": 1,
+    "lecture_text": "An aquatic bacterium used as a model organism in cell division research. Not pathogenic to humans. A common research bacterium in cell biology.",
+    "feedback_correct": "Correct! Caulobacter crescentus is BSL-1.",
+    "feedback_incorrect": "Incorrect! Caulobacter does not cause disease — BSL-1 is the correct level."
+  },
+  {
+    "id": 8,
+    "common_name": "Halobacterium",
+    "scientific_name": "Halobacterium salinarum",
+    "type": "Archaeon",
+    "bsl_level": 1,
+    "lecture_text": "An archaeon living in extremely salty water. Used as a model for photosynthesis and membrane research. Cannot survive in human body conditions.",
+    "feedback_correct": "Correct! Halobacterium is a BSL-1 extremophile.",
+    "feedback_incorrect": "Incorrect! Halobacterium salinarum cannot survive in our body's conditions. BSL-1 is sufficient."
+  },
+  {
+    "id": 9,
+    "common_name": "Cyanobacterium",
+    "scientific_name": "Synechocystis spp.",
+    "type": "Bacterium",
+    "bsl_level": 1,
+    "lecture_text": "A photosynthetic cyanobacterium used in solar energy research. Not pathogenic. A model organism for photosynthesis research.",
+    "feedback_correct": "Correct! Synechocystis is a BSL-1 cyanobacterium.",
+    "feedback_incorrect": "Incorrect! This cyanobacterium is BSL-1 — a photosynthetic non-pathogen."
+  },
+  {
+    "id": 10,
+    "common_name": "Phi29 bacteriophage",
+    "scientific_name": "Bacillus phage phi29",
+    "type": "Virus",
+    "bsl_level": 1,
+    "lecture_text": "A virus that infects Bacillus subtilis bacteria, used in DNA replication research. Cannot infect human cells. Used in biotechnology.",
+    "feedback_correct": "Correct! The bacteriophage is BSL-1 — does not infect human cells.",
+    "feedback_incorrect": "Incorrect! Bacteriophages are BSL-1 viruses — they do not infect humans."
+  },
+  {
+    "id": 11,
+    "common_name": "Pseudomonas fluorescens (non-pathogenic)",
+    "scientific_name": "Pseudomonas fluorescens",
+    "type": "Bacterium",
+    "bsl_level": 1,
+    "lecture_text": "A bacterium common in soil and plant roots. A non-pathogenic species of the Pseudomonas genus. Used in bioremediation and research.",
+    "feedback_correct": "Correct! P. fluorescens is BSL-1 — a non-pathogenic soil species.",
+    "feedback_incorrect": "Incorrect! Pseudomonas fluorescens is BSL-1, unlike its pathogenic relatives."
+  },
+  {
+    "id": 12,
+    "common_name": "Agrobacterium (plant gene technology)",
+    "scientific_name": "Agrobacterium tumefaciens",
+    "type": "Bacterium",
+    "bsl_level": 1,
+    "lecture_text": "A soil species used as a gene transfer vector in plant biology. Does not infect humans. A common tool in plant genetic engineering.",
+    "feedback_correct": "Correct! Agrobacterium is BSL-1 — it only infects plants.",
+    "feedback_incorrect": "Incorrect! Agrobacterium does not infect humans — BSL-1 is sufficient."
+  },
+  {
+    "id": 13,
+    "common_name": "Tetrahymena (ciliate)",
+    "scientific_name": "Tetrahymena thermophila",
+    "type": "Protozoan",
+    "bsl_level": 1,
+    "lecture_text": "A unicellular organism living in water, used in cell biology research. Not pathogenic. A research model that has earned Nobel Prizes (telomeres, ribozymes).",
+    "feedback_correct": "Correct! Tetrahymena is a BSL-1 model organism.",
+    "feedback_incorrect": "Incorrect! Tetrahymena does not cause disease — a BSL-1 research model."
+  },
+  {
+    "id": 14,
+    "common_name": "Lambda bacteriophage",
+    "scientific_name": "Enterobacteria phage lambda",
+    "type": "Virus",
+    "bsl_level": 1,
+    "lecture_text": "A virus that infects E. coli bacteria, used for decades in fundamental molecular biology research. Cannot infect human cells. A classic research model for genetic regulation.",
+    "feedback_correct": "Correct! The lambda phage is BSL-1.",
+    "feedback_incorrect": "Incorrect! The lambda phage only infects E. coli bacteria — BSL-1 is sufficient."
+  },
+  {
+    "id": 15,
+    "common_name": "Neurospora mold",
+    "scientific_name": "Neurospora crassa",
+    "type": "Fungus",
+    "bsl_level": 1,
+    "lecture_text": "A red mold fungus used in genetics research since the 1940s. A research model that has led to Nobel Prizes. Not pathogenic to healthy humans.",
+    "feedback_correct": "Correct! Neurospora crassa is a BSL-1 model fungus.",
+    "feedback_incorrect": "Incorrect! Neurospora crassa is a classic genetics research model — BSL-1 is sufficient."
+  },
+  {
+    "id": 16,
+    "common_name": "Influenza A (seasonal flu)",
+    "scientific_name": "Influenza A virus (seasonal strains)",
+    "type": "Virus",
+    "bsl_level": 2,
+    "lecture_text": "An annual seasonal influenza virus that spreads via droplets and air. Causes fever, muscle aches, and respiratory symptoms. Vaccine available. Most severe for the elderly and risk groups.",
+    "feedback_correct": "Correct! Seasonal influenza A is BSL-2.",
+    "feedback_incorrect": "Incorrect! Seasonal flu is a BSL-2 virus — zoonotic strains such as H5N1 are BSL-3."
+  },
+  {
+    "id": 17,
+    "common_name": "Measles",
+    "scientific_name": "Measles morbillivirus",
+    "type": "Virus",
+    "bsl_level": 2,
+    "lecture_text": "One of the most contagious human viruses — spreads via airborne droplets and aerosols. Causes rash, fever, and can lead to pneumonia. An effective MMR vaccine provides protection.",
+    "feedback_correct": "Correct! Measles virus is BSL-2 — vaccine provides protection.",
+    "feedback_incorrect": "Incorrect! Measles virus is BSL-2 because an effective vaccine is available."
+  },
+  {
+    "id": 18,
+    "common_name": "HIV (diagnostics)",
+    "scientific_name": "Human immunodeficiency virus 1",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "Diagnostic laboratory work with the immunodeficiency virus is classified as BSL-2, since the virus does not spread through the air. Infection requires direct blood contact. Treatment prevents disease progression.",
+    "feedback_correct": "Correct! HIV is BSL-3 — classified as Group 3 under Finnish regulation 748/2020.",
+    "feedback_incorrect": "Incorrect! HIV is classified as BSL-3 in Finland (regulation 748/2020), even though infection requires direct blood contact."
+  },
+  {
+    "id": 19,
+    "common_name": "Hepatitis B",
+    "scientific_name": "Hepatitis B virus",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "A highly contagious bloodborne virus. Spreads through blood, sex, and mother-to-child contact. Can cause chronic liver inflammation and cirrhosis. A vaccine is available.",
+    "feedback_correct": "Correct! Hepatitis B is BSL-3 — classified as Group 3 under Finnish regulation 748/2020.",
+    "feedback_incorrect": "Incorrect! Hepatitis B is classified as BSL-3 in Finland (regulation 748/2020), even though transmission requires blood contact."
+  },
+  {
+    "id": 20,
+    "common_name": "Hepatitis C",
+    "scientific_name": "Hepacivirus C",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "The leading cause of liver transplants worldwide. Spreads through blood contact. No vaccine, but current antiviral treatment is highly effective. Diagnostic work is BSL-2.",
+    "feedback_correct": "Correct! Hepatitis C is BSL-3 — classified as Group 3 under Finnish regulation 748/2020.",
+    "feedback_incorrect": "Incorrect! Hepatitis C is classified as BSL-3 in Finland (regulation 748/2020)."
+  },
+  {
+    "id": 21,
+    "common_name": "Salmonella",
+    "scientific_name": "Salmonella Typhimurium",
+    "type": "Bacterium",
+    "bsl_level": 2,
+    "lecture_text": "The most common cause of food poisoning. Spreads through contaminated food or water. Causes abdominal symptoms, diarrhea, and fever. Does not spread through the air in laboratories.",
+    "feedback_correct": "Correct! Salmonella is BSL-2 — foodborne, not airborne.",
+    "feedback_incorrect": "Incorrect! Salmonella spreads through food — BSL-2 is sufficient."
+  },
+  {
+    "id": 22,
+    "common_name": "Staph",
+    "scientific_name": "Staphylococcus aureus",
+    "type": "Bacterium",
+    "bsl_level": 2,
+    "lecture_text": "A common bacterium found on human skin. Can cause wound infections, pneumonia, or sepsis. MRSA strains are antibiotic-resistant. Spreads through contact.",
+    "feedback_correct": "Correct! Staphylococcus aureus is BSL-2.",
+    "feedback_incorrect": "Incorrect! Staph is a BSL-2 bacterium — not airborne."
+  },
+  {
+    "id": 23,
+    "common_name": "Lyme disease",
+    "scientific_name": "Borrelia burgdorferi",
+    "type": "Bacterium",
+    "bsl_level": 2,
+    "lecture_text": "A bacterium spread by ticks. Causes a bullseye rash, joint pain, and neurological symptoms. Does not spread person to person. Antibiotic treatment is effective in early stages.",
+    "feedback_correct": "Correct! Borrelia burgdorferi is BSL-2 — tick-borne, not person-to-person.",
+    "feedback_incorrect": "Incorrect! Borrelia does not spread between people — BSL-2 is sufficient."
+  },
+  {
+    "id": 24,
+    "common_name": "Cholera",
+    "scientific_name": "Vibrio cholerae",
+    "type": "Bacterium",
+    "bsl_level": 2,
+    "lecture_text": "A bacterium spread through contaminated water. Causes massive watery diarrhea. Does not spread through the air. A vaccine is available.",
+    "feedback_correct": "Correct! Cholera is BSL-2 — waterborne, not airborne.",
+    "feedback_incorrect": "Incorrect! Vibrio cholerae is BSL-2 — spreads through water."
+  },
+  {
+    "id": 25,
+    "common_name": "Chickenpox",
+    "scientific_name": "Human alphaherpesvirus 3 (varicella-zoster virus)",
+    "type": "Virus",
+    "bsl_level": 2,
+    "lecture_text": "Spreads through the air and by contact. Causes itchy blisters. Reactivation of the same virus causes shingles in adults. A vaccine is available.",
+    "feedback_correct": "Correct! VZV is BSL-2 — vaccine and treatment available.",
+    "feedback_incorrect": "Incorrect! Chickenpox virus is BSL-2 — an effective vaccine exists."
+  },
+  {
+    "id": 26,
+    "common_name": "Norovirus (stomach flu)",
+    "scientific_name": "Norovirus (Norwalk virus)",
+    "type": "Virus",
+    "bsl_level": 2,
+    "lecture_text": "The most common cause of acute gastroenteritis. Highly contagious — only a few viral particles cause infection. Spreads through feces and vomit. No effective treatment or vaccine.",
+    "feedback_correct": "Correct! Norovirus is BSL-2 — spreads via the fecal-oral route.",
+    "feedback_incorrect": "Incorrect! Norovirus is BSL-2 — not airborne."
+  },
+  {
+    "id": 27,
+    "common_name": "Syphilis",
+    "scientific_name": "Treponema pallidum",
+    "type": "Bacterium",
+    "bsl_level": 2,
+    "lecture_text": "A sexually transmitted bacterium. Progresses in stages: painless sore, rash, internal organ damage. Does not spread through laboratory air. Penicillin remains an effective treatment.",
+    "feedback_correct": "Correct! Treponema pallidum is BSL-2 — not airborne.",
+    "feedback_incorrect": "Incorrect! Syphilis is BSL-2 — transmission requires direct mucosal contact."
+  },
+  {
+    "id": 28,
+    "common_name": "Whooping cough",
+    "scientific_name": "Bordetella pertussis",
+    "type": "Bacterium",
+    "bsl_level": 2,
+    "lecture_text": "A bacterium spread through droplets. Causes severe coughing fits, especially dangerous for infants. Vaccine provides effective protection.",
+    "feedback_correct": "Correct! Bordetella pertussis is BSL-2 — vaccine provides protection.",
+    "feedback_incorrect": "Incorrect! Whooping cough is BSL-2 — a vaccine is available."
+  },
+  {
+    "id": 29,
+    "common_name": "Chlamydia",
+    "scientific_name": "Chlamydia trachomatis",
+    "type": "Bacterium",
+    "bsl_level": 2,
+    "lecture_text": "The most common sexually transmitted bacterial infection. Often asymptomatic. Left untreated, can cause infertility. Antibiotic treatment is effective.",
+    "feedback_correct": "Correct! Chlamydia trachomatis is BSL-2.",
+    "feedback_incorrect": "Incorrect! Chlamydia is BSL-2 — easily treatable."
+  },
+  {
+    "id": 30,
+    "common_name": "Meningococcus",
+    "scientific_name": "Neisseria meningitidis",
+    "type": "Bacterium",
+    "bsl_level": 2,
+    "lecture_text": "A dangerous cause of meningitis in young people. Spreads through droplets. Can lead to death within hours. Vaccine protects against the most important serotypes.",
+    "feedback_correct": "Correct! Neisseria meningitidis is BSL-2 — vaccine provides protection.",
+    "feedback_incorrect": "Incorrect! Meningococcus is BSL-2 — a vaccine is available."
+  },
+  {
+    "id": 31,
+    "common_name": "Toxoplasmosis",
+    "scientific_name": "Toxoplasma gondii",
+    "type": "Parasite",
+    "bsl_level": 2,
+    "lecture_text": "Cats are the primary host. Infection occurs through contaminated meat or cat feces. Dangerous for pregnant women. Does not spread person to person.",
+    "feedback_correct": "Correct! Toxoplasma gondii is BSL-2.",
+    "feedback_incorrect": "Incorrect! Toxoplasma is a BSL-2 parasite — not transmitted person to person."
+  },
+  {
+    "id": 32,
+    "common_name": "Cryptosporidiosis",
+    "scientific_name": "Cryptosporidium parvum",
+    "type": "Parasite",
+    "bsl_level": 2,
+    "lecture_text": "A waterborne parasite. Causes severe diarrhea, especially in immunocompromised individuals. Oocysts resist chlorination. Found in contaminated drinking water.",
+    "feedback_correct": "Correct! Cryptosporidium parvum is BSL-2.",
+    "feedback_incorrect": "Incorrect! Cryptosporidium is a BSL-2 parasite."
+  },
+  {
+    "id": 33,
+    "common_name": "Candida (yeast)",
+    "scientific_name": "Candida albicans",
+    "type": "Fungus",
+    "bsl_level": 2,
+    "lecture_text": "The most common cause of human fungal infections. Normally lives on mucous membranes, can cause severe infection in immunocompromised individuals. Not airborne. Allergenic.",
+    "feedback_correct": "Correct! Candida albicans is a BSL-2 fungus.",
+    "feedback_incorrect": "Incorrect! Candida is BSL-2 — not transmitted person to person."
+  },
+  {
+    "id": 34,
+    "common_name": "Aspergillus (mold)",
+    "scientific_name": "Aspergillus fumigatus group",
+    "type": "Fungus",
+    "bsl_level": 2,
+    "lecture_text": "A common environmental fungus. Spores are inhaled daily. Can cause severe lung infection in immunosuppressed individuals. Allergenic. Not transmitted person to person.",
+    "feedback_correct": "Correct! Aspergillus fumigatus is BSL-2.",
+    "feedback_incorrect": "Incorrect! Aspergillus is BSL-2 — not transmitted person to person."
+  },
+  {
+    "id": 35,
+    "common_name": "Listeria",
+    "scientific_name": "Listeria monocytogenes",
+    "type": "Bacterium",
+    "bsl_level": 2,
+    "lecture_text": "A foodborne bacterium that can grow at refrigerator temperatures. Especially dangerous for pregnant women, newborns, and immunocompromised individuals. Not airborne.",
+    "feedback_correct": "Correct! Listeria monocytogenes is BSL-2.",
+    "feedback_incorrect": "Incorrect! Listeria is BSL-2 — foodborne."
+  },
+  {
+    "id": 36,
+    "common_name": "Dengue",
+    "scientific_name": "Dengue virus",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "A mosquito-borne flavivirus found in tropical regions. Causes high fever, joint pain, and rash. In severe form, hemorrhage is possible. Not transmitted directly person to person.",
+    "feedback_correct": "Correct! Dengue is BSL-3 — classified as Group 3 under Finnish regulation 748/2020, with no exception noted.",
+    "feedback_incorrect": "Incorrect! Dengue is classified as BSL-3 in Finland (regulation 748/2020) with no special exception."
+  },
+  {
+    "id": 37,
+    "common_name": "Human papillomavirus (HPV)",
+    "scientific_name": "Papillomaviridae (human papillomavirus)",
+    "type": "Virus",
+    "bsl_level": 2,
+    "lecture_text": "The most common sexually transmitted virus. Certain strains can cause cervical cancer. Vaccine protects against the most important cancer-causing strains.",
+    "feedback_correct": "Correct! HPV is BSL-2 — vaccine provides protection.",
+    "feedback_incorrect": "Incorrect! HPV is BSL-2 — a vaccine is available."
+  },
+  {
+    "id": 38,
+    "common_name": "Hepatitis A",
+    "scientific_name": "Hepatovirus A",
+    "type": "Virus",
+    "bsl_level": 2,
+    "lecture_text": "Liver inflammation spread via the fecal-oral route. Common in developing countries from contaminated water or food. No chronic form. Vaccine provides effective protection.",
+    "feedback_correct": "Correct! Hepatitis A is BSL-2 — vaccine provides protection.",
+    "feedback_incorrect": "Incorrect! Hepatitis A is BSL-2 — spreads via the fecal-oral route."
+  },
+  {
+    "id": 39,
+    "common_name": "Tetanus",
+    "scientific_name": "Clostridium tetani",
+    "type": "Bacterium",
+    "bsl_level": 2,
+    "lecture_text": "A bacterium that enters wounds from soil. Produces a nerve toxin that causes muscle spasms. The vaccine is highly effective.",
+    "feedback_correct": "Correct! Clostridium tetani is BSL-2 — vaccine provides protection.",
+    "feedback_incorrect": "Incorrect! Tetanus is a BSL-2 bacterium — the vaccine is highly effective."
+  },
+  {
+    "id": 40,
+    "common_name": "Malaria (other species)",
+    "scientific_name": "Plasmodium spp. (human and simian)",
+    "type": "Parasite",
+    "bsl_level": 2,
+    "lecture_text": "Less severe malaria species than P. falciparum. Spreads through mosquitoes, not person to person in laboratories. Treatment is available.",
+    "feedback_correct": "Correct! Plasmodium species other than falciparum are BSL-2.",
+    "feedback_incorrect": "Incorrect! Malaria species other than P. falciparum are BSL-2."
+  },
+  {
+    "id": 41,
+    "common_name": "Tuberculosis",
+    "scientific_name": "Mycobacterium tuberculosis",
+    "type": "Bacterium",
+    "bsl_level": 3,
+    "lecture_text": "The world's second leading cause of infectious disease death. Spreads through the air via small aerosol particles. Can remain latent for decades. Multidrug-resistant strains are a growing threat.",
+    "feedback_correct": "Correct! TB is BSL-3 — spreads through the air, requires a respirator and full-body suit.",
+    "feedback_incorrect": "Incorrect! TB is a very serious airborne bacterium. BSL-3 is required: respirator, full-body suit, double gloves."
+  },
+  {
+    "id": 42,
+    "common_name": "Anthrax",
+    "scientific_name": "Bacillus anthracis",
+    "type": "Bacterium",
+    "bsl_level": 3,
+    "lecture_text": "A spore-forming bacterium that can survive in soil for decades. Respiratory exposure causes a severe pulmonary form. Has also been used as a bioweapon.",
+    "feedback_correct": "Correct! Bacillus anthracis is BSL-3 — spores can spread through the air.",
+    "feedback_incorrect": "Incorrect! Anthrax is BSL-3 — respiratory exposure is extremely dangerous."
+  },
+  {
+    "id": 43,
+    "common_name": "COVID-19 (virus culture)",
+    "scientific_name": "Severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2)",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "Virus culture work with the COVID-19 virus requires a BSL-3 laboratory, as the virus spreads through the air as aerosols. Note: diagnostic laboratory work alone, without virus culture, can be performed at BSL-2.",
+    "feedback_correct": "Correct! Virus culture of SARS-CoV-2 requires BSL-3 protection.",
+    "feedback_incorrect": "Incorrect! Virus culture of SARS-CoV-2 requires BSL-3 — the virus spreads through the air as aerosols."
+  },
+  {
+    "id": 44,
+    "common_name": "Plague",
+    "scientific_name": "Yersinia pestis",
+    "type": "Bacterium",
+    "bsl_level": 3,
+    "lecture_text": "The bacterium that caused the Black Death. Spreads via fleas, but the pneumonic form is airborne. Antibiotic treatment is effective today.",
+    "feedback_correct": "Correct! Plague is BSL-3 — the pneumonic form spreads through the air.",
+    "feedback_incorrect": "Incorrect! Yersinia pestis is BSL-3 — the pneumonic form in particular is very dangerous."
+  },
+  {
+    "id": 45,
+    "common_name": "Nephropathia epidemica (vole fever)",
+    "scientific_name": "Puumala orthohantavirus",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "A hantavirus spread by bank voles, Finland's most common hemorrhagic fever. Wild-type strains are classified as BSL-3. Spreads as an aerosol from rodent secretions. Can cause severe kidney failure.",
+    "feedback_correct": "Correct! Puumala orthohantavirus (wild-type strain) is BSL-3.",
+    "feedback_incorrect": "Incorrect! This hantavirus is BSL-3 — aerosol transmission requires respiratory protection."
+  },
+  {
+    "id": 46,
+    "common_name": "Yellow fever",
+    "scientific_name": "Yellow fever virus",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "A tropical mosquito-borne flavivirus. Causes high fever and liver damage. An effective vaccine exists.",
+    "feedback_correct": "Correct! Yellow fever virus is BSL-3.",
+    "feedback_incorrect": "Incorrect! Yellow fever virus is BSL-3 — the severe clinical picture requires BSL-3 protection."
+  },
+  {
+    "id": 47,
+    "common_name": "Tick-borne encephalitis (TBE)",
+    "scientific_name": "Tick-borne encephalitis virus (Central European subtype)",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "A flavivirus spread by ticks, found in coastal areas of Finland. Causes a two-phase illness: first flu-like symptoms, then encephalitis. A vaccine is available.",
+    "feedback_correct": "Correct! TBE virus is BSL-3.",
+    "feedback_incorrect": "Incorrect! The cause of tick-borne encephalitis is BSL-3 — risk of brain inflammation."
+  },
+  {
+    "id": 48,
+    "common_name": "Malaria (falciparum)",
+    "scientific_name": "Plasmodium falciparum",
+    "type": "Parasite",
+    "bsl_level": 3,
+    "lecture_text": "The most dangerous malaria parasite. Spreads through mosquitoes. Causes cerebral malaria, a life-threatening complication.",
+    "feedback_correct": "Correct! Plasmodium falciparum is BSL-3.",
+    "feedback_incorrect": "Incorrect! P. falciparum is the most dangerous malaria parasite — BSL-3 is required."
+  },
+  {
+    "id": 49,
+    "common_name": "Brucellosis",
+    "scientific_name": "Brucella melitensis",
+    "type": "Bacterium",
+    "bsl_level": 3,
+    "lecture_text": "A bacterium transmitted from animals to humans. Can spread as aerosols. Causes prolonged fever, joint pain, and organ damage.",
+    "feedback_correct": "Correct! Brucella melitensis is BSL-3 — aerosol transmission possible.",
+    "feedback_incorrect": "Incorrect! Brucella is BSL-3 — can spread as aerosols."
+  },
+  {
+    "id": 50,
+    "common_name": "Psittacosis (parrot fever)",
+    "scientific_name": "Chlamydia psittaci (avian strains)",
+    "type": "Bacterium",
+    "bsl_level": 3,
+    "lecture_text": "A chlamydia transmitted through bird droppings. Causes severe pneumonia. Particular risk for bird breeders and veterinarians. Aerosol transmission possible.",
+    "feedback_correct": "Correct! The avian strain of Chlamydia psittaci is BSL-3 — aerosol risk.",
+    "feedback_incorrect": "Incorrect! The cause of parrot fever is BSL-3 — aerosol transmission makes it more dangerous."
+  },
+  {
+    "id": 51,
+    "common_name": "Ebola",
+    "scientific_name": "Ebolavirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "One of the most dangerous viruses in the world. Causes hemorrhagic fever. Spreads through direct contact with body fluids. No effective treatment.",
+    "feedback_correct": "Correct! Ebola is BSL-4 — requires a positive-pressure suit with its own air supply.",
+    "feedback_incorrect": "Incorrect! Ebola is BSL-4 — a positive-pressure suit with its own air supply is mandatory."
+  },
+  {
+    "id": 52,
+    "common_name": "Marburg",
+    "scientific_name": "Marburg marburgvirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "A filovirus closely related to Ebola. Causes severe hemorrhagic fever. No treatment.",
+    "feedback_correct": "Correct! Marburg virus is BSL-4.",
+    "feedback_incorrect": "Incorrect! Marburg is BSL-4 — a full protective suit is essential."
+  },
+  {
+    "id": 53,
+    "common_name": "Lassa fever",
+    "scientific_name": "Lassa mammarenavirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "A West African arenavirus. Spreads from rodents and person to person. Can cause deafness as an aftereffect. No effective treatment.",
+    "feedback_correct": "Correct! Lassa virus is BSL-4.",
+    "feedback_incorrect": "Incorrect! Lassa virus is BSL-4 — spreads person to person without effective treatment."
+  },
+  {
+    "id": 54,
+    "common_name": "Nipah encephalitis",
+    "scientific_name": "Nipah henipavirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "A paramyxovirus carried by bats. Spreads person to person. Extremely high mortality. No vaccine or specific treatment.",
+    "feedback_correct": "Correct! Nipah virus is BSL-4 — extremely high mortality.",
+    "feedback_incorrect": "Incorrect! Nipah is BSL-4 — spreads person to person, no treatment."
+  },
+  {
+    "id": 55,
+    "common_name": "Hendra virus",
+    "scientific_name": "Hendra henipavirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "An Australian paramyxovirus carried by bats. Transmitted from horses to humans. Closely related to Nipah virus. No treatment.",
+    "feedback_correct": "Correct! Hendra virus is BSL-4.",
+    "feedback_incorrect": "Incorrect! Hendra is BSL-4 — no treatment."
+  },
+  {
+    "id": 56,
+    "common_name": "Crimean-Congo hemorrhagic fever",
+    "scientific_name": "Crimean-Congo hemorrhagic fever virus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "A nairovirus spread by ticks. Also spreads through direct blood contact. Found in Africa, Asia, and Southern Europe. No effective treatment.",
+    "feedback_correct": "Correct! CCHFV is BSL-4.",
+    "feedback_incorrect": "Incorrect! Crimean-Congo hemorrhagic fever virus is BSL-4."
+  },
+  {
+    "id": 57,
+    "common_name": "Smallpox (eradicated)",
+    "scientific_name": "Variola virus (Variola major and minor)",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "Eradicated from nature in 1980. Stored at only two laboratories worldwide. BSL-4 research only.",
+    "feedback_correct": "Correct! Variola virus is BSL-4.",
+    "feedback_incorrect": "Incorrect! Variola major is a BSL-4 pathogen — eradicated from nature."
+  },
+  {
+    "id": 58,
+    "common_name": "Bolivian hemorrhagic fever",
+    "scientific_name": "Machupo mammarenavirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "A Bolivian arenavirus spread by rodents. Has also spread person to person in hospital settings. No effective treatment.",
+    "feedback_correct": "Correct! Machupo virus is BSL-4.",
+    "feedback_incorrect": "Incorrect! Machupo is BSL-4 — severe hemorrhagic fever without treatment."
+  },
+  {
+    "id": 59,
+    "common_name": "Junín virus (Argentine hemorrhagic fever)",
+    "scientific_name": "Junín mammarenavirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "An Argentine arenavirus. Spreads from rodents to humans. Only specialized laboratories are permitted to study it.",
+    "feedback_correct": "Correct! Junín virus is BSL-4.",
+    "feedback_incorrect": "Incorrect! Junín is a BSL-4 pathogen — severe hemorrhagic fever."
+  },
+  {
+    "id": 60,
+    "common_name": "Creutzfeldt-Jakob disease (prion)",
+    "scientific_name": "Creutzfeldt-Jakob disease agent (PrPSc prion protein)",
+    "type": "Prion",
+    "bsl_level": 3,
+    "lecture_text": "A rare but always fatal prion disease of the brain. Prions are not destroyed by standard sterilization. The incubation period can be decades.",
+    "feedback_correct": "Correct! The CJD prion is BSL-3.",
+    "feedback_incorrect": "Incorrect! The Creutzfeldt-Jakob disease prion is BSL-3 — not destroyed by standard sterilization."
+  }
+]

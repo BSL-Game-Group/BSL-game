@@ -1,0 +1,14 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: bsl-backend-service
+spec:
+  tags:
+    - name: staging
+      from:
+        kind: DockerImage
+        name: bslgame/bsl-backend-python:staging
+      importPolicy:
+        scheduled: true
+      referencePolicy:
+        type: Local

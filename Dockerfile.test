@@ -2,6 +2,19 @@ FROM mcr.microsoft.com/playwright:v1.60.0-jammy
 
 WORKDIR /app
 
+# install python + pip
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# make pip available as pip
+RUN ln -s /usr/bin/pip3 /usr/bin/pip || true
+
+# ensure Python can import "app"
+ENV PYTHONPATH=/app/backend-python
+
+# install Node deps
 COPY package*.json ./
 COPY backend/package*.json backend/
 COPY frontend/package*.json frontend/
@@ -10,6 +23,17 @@ RUN npm install
 RUN npm --prefix backend install
 RUN npm --prefix frontend install
 
+# install backend python deps FIRST (important for caching)
+COPY backend-python/requirements.txt backend-python/requirements.txt
+RUN pip install --no-cache-dir -r backend-python/requirements.txt
+
+# install test tools
+RUN pip install ruff pytest
+
+# copy backend python source
+COPY backend-python ./backend-python
+
+# copy rest of repo
 COPY . .
 
 CMD ["bash"]

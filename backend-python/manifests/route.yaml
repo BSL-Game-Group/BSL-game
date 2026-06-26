@@ -1,0 +1,10 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: bsl-backend-route
+spec:
+  to:
+    kind: Service
+    name: bsl-backend-service
+  port:
+    targetPort: 8000

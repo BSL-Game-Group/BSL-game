@@ -17,19 +17,21 @@ services:
       retries: 5
 
   migrate:
-    image: bsl-backend
-    build: ./backend
-    command: ["npm", "run", "db:init"]
+    image: bsl-python-backend
+    build: ./backend-python
+    working_dir: /app
+    command: [ "python", "scripts/seed_db.py" ]
     environment:
       DB_URL: postgresql://bsluser:bslpassword@postgres:5432/bsldb
+      PYTHONPATH: /app
     depends_on:
       postgres:
         condition: service_healthy
     restart: "no"
 
   backend:
-    image: bsl-backend
-    build: ./backend
+    image: bsl-python-backend
+    build: ./backend-python
     ports:
       - "3001:3001"
     environment:
