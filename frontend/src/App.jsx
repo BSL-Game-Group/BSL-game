@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Game from './Game.jsx'
-import ClosetPopup from './components/ClosetPopup'
+import ClosetPopup from './components/ClosetPopup/ClosetPopup'
 
 function App() {
   const [gameStarted, setGameStarted] = useState(false)

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import ClosetPopup from '../src/components/ClosetPopup'
+import ClosetPopup from '../src/components/ClosetPopup/ClosetPopup'
 
 // -----------------------------
 // HELPERS
