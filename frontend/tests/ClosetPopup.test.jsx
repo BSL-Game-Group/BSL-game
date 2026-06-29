@@ -2,56 +2,58 @@ import { render, screen, fireEvent, act } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import ClosetPopup from '../src/components/ClosetPopup'
 
+// -----------------------------
+// HELPERS
+// -----------------------------
+function renderPopup(open = true, onClose = jest.fn()) {
+  return render(<ClosetPopup open={open} onClose={onClose} />)
+}
+
 describe('ClosetPopup component', () => {
   test('does not render when closed', () => {
-    render(<ClosetPopup open={false} onClose={jest.fn()} />)
+    renderPopup(false)
 
-    expect(
-      screen.queryByText(/equipment/i)
-    ).not.toBeInTheDocument()
+    expect(screen.queryByText(/equipment/i)).not.toBeInTheDocument()
   })
 
   test('renders when open', () => {
-    render(<ClosetPopup open={true} onClose={jest.fn()} />)
+    renderPopup(true)
 
-    expect(
-      screen.getByText(/equipment/i)
-    ).toBeInTheDocument()
-
-    expect(
-      screen.getByRole('button', { name: /close/i })
-    ).toBeInTheDocument()
+    expect(screen.getByText(/equipment/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument()
   })
 
   test('calls onClose when close button is clicked', () => {
     const onClose = jest.fn()
 
-    render(<ClosetPopup open={true} onClose={onClose} />)
+    renderPopup(true, onClose)
 
-    fireEvent.click(
-      screen.getByRole('button', { name: /close/i })
-    )
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
 
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  test('dispatches popup-opened event when open', () => {
+  // -----------------------------
+  // EVENT TESTS (FIXED: more reliable + less brittle)
+  // -----------------------------
+
+  test('dispatches popup-opened event when mounted', () => {
     const spy = jest.spyOn(window, 'dispatchEvent')
 
-    render(<ClosetPopup open={true} onClose={jest.fn()} />)
+    renderPopup(true)
 
+    expect(spy).toHaveBeenCalled()
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'popup-opened' })
     )
 
     spy.mockRestore()
   })
-  test('dispatches popup-closed event when closed', () => {
+
+  test('dispatches popup-closed event when closed via rerender', () => {
     const spy = jest.spyOn(window, 'dispatchEvent')
 
-    const { rerender } = render(
-      <ClosetPopup open={true} onClose={jest.fn()} />
-    )
+    const { rerender } = renderPopup(true)
 
     rerender(<ClosetPopup open={false} onClose={jest.fn()} />)
 
@@ -61,10 +63,11 @@ describe('ClosetPopup component', () => {
 
     spy.mockRestore()
   })
-  test('dispatches equipment-changed event when component mounts', () => {
+
+  test('dispatches equipment-changed event on mount', () => {
     const spy = jest.spyOn(window, 'dispatchEvent')
 
-    render(<ClosetPopup open={true} onClose={jest.fn()} />)
+    renderPopup(true)
 
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'equipment-changed' })
@@ -72,10 +75,9 @@ describe('ClosetPopup component', () => {
 
     spy.mockRestore()
   })
-  test('dispatches equipment-changed when state updates via event', () => {
-    const spy = jest.spyOn(window, 'dispatchEvent')
 
-    render(<ClosetPopup open={true} onClose={jest.fn()} />)
+  test('handles equipment-changed event update', () => {
+    renderPopup(true)
 
     act(() => {
       window.dispatchEvent(
@@ -89,13 +91,16 @@ describe('ClosetPopup component', () => {
       )
     })
 
-    expect(spy).toHaveBeenCalled()
-
-    spy.mockRestore()
+    // UI should still exist after state update
+    expect(screen.getByText(/equipment/i)).toBeInTheDocument()
   })
 
+  // -----------------------------
+  // UI TESTS
+  // -----------------------------
+
   test('renders inventory items when not equipped', () => {
-    render(<ClosetPopup open={true} onClose={jest.fn()} />)
+    renderPopup(true)
 
     expect(screen.getAllByAltText(/mask/i).length).toBeGreaterThan(0)
     expect(screen.getAllByAltText(/glasses/i).length).toBeGreaterThan(0)
@@ -103,13 +108,13 @@ describe('ClosetPopup component', () => {
   })
 
   test('renders player heading', () => {
-    render(<ClosetPopup open={true} onClose={jest.fn()} />)
+    renderPopup(true)
 
     expect(screen.getByText(/player/i)).toBeInTheDocument()
   })
 
   test('renders base character image', () => {
-    render(<ClosetPopup open={true} onClose={jest.fn()} />)
+    renderPopup(true)
 
     expect(screen.getByAltText('base')).toBeInTheDocument()
   })
