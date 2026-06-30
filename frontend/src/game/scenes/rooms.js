@@ -12,7 +12,7 @@ function makeWall(scene, x, y, w, h) {
 
 function drawPlayField(scene) {
     scene.add
-        .rectangle(640, 360, 1240, 680)
+        .rectangle(640, 360, 1280, 720)
         .setStrokeStyle(2, COLORS.fieldBorder);
 }
 
