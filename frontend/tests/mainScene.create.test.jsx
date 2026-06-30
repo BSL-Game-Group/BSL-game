@@ -68,7 +68,7 @@ test('create sets world bounds', () => {
   scene.create()
 
   expect(scene.physics.world.setBounds)
-    .toHaveBeenCalledWith(20, 20, 1240, 680)
+    .toHaveBeenCalledWith(20, 20, 1280, 720)
 })
 
 test('create creates player sprite', () => {
