@@ -81,11 +81,21 @@ jobs:
       # ---------------------------
       # Run Jest tests
       # ---------------------------
-      - name: Run Jest tests
+      - name: Run Jest tests with coverage
         working-directory: ./frontend
         run: |
           npm ci
-          npm test
+          npm install --save-dev jest
+          npx jest --coverage
+
+      # ---------------------------
+      # Upload coverage to Codecov
+      # --------------------------- 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./frontend/coverage/lcov.info
 
       # ---------------------------
       # Always cleanup
