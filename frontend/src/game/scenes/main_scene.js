@@ -76,8 +76,8 @@ class MainScene extends Phaser.Scene {
         this.playArea = new Phaser.Geom.Rectangle(0, 0, 1280, 720);
         this.createWoodFloor();
 
-        // 1. Create the Base Player
-        this.player = this.physics.add.sprite(700, 300, 'player_base');
+        // 1. Create the Base Player (start in the corridor hub)
+        this.player = this.physics.add.sprite(360, 360, 'player_base');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.4);
         this.player.setDepth(10); 
