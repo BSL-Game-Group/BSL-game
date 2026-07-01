@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { createRooms } from './rooms';
+import microbeService from '../../services/microbes'
 
 export function playerIsInsideZone(player, zone) {
     return (
@@ -109,6 +110,15 @@ class MainScene extends Phaser.Scene {
             color: "#ffffff",
             padding: { left: 6, right: 6, top: 3, bottom: 3 }
         }).setDepth(1000).setVisible(false);
+
+        this.currentMicrobe = null;
+        this.replaceCurrentMicrobeRandomly()
+    }
+
+    replaceCurrentMicrobeRandomly() {
+        microbeService.getRandom().then(microbe => {
+            this.currentMicrobe = microbe
+        })
     }
 
     update() {
