@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { createRooms } from './rooms';
 import microbeService from '../../services/microbes'
+import { EventBus } from '../EventBus'
 
 export function playerIsInsideZone(player, zone) {
     return (
@@ -118,6 +119,7 @@ class MainScene extends Phaser.Scene {
     replaceCurrentMicrobeRandomly() {
         microbeService.getRandom().then(microbe => {
             this.currentMicrobe = microbe
+            EventBus.emit('current-microbe-updated', microbe)
         })
     }
 
