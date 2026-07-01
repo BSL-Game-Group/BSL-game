@@ -21,12 +21,60 @@ class MainScene extends Phaser.Scene {
         this.load.image('mask', 'assets/equipment/equipment_on_character/mask.png');
         this.load.image('glasses', 'assets/equipment/equipment_on_character/glasses.png');
         this.load.image('dresser', 'assets/dresser.png');
+        this.load.image('wood', 'assets/tiles/wood.png');
+    }
+
+    createWoodFloor() {
+        const tileSize = 64;
+
+        if (!this.textures.exists('wood_tile')) {
+            const woodTex = this.textures.get('wood');
+            if (woodTex) {
+                const woodSrc = woodTex.getSourceImage();
+                if (woodSrc) {
+                    const tileTexture = this.textures.createCanvas('wood_tile', tileSize, tileSize);
+                    const ctx = tileTexture.getContext();
+                    const srcW = woodSrc.naturalWidth || woodSrc.width;
+                    const srcH = woodSrc.naturalHeight || woodSrc.height;
+                    // Draw the entire source image scaled down to the tile size (no cropping)
+                    ctx.drawImage(woodSrc, 0, 0, srcW, srcH, 0, 0, tileSize, tileSize);
+                    tileTexture.refresh();
+                } else {
+                    console.warn('wood source image not available when creating wood_tile');
+                }
+            } else {
+                console.warn('wood texture not found when creating wood_tile');
+            }
+        }
+
+        const mapWidth = Math.ceil(this.playArea.width / tileSize);
+        const mapHeight = Math.ceil(this.playArea.height / tileSize);
+
+        const map = this.make.tilemap({
+            width: mapWidth,
+            height: mapHeight,
+            tileWidth: tileSize,
+            tileHeight: tileSize
+        });
+
+        const tileset = map.addTilesetImage('wood_tile', 'wood_tile', tileSize, tileSize, 0, 0);
+
+        const layer = map.createBlankLayer(
+            'wood_floor_layer',
+            tileset,
+            this.playArea.x,
+            this.playArea.y
+        );
+
+        layer.fill(0, 0, 0, mapWidth, mapHeight);
+        layer.setDepth(-10);
     }
 
     create() {
         const walls = createRooms(this);
-        this.physics.world.setBounds(20, 20, 1240, 680);
-        this.playArea = new Phaser.Geom.Rectangle(20, 20, 1240, 680);
+        this.physics.world.setBounds(0, 0, 1280, 720);
+        this.playArea = new Phaser.Geom.Rectangle(0, 0, 1280, 720);
+        this.createWoodFloor();
 
         // 1. Create the Base Player
         this.player = this.physics.add.sprite(700, 300, 'player_base');
