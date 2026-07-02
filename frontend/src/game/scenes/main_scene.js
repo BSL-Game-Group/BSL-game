@@ -157,6 +157,14 @@ class MainScene extends Phaser.Scene {
             color: "#ffffff",
             padding: { left: 6, right: 6, top: 3, bottom: 3 }
         }).setDepth(1000).setVisible(false);
+
+        // Hint shown near a BSL room's blue glow while the player is inside it.
+        this.bslHint = this.add.text(0, 0, "Press E", {
+            fontSize: "14px",
+            backgroundColor: "#000",
+            color: "#fff",
+            padding: { x: 6, y: 3 }
+        }).setDepth(1000).setVisible(false);
     }
 
     update() {
@@ -269,6 +277,44 @@ class MainScene extends Phaser.Scene {
                 }
             } else {
                 this.pressEText.setVisible(false);
+            }
+        }
+
+        // BSL room interactables: show the blue glow while inside a BSL room,
+        // and open the answer popup when E is pressed there.
+        if (this.bslGlows) {
+            let activeCenter = null;
+
+            for (const entry of this.bslGlows) {
+                const inside = playerIsInsideZone(this.player, entry.zone);
+
+                if (inside && !entry.playerInside) {
+                    entry.glow.setVisible(true);
+                    entry.tween.resume();
+                    entry.playerInside = true;
+                } else if (!inside && entry.playerInside) {
+                    entry.glow.setVisible(false);
+                    entry.tween.pause();
+                    entry.playerInside = false;
+                }
+
+                if (inside) {
+                    activeCenter = entry.center;
+                    if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                        window.dispatchEvent(
+                            new CustomEvent('answer-popup-opened', { detail: { level: entry.key } })
+                        );
+                    }
+                }
+            }
+
+            if (this.bslHint) {
+                if (activeCenter) {
+                    this.bslHint.setVisible(true);
+                    this.bslHint.setPosition(activeCenter.x - 28, activeCenter.y - 48);
+                } else {
+                    this.bslHint.setVisible(false);
+                }
             }
         }
     }

@@ -186,6 +186,58 @@ function drawBSLRoom(scene, cx, cy, w, h, label) {
     ];
 }
 
+// Blue glow interactable in the top-right corner of every BSL room.
+// Placeholder for the real element (image TBD with the team) — pressing E
+// or clicking it opens the answer popup for that room's level.
+function setupBslInteractables(scene) {
+    const inset = 35;   // distance in from the top-right corner
+    const radius = 24;
+
+    scene.bslGlows = scene.bslRoomZones.map((zone) => {
+        const cx = zone.x + zone.width - inset;
+        const cy = zone.y + inset;
+
+        const glow = scene.add.graphics();
+        glow.fillStyle(0x1e90ff, 0.8);
+        glow.fillCircle(cx, cy, radius);
+        glow.lineStyle(3, 0x1e90ff);
+        glow.strokeCircle(cx, cy, radius);
+        glow.setVisible(false);
+        glow.setDepth(5);
+
+        const tween = scene.tweens.add({
+            targets: glow,
+            alpha: { from: 1.0, to: 0.3 },
+            duration: 1000,
+            yoyo: true,
+            repeat: -1,
+        });
+        tween.pause();
+
+        const entry = {
+            key: zone.key,
+            zone,
+            center: { x: cx, y: cy },
+            glow,
+            tween,
+            playerInside: false,
+        };
+
+        // Invisible clickable area over the glow (no image needed).
+        const hit = scene.add
+            .zone(cx, cy, radius * 2.4, radius * 2.4)
+            .setInteractive({ useHandCursor: true });
+        hit.on('pointerdown', () => {
+            if (!entry.playerInside) { return; }
+            window.dispatchEvent(
+                new CustomEvent('answer-popup-opened', { detail: { level: entry.key } })
+            );
+        });
+
+        return entry;
+    });
+}
+
 export function createRooms(scene) {
     drawPlayField(scene);
 
@@ -196,6 +248,8 @@ export function createRooms(scene) {
         { key: 'BSL-4', x: 990, y: 500, width: 200, height: 150 },
     ];
     window.__gameData = { ...window.__gameData, bslRoomZones: scene.bslRoomZones };
+
+    setupBslInteractables(scene);
 
     return [
         ...drawLectureRoom(scene),
