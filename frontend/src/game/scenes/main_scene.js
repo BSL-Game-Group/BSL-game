@@ -76,8 +76,8 @@ class MainScene extends Phaser.Scene {
         this.playArea = new Phaser.Geom.Rectangle(0, 0, 1280, 720);
         this.createWoodFloor();
 
-        // 1. Create the Base Player
-        this.player = this.physics.add.sprite(700, 300, 'player_base');
+        // 1. Create the Base Player (start in the corridor hub)
+        this.player = this.physics.add.sprite(360, 360, 'player_base');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.4);
         this.player.setDepth(10); 
@@ -310,8 +310,13 @@ class MainScene extends Phaser.Scene {
 
             if (this.bslHint) {
                 if (activeCenter) {
+                    // Top-row rooms (glow near the screen top) would push the hint
+                    // off-screen / behind the wall, so show it below the glow there.
+                    const hintY = activeCenter.y > 80
+                        ? activeCenter.y - 48   // room lower down: hint above the glow
+                        : activeCenter.y + 36;  // top room: hint below the glow
                     this.bslHint.setVisible(true);
-                    this.bslHint.setPosition(activeCenter.x - 28, activeCenter.y - 48);
+                    this.bslHint.setPosition(activeCenter.x - 28, hintY);
                 } else {
                     this.bslHint.setVisible(false);
                 }
