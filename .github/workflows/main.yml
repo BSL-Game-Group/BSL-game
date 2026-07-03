@@ -17,9 +17,9 @@ jobs:
       # ---------------------------
       # Backend unit tests (fail fast before building the stack)
       # ---------------------------
-      - name: Backend unit tests
+      - name: Backend unit tests (with coverage)
         working-directory: ./backend
-        run: npm test
+        run: npm test -- --coverage
 
       # ---------------------------
       # Start full stack
@@ -96,11 +96,19 @@ jobs:
       # ---------------------------
       # Upload coverage to Codecov
       # ---------------------------
-      - name: Upload coverage to Codecov
+      - name: Upload frontend coverage
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./frontend/coverage/lcov.info
+          flags: frontend
+
+      - name: Upload backend coverage
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./backend/coverage/lcov.info
+          flags: backend
 
       # ---------------------------
       # Always cleanup

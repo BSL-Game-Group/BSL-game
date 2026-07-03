@@ -1,3 +1,7 @@
+![Overall Coverage](https://codecov.io/gh/BSL-Game-Group/BSL-game/branch/main/graph/badge.svg?token=7AAAO14S1O)
+![Frontend Coverage](https://codecov.io/gh/BSL-Game-Group/BSL-game/graph/badge.svg?flag=frontend)
+![Backend Coverage](https://codecov.io/gh/BSL-Game-Group/BSL-game/graph/badge.svg?flag=backend)
+
 # BSL-game
 Laboratories are classified into different biosafety levels depending on the types of organisms handled there. These different levels also require different types of clothing and protective gear. The idea is to develop a game in which users can practice which clothing and protective gear should be used.
 
