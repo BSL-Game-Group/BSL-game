@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "node --test",
+    "test": "c8 --reporter=lcov --reporter=text node --test",
     "lint": "eslint .",
     "db:migrate": "sequelize-cli db:migrate",
     "db:seed": "sequelize-cli db:seed:all",
@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "c8": "^11.0.0",
     "eslint": "^10.4.1",
     "globals": "^17.6.0",
     "sequelize-cli": "^6.6.5"
