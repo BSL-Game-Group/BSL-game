@@ -15,11 +15,21 @@ jobs:
         uses: actions/checkout@v4
 
       # ---------------------------
-      # Backend unit tests (fail fast before building the stack)
+      # Clean coverage
+      # ---------------------------
+      - name: Clean old coverage
+        run: |
+          rm -rf frontend/coverage
+          rm -rf backend/coverage
+
+      # ---------------------------
+      # Backend unit tests
       # ---------------------------
       - name: Backend unit tests (with coverage)
         working-directory: ./backend
-        run: node --test --experimental-test-coverage
+        run: |
+          npm ci
+          npm test
 
       # ---------------------------
       # Start full stack
@@ -73,25 +83,30 @@ jobs:
         run: npx playwright install --with-deps
 
       # ---------------------------
-      # Run tests
+      # Run Playwright tests
       # ---------------------------
       - name: Run Playwright tests
         run: npx playwright test
-      
-      # ---------------------------
-      # Run Jest tests
-      # ---------------------------
-      
-      - name: Clean old coverage
-        run: |
-          rm -rf frontend/coverage
-          rm -rf backend/coverage
 
+      # ---------------------------
+      # Frontend Jest tests
+      # ---------------------------
       - name: Run Jest tests with coverage
         working-directory: ./frontend
         run: |
           npm ci
           npm test -- --coverage
+
+      # ---------------------------
+      # Debug coverage (temporary)
+      # ---------------------------
+      - name: Verify coverage files
+        run: |
+          echo "Backend coverage:"
+          ls -R backend/coverage || true
+
+          echo "Frontend coverage:"
+          ls -R frontend/coverage || true
 
       # ---------------------------
       # Upload coverage to Codecov
