@@ -19,7 +19,7 @@ jobs:
       # ---------------------------
       - name: Backend unit tests (with coverage)
         working-directory: ./backend
-        run: npm test -- --coverage
+        run: node --test --experimental-test-coverage
 
       # ---------------------------
       # Start full stack
