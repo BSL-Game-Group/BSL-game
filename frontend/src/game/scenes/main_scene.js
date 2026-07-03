@@ -21,7 +21,7 @@ class MainScene extends Phaser.Scene {
         this.load.image('mask', 'assets/equipment/equipment_on_character/mask.png');
         this.load.image('glasses', 'assets/equipment/equipment_on_character/glasses.png');
         this.load.image('dresser', 'assets/dresser.png');
-        this.load.image('wood', 'assets/tiles/wood.png');
+        this.load.image('wood', 'assets/tiles/birchwood.png');
     }
 
     createWoodFloor() {
