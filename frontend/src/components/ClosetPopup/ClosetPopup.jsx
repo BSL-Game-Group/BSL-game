@@ -68,21 +68,8 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div
-        style={{
-          position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-          display: 'flex', justifyContent: 'center', alignItems: 'center',
-          backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000,
-        }}
-      >
-        <div
-          style={{
-            background: '#fff', padding: '32px', borderRadius: '12px',
-            width: '80%', maxWidth: '820px', minHeight: '520px',
-            boxShadow: '0 16px 48px rgba(0,0,0,0.25)', position: 'relative',
-            display: 'flex', flexDirection: 'column'
-          }}
-        >
+      <div className="popup-overlay">
+        <div className="popup-box">
           <button
             onClick={onClose}
             style={{
