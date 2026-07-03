@@ -2,14 +2,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  # PostgreSQL
-  - infra/postgres-pvc.yaml
-  - infra/postgres-service.yaml
-  - infra/postgres-deployment.yaml
-
   # Backend
-  - backend/manifests/configmap.yaml
-  - backend/manifests/secret.yaml
+  # NOTE: the backend connects to the external managed Postgres ("possu") via the
+  # bsl-backend-secret (DB_URL), which is created directly on the cluster — there is no
+  # in-cluster Postgres and no secret/configmap manifest in this repo.
   - backend/manifests/imagestream.yaml
   - backend/manifests/service.yaml
   - backend/manifests/deployment.yaml
