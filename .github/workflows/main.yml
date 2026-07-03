@@ -98,7 +98,7 @@ jobs:
           npm test -- --coverage
 
       # ---------------------------
-      # Debug coverage (temporary)
+      # Debug coverage
       # ---------------------------
       - name: Verify coverage files
         run: |
@@ -109,21 +109,28 @@ jobs:
           ls -R frontend/coverage || true
 
       # ---------------------------
-      # Upload coverage to Codecov
+      # Upload frontend coverage
       # ---------------------------
       - name: Upload frontend coverage
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./frontend/coverage/lcov.info
+          directory: ./frontend
+          files: coverage/lcov.info
           flags: frontend
+          verbose: true
 
+      # ---------------------------
+      # Upload backend coverage
+      # ---------------------------
       - name: Upload backend coverage
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./backend/coverage/lcov.info
+          directory: ./backend
+          files: coverage/lcov.info
           flags: backend
+          verbose: true
 
       # ---------------------------
       # Always cleanup
