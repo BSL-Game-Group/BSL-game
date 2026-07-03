@@ -1,0 +1,53 @@
+/* Base styles for BSL-game frontend */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+body {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  /* Green to black gradient background */
+  background-color: #093412; /* fallback */
+  background-image: linear-gradient(180deg, #0b6623 0%, #000000 100%);
+  color: #e6eef6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure Phaser canvas fills the available area */
+.phaser-game-canvas, canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Game container utility */
+.game-container {
+  width: 1280px;
+  height: 720px;
+  margin: 24px auto;
+  position: relative;
+}
+
+/* UI text hints */
+.game-ui-text {
+  font-size: 14px;
+  background: rgba(0,0,0,0.6);
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+/* Closet popup styling */
+.popup-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; justify-content: center; align-items: center;
+  background-color: rgba(0,0,0,0.5); z-index: 1000;
+}
+
+.popup-box {
+  background: #fff; padding: 32px; width: 80%; max-width: 820px; min-height: 520px;
+  position: relative; display: flex; flex-direction: column;
+  border-radius: 18px;
+  border: 8px solid #0b6623;
+  color: #000;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+}
