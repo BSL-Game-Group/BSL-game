@@ -1,6 +1,6 @@
 const COLORS = {
     wall: 0x2c3038,
-    text: '#ffffff',
+    text: '#000000',
 };
 
 const T = 6; // wall thickness
@@ -175,20 +175,20 @@ export function createRooms(scene) {
     // Corridor bottom = Dressing room top (one door)
     hWall(scene, 0, 700, 430, [[300, 390]], walls);
 
-    // ---- BIG DIVIDER x:700 (only Corridor <-> Labs door, wide) ----
-    vWall(scene, 700, 0, 720, [[300, 420]], walls);
+    // ---- BIG DIVIDER x:700 (Corridor <-> Labs door, opening nudged: top up, bottom down) ----
+    vWall(scene, 700, 0, 720, [[292, 425]], walls);
 
     // ---- MIDDLE-RIGHT COLUMN: BSL 2 / Labs / BSL 1 ----
     hWall(scene, 700, 960, 250, [[790, 880]], walls); // BSL 2 <-> Labs
     hWall(scene, 700, 960, 470, [[790, 880]], walls); // Labs <-> BSL 1
 
-    // ---- x:960 wall (Labs <-> airlock column), two doors ----
-    vWall(scene, 960, 0, 720, [[258, 358], [366, 466]], walls);
+    // ---- x:960 wall (Labs <-> airlock column), one clean door spanning the airlock rows ----
+    vWall(scene, 960, 0, 720, [[250, 470]], walls);
 
     // ---- AIRLOCK BLOCK (rows 110px tall for easier passage) ----
     hWall(scene, 960, 1280, 250, [[1140, 1230]], walls); // BSL 4 <-> BSL4 airlock 2 only
     hWall(scene, 960, 1280, 360, [], walls);             // row divider (solid)
-    vWall(scene, 1110, 250, 470, [[258, 358]], walls);   // BSL4 airlock 1 <-> 2 (top row only)
+    vWall(scene, 1110, 250, 470, [[250, 360]], walls);   // BSL4 airlock 1 <-> 2 (clean top-row opening)
     hWall(scene, 960, 1280, 470, [[990, 1080]], walls);  // BSL3 airlock <-> BSL 3 only
 
     // ---- LABELS ----
@@ -200,10 +200,10 @@ export function createRooms(scene) {
     label(scene, 830, 360, 'Labs', 12);
     label(scene, 830, 595, 'BSL 1', 16, true);
     label(scene, 1120, 125, 'BSL 4', 16, true);
-    label(scene, 1035, 305, 'BSL4\nairlock 1', 9);
-    label(scene, 1195, 305, 'BSL4\nairlock 2', 9);
-    label(scene, 1035, 415, 'BSL3\nairlock', 9);
-    label(scene, 1195, 415, 'air\nsystem', 9);
+    label(scene, 1035, 305, 'BSL4\nAIRLOCK 1', 9);
+    label(scene, 1195, 305, 'BSL4\nAIRLOCK 2', 9);
+    label(scene, 1035, 415, 'BSL3\nAIRLOCK', 9);
+    label(scene, 1195, 415, 'AIR\nSYSTEM', 9);
     label(scene, 1120, 595, 'BSL 3', 16, true);
 
     // ---- ZONES (game logic) ----
