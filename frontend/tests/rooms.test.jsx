@@ -223,4 +223,18 @@ describe('setupBslInteractables (via createRooms)', () => {
     ])
     scene.bslGlows.forEach((g) => expect(g.playerInside).toBe(false))
   })
+
+  test('positions the BSL-3 glow at top-centre and the others at top-left', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    const centreByKey = Object.fromEntries(
+      scene.bslGlows.map((g) => [g.key, g.center])
+    )
+    // BSL-3 is centred horizontally within its 320-wide zone (x 960..1280).
+    expect(centreByKey['BSL-3']).toEqual({ x: 1120, y: 505 })
+    // BSL-1 is inset from the left edge of its zone (x 700).
+    expect(centreByKey['BSL-1']).toEqual({ x: 735, y: 505 })
+  })
 })
