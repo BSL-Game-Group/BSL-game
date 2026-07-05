@@ -16,17 +16,19 @@ const Task = () => {
         }
     }, [])
 
-    if (microbe !== null) return (
-        <div>
-            <h2>The microbe you will handle</h2>
-            <ul>
-                <li>{microbe.common_name}</li>
-                <li>{microbe.scientific_name}</li>
-                <li>{microbe.type}</li>
-                <li>{microbe.lecture_text}</li>
-            </ul>
-        </div>
-    )
+    if (microbe !== null) {
+        return (
+            <div>
+                <h2>The microbe you will handle</h2>
+                <ul>
+                    <li>{microbe.common_name}</li>
+                    <li>{microbe.scientific_name}</li>
+                    <li>{microbe.type}</li>
+                    <li>{microbe.lecture_text}</li>
+                </ul>
+            </div>
+        )
+    }
 }
 
 export default Task

@@ -5,7 +5,7 @@ const getRandom = async () => {
     try {
         const response = await axios.get(`${rootURL}/random`)
         return response.data
-    } catch (error) {
+    } catch {
         return null
     }
 }
