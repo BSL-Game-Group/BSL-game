@@ -1,6 +1,9 @@
 import axios from 'axios'
 const rootURL = '/api/microbes'
 
-const getRandom = () => axios.get(`${rootURL}/random`).then(res => res.data)
+const getRandom = async () => {
+    const response = await axios.get(`${rootURL}/random`)
+    return response.data
+}
 
 export default { getRandom }
