@@ -173,4 +173,18 @@ describe('setupCloset (via createRooms)', () => {
     window.removeEventListener('closet-popup-opened', listener)
     expect(listener).toHaveBeenCalledTimes(1)
   })
+
+  test('clicking the dresser does nothing when the player is outside', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('closet-popup-opened', listener)
+    scene.playerInsideDressingRoom = false
+
+    scene.closetImage.handlers.pointerdown()
+
+    window.removeEventListener('closet-popup-opened', listener)
+    expect(listener).not.toHaveBeenCalled()
+  })
 })
