@@ -224,13 +224,6 @@ export function createRooms(scene) {
         .setDisplaySize(bsl2.width, bsl2.height)
         .setDepth(-5);
 
-    window.__gameData = {
-        ...window.__gameData,
-        lectureRoomZone: scene.lectureRoomZone,
-        ppeRoomZone: scene.ppeRoomZone,
-        bslRoomZones: scene.bslRoomZones,
-    };
-
     // Draw the BSL-4 background image
     const bsl4 = scene.bslRoomZones.find(zone => zone.key === 'BSL-4');
 
@@ -238,13 +231,6 @@ export function createRooms(scene) {
         .setOrigin(0, 0)
         .setDisplaySize(bsl4.width, bsl4.height)
         .setDepth(-5);
-
-    window.__gameData = {
-        ...window.__gameData,
-        lectureRoomZone: scene.lectureRoomZone,
-        ppeRoomZone: scene.ppeRoomZone,
-        bslRoomZones: scene.bslRoomZones,
-    };
 
     setupCloset(scene);
     setupBslInteractables(scene);

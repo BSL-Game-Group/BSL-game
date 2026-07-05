@@ -43,6 +43,7 @@ class MainScene extends Phaser.Scene {
             }
 
             await response.json();
+        // eslint-disable-next-line no-unused-vars
         } catch (error) {
             // Silently fail - room entry is not critical to gameplay
         }
