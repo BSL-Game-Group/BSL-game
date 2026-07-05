@@ -187,4 +187,23 @@ describe('setupCloset (via createRooms)', () => {
     window.removeEventListener('closet-popup-opened', listener)
     expect(listener).not.toHaveBeenCalled()
   })
+
+  test('hovering the dresser toggles the hint only when inside', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    // Inside: hover shows the hint, then pointerout hides it.
+    scene.playerInsideDressingRoom = true
+    scene.closetImage.handlers.pointerover()
+    expect(scene.closetHint.setVisible).toHaveBeenCalledWith(true)
+
+    scene.closetImage.handlers.pointerout()
+    expect(scene.closetHint.setVisible).toHaveBeenCalledWith(false)
+
+    // Outside: hover does not show the hint.
+    scene.closetHint.setVisible.mockClear()
+    scene.playerInsideDressingRoom = false
+    scene.closetImage.handlers.pointerover()
+    expect(scene.closetHint.setVisible).not.toHaveBeenCalledWith(true)
+  })
 })
