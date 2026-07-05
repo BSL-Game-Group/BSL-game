@@ -216,6 +216,29 @@ export function createRooms(scene) {
         { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 },
     ];
 
+    // Draw the BSL-2 background image
+    const bsl2 = scene.bslRoomZones.find(zone => zone.key === 'BSL-2');
+
+    scene.add.image(bsl2.x, bsl2.y, 'bsl2_room')
+        .setOrigin(0, 0)
+        .setDisplaySize(bsl2.width, bsl2.height)
+        .setDepth(-5);
+
+    window.__gameData = {
+        ...window.__gameData,
+        lectureRoomZone: scene.lectureRoomZone,
+        ppeRoomZone: scene.ppeRoomZone,
+        bslRoomZones: scene.bslRoomZones,
+    };
+
+    // Draw the BSL-4 background image
+    const bsl4 = scene.bslRoomZones.find(zone => zone.key === 'BSL-4');
+
+    scene.add.image(bsl4.x, bsl4.y, 'bsl4_room')
+        .setOrigin(0, 0)
+        .setDisplaySize(bsl4.width, bsl4.height)
+        .setDepth(-5);
+
     window.__gameData = {
         ...window.__gameData,
         lectureRoomZone: scene.lectureRoomZone,
