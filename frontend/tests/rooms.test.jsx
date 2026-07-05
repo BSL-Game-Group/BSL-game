@@ -207,3 +207,20 @@ describe('setupCloset (via createRooms)', () => {
     expect(scene.closetHint.setVisible).not.toHaveBeenCalledWith(true)
   })
 })
+
+describe('setupBslInteractables (via createRooms)', () => {
+  test('creates one interactable entry per BSL room, starting outside', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.bslGlows).toHaveLength(4)
+    expect(scene.bslGlows.map((g) => g.key)).toEqual([
+      'BSL-1',
+      'BSL-2',
+      'BSL-3',
+      'BSL-4',
+    ])
+    scene.bslGlows.forEach((g) => expect(g.playerInside).toBe(false))
+  })
+})
