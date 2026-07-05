@@ -62,6 +62,29 @@ app.get('/api/microbes/:id', async (req, res) => {
   }
 })
 
+app.post('/api/rooms/enter', async (req, res) => {
+  try {
+    const { room_key, session_id } = req.body
+    
+    if (!room_key || !session_id) {
+      return res.status(400).json({ error: 'Missing room_key or session_id' })
+    }
+
+    await db.RoomEntry.create({
+      session_id,
+      room_key,
+    })
+
+    // Extract room number from room_key (e.g., "BSL-1" -> "1")
+    const roomNumber = room_key.split('-')[1] || room_key
+    
+    res.status(201).json({ room_number: roomNumber })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Failed to record room entry' })
+  }
+})
+
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
