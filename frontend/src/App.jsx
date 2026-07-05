@@ -41,7 +41,22 @@ function App() {
       <h1>BSL-game</h1>
 
       {!gameStarted ? (
-        <button onClick={() => setGameStarted(true)} style={{ cursor: 'pointer' }}>Start Game</button>
+        <>
+          <button onClick={() => setGameStarted(true)} style={{ cursor: 'pointer' }}>Start Game</button>
+
+          <section className="game-instructions">
+            <h2>How to play</h2>
+            <ol>
+              <li>A microbe is assigned to you at random.</li>
+              <li>Go to the lecture room to read the microbe&apos;s details and its BSL level.</li>
+              <li>Remember the BSL level — it decides everything.</li>
+              <li>Go to the dressing room and open the closet (press <kbd>E</kbd>).</li>
+              <li>Put on the protective equipment the level requires (lab coat, mask, glasses…).</li>
+              <li>Go to the matching BSL room (1–4).</li>
+              <li>Press <kbd>E</kbd> at the blue element to handle the microbe.</li>
+            </ol>
+          </section>
+        </>
       ) : (
         <div style={{ display: 'flex', alignItems: 'flex-start' }}>
           <div
