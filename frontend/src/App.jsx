@@ -55,6 +55,9 @@ function App() {
               <li>Go to the matching BSL room (1–4).</li>
               <li>Press <kbd>E</kbd> at the blue element to handle the microbe.</li>
             </ol>
+            <p className="game-instructions__controls">
+              <strong>Controls:</strong> Arrow keys / click to move · <kbd>E</kbd> or click to interact · Close button to close windows
+            </p>
           </section>
         </>
       ) : (
