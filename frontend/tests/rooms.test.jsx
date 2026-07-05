@@ -60,4 +60,26 @@ describe('createRooms', () => {
     // Every wall segment is given a static physics body.
     expect(scene.physics.add.existing).toHaveBeenCalledTimes(walls.length)
   })
+
+  test('horizontal walls leave a gap at doorways', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    // The dressing-room door sits on the y=430 wall line, spanning x 300..390.
+    const doorLineY = 430
+    const doorMidX = 345
+    const wallsOnDoorLine = scene.__created.rectangles.filter(
+      (r) => r.args.y === doorLineY
+    )
+
+    // There are wall segments on that line...
+    expect(wallsOnDoorLine.length).toBeGreaterThan(0)
+    // ...but none of them covers the door opening.
+    const coversDoor = wallsOnDoorLine.some((r) => {
+      const halfW = r.args.w / 2
+      return doorMidX > r.args.x - halfW && doorMidX < r.args.x + halfW
+    })
+    expect(coversDoor).toBe(false)
+  })
 })
