@@ -91,4 +91,25 @@ describe('createRooms', () => {
     expect(scene.lectureRoomZone).toEqual({ x: 0, y: 0, width: 480, height: 290 })
     expect(scene.ppeRoomZone).toEqual({ x: 0, y: 430, width: 700, height: 290 })
   })
+
+  test('sets four BSL room zones with the expected keys and coordinates', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.bslRoomZones).toHaveLength(4)
+    expect(scene.bslRoomZones.map((z) => z.key)).toEqual([
+      'BSL-1',
+      'BSL-2',
+      'BSL-3',
+      'BSL-4',
+    ])
+    expect(scene.bslRoomZones).toContainEqual({
+      key: 'BSL-3',
+      x: 960,
+      y: 470,
+      width: 320,
+      height: 250,
+    })
+  })
 })
