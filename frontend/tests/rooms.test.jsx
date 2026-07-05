@@ -237,4 +237,28 @@ describe('setupBslInteractables (via createRooms)', () => {
     // BSL-1 is inset from the left edge of its zone (x 700).
     expect(centreByKey['BSL-1']).toEqual({ x: 735, y: 505 })
   })
+
+  test('clicking a BSL glow opens the answer popup for that room, only when inside', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const levels = []
+    const listener = (e) => levels.push(e.detail.level)
+    window.addEventListener('answer-popup-opened', listener)
+
+    // Hit zones are created in the same order as bslGlows: BSL-1, BSL-2, BSL-3, BSL-4.
+    const bsl2Zone = scene.__created.zones[1]
+
+    // Outside the room → clicking does nothing.
+    scene.bslGlows[1].playerInside = false
+    bsl2Zone.handlers.pointerdown()
+    expect(levels).toHaveLength(0)
+
+    // Inside the room → the answer popup opens for BSL-2.
+    scene.bslGlows[1].playerInside = true
+    bsl2Zone.handlers.pointerdown()
+
+    window.removeEventListener('answer-popup-opened', listener)
+    expect(levels).toEqual(['BSL-2'])
+  })
 })
