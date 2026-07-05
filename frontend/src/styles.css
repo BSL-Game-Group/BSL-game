@@ -58,13 +58,78 @@ body {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
+
+/* Animated shimmering game title */
+.app-title {
+  position: relative;
+  z-index: 1;
+  font-size: 2.4rem;
+  color: #7ee29a; /* fallback if gradient-text clipping is unsupported */
+}
+/* Only make the text transparent (gradient fill) where clipping is supported,
+   so the title can never become invisible on older browsers. */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .app-title {
+    background: linear-gradient(90deg, #7ee29a, #14a83e, #a8f5c0, #14a83e, #7ee29a);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 22px rgba(20, 168, 62, 0.35);
+    animation: titleShimmer 6s linear infinite;
+  }
+}
+@keyframes titleShimmer {
+  to { background-position: 200% center; }
+}
+
+/* ---------- Living microbe field behind the start screen ---------- */
+.microbe-field {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.microbe {
+  position: absolute;
+  border-radius: 50%;
+  /* cell-like: bright rim fading into a translucent body */
+  background: radial-gradient(circle at 38% 34%,
+    rgba(190, 255, 210, 0.55),
+    rgba(20, 168, 62, 0.18) 55%,
+    rgba(11, 102, 35, 0.06) 72%,
+    transparent 74%);
+  box-shadow: 0 0 16px rgba(20, 168, 62, 0.35),
+              inset 0 0 12px rgba(126, 226, 154, 0.35);
+  opacity: 0.55;
+  animation: microbeDrift 28s ease-in-out infinite;
+}
+@keyframes microbeDrift {
+  0%   { transform: translate(0, 0) scale(1); }
+  25%  { transform: translate(40px, -34px) scale(1.08); }
+  50%  { transform: translate(-24px, -72px) scale(0.94); }
+  75%  { transform: translate(32px, -44px) scale(1.05); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+.microbe:nth-child(1) { width: 72px; height: 72px; left: 8%;  top: 22%; animation-duration: 24s; }
+.microbe:nth-child(2) { width: 46px; height: 46px; left: 22%; top: 66%; animation-duration: 30s; animation-delay: -5s; }
+.microbe:nth-child(3) { width: 94px; height: 94px; left: 77%; top: 30%; animation-duration: 34s; animation-delay: -12s; }
+.microbe:nth-child(4) { width: 34px; height: 34px; left: 64%; top: 76%; animation-duration: 22s; animation-delay: -3s; }
+.microbe:nth-child(5) { width: 58px; height: 58px; left: 88%; top: 62%; animation-duration: 27s; animation-delay: -9s; }
+.microbe:nth-child(6) { width: 40px; height: 40px; left: 45%; top: 14%; animation-duration: 32s; animation-delay: -15s; }
+.microbe:nth-child(7) { width: 26px; height: 26px; left: 14%; top: 85%; animation-duration: 20s; animation-delay: -7s; }
+.microbe:nth-child(8) { width: 66px; height: 66px; left: 55%; top: 52%; animation-duration: 36s; animation-delay: -18s; opacity: 0.4; }
+.microbe:nth-child(9) { width: 30px; height: 30px; left: 92%; top: 12%; animation-duration: 25s; animation-delay: -2s; }
 .start-screen__subtitle {
-  margin: 4px 0 22px;
-  max-width: 560px;
+  margin: 2px 0 16px;
+  max-width: 720px;
   text-align: center;
   color: #cfe8d6;
-  font-size: 1.05rem;
+  font-size: 1.08rem;
 }
 
 /* Big call-to-action start button */
@@ -93,9 +158,11 @@ body {
 
 /* "How to play" instruction card */
 .game-instructions {
-  max-width: 560px;
-  margin: 26px auto 0;
-  padding: 24px 28px;
+  max-width: 960px;
+  width: calc(100% - 48px);
+  margin: 16px auto 0;
+  padding: 22px 40px;
+  box-sizing: border-box;
   background: rgba(0, 0, 0, 0.28);
   border: 2px solid #0b6623;
   border-radius: 14px;
@@ -104,11 +171,11 @@ body {
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);
 }
 .game-instructions h2 {
-  margin: 0 0 20px;
+  margin: 0 0 14px;
   text-align: center;
   color: #7ee29a;
   position: relative;
-  padding-bottom: 10px;
+  padding-bottom: 8px;
 }
 /* Accent underline under the heading */
 .game-instructions h2::after {
@@ -129,17 +196,23 @@ body {
   margin: 0;
   padding: 0;
   counter-reset: step;
+  /* Two columns so all steps fit in one view without scrolling */
+  columns: 2;
+  column-gap: 30px;
 }
 .instruction-steps li {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 8px;
-  padding: 9px 12px;
+  gap: 12px;
+  margin-bottom: 7px;
+  padding: 7px 12px;
   background: rgba(255, 255, 255, 0.04);
   border-left: 3px solid transparent;
   border-radius: 8px;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  /* Keep each step whole inside its column */
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
 }
 .instruction-steps li:hover {
   background: rgba(20, 168, 62, 0.16);
@@ -177,4 +250,59 @@ body {
   font-size: 0.85em;
   font-family: inherit;
   font-weight: 600;
+}
+
+/* ---------- Start-screen animations ---------- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* Start button "breathes" with a soft green glow, echoing the in-game glows */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(20, 168, 62, 0); }
+  50%      { box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4), 0 0 22px 5px rgba(20, 168, 62, 0.45); }
+}
+
+.start-screen__subtitle { animation: fadeUp 0.5s ease both; }
+.game-instructions { animation: fadeUp 0.55s ease 0.15s both; }
+
+/* Entrance fade only (no transform) so the :hover lift still works */
+.start-button {
+  animation: fadeIn 0.5s ease 0.1s both, pulseGlow 2.6s ease-in-out 0.9s infinite;
+}
+
+/* Steps reveal one after another */
+.instruction-steps li {
+  opacity: 0;
+  animation: fadeIn 0.4s ease forwards;
+}
+.instruction-steps li:nth-child(1) { animation-delay: 0.40s; }
+.instruction-steps li:nth-child(2) { animation-delay: 0.50s; }
+.instruction-steps li:nth-child(3) { animation-delay: 0.60s; }
+.instruction-steps li:nth-child(4) { animation-delay: 0.70s; }
+.instruction-steps li:nth-child(5) { animation-delay: 0.80s; }
+.instruction-steps li:nth-child(6) { animation-delay: 0.90s; }
+.instruction-steps li:nth-child(7)  { animation-delay: 1.00s; }
+.instruction-steps li:nth-child(8)  { animation-delay: 1.10s; }
+.instruction-steps li:nth-child(9)  { animation-delay: 1.20s; }
+.instruction-steps li:nth-child(10) { animation-delay: 1.30s; }
+.instruction-steps li:nth-child(11) { animation-delay: 1.40s; }
+.instruction-steps li:nth-child(12) { animation-delay: 1.50s; }
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .start-screen__subtitle,
+  .game-instructions,
+  .start-button,
+  .instruction-steps li,
+  .app-title,
+  .microbe {
+    animation: none;
+    opacity: 1;
+  }
+  .microbe { opacity: 0.4; }
 }

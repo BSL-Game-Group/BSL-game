@@ -78,6 +78,30 @@ describe('Start button', () => {
 })
 
 // -----------------------------
+// START-SCREEN INSTRUCTIONS TESTS
+// -----------------------------
+describe('Start-screen instructions', () => {
+  test('shows the "How to play" instructions before the game starts', () => {
+    renderApp()
+
+    expect(
+      screen.getByRole('heading', { name: /how to play/i })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/a microbe is assigned to you at random/i)
+    ).toBeInTheDocument()
+  })
+
+  test('hides the instructions once the game starts', () => {
+    startGame()
+
+    expect(
+      screen.queryByRole('heading', { name: /how to play/i })
+    ).not.toBeInTheDocument()
+  })
+})
+
+// -----------------------------
 // LECTURE PANEL TESTS
 // -----------------------------
 test('lecture panel is hidden before entering lecture room', () => {
