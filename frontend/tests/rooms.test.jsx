@@ -122,4 +122,25 @@ describe('createRooms', () => {
     expect(window.__gameData.ppeRoomZone).toEqual(scene.ppeRoomZone)
     expect(window.__gameData.bslRoomZones).toEqual(scene.bslRoomZones)
   })
+
+  test('draws the room labels, centred', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    const labelTexts = scene.__created.texts.map((t) => t.args.text)
+    expect(labelTexts).toEqual(
+      expect.arrayContaining([
+        'Lecture room',
+        'Corridor',
+        'Dressing room',
+        'BSL 1',
+        'BSL 2',
+      ])
+    )
+    // Every label is centred on its coordinate.
+    scene.__created.texts.forEach((t) =>
+      expect(t.setOrigin).toHaveBeenCalledWith(0.5)
+    )
+  })
 })
