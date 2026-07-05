@@ -144,3 +144,19 @@ describe('createRooms', () => {
     )
   })
 })
+
+describe('setupCloset (via createRooms)', () => {
+  test('creates the closet zone, a hidden glow and an interactive dresser', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.closetZone).toEqual({ x: 85, y: 440, width: 80, height: 80 })
+    expect(window.__gameData.closetZone).toEqual(scene.closetZone)
+
+    expect(scene.add.image).toHaveBeenCalledWith(120, 500, 'dresser')
+    expect(scene.closetImage.setInteractive).toHaveBeenCalled()
+    // The glow is created hidden until the player is near.
+    expect(scene.closetGlow.setVisible).toHaveBeenCalledWith(false)
+  })
+})
