@@ -159,4 +159,18 @@ describe('setupCloset (via createRooms)', () => {
     // The glow is created hidden until the player is near.
     expect(scene.closetGlow.setVisible).toHaveBeenCalledWith(false)
   })
+
+  test('clicking the dresser opens the closet popup when the player is inside', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('closet-popup-opened', listener)
+    scene.playerInsideDressingRoom = true
+
+    scene.closetImage.handlers.pointerdown()
+
+    window.removeEventListener('closet-popup-opened', listener)
+    expect(listener).toHaveBeenCalledTimes(1)
+  })
 })
