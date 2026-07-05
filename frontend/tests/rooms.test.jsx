@@ -112,4 +112,14 @@ describe('createRooms', () => {
       height: 250,
     })
   })
+
+  test('publishes the room zones on window.__gameData', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(window.__gameData.lectureRoomZone).toEqual(scene.lectureRoomZone)
+    expect(window.__gameData.ppeRoomZone).toEqual(scene.ppeRoomZone)
+    expect(window.__gameData.bslRoomZones).toEqual(scene.bslRoomZones)
+  })
 })
