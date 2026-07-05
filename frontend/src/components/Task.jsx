@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { EventBus } from '../game/EventBus'
 
 const Task = () => {
-    const [microbe, setMicrobe] = useState({})
+    const [microbe, setMicrobe] = useState(null)
 
     useEffect(() => {
         const handleMicrobeUpdate = (microbe) => {
@@ -16,7 +16,7 @@ const Task = () => {
         }
     }, [])
 
-    return (
+    if (microbe !== null) return (
         <div>
             <h2>The microbe you will handle</h2>
             <ul>

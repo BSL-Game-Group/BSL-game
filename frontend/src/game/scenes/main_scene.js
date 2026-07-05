@@ -116,11 +116,11 @@ class MainScene extends Phaser.Scene {
         this.replaceCurrentMicrobeRandomly()
     }
 
-    replaceCurrentMicrobeRandomly() {
-        microbeService.getRandom().then(microbe => {
-            this.currentMicrobe = microbe
-            EventBus.emit('current-microbe-updated', microbe)
-        })
+    async replaceCurrentMicrobeRandomly() {
+        const microbe = await microbeService.getRandom()
+        if (microbe === null) return
+        this.currentMicrobe = microbe
+        EventBus.emit('current-microbe-updated', microbe)
     }
 
     update() {
