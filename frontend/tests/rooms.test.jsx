@@ -82,4 +82,13 @@ describe('createRooms', () => {
     })
     expect(coversDoor).toBe(false)
   })
+
+  test('sets the lecture-room and dressing-room (ppe) zones', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.lectureRoomZone).toEqual({ x: 0, y: 0, width: 480, height: 290 })
+    expect(scene.ppeRoomZone).toEqual({ x: 0, y: 430, width: 700, height: 290 })
+  })
 })
