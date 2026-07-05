@@ -52,7 +52,8 @@ app.get('/api/microbes/random', async (req, res) => {
   try {
     const microbe = await db.Microbe.findOne({
       include: { model: db.BSLClass, as: 'bsl_class' },
-      order: db.sequelize.random()
+      order: db.sequelize.random(),
+      rejectOnEmpty: true
     })
     res.json(microbe)
   } catch (error) {
