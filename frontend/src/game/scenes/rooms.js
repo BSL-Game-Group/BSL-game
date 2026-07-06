@@ -203,13 +203,17 @@ function setupLectureRoom(scene, walls) {
 }
 
 // Invisible colliders over the dressing-room furniture, estimated from the room
-// art (image 1024x419 mapped onto the 700x290 ppe zone at x:0,y:430). Leaves the
-// top door (x 315..375) and the closet spot (~620,600) walkable.
+// art (image 1024x419 mapped onto the 700x290 ppe zone at x:0,y:430).
+// Left side stays fully walkable except the lockers and benches. Right side is
+// blocked except the shower spot (x ~407..465) and the glass booth (x ~575..694).
 function setupDressingRoomDeadzones(scene, walls) {
-    solidBox(scene, 14, 468, 311, 544, walls);   // left: PPE suits + lockers
-    solidBox(scene, 400, 454, 691, 555, walls);  // right: shower, decon counter, suits
+    // Left: only the lockers and the brown benches block.
+    solidBox(scene, 103, 492, 311, 544, walls);  // lockers (pukukopit)
     solidBox(scene, 79, 565, 243, 631, walls);   // benches
-    solidBox(scene, 219, 648, 284, 705, walls);  // biohazard bins
+    // Right: block the furniture, leaving the shower and the glass booth reachable.
+    solidBox(scene, 472, 500, 571, 558, walls);  // decon counter
+    solidBox(scene, 599, 489, 677, 551, walls);  // suit inspection (right suits)
+    solidBox(scene, 469, 558, 571, 617, walls);  // shelves + bins
 }
 
 export function createRooms(scene) {
