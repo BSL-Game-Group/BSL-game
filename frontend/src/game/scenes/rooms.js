@@ -16,6 +16,26 @@ function wallRect(scene, x1, y1, x2, y2) {
     return r;
 }
 
+// Invisible static collision box (its visuals come from a background image, e.g. the lecture room).
+function solidBox(scene, x1, y1, x2, y2, walls) {
+    const cx = (x1 + x2) / 2;
+    const cy = (y1 + y2) / 2;
+    const r = scene.add.rectangle(cx, cy, Math.abs(x2 - x1), Math.abs(y2 - y1)).setAlpha(0);
+    scene.physics.add.existing(r, true);
+    walls.push(r);
+}
+
+// Like solidBox, but returns a named box instead of pushing it into `walls` — for
+// collidables that aren't walls (e.g. bookshelves), so they can be their own group.
+function namedSolid(scene, x1, y1, x2, y2, name) {
+    const cx = (x1 + x2) / 2;
+    const cy = (y1 + y2) / 2;
+    const r = scene.add.rectangle(cx, cy, Math.abs(x2 - x1), Math.abs(y2 - y1)).setAlpha(0);
+    r.name = name;
+    scene.physics.add.existing(r, true);
+    return r;
+}
+
 // Single horizontal / vertical wall segment on a centre line.
 function hSeg(scene, xa, xb, y, walls) {
     if (xb - xa <= 0) {return;}
@@ -44,7 +64,7 @@ function vWall(scene, x, ya, yb, doors, walls) {
     vSeg(scene, x, cursor, yb, walls);
 }
 
-function label(scene, cx, cy, text, size = 14, bold = false) {
+function label(scene, cx, cy, text, size = 14, bold = false, depth = 21) {
     scene.add
         .text(cx, cy, text, {
             color: COLORS.text,
@@ -52,7 +72,8 @@ function label(scene, cx, cy, text, size = 14, bold = false) {
             fontStyle: bold ? 'bold' : 'normal',
             align: 'center',
         })
-        .setOrigin(0.5);
+        .setOrigin(0.5)
+        .setDepth(depth);
 }
 
 // Dresser + glow + interaction inside the dressing room.
@@ -158,6 +179,27 @@ function setupBslInteractables(scene) {
     });
 }
 
+// Lecture-room decor: a transparent pixel-art furniture overlay (the room's floor comes
+// from the game). The back wall is solid (a real wall). The bookshelves are solid too,
+// but live in their OWN named group (`scene.lectureShelves`) rather than `walls`.
+function setupLectureRoom(scene, walls) {
+    scene.add.image(0, 0, 'lecture_room')
+        .setOrigin(0, 0)
+        .setDisplaySize(480, 290)
+        .setDepth(-5); // above the floor (-10), below walls (0) and the player (10)
+
+    // Back wall: solid. The game's black wall reads as its rear; the plaster face is in the overlay.
+    solidBox(scene, 0, 0, 480, 60, walls);
+
+    // Bookshelves — own named group so a future "shelves as buttons" feature can hook onto them.
+    scene.lectureShelves = [
+        namedSolid(scene, 8, 72, 76, 136, 'lecture-shelf-1'),     // left-upper
+        namedSolid(scene, 8, 184, 76, 248, 'lecture-shelf-2'),    // left-lower
+        namedSolid(scene, 404, 72, 472, 136, 'lecture-shelf-3'),  // right-upper
+        namedSolid(scene, 404, 184, 472, 248, 'lecture-shelf-4'), // right-lower
+    ];
+}
+
 export function createRooms(scene) {
     const walls = [];
 
@@ -189,10 +231,9 @@ export function createRooms(scene) {
     hWall(scene, 960, 1280, 250, [[1140, 1230]], walls); // BSL 4 <-> BSL4 airlock 2 only
     hWall(scene, 960, 1280, 360, [], walls);             // row divider (solid)
     vWall(scene, 1110, 250, 470, [[250, 360]], walls);   // BSL4 airlock 1 <-> 2 (clean top-row opening)
-    hWall(scene, 960, 1280, 470, [[990, 1080]], walls);  // BSL3 airlock <-> BSL 3 only
+    hWall(scene, 960, 1280, 470, [[970, 1040]], walls);  // BSL3 airlock <-> BSL 3 only
 
-    // ---- LABELS ----
-    label(scene, 240, 145, 'Lecture room');
+    // ---- LABELS ---- (lecture room now shown via the pixel-art overlay, so no text label)
     label(scene, 590, 145, 'Exit', 12);
     label(scene, 350, 360, 'Corridor', 12);
     label(scene, 350, 575, 'Dressing room');
@@ -223,8 +264,41 @@ export function createRooms(scene) {
         bslRoomZones: scene.bslRoomZones,
     };
 
+    // Draw the BSL-1 background image
+    const bsl1 = scene.bslRoomZones.find(zone => zone.key === 'BSL-1');
+
+    scene.bsl1Image = scene.add.image(bsl1.x, bsl1.y, 'bsl1_room')
+        .setOrigin(0, 0)
+        .setDisplaySize(bsl1.width, bsl1.height)
+        .setDepth(-5);
+
+    // Draw the BSL-2 background image
+    const bsl2 = scene.bslRoomZones.find(zone => zone.key === 'BSL-2');
+
+    scene.add.image(bsl2.x, bsl2.y, 'bsl2_room')
+        .setOrigin(0, 0)
+        .setDisplaySize(bsl2.width, bsl2.height)
+        .setDepth(-5);
+
+    // Draw the BSL-3 background image
+    const bsl3 = scene.bslRoomZones.find(zone => zone.key === 'BSL-3');
+
+    scene.bsl3Image = scene.add.image(bsl3.x, bsl3.y, 'bsl3_room')
+        .setOrigin(0, 0)
+        .setDisplaySize(bsl3.width, bsl3.height)
+        .setDepth(-5);
+
+    // Draw the BSL-4 background image
+    const bsl4 = scene.bslRoomZones.find(zone => zone.key === 'BSL-4');
+
+    scene.add.image(bsl4.x, bsl4.y, 'bsl4_room')
+        .setOrigin(0, 0)
+        .setDisplaySize(bsl4.width, bsl4.height)
+        .setDepth(-5);
+
     setupCloset(scene);
     setupBslInteractables(scene);
+    setupLectureRoom(scene, walls);
 
     return walls;
 }

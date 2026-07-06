@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import App from '../src/App'
+import { EventBus } from '../src/game/EventBus'
 
 // -----------------------------
 // MOCKS (keep at top)
@@ -16,6 +17,25 @@ jest.mock('../src/Game', () => () => (
 ))
 
 jest.mock('../game/main', () => jest.fn(() => ({ destroy: jest.fn() })))
+
+// The real EventBus is a Phaser emitter that is inert under jsdom, so route
+// on/off/emit through a tiny in-memory registry (same approach as MainScene.test).
+jest.mock('../src/game/EventBus', () => {
+  const handlers = {}
+  return {
+    EventBus: {
+      on: jest.fn((event, cb) => {
+        ;(handlers[event] = handlers[event] || []).push(cb)
+      }),
+      off: jest.fn((event, cb) => {
+        handlers[event] = (handlers[event] || []).filter((h) => h !== cb)
+      }),
+      emit: jest.fn((event, ...args) => {
+        ;(handlers[event] || []).forEach((h) => h(...args))
+      }),
+    },
+  }
+})
 
 // -----------------------------
 // HELPERS
@@ -45,6 +65,25 @@ function openCloset() {
 
 function openAnswerPopup(level = 'BSL-2') {
   startGame()
+  act(() => {
+    window.dispatchEvent(
+      new CustomEvent('answer-popup-opened', { detail: { level } })
+    )
+  })
+}
+
+const testMicrobe = {
+  common_name: 'E. coli',
+  bsl_level: 1,
+  feedback_correct: 'Matched the containment perfectly.',
+  feedback_incorrect: 'Wrong containment for this one.',
+}
+
+function openAnswerPopupWithMicrobe(level, microbe = testMicrobe) {
+  startGame()
+  act(() => {
+    EventBus.emit('current-microbe-updated', microbe)
+  })
   act(() => {
     window.dispatchEvent(
       new CustomEvent('answer-popup-opened', { detail: { level } })
@@ -192,4 +231,18 @@ test('answer popup closes when close button is clicked', () => {
   fireEvent.click(screen.getByRole('button', { name: /close/i }))
 
   expect(screen.queryByText(/BSL-2/i)).not.toBeInTheDocument()
+})
+
+test('answer popup says Correct! when chosen room matches the microbe class', () => {
+  openAnswerPopupWithMicrobe('BSL-1')
+
+  expect(screen.getByText(/correct!/i)).toBeInTheDocument()
+  expect(screen.getByText(/matched the containment perfectly/i)).toBeInTheDocument()
+})
+
+test('answer popup says Not quite when chosen room does not match the microbe class', () => {
+  openAnswerPopupWithMicrobe('BSL-3')
+
+  expect(screen.getByText(/not quite/i)).toBeInTheDocument()
+  expect(screen.getByText(/wrong containment for this one/i)).toBeInTheDocument()
 })

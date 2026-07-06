@@ -18,6 +18,14 @@ jest.mock('phaser', () => ({
       JustDown: jest.fn(),
     },
   },
+  Events: {
+    EventEmitter: class {
+      on = jest.fn()
+      off = jest.fn()
+      emit = jest.fn()
+      once = jest.fn()
+    }
+  }
 }))
 
 jest.mock('../src/game/scenes/rooms', () => ({

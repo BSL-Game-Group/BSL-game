@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { createRooms } from './rooms';
+import microbeService from '../../services/microbes'
+import { EventBus } from '../EventBus'
 
 export function playerIsInsideZone(player, zone) {
     return (
@@ -43,6 +45,7 @@ class MainScene extends Phaser.Scene {
             }
 
             await response.json();
+        // eslint-disable-next-line no-unused-vars
         } catch (error) {
             // Silently fail - room entry is not critical to gameplay
         }
@@ -73,12 +76,22 @@ class MainScene extends Phaser.Scene {
     }
 
     preload() {
+        // Player base
         this.load.image('player_base', 'assets/player/base.png');
+
+        // Equipment
         this.load.image('lab_coat', 'assets/equipment/equipment_on_character/lab_coat.png');
         this.load.image('mask', 'assets/equipment/equipment_on_character/mask.png');
         this.load.image('glasses', 'assets/equipment/equipment_on_character/glasses.png');
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
+
+        // Rooms
+        this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
+        this.load.image('lecture_room', 'assets/lecture_room.png');
+        this.load.image('bsl2_room', 'assets/rooms/BSL-2.jpg');
+        this.load.image('bsl3_room', 'assets/rooms/BSL-3 ver. 2.png');
+        this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
     }
 
     createWoodFloor() {
@@ -97,9 +110,11 @@ class MainScene extends Phaser.Scene {
                     ctx.drawImage(woodSrc, 0, 0, srcW, srcH, 0, 0, tileSize, tileSize);
                     tileTexture.refresh();
                 } else {
+                    // eslint-disable-next-line no-console
                     console.warn('wood source image not available when creating wood_tile');
                 }
             } else {
+                // eslint-disable-next-line no-console
                 console.warn('wood texture not found when creating wood_tile');
             }
         }
@@ -142,7 +157,7 @@ class MainScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(360, 360, 'player_base');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.4);
-        this.player.setDepth(10); 
+        this.player.setDepth(10);
 
         // 2. CONFIGURATION: Tweaking values for size and placement relative to player center
         // Adjust these numbers until your equipment aligns perfectly!
@@ -196,6 +211,9 @@ class MainScene extends Phaser.Scene {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
             window.removeEventListener('popup-opened', this.handlePopupOpen);
             window.removeEventListener('popup-closed', this.handlePopupClosed);
+            if (this.handleNewMicrobeRequest) {
+                EventBus.off('request-new-microbe', this.handleNewMicrobeRequest);
+            }
         });
 
         // Setup inputs, text and colliders
@@ -210,6 +228,9 @@ class MainScene extends Phaser.Scene {
         }).setDepth(1000).setVisible(false);
 
         this.physics.add.collider(this.player, walls);
+        if (this.lectureShelves) {
+            this.physics.add.collider(this.player, this.lectureShelves);
+        }
 
         this.playerInsideLectureRoom = false;
         this.playerInsideDressingRoom = false;
@@ -227,11 +248,49 @@ class MainScene extends Phaser.Scene {
             color: "#fff",
             padding: { x: 6, y: 3 }
         }).setDepth(1000).setVisible(false);
+        
+        this.currentMicrobe = null;
+        this.registerEventBusListeners();
+        this.replaceCurrentMicrobeRandomly()
+    }
+
+    // Wire EventBus listeners the scene owns. React (App) asks for a fresh
+    // microbe after each answer; the scene stays the single source of truth.
+    registerEventBusListeners() {
+        this.handleNewMicrobeRequest = () => this.replaceCurrentMicrobeRandomly()
+        EventBus.on('request-new-microbe', this.handleNewMicrobeRequest)
+    }
+
+    async replaceCurrentMicrobeRandomly() {
+        const microbe = await microbeService.getRandom()
+        if (microbe === null) {
+            return
+        }
+        this.currentMicrobe = microbe
+        EventBus.emit('current-microbe-updated', microbe)
     }
 
     update() {
         this.player.setVelocityX(0);
         this.player.setVelocityY(0);
+
+        // Change BSL-1 image depth depending on player position
+        if (this.bsl1Image) {
+            if (this.player.y < 505) {
+                this.bsl1Image.setDepth(20);
+            } else {
+                this.bsl1Image.setDepth(-5);
+            }
+        }
+
+        // Change BSL-3 image depth depending on player position
+        if (this.bsl3Image) {
+            if (this.player.y < 505) {
+                this.bsl3Image.setDepth(20);
+            } else {
+                this.bsl3Image.setDepth(-5);
+            }
+        }
 
         // 1. MOVEMENT CONTROLS (Locked when popup is open)
         if (!this.isPopupOpen) {

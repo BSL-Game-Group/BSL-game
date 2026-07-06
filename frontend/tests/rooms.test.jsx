@@ -14,8 +14,10 @@ function makeFakeScene() {
       handlers: {},
       setOrigin: jest.fn(() => o),
       setScale: jest.fn(() => o),
+      setDisplaySize: jest.fn(() => o),
       setVisible: jest.fn(() => o),
       setDepth: jest.fn(() => o),
+      setAlpha: jest.fn(() => o),
       setInteractive: jest.fn(() => o),
       fillStyle: jest.fn(() => o),
       fillCircle: jest.fn(() => o),
@@ -57,8 +59,11 @@ describe('createRooms', () => {
 
     expect(Array.isArray(walls)).toBe(true)
     expect(walls.length).toBeGreaterThan(0)
-    // Every wall segment is given a static physics body.
-    expect(scene.physics.add.existing).toHaveBeenCalledTimes(walls.length)
+    // Every wall segment gets a static physics body, and so do the 4 lecture-room
+    // bookshelves (which live in their own group, not in `walls`).
+    expect(scene.physics.add.existing).toHaveBeenCalledTimes(
+      walls.length + scene.lectureShelves.length
+    )
   })
 
   test('horizontal walls leave a gap at doorways', () => {
@@ -131,17 +136,51 @@ describe('createRooms', () => {
     const labelTexts = scene.__created.texts.map((t) => t.args.text)
     expect(labelTexts).toEqual(
       expect.arrayContaining([
-        'Lecture room',
         'Corridor',
         'Dressing room',
         'BSL 1',
         'BSL 2',
       ])
     )
+    // The lecture room is now shown via the pixel-art overlay, so it no longer
+    // has a text label.
+    expect(labelTexts).not.toContain('Lecture room')
     // Every label is centred on its coordinate.
     scene.__created.texts.forEach((t) =>
       expect(t.setOrigin).toHaveBeenCalledWith(0.5)
     )
+  })
+})
+
+// The lecture room is drawn as a transparent pixel-art overlay (its floor comes
+// from the game). The back wall is a real solid wall, and the bookshelves are
+// solid too but live in their OWN named group (`scene.lectureShelves`) — the
+// contract the future "shelves as buttons" feature builds on.
+describe('createRooms — lecture room', () => {
+  test('adds the transparent lecture-room overlay at the room origin', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    expect(scene.add.image).toHaveBeenCalledWith(0, 0, 'lecture_room')
+  })
+
+  test('adds a solid back-wall box (centre 240,30 · 480×60)', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    expect(scene.add.rectangle).toHaveBeenCalledWith(240, 30, 480, 60)
+  })
+
+  test('exposes exactly 4 named bookshelves in their own group', () => {
+    const scene = makeFakeScene()
+    const walls = createRooms(scene)
+
+    expect(Array.isArray(scene.lectureShelves)).toBe(true)
+    expect(scene.lectureShelves).toHaveLength(4)
+    expect(scene.lectureShelves.map((s) => s.name)).toEqual([
+      'lecture-shelf-1', 'lecture-shelf-2', 'lecture-shelf-3', 'lecture-shelf-4',
+    ])
+
+    // shelves are NOT part of the walls array (they are their own collision group)
+    scene.lectureShelves.forEach((shelf) => expect(walls).not.toContain(shelf))
   })
 })
 
