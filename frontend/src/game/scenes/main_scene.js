@@ -15,14 +15,79 @@ class MainScene extends Phaser.Scene {
         super({ key: 'MainScene' });
     }
 
+    generateSessionId() {
+        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    async notifyRoomEntry(roomKey) {
+        try {
+            const sessionId = window.__gameData?.sessionId;
+            if (!sessionId) {
+                return;
+            }
+
+            const backendUrl = this.getBackendUrl();
+            const response = await fetch(`${backendUrl}/api/rooms/enter`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    room_key: roomKey,
+                    session_id: sessionId,
+                }),
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            await response.json();
+        // eslint-disable-next-line no-unused-vars
+        } catch (error) {
+            // Silently fail - room entry is not critical to gameplay
+        }
+    }
+
+    getBackendUrl() {
+        // Try process.env first (set by build tools)
+        if (process.env.VITE_API_URL) {
+            return process.env.VITE_API_URL;
+        }
+
+        // Fallback: use current window location to determine backend URL
+        if (typeof window !== 'undefined') {
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+
+            // If running on localhost, use localhost:3001
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:3001';
+            }
+
+            // In OpenShift/Kubernetes/Docker, use backend service name
+            return `${protocol}//backend:3001`;
+        }
+
+        // Jest/Node environment fallback
+        return 'http://localhost:3001';
+    }
+
     preload() {
+        // Player base
         this.load.image('player_base', 'assets/player/base.png');
+
+        // Equipment
         this.load.image('lab_coat', 'assets/equipment/equipment_on_character/lab_coat.png');
         this.load.image('mask', 'assets/equipment/equipment_on_character/mask.png');
         this.load.image('glasses', 'assets/equipment/equipment_on_character/glasses.png');
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
+
+        // Rooms
         this.load.image('lecture_room', 'assets/lecture_room.png');
+        this.load.image('bsl2_room', 'assets/rooms/BSL-2.jpg');
+        this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
     }
 
     createWoodFloor() {
@@ -41,9 +106,11 @@ class MainScene extends Phaser.Scene {
                     ctx.drawImage(woodSrc, 0, 0, srcW, srcH, 0, 0, tileSize, tileSize);
                     tileTexture.refresh();
                 } else {
+                    // eslint-disable-next-line no-console
                     console.warn('wood source image not available when creating wood_tile');
                 }
             } else {
+                // eslint-disable-next-line no-console
                 console.warn('wood texture not found when creating wood_tile');
             }
         }
@@ -76,6 +143,11 @@ class MainScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, 1280, 720);
         this.playArea = new Phaser.Geom.Rectangle(0, 0, 1280, 720);
         this.createWoodFloor();
+
+        // Initialize session ID if not already present
+        if (!window.__gameData?.sessionId) {
+            window.__gameData = { ...window.__gameData, sessionId: this.generateSessionId() };
+        }
 
         // 1. Create the Base Player (start in the corridor hub)
         this.player = this.physics.add.sprite(360, 360, 'player_base');
@@ -296,6 +368,7 @@ class MainScene extends Phaser.Scene {
                     entry.glow.setVisible(true);
                     entry.tween.resume();
                     entry.playerInside = true;
+                    this.notifyRoomEntry(entry.key);
                 } else if (!inside && entry.playerInside) {
                     entry.glow.setVisible(false);
                     entry.tween.pause();

@@ -5,6 +5,11 @@ class Game {
   constructor(public page: Page) {}
 
   async start() {
+    // Mock the room entry API to prevent network errors during tests
+    await this.page.route('**/api/rooms/enter', (route) => {
+      route.abort('blockedbyclient');
+    });
+
     await this.page.goto(FRONTEND_BASE);
     await this.page.getByRole('button', { name: /start game/i }).click();
   }
