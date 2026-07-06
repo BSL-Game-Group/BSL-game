@@ -292,6 +292,7 @@ body {
 .instruction-steps li:nth-child(10) { animation-delay: 1.30s; }
 .instruction-steps li:nth-child(11) { animation-delay: 1.40s; }
 .instruction-steps li:nth-child(12) { animation-delay: 1.50s; }
+.instruction-steps li:nth-child(13) { animation-delay: 1.60s; }
 
 /* Respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {

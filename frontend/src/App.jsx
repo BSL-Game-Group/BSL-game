@@ -77,6 +77,7 @@ function App() {
               <li>Wash up at the shower or eyewash station to decontaminate before leaving.</li>
               <li>A new microbe is drawn — try again!</li>
               <li>After several rounds, see your summary: score, correct vs. wrong, and the levels you mastered.</li>
+              <li>You can leave any time through the Exit — the game shuts down.</li>
             </ol>
             <p className="game-instructions__controls">
               <strong>Controls:</strong> Arrow keys / click to move · <kbd>E</kbd> or click to interact · <strong>Close</strong> button to close windows
