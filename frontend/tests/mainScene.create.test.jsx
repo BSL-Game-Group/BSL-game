@@ -48,6 +48,7 @@ function fakeSprite() {
     setCollideWorldBounds: jest.fn().mockReturnThis(),
     setInteractive: jest.fn().mockReturnThis(),
     disableInteractive: jest.fn().mockReturnThis(),
+    body: { setSize: jest.fn(), setOffset: jest.fn() },
   }
 }
 
@@ -138,6 +139,15 @@ test('create creates player sprite', () => {
 
   expect(scene.physics.add.sprite)
     .toHaveBeenCalledWith(590, 150, 'player_base')
+})
+
+test('create shrinks the player collision body', () => {
+  const scene = createScene()
+
+  scene.create()
+
+  expect(scene.player.body.setSize).toHaveBeenCalledWith(60, 90)
+  expect(scene.player.body.setOffset).toHaveBeenCalledWith(23, 120)
 })
 
 test('create creates equipment sprites', () => {
