@@ -152,6 +152,27 @@ describe('createRooms', () => {
   })
 })
 
+// The air-system cell (bottom-right of the airlock block) is filled by a machine
+// image wall-to-wall, with a black 'AIR SYSTEMS' text label drawn on top.
+describe('createRooms — air system', () => {
+  test('fills the air-system cell with the machine image', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    expect(scene.add.image).toHaveBeenCalledWith(1110, 360, 'air_systems')
+    const airImg = scene.__created.images.find((i) => i.args.key === 'air_systems')
+    expect(airImg.setDisplaySize).toHaveBeenCalledWith(170, 110)
+  })
+
+  test('draws an AIR SYSTEMS label on top', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const labelTexts = scene.__created.texts.map((t) => t.args.text)
+    expect(labelTexts).toContain('AIR SYSTEMS')
+  })
+})
+
 // The lecture room is drawn as a transparent pixel-art overlay (its floor comes
 // from the game). The back wall is a real solid wall, and the bookshelves are
 // solid too but live in their OWN named group (`scene.lectureShelves`) — the
