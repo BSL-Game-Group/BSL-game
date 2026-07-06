@@ -64,7 +64,7 @@ function vWall(scene, x, ya, yb, doors, walls) {
     vSeg(scene, x, cursor, yb, walls);
 }
 
-function label(scene, cx, cy, text, size = 14, bold = false) {
+function label(scene, cx, cy, text, size = 14, bold = false, depth = 21) {
     scene.add
         .text(cx, cy, text, {
             color: COLORS.text,
@@ -72,7 +72,8 @@ function label(scene, cx, cy, text, size = 14, bold = false) {
             fontStyle: bold ? 'bold' : 'normal',
             align: 'center',
         })
-        .setOrigin(0.5);
+        .setOrigin(0.5)
+        .setDepth(depth);
 }
 
 // Dresser + glow + interaction inside the dressing room.
@@ -230,7 +231,7 @@ export function createRooms(scene) {
     hWall(scene, 960, 1280, 250, [[1140, 1230]], walls); // BSL 4 <-> BSL4 airlock 2 only
     hWall(scene, 960, 1280, 360, [], walls);             // row divider (solid)
     vWall(scene, 1110, 250, 470, [[250, 360]], walls);   // BSL4 airlock 1 <-> 2 (clean top-row opening)
-    hWall(scene, 960, 1280, 470, [[990, 1080]], walls);  // BSL3 airlock <-> BSL 3 only
+    hWall(scene, 960, 1280, 470, [[970, 1040]], walls);  // BSL3 airlock <-> BSL 3 only
 
     // ---- LABELS ---- (lecture room now shown via the pixel-art overlay, so no text label)
     label(scene, 590, 145, 'Exit', 12);
@@ -263,12 +264,28 @@ export function createRooms(scene) {
         bslRoomZones: scene.bslRoomZones,
     };
 
+    // Draw the BSL-1 background image
+    const bsl1 = scene.bslRoomZones.find(zone => zone.key === 'BSL-1');
+
+    scene.bsl1Image = scene.add.image(bsl1.x, bsl1.y, 'bsl1_room')
+        .setOrigin(0, 0)
+        .setDisplaySize(bsl1.width, bsl1.height)
+        .setDepth(-5);
+
     // Draw the BSL-2 background image
     const bsl2 = scene.bslRoomZones.find(zone => zone.key === 'BSL-2');
 
     scene.add.image(bsl2.x, bsl2.y, 'bsl2_room')
         .setOrigin(0, 0)
         .setDisplaySize(bsl2.width, bsl2.height)
+        .setDepth(-5);
+
+    // Draw the BSL-3 background image
+    const bsl3 = scene.bslRoomZones.find(zone => zone.key === 'BSL-3');
+
+    scene.bsl3Image = scene.add.image(bsl3.x, bsl3.y, 'bsl3_room')
+        .setOrigin(0, 0)
+        .setDisplaySize(bsl3.width, bsl3.height)
         .setDepth(-5);
 
     // Draw the BSL-4 background image
