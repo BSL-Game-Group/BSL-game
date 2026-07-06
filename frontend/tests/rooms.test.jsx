@@ -173,6 +173,18 @@ describe('createRooms — air system', () => {
   })
 })
 
+// The dressing room (ppe zone) is filled wall-to-wall by its background image.
+describe('createRooms — dressing room', () => {
+  test('fills the dressing-room zone with its background image', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    expect(scene.add.image).toHaveBeenCalledWith(0, 430, 'dressing_room')
+    const img = scene.__created.images.find((i) => i.args.key === 'dressing_room')
+    expect(img.setDisplaySize).toHaveBeenCalledWith(700, 290)
+  })
+})
+
 // The lecture room is drawn as a transparent pixel-art overlay (its floor comes
 // from the game). The back wall is a real solid wall, and the bookshelves are
 // solid too but live in their OWN named group (`scene.lectureShelves`) — the
