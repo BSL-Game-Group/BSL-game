@@ -64,9 +64,9 @@ function setupCloset(scene) {
     window.__gameData = { ...window.__gameData, closetZone: scene.closetZone };
 
     scene.closetGlow = scene.add.graphics();
-    scene.closetGlow.fillStyle(0xffff00, 0.8);
+    scene.closetGlow.fillStyle(0x0b6623, 0.8);
     scene.closetGlow.fillCircle(dresserX, dresserY, 55);
-    scene.closetGlow.lineStyle(3, 0xffff00);
+    scene.closetGlow.lineStyle(3, 0x0b6623);
     scene.closetGlow.strokeCircle(dresserX, dresserY, 55);
     scene.closetGlow.setVisible(false);
 
@@ -99,7 +99,7 @@ function setupCloset(scene) {
     });
 }
 
-// Blue glow interactable inside each BSL room. Placeholder for the real element
+// Dark green glow interactable inside each BSL room. Placeholder for the real element
 // (image TBD with the team) — pressing E or clicking it opens the answer popup.
 // Position per room: BSL-1/2/4 top-left, BSL-3 top-centre.
 function setupBslInteractables(scene) {
@@ -118,9 +118,9 @@ function setupBslInteractables(scene) {
         const { x: cx, y: cy } = glowPos(zone);
 
         const glow = scene.add.graphics();
-        glow.fillStyle(0x1e90ff, 0.8);
+        glow.fillStyle(0x0b6623, 0.8);
         glow.fillCircle(cx, cy, radius);
-        glow.lineStyle(3, 0x1e90ff);
+        glow.lineStyle(3, 0x0b6623);
         glow.strokeCircle(cx, cy, radius);
         glow.setVisible(false);
         glow.setDepth(5);
