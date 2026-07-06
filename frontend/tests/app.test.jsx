@@ -88,7 +88,7 @@ describe('Start-screen instructions', () => {
       screen.getByRole('heading', { name: /how to play/i })
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/a microbe is assigned to you at random/i)
+      screen.getByText(/remember the bsl level/i)
     ).toBeInTheDocument()
   })
 
