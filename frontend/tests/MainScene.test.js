@@ -13,11 +13,22 @@ jest.mock('../src/services/microbes', () => ({
   },
 }))
 
-jest.mock('../src/game/EventBus', () => ({
-  EventBus: {
-    emit: jest.fn(),
-  },
-}))
+jest.mock('../src/game/EventBus', () => {
+  const handlers = {}
+  return {
+    EventBus: {
+      on: jest.fn((event, cb) => {
+        ;(handlers[event] = handlers[event] || []).push(cb)
+      }),
+      off: jest.fn((event, cb) => {
+        handlers[event] = (handlers[event] || []).filter((h) => h !== cb)
+      }),
+      emit: jest.fn((event, ...args) => {
+        ;(handlers[event] || []).forEach((h) => h(...args))
+      }),
+    },
+  }
+})
 
 describe('replaceCurrentMicrobeRandomly', () => {
   beforeEach(() => {
@@ -57,5 +68,23 @@ describe('replaceCurrentMicrobeRandomly', () => {
     expect(microbeService.getRandom).toHaveBeenCalledTimes(1)
     expect(scene.currentMicrobe).toEqual({ old: 'microbe' })
     expect(EventBus.emit).not.toHaveBeenCalled()
+  })
+})
+
+describe('request-new-microbe listener', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  test('emitting request-new-microbe calls replaceCurrentMicrobeRandomly', () => {
+    const scene = new MainScene()
+    const spy = jest
+      .spyOn(scene, 'replaceCurrentMicrobeRandomly')
+      .mockResolvedValue(undefined)
+
+    scene.registerEventBusListeners()
+    EventBus.emit('request-new-microbe')
+
+    expect(spy).toHaveBeenCalledTimes(1)
   })
 })

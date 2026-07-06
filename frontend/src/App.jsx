@@ -3,6 +3,7 @@ import Game from './Game.jsx'
 import ClosetPopup from './components/ClosetPopup/ClosetPopup'
 import Task from './components/Task.jsx'
 import AnswerPopup from './components/AnswerPopup/AnswerPopup'
+import { EventBus } from './game/EventBus'
 
 function App() {
   const [gameStarted, setGameStarted] = useState(false)
@@ -11,9 +12,18 @@ function App() {
   const [isPopupOpen, setPopupOpen] = useState(false);
   const [answerOpen, setAnswerOpen] = useState(false)
   const [answerLevel, setAnswerLevel] = useState('')
+  const [currentMicrobe, setCurrentMicrobe] = useState(null)
 
   useEffect(() => {
     fetch('/api/test')
+  }, [])
+
+  // The Phaser scene owns the current microbe and broadcasts it here; we need it
+  // to judge whether the room the player entered matches the microbe's class.
+  useEffect(() => {
+    const handleMicrobeUpdate = (microbe) => setCurrentMicrobe({ ...microbe })
+    EventBus.on('current-microbe-updated', handleMicrobeUpdate)
+    return () => EventBus.off('current-microbe-updated', handleMicrobeUpdate)
   }, [])
 
   useEffect(() => {
@@ -36,6 +46,18 @@ function App() {
     window.addEventListener('answer-popup-opened', handleAnswerOpen)
     return () => window.removeEventListener('answer-popup-opened', handleAnswerOpen)
   }, [])
+
+  // The room is a string ('BSL-3'); the microbe's class is a plain number (3).
+  // Strip the 'BSL-' prefix and compare numbers.
+  const correctLevel = currentMicrobe?.bsl_level
+  const chosenLevel = Number(String(answerLevel).replace('BSL-', ''))
+  const isCorrect = typeof correctLevel === 'number' && chosenLevel === correctLevel
+
+  const handleAnswerClose = () => {
+    setAnswerOpen(false)
+    // Advance to a new microbe after every answer (no immediate retry).
+    EventBus.emit('request-new-microbe')
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', paddingTop: '24px' }}>
@@ -73,9 +95,10 @@ function App() {
 
             <AnswerPopup
               open={answerOpen}
-              onClose={() => setAnswerOpen(false)}
-              isCorrect={true}
+              onClose={handleAnswerClose}
+              isCorrect={isCorrect}
               level={answerLevel}
+              microbe={currentMicrobe}
             />
 
             <Game />

@@ -35,6 +35,34 @@ describe('AnswerPopup component', () => {
     expect(screen.getByText(/BSL-3/)).toBeInTheDocument()
   })
 
+  // -----------------------------
+  // MICROBE FEEDBACK TESTS
+  // -----------------------------
+  const microbe = {
+    common_name: 'E. coli',
+    bsl_level: 1,
+    feedback_correct: 'Great, that organism belongs at this level.',
+    feedback_incorrect: 'Careful, that organism belongs elsewhere.',
+  }
+
+  test('shows the backend correct feedback when correct with a microbe', () => {
+    renderPopup({ isCorrect: true, microbe })
+
+    expect(screen.getByText(/that organism belongs at this level/i)).toBeInTheDocument()
+  })
+
+  test('shows the backend incorrect feedback when wrong with a microbe', () => {
+    renderPopup({ isCorrect: false, microbe })
+
+    expect(screen.getByText(/that organism belongs elsewhere/i)).toBeInTheDocument()
+  })
+
+  test('shows the true class of the microbe', () => {
+    renderPopup({ isCorrect: false, level: 'BSL-3', microbe })
+
+    expect(screen.getByText(/E\. coli belongs to BSL-1/i)).toBeInTheDocument()
+  })
+
   test('calls onClose when close button is clicked', () => {
     const onClose = jest.fn()
 
