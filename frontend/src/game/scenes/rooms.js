@@ -244,7 +244,7 @@ export function createRooms(scene) {
     label(scene, 1035, 305, 'BSL4\nAIRLOCK 1', 9);
     label(scene, 1195, 305, 'BSL4\nAIRLOCK 2', 9);
     label(scene, 1035, 415, 'BSL3\nAIRLOCK', 9);
-    label(scene, 1195, 415, 'AIR\nSYSTEM', 9);
+    label(scene, 1195, 430, 'AIR SYSTEMS', 11, true);
     label(scene, 1120, 595, 'BSL 3', 16, true);
 
     // ---- ZONES (game logic) ----
