@@ -143,11 +143,31 @@ class MainScene extends Phaser.Scene {
         layer.setDepth(-10);
     }
 
+    // Clinical tile floor for the labs side — everything right of the x:700 divider
+    // (BSL rooms 1-4, the Labs room, the airlocks and the air system). The left,
+    // human side (lecture/corridor/dressing/exit) keeps the wood floor.
+    createLabFloor() {
+        const startX = 700;
+        const width = 1280 - startX;
+        const height = 720;
+        // Source tiles are ~442px; show them near 110px so the pattern reads at play scale.
+        const tileScale = 110 / 442;
+
+        const floor = this.add
+            .tileSprite(startX, 0, width, height, 'labs_floor')
+            .setOrigin(0, 0);
+        floor.tileScaleX = tileScale;
+        floor.tileScaleY = tileScale;
+        // Above the wood floor (-10), below room art (-5), walls (0) and the player (10).
+        floor.setDepth(-9);
+    }
+
     create() {
         const walls = createRooms(this);
         this.physics.world.setBounds(0, 0, 1280, 720);
         this.playArea = new Phaser.Geom.Rectangle(0, 0, 1280, 720);
         this.createWoodFloor();
+        this.createLabFloor();
 
         // Initialize session ID if not already present
         if (!window.__gameData?.sessionId) {
