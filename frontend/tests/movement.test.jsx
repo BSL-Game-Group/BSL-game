@@ -359,3 +359,27 @@ test('resets lecture room state when player leaves room', () => {
 
   expect(scene.playerInsideLectureRoom).toBe(false)
 })
+// =====================================================
+// DRESSING-ROOM DEPTH SWITCH
+// =====================================================
+describe('Dressing-room depth switch', () => {
+  test('room image is drawn in front of the player at the door (y < 465)', () => {
+    const dressingImage = { setDepth: jest.fn() }
+    const scene = createScene({ dressingImage })
+    scene.player.y = 450
+
+    scene.update()
+
+    expect(dressingImage.setDepth).toHaveBeenCalledWith(20)
+  })
+
+  test('room image drops behind the player once inside (y >= 465)', () => {
+    const dressingImage = { setDepth: jest.fn() }
+    const scene = createScene({ dressingImage })
+    scene.player.y = 600
+
+    scene.update()
+
+    expect(dressingImage.setDepth).toHaveBeenCalledWith(-5)
+  })
+})
