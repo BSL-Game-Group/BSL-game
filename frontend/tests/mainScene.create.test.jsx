@@ -122,6 +122,15 @@ test('create sets world bounds', () => {
     .toHaveBeenCalledWith(0, 0, 1280, 720)
 })
 
+test('create tiles the labs side with the lab floor', () => {
+  const scene = createScene()
+
+  scene.create()
+
+  expect(scene.add.tileSprite)
+    .toHaveBeenCalledWith(700, 0, 580, 720, 'labs_floor')
+})
+
 test('create creates player sprite', () => {
   const scene = createScene()
 
