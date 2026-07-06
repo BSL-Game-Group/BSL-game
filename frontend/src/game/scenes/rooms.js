@@ -125,10 +125,11 @@ function setupCloset(scene) {
 // Position per room: BSL-1/2/4 top-left, BSL-3 top-centre.
 function setupBslInteractables(scene) {
     const inset = 35;
+    const vInset = 60; // a bit lower than the horizontal inset so the element sits inside the room
     const radius = 24;
 
     const glowPos = (zone) => {
-        const cy = zone.y + inset;
+        const cy = zone.y + vInset;
         if (zone.key === 'BSL-3') {
             return { x: zone.x + zone.width / 2, y: cy }; // top-centre
         }

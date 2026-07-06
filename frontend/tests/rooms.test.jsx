@@ -305,9 +305,9 @@ describe('setupBslInteractables (via createRooms)', () => {
       scene.bslGlows.map((g) => [g.key, g.center])
     )
     // BSL-3 is centred horizontally within its 320-wide zone (x 960..1280).
-    expect(centreByKey['BSL-3']).toEqual({ x: 1120, y: 505 })
+    expect(centreByKey['BSL-3']).toEqual({ x: 1120, y: 530 })
     // BSL-1 is inset from the left edge of its zone (x 700).
-    expect(centreByKey['BSL-1']).toEqual({ x: 735, y: 505 })
+    expect(centreByKey['BSL-1']).toEqual({ x: 735, y: 530 })
   })
 
   test('clicking a BSL glow opens the answer popup for that room, only when inside', () => {
