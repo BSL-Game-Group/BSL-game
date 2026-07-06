@@ -248,11 +248,13 @@ body {
   color: #d7e6dc;
 }
 .game-instructions kbd {
-  background: #0b6623;
-  color: #fff;
-  padding: 1px 7px;
+  background: rgba(20, 168, 62, 0.14);
+  color: #a8f5c0;
+  border: 1px solid rgba(126, 226, 154, 0.30);
   border-radius: 4px;
-  font-size: 0.85em;
+  padding: 0.5px 5px;
+  font-size: 0.82em;
+  line-height: 1;
   font-family: inherit;
   font-weight: 600;
 }
