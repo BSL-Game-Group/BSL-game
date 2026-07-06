@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Game from './Game.jsx'
 import ClosetPopup from './components/ClosetPopup/ClosetPopup'
+import Task from './components/Task.jsx'
 import AnswerPopup from './components/AnswerPopup/AnswerPopup'
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
             data-testid="lecture-panel"
             style={{ display: lectureOpen ? 'block' : 'none', width: 220 }}
           >
+            <Task />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <h2 style={{ margin: 0 }}>Lecture Materials</h2>
               <button onClick={() => setLinksVisible(!linksVisible)} style={{ marginLeft: '8px', fontSize: '0.9rem', cursor: 'pointer' }}>
