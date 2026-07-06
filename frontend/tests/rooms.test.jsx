@@ -188,11 +188,11 @@ describe('createRooms — dressing room', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
-    // Left blocks: lockers + benches.
-    expect(scene.add.rectangle).toHaveBeenCalledWith(207, 518, 208, 52) // lockers
-    expect(scene.add.rectangle).toHaveBeenCalledWith(161, 598, 164, 66) // benches
-    // Right blocks: decon counter (shower + glass booth stay walkable).
-    expect(scene.add.rectangle).toHaveBeenCalledWith(521.5, 529, 99, 58) // decon counter
+    // Furniture bands, benches and the glass booth all block; the floor and the
+    // shower approach stay walkable.
+    expect(scene.add.rectangle).toHaveBeenCalledWith(162.5, 503, 305, 90)   // top-left band
+    expect(scene.add.rectangle).toHaveBeenCalledWith(161, 598, 164, 66)     // benches
+    expect(scene.add.rectangle).toHaveBeenCalledWith(634.5, 631.5, 119, 147) // glass booth
   })
 })
 
