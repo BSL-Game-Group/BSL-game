@@ -175,7 +175,7 @@
     "scientific_name": "Human immunodeficiency virus 1",
     "type": "Virus",
     "bsl_level": 3,
-    "lecture_text": "Diagnostic laboratory work with the immunodeficiency virus is classified as BSL-2, since the virus does not spread through the air. Infection requires direct blood contact. Treatment prevents disease progression.",
+    "lecture_text": "Work with the immunodeficiency virus. The virus does not spread through the air — infection requires direct blood contact. Treatment prevents disease progression.",
     "feedback_correct": "Correct! HIV is BSL-3 — classified as Group 3 under Finnish regulation 748/2020.",
     "feedback_incorrect": "Incorrect! HIV is classified as BSL-3 in Finland (regulation 748/2020), even though infection requires direct blood contact."
   },
@@ -195,7 +195,7 @@
     "scientific_name": "Hepacivirus C",
     "type": "Virus",
     "bsl_level": 3,
-    "lecture_text": "The leading cause of liver transplants worldwide. Spreads through blood contact. No vaccine, but current antiviral treatment is highly effective. Diagnostic work is BSL-2.",
+    "lecture_text": "The leading cause of liver transplants worldwide. Spreads through blood contact. No vaccine, but current antiviral treatment is highly effective.",
     "feedback_correct": "Correct! Hepatitis C is BSL-3 — classified as Group 3 under Finnish regulation 748/2020.",
     "feedback_incorrect": "Incorrect! Hepatitis C is classified as BSL-3 in Finland (regulation 748/2020)."
   },
@@ -425,7 +425,7 @@
     "scientific_name": "Severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2)",
     "type": "Virus",
     "bsl_level": 3,
-    "lecture_text": "Virus culture work with the COVID-19 virus requires a BSL-3 laboratory, as the virus spreads through the air as aerosols. Note: diagnostic laboratory work alone, without virus culture, can be performed at BSL-2.",
+    "lecture_text": "Virus culture work with the COVID-19 virus, which spreads through the air as aerosols. Culturing the live virus is far more hazardous than diagnostic testing alone.",
     "feedback_correct": "Correct! Virus culture of SARS-CoV-2 requires BSL-3 protection.",
     "feedback_incorrect": "Incorrect! Virus culture of SARS-CoV-2 requires BSL-3 — the virus spreads through the air as aerosols."
   },
@@ -445,7 +445,7 @@
     "scientific_name": "Puumala orthohantavirus",
     "type": "Virus",
     "bsl_level": 3,
-    "lecture_text": "A hantavirus spread by bank voles, Finland's most common hemorrhagic fever. Wild-type strains are classified as BSL-3. Spreads as an aerosol from rodent secretions. Can cause severe kidney failure.",
+    "lecture_text": "A hantavirus spread by bank voles, Finland's most common hemorrhagic fever. Spreads as an aerosol from rodent secretions. Can cause severe kidney failure.",
     "feedback_correct": "Correct! Puumala orthohantavirus (wild-type strain) is BSL-3.",
     "feedback_incorrect": "Incorrect! This hantavirus is BSL-3 — aerosol transmission requires respiratory protection."
   },
@@ -565,7 +565,7 @@
     "scientific_name": "Variola virus (Variola major and minor)",
     "type": "Virus",
     "bsl_level": 4,
-    "lecture_text": "Eradicated from nature in 1980. Stored at only two laboratories worldwide. BSL-4 research only.",
+    "lecture_text": "Eradicated from nature in 1980. Today it is stored at only two high-security laboratories in the world.",
     "feedback_correct": "Correct! Variola virus is BSL-4.",
     "feedback_incorrect": "Incorrect! Variola major is a BSL-4 pathogen — eradicated from nature."
   },
