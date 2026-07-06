@@ -137,7 +137,7 @@ test('create creates player sprite', () => {
   scene.create()
 
   expect(scene.physics.add.sprite)
-    .toHaveBeenCalledWith(360, 360, 'player_base')
+    .toHaveBeenCalledWith(590, 150, 'player_base')
 })
 
 test('create creates equipment sprites', () => {

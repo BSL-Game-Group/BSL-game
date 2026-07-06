@@ -177,7 +177,7 @@ class MainScene extends Phaser.Scene {
         }
 
         // 1. Create the Base Player (start in the corridor hub)
-        this.player = this.physics.add.sprite(360, 360, 'player_base');
+        this.player = this.physics.add.sprite(590, 150, 'player_base');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.4);
         this.player.setDepth(10);
