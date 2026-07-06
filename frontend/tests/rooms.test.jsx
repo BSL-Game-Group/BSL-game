@@ -183,6 +183,16 @@ describe('createRooms — dressing room', () => {
     const img = scene.__created.images.find((i) => i.args.key === 'dressing_room')
     expect(img.setDisplaySize).toHaveBeenCalledWith(700, 290)
   })
+
+  test('adds invisible colliders over the furniture (deadzones)', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    // benches: solidBox(79,565,243,631) -> centre 161,598 · 164x66
+    expect(scene.add.rectangle).toHaveBeenCalledWith(161, 598, 164, 66)
+    // biohazard bins: solidBox(219,648,284,705) -> centre 251.5,676.5 · 65x57
+    expect(scene.add.rectangle).toHaveBeenCalledWith(251.5, 676.5, 65, 57)
+  })
 })
 
 // The lecture room is drawn as a transparent pixel-art overlay (its floor comes

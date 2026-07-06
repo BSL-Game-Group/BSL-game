@@ -202,6 +202,16 @@ function setupLectureRoom(scene, walls) {
     ];
 }
 
+// Invisible colliders over the dressing-room furniture, estimated from the room
+// art (image 1024x419 mapped onto the 700x290 ppe zone at x:0,y:430). Leaves the
+// top door (x 315..375) and the closet spot (~620,600) walkable.
+function setupDressingRoomDeadzones(scene, walls) {
+    solidBox(scene, 14, 468, 311, 544, walls);   // left: PPE suits + lockers
+    solidBox(scene, 400, 454, 691, 555, walls);  // right: shower, decon counter, suits
+    solidBox(scene, 79, 565, 243, 631, walls);   // benches
+    solidBox(scene, 219, 648, 284, 705, walls);  // biohazard bins
+}
+
 export function createRooms(scene) {
     const walls = [];
 
@@ -318,6 +328,7 @@ export function createRooms(scene) {
     setupCloset(scene);
     setupBslInteractables(scene);
     setupLectureRoom(scene, walls);
+    setupDressingRoomDeadzones(scene, walls);
 
     return walls;
 }
