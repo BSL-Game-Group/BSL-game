@@ -216,6 +216,13 @@ export function createRooms(scene) {
         { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 },
     ];
 
+    window.__gameData = {
+        ...window.__gameData,
+        lectureRoomZone: scene.lectureRoomZone,
+        ppeRoomZone: scene.ppeRoomZone,
+        bslRoomZones: scene.bslRoomZones,
+    };
+
     // Draw the BSL-2 background image
     const bsl2 = scene.bslRoomZones.find(zone => zone.key === 'BSL-2');
 

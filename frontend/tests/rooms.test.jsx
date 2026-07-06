@@ -14,6 +14,7 @@ function makeFakeScene() {
       handlers: {},
       setOrigin: jest.fn(() => o),
       setScale: jest.fn(() => o),
+      setDisplaySize: jest.fn(() => o),
       setVisible: jest.fn(() => o),
       setDepth: jest.fn(() => o),
       setInteractive: jest.fn(() => o),
