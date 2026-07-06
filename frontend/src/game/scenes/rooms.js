@@ -44,7 +44,7 @@ function vWall(scene, x, ya, yb, doors, walls) {
     vSeg(scene, x, cursor, yb, walls);
 }
 
-function label(scene, cx, cy, text, size = 14, bold = false) {
+function label(scene, cx, cy, text, size = 14, bold = false, depth = 21) {
     scene.add
         .text(cx, cy, text, {
             color: COLORS.text,
@@ -52,7 +52,8 @@ function label(scene, cx, cy, text, size = 14, bold = false) {
             fontStyle: bold ? 'bold' : 'normal',
             align: 'center',
         })
-        .setOrigin(0.5);
+        .setOrigin(0.5)
+        .setDepth(depth);
 }
 
 // Dresser + glow + interaction inside the dressing room.
