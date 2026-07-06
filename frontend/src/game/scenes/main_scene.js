@@ -389,7 +389,8 @@ class MainScene extends Phaser.Scene {
 
             if (inside && !this.playerInsideDressingRoom) {
                 if (this.closetImage) {
-                    this.closetImage.setVisible(true);
+                    // The dresser sprite stays hidden — the green glow is the
+                    // visible element; the sprite is only the invisible click target.
                     this.closetImage.setInteractive({useHandCursor: true});
                 }
                 if (this.closetGlow) {

@@ -76,10 +76,11 @@ function label(scene, cx, cy, text, size = 14, bold = false, depth = 21) {
         .setDepth(depth);
 }
 
-// Dresser + glow + interaction inside the dressing room.
+// Closet interactable inside the dressing room: a green glow marks the spot and an
+// invisible sprite is the click target (the dresser art now lives in the room image).
 function setupCloset(scene) {
-    const dresserX = 120;
-    const dresserY = 500;
+    const dresserX = 620;
+    const dresserY = 600;
 
     scene.closetZone = { x: dresserX - 35, y: dresserY - 60, width: 80, height: 80 };
     window.__gameData = { ...window.__gameData, closetZone: scene.closetZone };
