@@ -239,6 +239,14 @@ export function createRooms(scene) {
         .setDisplaySize(bsl2.width, bsl2.height)
         .setDepth(-5);
 
+    // Draw the BSL-3 background image
+    const bsl3 = scene.bslRoomZones.find(zone => zone.key === 'BSL-3');
+
+    scene.bsl3Image = scene.add.image(bsl3.x, bsl3.y, 'bsl3_room')
+        .setOrigin(0, 0)
+        .setDisplaySize(bsl3.width, bsl3.height)
+        .setDepth(-5);
+
     // Draw the BSL-4 background image
     const bsl4 = scene.bslRoomZones.find(zone => zone.key === 'BSL-4');
 

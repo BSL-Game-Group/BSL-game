@@ -87,6 +87,7 @@ class MainScene extends Phaser.Scene {
         // Rooms
         this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
         this.load.image('bsl2_room', 'assets/rooms/BSL-2.jpg');
+        this.load.image('bsl3_room', 'assets/rooms/BSL-3 ver. 2.png');
         this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
     }
 
@@ -250,6 +251,15 @@ class MainScene extends Phaser.Scene {
                 this.bsl1Image.setDepth(20);
             } else {
                 this.bsl1Image.setDepth(-5);
+            }
+        }
+
+        // Change BSL-3 image depth depending on player position
+        if (this.bsl3Image) {
+            if (this.player.y < 505) {
+                this.bsl3Image.setDepth(20);
+            } else {
+                this.bsl3Image.setDepth(-5);
             }
         }
 
