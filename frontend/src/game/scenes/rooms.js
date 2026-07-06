@@ -305,6 +305,13 @@ export function createRooms(scene) {
         .setDisplaySize(airCell.width, airCell.height)
         .setDepth(-5);
 
+    // Draw the dressing-room background, filling its zone wall-to-wall.
+    const dressing = scene.ppeRoomZone;
+    scene.add.image(dressing.x, dressing.y, 'dressing_room')
+        .setOrigin(0, 0)
+        .setDisplaySize(dressing.width, dressing.height)
+        .setDepth(-5);
+
     setupCloset(scene);
     setupBslInteractables(scene);
     setupLectureRoom(scene, walls);
