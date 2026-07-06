@@ -87,6 +87,7 @@ class MainScene extends Phaser.Scene {
         this.load.image('wood', 'assets/tiles/birchwood.png');
 
         // Rooms
+        this.load.image('lecture_room', 'assets/lecture_room.png');
         this.load.image('bsl2_room', 'assets/rooms/BSL-2.jpg');
         this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
     }
@@ -154,7 +155,7 @@ class MainScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(360, 360, 'player_base');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.4);
-        this.player.setDepth(10); 
+        this.player.setDepth(10);
 
         // 2. CONFIGURATION: Tweaking values for size and placement relative to player center
         // Adjust these numbers until your equipment aligns perfectly!
@@ -222,6 +223,9 @@ class MainScene extends Phaser.Scene {
         }).setDepth(1000).setVisible(false);
 
         this.physics.add.collider(this.player, walls);
+        if (this.lectureShelves) {
+            this.physics.add.collider(this.player, this.lectureShelves);
+        }
 
         this.playerInsideLectureRoom = false;
         this.playerInsideDressingRoom = false;
