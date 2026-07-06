@@ -67,6 +67,10 @@ function createScene() {
   scene.add = {
     sprite: jest.fn(() => fakeSprite()),
     text: jest.fn(() => fakeSprite()),
+    tileSprite: jest.fn(() => ({
+      setOrigin: jest.fn().mockReturnThis(),
+      setDepth: jest.fn().mockReturnThis(),
+    })),
   }
 
   scene.input = {
