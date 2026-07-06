@@ -94,6 +94,7 @@ class MainScene extends Phaser.Scene {
         this.load.image('bsl3_room', 'assets/rooms/BSL-3 ver. 2.png');
         this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
         this.load.image('air_systems', 'assets/rooms/air-systems.jpeg');
+        this.load.image('dressing_room', 'assets/rooms/dressing-room.jpeg');
     }
 
     createWoodFloor() {
