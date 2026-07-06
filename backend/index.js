@@ -47,6 +47,21 @@ app.get('/api/microbes', async (req, res) => {
   }
 })
 
+app.get('/api/microbes/random', async (req, res) => {
+  res.set('Cache-Control', 'no-store')
+  try {
+    const microbe = await db.Microbe.findOne({
+      include: { model: db.BSLClass, as: 'bsl_class' },
+      order: db.sequelize.random(),
+      rejectOnEmpty: true
+    })
+    res.json(microbe)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Failed to fetch microbe' })
+  }
+})
+
 app.get('/api/microbes/:id', async (req, res) => {
   try {
     const microbe = await db.Microbe.findByPk(req.params.id, {

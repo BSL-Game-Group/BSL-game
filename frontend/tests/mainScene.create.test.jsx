@@ -10,10 +10,31 @@ jest.mock('phaser', () => ({
       },
     },
   },
+  Events: {
+    EventEmitter: class {
+      on = jest.fn()
+      off = jest.fn()
+      emit = jest.fn()
+      once = jest.fn()
+    }
+  }
 }))
 
 jest.mock('../src/game/scenes/rooms', () => ({
   createRooms: jest.fn(() => ({})),
+}))
+
+jest.mock('../src/services/microbes', () => ({
+  __esModule: true,
+  default: {
+    getRandom: jest.fn().mockResolvedValue({
+      id: 1,
+      common_name: 'Test Microbe',
+      scientific_name: 'Microbius',
+      type: 'Fungus',
+      lecture_text: 'Lorem',
+    }),
+  },
 }))
 
 import MainScene from '../src/game/scenes/main_scene'
@@ -176,4 +197,21 @@ test('create registers shutdown handler', () => {
     'shutdown',
     expect.any(Function)
   )
+})
+
+test('create wires a separate collider for the lecture shelves when present', () => {
+  // createRooms is mocked; make it expose a lectureShelves group like the real one does.
+  const rooms = require('../src/game/scenes/rooms')
+  const shelves = [{ name: 'lecture-shelf-1' }]
+  rooms.createRooms.mockImplementationOnce((scene) => {
+    scene.lectureShelves = shelves
+    return []
+  })
+
+  const scene = createScene()
+
+  scene.create()
+
+  expect(scene.physics.add.collider)
+    .toHaveBeenCalledWith(scene.player, shelves)
 })

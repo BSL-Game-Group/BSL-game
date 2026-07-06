@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { createRooms } from './rooms';
+import microbeService from '../../services/microbes'
+import { EventBus } from '../EventBus'
 
 export function playerIsInsideZone(player, zone) {
     return (
@@ -86,6 +88,7 @@ class MainScene extends Phaser.Scene {
 
         // Rooms
         this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
+        this.load.image('lecture_room', 'assets/lecture_room.png');
         this.load.image('bsl2_room', 'assets/rooms/BSL-2.jpg');
         this.load.image('bsl3_room', 'assets/rooms/BSL-3 ver. 2.png');
         this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
@@ -154,7 +157,7 @@ class MainScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(360, 360, 'player_base');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.4);
-        this.player.setDepth(10); 
+        this.player.setDepth(10);
 
         // 2. CONFIGURATION: Tweaking values for size and placement relative to player center
         // Adjust these numbers until your equipment aligns perfectly!
@@ -222,6 +225,9 @@ class MainScene extends Phaser.Scene {
         }).setDepth(1000).setVisible(false);
 
         this.physics.add.collider(this.player, walls);
+        if (this.lectureShelves) {
+            this.physics.add.collider(this.player, this.lectureShelves);
+        }
 
         this.playerInsideLectureRoom = false;
         this.playerInsideDressingRoom = false;
@@ -239,6 +245,18 @@ class MainScene extends Phaser.Scene {
             color: "#fff",
             padding: { x: 6, y: 3 }
         }).setDepth(1000).setVisible(false);
+        
+        this.currentMicrobe = null;
+        this.replaceCurrentMicrobeRandomly()
+    }
+
+    async replaceCurrentMicrobeRandomly() {
+        const microbe = await microbeService.getRandom()
+        if (microbe === null) {
+            return
+        }
+        this.currentMicrobe = microbe
+        EventBus.emit('current-microbe-updated', microbe)
     }
 
     update() {
