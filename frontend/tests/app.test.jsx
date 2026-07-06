@@ -43,6 +43,15 @@ function openCloset() {
   })
 }
 
+function openAnswerPopup(level = 'BSL-2') {
+  startGame()
+  act(() => {
+    window.dispatchEvent(
+      new CustomEvent('answer-popup-opened', { detail: { level } })
+    )
+  })
+}
+
 // -----------------------------
 // START BUTTON TESTS
 // -----------------------------
@@ -136,4 +145,27 @@ test('closet popup closes when close button is clicked', () => {
   fireEvent.click(screen.getByRole('button', { name: /close/i }))
 
   expect(screen.queryByText(/equipment/i)).not.toBeInTheDocument()
+})
+
+// -----------------------------
+// ANSWER POPUP TESTS
+// -----------------------------
+test('answer popup opens when answer-popup-opened event is triggered', () => {
+  openAnswerPopup('BSL-2')
+
+  expect(screen.getByText(/BSL-2/i)).toBeInTheDocument()
+})
+
+test('answer popup does NOT appear without event', () => {
+  startGame()
+
+  expect(screen.queryByText(/BSL-2/i)).not.toBeInTheDocument()
+})
+
+test('answer popup closes when close button is clicked', () => {
+  openAnswerPopup('BSL-2')
+
+  fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+  expect(screen.queryByText(/BSL-2/i)).not.toBeInTheDocument()
 })

@@ -17,21 +17,131 @@ class MainScene extends Phaser.Scene {
         super({ key: 'MainScene' });
     }
 
+    generateSessionId() {
+        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    async notifyRoomEntry(roomKey) {
+        try {
+            const sessionId = window.__gameData?.sessionId;
+            if (!sessionId) {
+                return;
+            }
+
+            const backendUrl = this.getBackendUrl();
+            const response = await fetch(`${backendUrl}/api/rooms/enter`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    room_key: roomKey,
+                    session_id: sessionId,
+                }),
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            await response.json();
+        } catch (error) {
+            // Silently fail - room entry is not critical to gameplay
+        }
+    }
+
+    getBackendUrl() {
+        // Try process.env first (set by build tools)
+        if (process.env.VITE_API_URL) {
+            return process.env.VITE_API_URL;
+        }
+
+        // Fallback: use current window location to determine backend URL
+        if (typeof window !== 'undefined') {
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+
+            // If running on localhost, use localhost:3001
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:3001';
+            }
+
+            // In OpenShift/Kubernetes/Docker, use backend service name
+            return `${protocol}//backend:3001`;
+        }
+
+        // Jest/Node environment fallback
+        return 'http://localhost:3001';
+    }
+
     preload() {
         this.load.image('player_base', 'assets/player/base.png');
         this.load.image('lab_coat', 'assets/equipment/equipment_on_character/lab_coat.png');
         this.load.image('mask', 'assets/equipment/equipment_on_character/mask.png');
         this.load.image('glasses', 'assets/equipment/equipment_on_character/glasses.png');
         this.load.image('dresser', 'assets/dresser.png');
+        this.load.image('wood', 'assets/tiles/birchwood.png');
+    }
+
+    createWoodFloor() {
+        const tileSize = 64;
+
+        if (!this.textures.exists('wood_tile')) {
+            const woodTex = this.textures.get('wood');
+            if (woodTex) {
+                const woodSrc = woodTex.getSourceImage();
+                if (woodSrc) {
+                    const tileTexture = this.textures.createCanvas('wood_tile', tileSize, tileSize);
+                    const ctx = tileTexture.getContext();
+                    const srcW = woodSrc.naturalWidth || woodSrc.width;
+                    const srcH = woodSrc.naturalHeight || woodSrc.height;
+                    // Draw the entire source image scaled down to the tile size (no cropping)
+                    ctx.drawImage(woodSrc, 0, 0, srcW, srcH, 0, 0, tileSize, tileSize);
+                    tileTexture.refresh();
+                } else {
+                    console.warn('wood source image not available when creating wood_tile');
+                }
+            } else {
+                console.warn('wood texture not found when creating wood_tile');
+            }
+        }
+
+        const mapWidth = Math.ceil(this.playArea.width / tileSize);
+        const mapHeight = Math.ceil(this.playArea.height / tileSize);
+
+        const map = this.make.tilemap({
+            width: mapWidth,
+            height: mapHeight,
+            tileWidth: tileSize,
+            tileHeight: tileSize
+        });
+
+        const tileset = map.addTilesetImage('wood_tile', 'wood_tile', tileSize, tileSize, 0, 0);
+
+        const layer = map.createBlankLayer(
+            'wood_floor_layer',
+            tileset,
+            this.playArea.x,
+            this.playArea.y
+        );
+
+        layer.fill(0, 0, 0, mapWidth, mapHeight);
+        layer.setDepth(-10);
     }
 
     create() {
         const walls = createRooms(this);
-        this.physics.world.setBounds(20, 20, 1240, 680);
-        this.playArea = new Phaser.Geom.Rectangle(20, 20, 1240, 680);
+        this.physics.world.setBounds(0, 0, 1280, 720);
+        this.playArea = new Phaser.Geom.Rectangle(0, 0, 1280, 720);
+        this.createWoodFloor();
 
-        // 1. Create the Base Player
-        this.player = this.physics.add.sprite(700, 300, 'player_base');
+        // Initialize session ID if not already present
+        if (!window.__gameData?.sessionId) {
+            window.__gameData = { ...window.__gameData, sessionId: this.generateSessionId() };
+        }
+
+        // 1. Create the Base Player (start in the corridor hub)
+        this.player = this.physics.add.sprite(360, 360, 'player_base');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.4);
         this.player.setDepth(10); 
@@ -112,6 +222,14 @@ class MainScene extends Phaser.Scene {
             padding: { left: 6, right: 6, top: 3, bottom: 3 }
         }).setDepth(1000).setVisible(false);
 
+        // Hint shown near a BSL room's blue glow while the player is inside it.
+        this.bslHint = this.add.text(0, 0, "Press E", {
+            fontSize: "14px",
+            backgroundColor: "#000",
+            color: "#fff",
+            padding: { x: 6, y: 3 }
+        }).setDepth(1000).setVisible(false);
+        
         this.currentMicrobe = null;
         this.replaceCurrentMicrobeRandomly()
     }
@@ -123,7 +241,6 @@ class MainScene extends Phaser.Scene {
         }
         this.currentMicrobe = microbe
         EventBus.emit('current-microbe-updated', microbe)
-    }
 
     update() {
         this.player.setVelocityX(0);
@@ -235,6 +352,50 @@ class MainScene extends Phaser.Scene {
                 }
             } else {
                 this.pressEText.setVisible(false);
+            }
+        }
+
+        // BSL room interactables: show the blue glow while inside a BSL room,
+        // and open the answer popup when E is pressed there.
+        if (this.bslGlows) {
+            let activeCenter = null;
+
+            for (const entry of this.bslGlows) {
+                const inside = playerIsInsideZone(this.player, entry.zone);
+
+                if (inside && !entry.playerInside) {
+                    entry.glow.setVisible(true);
+                    entry.tween.resume();
+                    entry.playerInside = true;
+                    this.notifyRoomEntry(entry.key);
+                } else if (!inside && entry.playerInside) {
+                    entry.glow.setVisible(false);
+                    entry.tween.pause();
+                    entry.playerInside = false;
+                }
+
+                if (inside) {
+                    activeCenter = entry.center;
+                    if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                        window.dispatchEvent(
+                            new CustomEvent('answer-popup-opened', { detail: { level: entry.key } })
+                        );
+                    }
+                }
+            }
+
+            if (this.bslHint) {
+                if (activeCenter) {
+                    // Top-row rooms (glow near the screen top) would push the hint
+                    // off-screen / behind the wall, so show it below the glow there.
+                    const hintY = activeCenter.y > 80
+                        ? activeCenter.y - 48   // room lower down: hint above the glow
+                        : activeCenter.y + 36;  // top room: hint below the glow
+                    this.bslHint.setVisible(true);
+                    this.bslHint.setPosition(activeCenter.x - 28, hintY);
+                } else {
+                    this.bslHint.setVisible(false);
+                }
             }
         }
     }

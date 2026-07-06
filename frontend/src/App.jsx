@@ -2,12 +2,15 @@ import { useEffect, useState } from 'react'
 import Game from './Game.jsx'
 import ClosetPopup from './components/ClosetPopup/ClosetPopup'
 import Task from './components/Task.jsx'
+import AnswerPopup from './components/AnswerPopup/AnswerPopup'
 
 function App() {
   const [gameStarted, setGameStarted] = useState(false)
   const [lectureOpen, setLectureOpen] = useState(false)
   const [linksVisible, setLinksVisible] = useState(true)
   const [isPopupOpen, setPopupOpen] = useState(false);
+  const [answerOpen, setAnswerOpen] = useState(false)
+  const [answerLevel, setAnswerLevel] = useState('')
 
   useEffect(() => {
     fetch('/api/test')
@@ -23,6 +26,15 @@ function App() {
     const handleClosetClick = () => setPopupOpen(true)
     window.addEventListener('closet-popup-opened', handleClosetClick)
     return () => window.removeEventListener('closet-popup-opened', handleClosetClick)
+  }, [])
+
+  useEffect(() => {
+    const handleAnswerOpen = (e) => {
+      setAnswerLevel(e?.detail?.level ?? '')
+      setAnswerOpen(true)
+    }
+    window.addEventListener('answer-popup-opened', handleAnswerOpen)
+    return () => window.removeEventListener('answer-popup-opened', handleAnswerOpen)
   }, [])
 
   return (
@@ -57,6 +69,13 @@ function App() {
             <ClosetPopup
               open={isPopupOpen}
               onClose={() => setPopupOpen(false)}
+            />
+
+            <AnswerPopup
+              open={answerOpen}
+              onClose={() => setAnswerOpen(false)}
+              isCorrect={true}
+              level={answerLevel}
             />
 
             <Game />

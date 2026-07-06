@@ -76,6 +76,32 @@ function createScene() {
     },
   }
 
+  scene.textures = {
+    exists: jest.fn(() => false),
+    get: jest.fn(() => ({
+      getSourceImage: jest.fn(() => ({
+        naturalWidth: 1254,
+        naturalHeight: 1254,
+      })),
+    })),
+    createCanvas: jest.fn(() => ({
+      getContext: jest.fn(() => ({
+        drawImage: jest.fn(),
+      })),
+      refresh: jest.fn(),
+    })),
+  }
+
+  scene.make = {
+    tilemap: jest.fn(() => ({
+      addTilesetImage: jest.fn(() => ({ })),
+      createBlankLayer: jest.fn(() => ({
+        fill: jest.fn(),
+        setDepth: jest.fn(),
+      })),
+    })),
+  }
+
   scene.events = {
     on: jest.fn(),
   }
@@ -89,7 +115,7 @@ test('create sets world bounds', () => {
   scene.create()
 
   expect(scene.physics.world.setBounds)
-    .toHaveBeenCalledWith(20, 20, 1240, 680)
+    .toHaveBeenCalledWith(0, 0, 1280, 720)
 })
 
 test('create creates player sprite', () => {
@@ -98,7 +124,7 @@ test('create creates player sprite', () => {
   scene.create()
 
   expect(scene.physics.add.sprite)
-    .toHaveBeenCalledWith(700, 300, 'player_base')
+    .toHaveBeenCalledWith(360, 360, 'player_base')
 })
 
 test('create creates equipment sprites', () => {

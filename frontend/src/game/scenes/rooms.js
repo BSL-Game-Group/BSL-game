@@ -1,96 +1,73 @@
 const COLORS = {
-    fieldBorder: 0x2c3038,
-    roomBorder:  0x6a7180,
-    text:        '#2c3038',
+    wall: 0x2c3038,
+    text: '#000000',
 };
 
-function makeWall(scene, x, y, w, h) {
-    const r = scene.add.rectangle(x, y, w, h).setAlpha(0);
+const T = 6; // wall thickness
+
+// A solid, visible wall rectangle (corner-to-corner) with a static physics body.
+function wallRect(scene, x1, y1, x2, y2) {
+    const cx = (x1 + x2) / 2;
+    const cy = (y1 + y2) / 2;
+    const w = Math.abs(x2 - x1);
+    const h = Math.abs(y2 - y1);
+    const r = scene.add.rectangle(cx, cy, w, h, COLORS.wall);
     scene.physics.add.existing(r, true);
     return r;
 }
 
-function drawPlayField(scene) {
-    scene.add
-        .rectangle(640, 360, 1240, 680)
-        .setStrokeStyle(2, COLORS.fieldBorder);
+// Single horizontal / vertical wall segment on a centre line.
+function hSeg(scene, xa, xb, y, walls) {
+    if (xb - xa <= 0) {return;}
+    walls.push(wallRect(scene, xa, y - T / 2, xb, y + T / 2));
+}
+function vSeg(scene, x, ya, yb, walls) {
+    if (yb - ya <= 0) {return;}
+    walls.push(wallRect(scene, x - T / 2, ya, x + T / 2, yb));
 }
 
-function drawLectureRoom(scene) {
-    const cx = 170, cy = 155, w = 280, h = 250, doorSize = 100;
-    const left = cx - w / 2, right = cx + w / 2;
-    const top = cy - h / 2, bottom = cy + h / 2;
-    const doorLeft = cx - doorSize / 2, doorRight = cx + doorSize / 2;
-
-    const g = scene.add.graphics();
-    g.lineStyle(2, COLORS.roomBorder);
-    g.beginPath();
-    g.moveTo(left, top);
-    g.lineTo(right, top);
-    g.lineTo(right, bottom);
-    g.lineTo(doorRight, bottom);
-    g.moveTo(doorLeft, bottom);
-    g.lineTo(left, bottom);
-    g.lineTo(left, top);
-    g.strokePath();
-
-    scene.add
-        .text(cx, cy, 'lecture', { color: COLORS.text, fontSize: '14px' })
-        .setOrigin(0.5);
-
-    const t = 4;
-    scene.lectureRoomZone = { x: left, y: top, width: w, height: h };
-    window.__gameData = { ...window.__gameData, lectureRoomZone: scene.lectureRoomZone };
-
-    return [
-        makeWall(scene, cx, top, w, t),
-        makeWall(scene, left, cy, t, h),
-        makeWall(scene, right, cy, t, h),
-        makeWall(scene, (left + doorLeft) / 2, bottom, doorLeft - left, t),
-        makeWall(scene, (doorRight + right) / 2, bottom, right - doorRight, t),
-    ];
+// A wall along a line, broken by door gaps. doors = [[start, end], ...].
+function hWall(scene, xa, xb, y, doors, walls) {
+    let cursor = xa;
+    for (const [ds, de] of [...doors].sort((a, b) => a[0] - b[0])) {
+        hSeg(scene, cursor, ds, y, walls);
+        cursor = de;
+    }
+    hSeg(scene, cursor, xb, y, walls);
+}
+function vWall(scene, x, ya, yb, doors, walls) {
+    let cursor = ya;
+    for (const [ds, de] of [...doors].sort((a, b) => a[0] - b[0])) {
+        vSeg(scene, x, cursor, ds, walls);
+        cursor = de;
+    }
+    vSeg(scene, x, cursor, yb, walls);
 }
 
-function drawPPERoom(scene) {
-    const cx = 170, cy = 565, w = 280, h = 250, doorSize = 100;
-    const left = cx - w / 2, right = cx + w / 2;
-    const top = cy - h / 2, bottom = cy + h / 2;
-    const doorLeft = cx - doorSize / 2, doorRight = cx + doorSize / 2;
-
-    const g = scene.add.graphics();
-    g.lineStyle(2, COLORS.roomBorder);
-    g.beginPath();
-    g.moveTo(left, top);
-    g.lineTo(doorLeft, top);
-    g.moveTo(doorRight, top);
-    g.lineTo(right, top);
-    g.lineTo(right, bottom);
-    g.lineTo(left, bottom);
-    g.lineTo(left, top);
-    g.strokePath();
-
+function label(scene, cx, cy, text, size = 14, bold = false) {
     scene.add
-        .text(cx, cy, 'Dressing room', { color: COLORS.text, fontSize: '14px' })
+        .text(cx, cy, text, {
+            color: COLORS.text,
+            fontSize: `${size}px`,
+            fontStyle: bold ? 'bold' : 'normal',
+            align: 'center',
+        })
         .setOrigin(0.5);
+}
 
-    //
-    // Closet interaction zone
-    //
-    scene.closetZone = {
-        x: left,
-        y: top + 20,
-        width: 80,
-        height: 80
-    };
+// Dresser + glow + interaction inside the dressing room.
+function setupCloset(scene) {
+    const dresserX = 120;
+    const dresserY = 500;
 
-    //
-    // Glow effect (hidden initially)
-    //
+    scene.closetZone = { x: dresserX - 35, y: dresserY - 60, width: 80, height: 80 };
+    window.__gameData = { ...window.__gameData, closetZone: scene.closetZone };
+
     scene.closetGlow = scene.add.graphics();
     scene.closetGlow.fillStyle(0xffff00, 0.8);
-    scene.closetGlow.fillCircle(left + 35, top + 60, 55);
+    scene.closetGlow.fillCircle(dresserX, dresserY, 55);
     scene.closetGlow.lineStyle(3, 0xffff00);
-    scene.closetGlow.strokeCircle(left + 35, top + 60, 55);
+    scene.closetGlow.strokeCircle(dresserX, dresserY, 55);
     scene.closetGlow.setVisible(false);
 
     scene.closetGlowTween = scene.tweens.add({
@@ -98,110 +75,156 @@ function drawPPERoom(scene) {
         alpha: { from: 1.0, to: 0.3 },
         duration: 1000,
         yoyo: true,
-        repeat: -1
+        repeat: -1,
     });
-
     scene.closetGlowTween.pause();
 
-    //
-    // Dresser image
-    //
     scene.closetImage = scene.add
-        .image(left + 35, top + 60, 'dresser')
+        .image(dresserX, dresserY, 'dresser')
         .setOrigin(0.5)
         .setScale(1.5)
         .setVisible(false)
         .setInteractive({ useHandCursor: true });
 
     scene.closetImage.on('pointerover', () => {
-        if (!scene.playerInsideDressingRoom) {
-            return;
-        }
-
+        if (!scene.playerInsideDressingRoom) {return;}
         scene.closetHint.setVisible(true);
     });
     scene.closetImage.on('pointerout', () => {
         scene.closetHint.setVisible(false);
     });
     scene.closetImage.on('pointerdown', () => {
-        if (!scene.playerInsideDressingRoom) {
-            return;
-        }
+        if (!scene.playerInsideDressingRoom) {return;}
         window.dispatchEvent(new Event('closet-popup-opened'));
     });
-
-    const t = 4;
-
-    scene.ppeRoomZone = {
-        x: left,
-        y: top,
-        width: w,
-        height: h
-    };
-
-    window.__gameData = {
-        ...window.__gameData,
-        ppeRoomZone: scene.ppeRoomZone,
-        closetZone: scene.closetZone
-    };
-
-    return [
-        makeWall(scene, (left + doorLeft) / 2, top, doorLeft - left, t),
-        makeWall(scene, (doorRight + right) / 2, top, right - doorRight, t),
-        makeWall(scene, left, cy, t, h),
-        makeWall(scene, right, cy, t, h),
-        makeWall(scene, cx, bottom, w, t),
-    ];
 }
 
-function drawBSLRoom(scene, cx, cy, w, h, label) {
-    const left = cx - w / 2, right = cx + w / 2;
-    const top = cy - h / 2, bottom = cy + h / 2;
-    const doorSize = 100;
-    const doorLeft = cx - doorSize / 2, doorRight = cx + doorSize / 2;
+// Blue glow interactable inside each BSL room. Placeholder for the real element
+// (image TBD with the team) — pressing E or clicking it opens the answer popup.
+// Position per room: BSL-1/2/4 top-left, BSL-3 top-centre.
+function setupBslInteractables(scene) {
+    const inset = 35;
+    const radius = 24;
 
-    const g = scene.add.graphics();
-    g.lineStyle(2, COLORS.roomBorder);
-    g.beginPath();
-    g.moveTo(left, top);
-    g.lineTo(doorLeft, top);
-    g.moveTo(doorRight, top);
-    g.lineTo(right, top);
-    g.lineTo(right, bottom);
-    g.lineTo(left, bottom);
-    g.lineTo(left, top);
-    g.strokePath();
+    const glowPos = (zone) => {
+        const cy = zone.y + inset;
+        if (zone.key === 'BSL-3') {
+            return { x: zone.x + zone.width / 2, y: cy }; // top-centre
+        }
+        return { x: zone.x + inset, y: cy };              // top-left
+    };
 
-    scene.add
-        .text(cx, cy, label, { color: COLORS.text, fontSize: '14px', fontStyle: 'bold' })
-        .setOrigin(0.5);
+    scene.bslGlows = scene.bslRoomZones.map((zone) => {
+        const { x: cx, y: cy } = glowPos(zone);
 
-    const t = 4;
-    return [
-        makeWall(scene, (left + doorLeft) / 2, top, doorLeft - left, t),
-        makeWall(scene, (doorRight + right) / 2, top, right - doorRight, t),
-        makeWall(scene, right, cy, t, h),
-        makeWall(scene, cx, bottom, w, t),
-        makeWall(scene, left, cy, t, h),
-    ];
+        const glow = scene.add.graphics();
+        glow.fillStyle(0x1e90ff, 0.8);
+        glow.fillCircle(cx, cy, radius);
+        glow.lineStyle(3, 0x1e90ff);
+        glow.strokeCircle(cx, cy, radius);
+        glow.setVisible(false);
+        glow.setDepth(5);
+
+        const tween = scene.tweens.add({
+            targets: glow,
+            alpha: { from: 1.0, to: 0.3 },
+            duration: 1000,
+            yoyo: true,
+            repeat: -1,
+        });
+        tween.pause();
+
+        const entry = {
+            key: zone.key,
+            zone,
+            center: { x: cx, y: cy },
+            glow,
+            tween,
+            playerInside: false,
+        };
+
+        // Invisible clickable area over the glow (no image needed).
+        const hit = scene.add
+            .zone(cx, cy, radius * 2.4, radius * 2.4)
+            .setInteractive({ useHandCursor: true });
+        hit.on('pointerdown', () => {
+            if (!entry.playerInside) { return; }
+            window.dispatchEvent(
+                new CustomEvent('answer-popup-opened', { detail: { level: entry.key } })
+            );
+        });
+
+        return entry;
+    });
 }
 
 export function createRooms(scene) {
-    drawPlayField(scene);
+    const walls = [];
 
+    // ---- Outer boundary (fully visible, outer edge flush with the floor 0/1280/720) ----
+    hSeg(scene, 0, 1280, T / 2, walls);          // top
+    hSeg(scene, 0, 1280, 720 - T / 2, walls);    // bottom
+    vSeg(scene, T / 2, 0, 720, walls);           // left
+    vSeg(scene, 1280 - T / 2, 0, 720, walls);    // right
+
+    // ---- LEFT SIDE ----
+    // Lecture | Exit divider (no door)
+    vWall(scene, 480, 0, 290, [], walls);
+    // Lecture/Exit bottom = Corridor top (doors to both)
+    hWall(scene, 0, 700, 290, [[180, 270], [540, 630]], walls);
+    // Corridor bottom = Dressing room top (one door)
+    hWall(scene, 0, 700, 430, [[300, 390]], walls);
+
+    // ---- BIG DIVIDER x:700 (Corridor <-> Labs door, opening nudged: top up, bottom down) ----
+    vWall(scene, 700, 0, 720, [[292, 425]], walls);
+
+    // ---- MIDDLE-RIGHT COLUMN: BSL 2 / Labs / BSL 1 ----
+    hWall(scene, 700, 960, 250, [[790, 880]], walls); // BSL 2 <-> Labs
+    hWall(scene, 700, 960, 470, [[790, 880]], walls); // Labs <-> BSL 1
+
+    // ---- x:960 wall (Labs <-> airlock column), one clean door spanning the airlock rows ----
+    vWall(scene, 960, 0, 720, [[250, 470]], walls);
+
+    // ---- AIRLOCK BLOCK (rows 110px tall for easier passage) ----
+    hWall(scene, 960, 1280, 250, [[1140, 1230]], walls); // BSL 4 <-> BSL4 airlock 2 only
+    hWall(scene, 960, 1280, 360, [], walls);             // row divider (solid)
+    vWall(scene, 1110, 250, 470, [[250, 360]], walls);   // BSL4 airlock 1 <-> 2 (clean top-row opening)
+    hWall(scene, 960, 1280, 470, [[990, 1080]], walls);  // BSL3 airlock <-> BSL 3 only
+
+    // ---- LABELS ----
+    label(scene, 240, 145, 'Lecture room');
+    label(scene, 590, 145, 'Exit', 12);
+    label(scene, 350, 360, 'Corridor', 12);
+    label(scene, 350, 575, 'Dressing room');
+    label(scene, 830, 125, 'BSL 2', 16, true);
+    label(scene, 830, 360, 'Labs', 12);
+    label(scene, 830, 595, 'BSL 1', 16, true);
+    label(scene, 1120, 125, 'BSL 4', 16, true);
+    label(scene, 1035, 305, 'BSL4\nAIRLOCK 1', 9);
+    label(scene, 1195, 305, 'BSL4\nAIRLOCK 2', 9);
+    label(scene, 1035, 415, 'BSL3\nAIRLOCK', 9);
+    label(scene, 1195, 415, 'AIR\nSYSTEM', 9);
+    label(scene, 1120, 595, 'BSL 3', 16, true);
+
+    // ---- ZONES (game logic) ----
+    scene.lectureRoomZone = { x: 0, y: 0, width: 480, height: 290 };
+    scene.ppeRoomZone = { x: 0, y: 430, width: 700, height: 290 };
     scene.bslRoomZones = [
-        { key: 'BSL-1', x: 330, y: 500, width: 200, height: 150 },
-        { key: 'BSL-2', x: 550, y: 500, width: 200, height: 150 },
-        { key: 'BSL-3', x: 770, y: 500, width: 200, height: 150 },
-        { key: 'BSL-4', x: 990, y: 500, width: 200, height: 150 },
+        { key: 'BSL-1', x: 700, y: 470, width: 260, height: 250 },
+        { key: 'BSL-2', x: 700, y: 0, width: 260, height: 250 },
+        { key: 'BSL-3', x: 960, y: 470, width: 320, height: 250 },
+        { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 },
     ];
-    window.__gameData = { ...window.__gameData, bslRoomZones: scene.bslRoomZones };
 
-    return [
-        ...drawLectureRoom(scene),
-        ...drawPPERoom(scene),
-        ...scene.bslRoomZones.flatMap(r =>
-            drawBSLRoom(scene, r.x + r.width / 2, r.y + r.height / 2, r.width, r.height, r.key)
-        ),
-    ];
+    window.__gameData = {
+        ...window.__gameData,
+        lectureRoomZone: scene.lectureRoomZone,
+        ppeRoomZone: scene.ppeRoomZone,
+        bslRoomZones: scene.bslRoomZones,
+    };
+
+    setupCloset(scene);
+    setupBslInteractables(scene);
+
+    return walls;
 }
