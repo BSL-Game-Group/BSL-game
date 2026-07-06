@@ -61,10 +61,51 @@ function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', paddingTop: '24px' }}>
-      <h1>BSL-game</h1>
+      <h1 className="app-title">BSL-game</h1>
 
       {!gameStarted ? (
-        <button onClick={() => setGameStarted(true)} style={{ cursor: 'pointer' }}>Start Game</button>
+        <div className="start-screen">
+          <div className="microbe-field" aria-hidden="true">
+            <span className="microbe"></span>
+            <span className="microbe"></span>
+            <span className="microbe"></span>
+            <span className="microbe"></span>
+            <span className="microbe"></span>
+            <span className="microbe"></span>
+            <span className="microbe"></span>
+            <span className="microbe"></span>
+            <span className="microbe"></span>
+          </div>
+
+          <p className="start-screen__subtitle">
+            Handle microbes safely — choose the right protective gear and the right laboratory.
+          </p>
+
+          <button className="start-button" onClick={() => setGameStarted(true)}>
+            Start Game
+          </button>
+
+          <section className="game-instructions">
+            <h2>How to play</h2>
+            <ol className="instruction-steps">
+              <li>Remember the BSL level — it decides everything.</li>
+              <li>Go to the lecture room to read the microbe&apos;s details and its BSL level.</li>
+              <li>In the lecture room you can also study the materials to learn about different microbes and BSL classes (1–4).</li>
+              <li>Go to the dressing room and open the closet (press <kbd>E</kbd>).</li>
+              <li>Put on the protective equipment the level requires (lab coat, mask, glasses…).</li>
+              <li>Go to the matching BSL room (1–4).</li>
+              <li>Press <kbd>E</kbd> at the dark green ring to handle the microbe.</li>
+              <li>The game checks your work — were the equipment and room correct for this microbe?</li>
+              <li>Wash up at the shower or eyewash station to decontaminate before leaving.</li>
+              <li>A new microbe is drawn — try again!</li>
+              <li>After several rounds, see your summary: score, correct vs. wrong, and the levels you mastered.</li>
+              <li>You can leave any time through the Exit — the game shuts down.</li>
+            </ol>
+            <p className="game-instructions__controls">
+              <strong>Controls:</strong> Arrow keys / click to move · <kbd>E</kbd> or click to interact · <strong>Close</strong> button to close windows
+            </p>
+          </section>
+        </div>
       ) : (
         <div style={{ display: 'flex', alignItems: 'flex-start' }}>
           <div
