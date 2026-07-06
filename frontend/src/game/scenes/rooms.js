@@ -305,9 +305,10 @@ export function createRooms(scene) {
         .setDisplaySize(airCell.width, airCell.height)
         .setDepth(-5);
 
-    // Draw the dressing-room background, filling its zone wall-to-wall.
+    // Draw the dressing-room background, filling its zone wall-to-wall. Kept as a
+    // named ref so main_scene can depth-switch it at the door (like the BSL rooms).
     const dressing = scene.ppeRoomZone;
-    scene.add.image(dressing.x, dressing.y, 'dressing_room')
+    scene.dressingImage = scene.add.image(dressing.x, dressing.y, 'dressing_room')
         .setOrigin(0, 0)
         .setDisplaySize(dressing.width, dressing.height)
         .setDepth(-5);

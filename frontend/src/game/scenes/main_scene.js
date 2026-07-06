@@ -315,6 +315,16 @@ class MainScene extends Phaser.Scene {
             }
         }
 
+        // Same trick for the dressing room (top door at y:430): its front occludes
+        // the player at the doorway, then drops behind once they step inside.
+        if (this.dressingImage) {
+            if (this.player.y < 465) {
+                this.dressingImage.setDepth(20);
+            } else {
+                this.dressingImage.setDepth(-5);
+            }
+        }
+
         // 1. MOVEMENT CONTROLS (Locked when popup is open)
         if (!this.isPopupOpen) {
             // Keyboard movement
