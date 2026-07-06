@@ -241,6 +241,7 @@ class MainScene extends Phaser.Scene {
         }
         this.currentMicrobe = microbe
         EventBus.emit('current-microbe-updated', microbe)
+    }
 
     update() {
         this.player.setVelocityX(0);
