@@ -277,7 +277,10 @@ describe('Closet behavior', () => {
 
     scene.update()
 
-    expect(scene.closetImage.setVisible).toHaveBeenCalledWith(true)
+    // The dresser sprite stays hidden now; entering shows the green glow and
+    // activates the (invisible) click target.
+    expect(scene.closetGlow.setVisible).toHaveBeenCalledWith(true)
+    expect(scene.closetImage.setInteractive).toHaveBeenCalled()
   })
 
   test('hides closet when leaving dressing room', () => {
