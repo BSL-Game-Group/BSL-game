@@ -43,6 +43,7 @@ class MainScene extends Phaser.Scene {
             }
 
             await response.json();
+        // eslint-disable-next-line no-unused-vars
         } catch (error) {
             // Silently fail - room entry is not critical to gameplay
         }
@@ -73,12 +74,19 @@ class MainScene extends Phaser.Scene {
     }
 
     preload() {
+        // Player base
         this.load.image('player_base', 'assets/player/base.png');
+
+        // Equipment
         this.load.image('lab_coat', 'assets/equipment/equipment_on_character/lab_coat.png');
         this.load.image('mask', 'assets/equipment/equipment_on_character/mask.png');
         this.load.image('glasses', 'assets/equipment/equipment_on_character/glasses.png');
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
+
+        // Rooms
+        this.load.image('bsl2_room', 'assets/rooms/BSL-2.jpg');
+        this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
     }
 
     createWoodFloor() {
@@ -97,9 +105,11 @@ class MainScene extends Phaser.Scene {
                     ctx.drawImage(woodSrc, 0, 0, srcW, srcH, 0, 0, tileSize, tileSize);
                     tileTexture.refresh();
                 } else {
+                    // eslint-disable-next-line no-console
                     console.warn('wood source image not available when creating wood_tile');
                 }
             } else {
+                // eslint-disable-next-line no-console
                 console.warn('wood texture not found when creating wood_tile');
             }
         }
