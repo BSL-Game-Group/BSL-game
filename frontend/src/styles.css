@@ -190,6 +190,15 @@ body {
   background: linear-gradient(90deg, #14a83e, #7ee29a);
 }
 
+/* Key takeaway highlighted directly under the heading */
+.game-instructions__key {
+  margin: 0 0 16px;
+  text-align: center;
+  font-weight: 700;
+  color: #a8f5c0;
+  letter-spacing: 0.2px;
+}
+
 /* Numbered steps, each in its own hover-highlighted row */
 .instruction-steps {
   list-style: none;

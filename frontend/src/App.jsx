@@ -64,11 +64,11 @@ function App() {
 
           <section className="game-instructions">
             <h2>How to play</h2>
+            <p className="game-instructions__key">Remember the BSL level — it decides everything.</p>
             <ol className="instruction-steps">
               <li>A microbe is assigned to you at random.</li>
               <li>Go to the lecture room to read the microbe&apos;s details and its BSL level.</li>
               <li>In the lecture room you can also study the materials to learn about different microbes and BSL classes (1–4).</li>
-              <li>Remember the BSL level — it decides everything.</li>
               <li>Go to the dressing room and open the closet (press <kbd>E</kbd>).</li>
               <li>Put on the protective equipment the level requires (lab coat, mask, glasses…).</li>
               <li>Go to the matching BSL room (1–4).</li>
