@@ -207,14 +207,12 @@ function setupLectureRoom(scene, walls) {
 // that isn't floor blocks — only the grey tile floor and the shower approach
 // (the gap at x ~315..469, which also holds the top door) stay walkable.
 function setupDressingRoomDeadzones(scene, walls) {
-    // Left side: tight footprints so the player can walk the suit wall, the gap
-    // between the lockers and benches, under the benches and around them.
-    solidBox(scene, 103, 490, 311, 540, walls);  // lockers (the suit wall stays walkable)
-    solidBox(scene, 90, 568, 235, 594, walls);   // upper (brown) bench
-    solidBox(scene, 105, 603, 230, 628, walls);  // lower bench
-    // Right side (kept): everything but the shower approach and floor blocks.
+    // Left side: only the top strip of the room (back wall + lockers) and the
+    // thin bench block; the rest of the left floor is walkable.
+    solidBox(scene, 0, 430, 315, 544, walls);    // dressing-room top (lockers/suits wall)
+    solidBox(scene, 85, 572, 240, 598, walls);   // thin bench
+    // Right side (kept): furniture blocks; the shower approach and floor stay open.
     solidBox(scene, 469, 458, 677, 555, walls);  // top-right: decon counter + suits
-    solidBox(scene, 219, 648, 284, 705, walls);  // biohazard bins
     solidBox(scene, 469, 558, 571, 617, walls);  // shelves
     solidBox(scene, 575, 558, 694, 705, walls);  // glass booth
 }

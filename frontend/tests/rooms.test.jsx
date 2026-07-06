@@ -188,10 +188,9 @@ describe('createRooms — dressing room', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
-    // Lockers, benches and the glass booth block; the floor, the suit wall and
-    // the shower approach stay walkable.
-    expect(scene.add.rectangle).toHaveBeenCalledWith(207, 515, 208, 50)      // lockers
-    expect(scene.add.rectangle).toHaveBeenCalledWith(162.5, 581, 145, 26)    // upper bench
+    // Left: only the top strip and the thin bench block. Right: the glass booth.
+    expect(scene.add.rectangle).toHaveBeenCalledWith(157.5, 487, 315, 114)   // room top strip
+    expect(scene.add.rectangle).toHaveBeenCalledWith(162.5, 585, 155, 26)    // thin bench
     expect(scene.add.rectangle).toHaveBeenCalledWith(634.5, 631.5, 119, 147) // glass booth
   })
 })
