@@ -7,10 +7,8 @@ const config = {
     height: 720,
     parent: 'game-container',
     backgroundColor: '#fafbfc',
-    // Render the backing store at the device's pixel ratio so the canvas stays
-    // sharp on retina/high-DPI screens, and let Phaser scale it to fit the parent
-    // (instead of the browser squashing a fixed 1280x720 canvas via CSS).
-    resolution: window.devicePixelRatio || 1,
+    // Let Phaser's Scale manager fit and centre the canvas in its parent, instead
+    // of the browser squashing a fixed 1280x720 canvas via CSS.
     scale: {
         mode: Scale.FIT,
         autoCenter: Scale.CENTER_BOTH,
