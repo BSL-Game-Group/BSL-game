@@ -208,6 +208,9 @@ class MainScene extends Phaser.Scene {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
             window.removeEventListener('popup-opened', this.handlePopupOpen);
             window.removeEventListener('popup-closed', this.handlePopupClosed);
+            if (this.handleNewMicrobeRequest) {
+                EventBus.off('request-new-microbe', this.handleNewMicrobeRequest);
+            }
         });
 
         // Setup inputs, text and colliders
@@ -241,7 +244,15 @@ class MainScene extends Phaser.Scene {
         }).setDepth(1000).setVisible(false);
         
         this.currentMicrobe = null;
+        this.registerEventBusListeners();
         this.replaceCurrentMicrobeRandomly()
+    }
+
+    // Wire EventBus listeners the scene owns. React (App) asks for a fresh
+    // microbe after each answer; the scene stays the single source of truth.
+    registerEventBusListeners() {
+        this.handleNewMicrobeRequest = () => this.replaceCurrentMicrobeRandomly()
+        EventBus.on('request-new-microbe', this.handleNewMicrobeRequest)
     }
 
     async replaceCurrentMicrobeRandomly() {
