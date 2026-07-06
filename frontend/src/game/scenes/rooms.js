@@ -296,6 +296,15 @@ export function createRooms(scene) {
         .setDisplaySize(bsl4.width, bsl4.height)
         .setDepth(-5);
 
+    // Draw the air-system machine into its cell (bottom-right of the airlock block).
+    // Fill the whole air-system cell wall-to-wall (like the BSL room backgrounds
+    // fill their zones); the walls at depth 0 tuck over its edges.
+    const airCell = { x: 1110, y: 360, width: 170, height: 110 };
+    scene.add.image(airCell.x, airCell.y, 'air_systems')
+        .setOrigin(0, 0)
+        .setDisplaySize(airCell.width, airCell.height)
+        .setDepth(-5);
+
     setupCloset(scene);
     setupBslInteractables(scene);
     setupLectureRoom(scene, walls);
