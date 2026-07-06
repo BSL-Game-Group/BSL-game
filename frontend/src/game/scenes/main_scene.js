@@ -180,10 +180,11 @@ class MainScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(590, 150, 'player_base');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.4);
-        // Smaller collision body (roughly the lower body) than the full sprite so the
-        // character isn't bulky and moves smoothly through doors and around furniture.
-        this.player.body.setSize(60, 90);
-        this.player.body.setOffset(23, 120);
+        // Narrow but full-height collision body: narrow so the character moves
+        // smoothly through doors and gaps, full height so the head is covered too
+        // and it can't slip through walls.
+        this.player.body.setSize(60, 205);
+        this.player.body.setOffset(23, 6);
         this.player.setDepth(10);
 
         // 2. CONFIGURATION: Tweaking values for size and placement relative to player center

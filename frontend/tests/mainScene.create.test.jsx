@@ -146,8 +146,8 @@ test('create shrinks the player collision body', () => {
 
   scene.create()
 
-  expect(scene.player.body.setSize).toHaveBeenCalledWith(60, 90)
-  expect(scene.player.body.setOffset).toHaveBeenCalledWith(23, 120)
+  expect(scene.player.body.setSize).toHaveBeenCalledWith(60, 205)
+  expect(scene.player.body.setOffset).toHaveBeenCalledWith(23, 6)
 })
 
 test('create creates equipment sprites', () => {
