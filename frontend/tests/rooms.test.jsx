@@ -233,12 +233,12 @@ describe('setupCloset (via createRooms)', () => {
 
     createRooms(scene)
 
-    expect(scene.closetZone).toEqual({ x: 585, y: 540, width: 80, height: 80 })
+    expect(scene.closetZone).toEqual({ x: 55, y: 440, width: 80, height: 80 })
     expect(window.__gameData.closetZone).toEqual(scene.closetZone)
 
-    // The dresser sprite moved to the right side and stays hidden (only a click target);
-    // the green glow is the visible element.
-    expect(scene.add.image).toHaveBeenCalledWith(620, 600, 'dresser')
+    // The dresser sprite sits in the top-left corner and stays hidden (only a click
+    // target); the green glow is the visible element.
+    expect(scene.add.image).toHaveBeenCalledWith(90, 500, 'dresser')
     expect(scene.closetImage.setVisible).toHaveBeenCalledWith(false)
     expect(scene.closetImage.setInteractive).toHaveBeenCalled()
     // The glow is created hidden until the player is near.
