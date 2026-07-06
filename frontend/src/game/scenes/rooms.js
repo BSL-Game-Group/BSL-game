@@ -214,15 +214,15 @@ export function createRooms(scene) {
     vWall(scene, 480, 0, 290, [], walls);
     // Lecture/Exit bottom = Corridor top (doors to both)
     hWall(scene, 0, 700, 290, [[180, 270], [540, 630]], walls);
-    // Corridor bottom = Dressing room top (one door)
-    hWall(scene, 0, 700, 430, [[300, 390]], walls);
+    // Corridor bottom = Dressing room top (one narrower door)
+    hWall(scene, 0, 700, 430, [[315, 375]], walls);
 
     // ---- BIG DIVIDER x:700 (Corridor <-> Labs door, opening nudged: top up, bottom down) ----
     vWall(scene, 700, 0, 720, [[292, 425]], walls);
 
     // ---- MIDDLE-RIGHT COLUMN: BSL 2 / Labs / BSL 1 ----
     hWall(scene, 700, 960, 250, [[790, 880]], walls); // BSL 2 <-> Labs
-    hWall(scene, 700, 960, 470, [[790, 880]], walls); // Labs <-> BSL 1
+    hWall(scene, 700, 960, 470, [[805, 865]], walls); // Labs <-> BSL 1 (narrower door)
 
     // ---- x:960 wall (Labs <-> airlock column), one clean door spanning the airlock rows ----
     vWall(scene, 960, 0, 720, [[250, 470]], walls);

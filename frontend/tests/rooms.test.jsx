@@ -71,7 +71,7 @@ describe('createRooms', () => {
 
     createRooms(scene)
 
-    // The dressing-room door sits on the y=430 wall line, spanning x 300..390.
+    // The dressing-room door sits on the y=430 wall line, spanning x 315..375.
     const doorLineY = 430
     const doorMidX = 345
     const wallsOnDoorLine = scene.__created.rectangles.filter(
