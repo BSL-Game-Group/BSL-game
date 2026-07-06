@@ -209,7 +209,7 @@ function setupLectureRoom(scene, walls) {
 function setupDressingRoomDeadzones(scene, walls) {
     // Left side: only the top strip of the room (back wall + lockers) and the
     // thin bench block; the rest of the left floor is walkable.
-    solidBox(scene, 0, 430, 315, 544, walls);    // dressing-room top (lockers/suits wall)
+    solidBox(scene, 103, 430, 315, 544, walls);  // lockers only (left suit column stays walkable up to the top)
     solidBox(scene, 85, 572, 240, 598, walls);   // thin bench
     // Right side (kept): furniture blocks; the shower approach and floor stay open.
     solidBox(scene, 469, 458, 677, 555, walls);  // top-right: decon counter + suits

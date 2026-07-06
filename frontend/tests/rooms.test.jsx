@@ -189,7 +189,7 @@ describe('createRooms — dressing room', () => {
     createRooms(scene)
 
     // Left: only the top strip and the thin bench block. Right: the glass booth.
-    expect(scene.add.rectangle).toHaveBeenCalledWith(157.5, 487, 315, 114)   // room top strip
+    expect(scene.add.rectangle).toHaveBeenCalledWith(209, 487, 212, 114)     // lockers strip
     expect(scene.add.rectangle).toHaveBeenCalledWith(162.5, 585, 155, 26)    // thin bench
     expect(scene.add.rectangle).toHaveBeenCalledWith(634.5, 631.5, 119, 147) // glass booth
   })
