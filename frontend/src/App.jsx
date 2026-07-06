@@ -72,7 +72,7 @@ function App() {
               <li>Go to the dressing room and open the closet (press <kbd>E</kbd>).</li>
               <li>Put on the protective equipment the level requires (lab coat, mask, glasses…).</li>
               <li>Go to the matching BSL room (1–4).</li>
-              <li>Press <kbd>E</kbd> at the blue element to handle the microbe.</li>
+              <li>Press <kbd>E</kbd> at the dark green ring to handle the microbe.</li>
               <li>The game checks your work — were the equipment and room correct for this microbe?</li>
               <li>Wash up at the shower or eyewash station to decontaminate before leaving.</li>
               <li>A new microbe is drawn — try again!</li>
