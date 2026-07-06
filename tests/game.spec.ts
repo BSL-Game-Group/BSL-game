@@ -40,7 +40,7 @@ test('closet closes via button', async ({ game }) => {
   await expect(game.closetPopup).not.toBeVisible();
 });
 
-test.only('entering the lecture room shows the task in the lecture panel', async ({ game }) => {
+test('entering the lecture room shows the task in the lecture panel', async ({ game }) => {
   await game.start();
   await game.page.evaluate(() => {
     window.dispatchEvent(new Event('lecture-room-entered'));
