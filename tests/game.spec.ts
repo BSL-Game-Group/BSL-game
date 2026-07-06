@@ -40,10 +40,19 @@ test('closet closes via button', async ({ game }) => {
   await expect(game.closetPopup).not.toBeVisible();
 });
 
-test('entering the lecture room shows the task in the lecture panel', async ({ game }) => {
+test.only('entering the lecture room shows the task in the lecture panel', async ({ game }) => {
   await game.start();
   await game.page.evaluate(() => {
     window.dispatchEvent(new Event('lecture-room-entered'));
   });
   await expect(game.lecturePanel).toContainText('The microbe you will handle');
+
+  const LiElements = await game.page
+    .getByText('The microbe you will handle')
+    .locator('..')
+    .locator('ul > li')
+    .all();
+  for (const microbeInfo of LiElements) {
+    await expect(microbeInfo).not.toBeEmpty();
+  }
 });
