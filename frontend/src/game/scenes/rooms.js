@@ -217,6 +217,16 @@ function setupDressingRoomDeadzones(scene, walls) {
     solidBox(scene, 575, 558, 694, 705, walls);  // glass booth
 }
 
+// Info desk in the corridor's top-left corner, flush against the walls (a future
+// info point). The counter is solid so the player can't walk through it.
+function setupInfoDesk(scene, walls) {
+    scene.add.image(6, 294, 'info_desk')
+        .setOrigin(0, 0)
+        .setDisplaySize(150, 108)
+        .setDepth(-5);
+    solidBox(scene, 6, 300, 156, 402, walls);
+}
+
 export function createRooms(scene) {
     const walls = [];
 
@@ -334,6 +344,7 @@ export function createRooms(scene) {
     setupBslInteractables(scene);
     setupLectureRoom(scene, walls);
     setupDressingRoomDeadzones(scene, walls);
+    setupInfoDesk(scene, walls);
 
     return walls;
 }

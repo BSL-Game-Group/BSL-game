@@ -195,6 +195,20 @@ describe('createRooms — dressing room', () => {
   })
 })
 
+// The info desk sits in the corridor's top-left corner with a solid counter.
+describe('createRooms — info desk', () => {
+  test('draws the info desk and a solid counter in the corridor corner', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    expect(scene.add.image).toHaveBeenCalledWith(6, 294, 'info_desk')
+    const img = scene.__created.images.find((i) => i.args.key === 'info_desk')
+    expect(img.setDisplaySize).toHaveBeenCalledWith(150, 108)
+    // counter: solidBox(6,300,156,402) -> centre 81,351 · 150x102
+    expect(scene.add.rectangle).toHaveBeenCalledWith(81, 351, 150, 102)
+  })
+})
+
 // The lecture room is drawn as a transparent pixel-art overlay (its floor comes
 // from the game). The back wall is a real solid wall, and the bookshelves are
 // solid too but live in their OWN named group (`scene.lectureShelves`) — the
