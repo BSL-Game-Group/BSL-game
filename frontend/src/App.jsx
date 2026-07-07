@@ -4,6 +4,7 @@ import ClosetPopup from './components/ClosetPopup/ClosetPopup'
 import Task from './components/Task.jsx'
 import AnswerPopup from './components/AnswerPopup/AnswerPopup'
 import HowToPlay from './components/HowToPlay'
+import InfoPopup from './components/InfoPopup/InfoPopup'
 import { EventBus } from './game/EventBus'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
   const [answerOpen, setAnswerOpen] = useState(false)
   const [answerLevel, setAnswerLevel] = useState('')
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
+  const [infoOpen, setInfoOpen] = useState(false)
 
   useEffect(() => {
     fetch('/api/test')
@@ -37,6 +39,12 @@ function App() {
     const handleClosetClick = () => setPopupOpen(true)
     window.addEventListener('closet-popup-opened', handleClosetClick)
     return () => window.removeEventListener('closet-popup-opened', handleClosetClick)
+  }, [])
+
+  useEffect(() => {
+    const handleInfoOpen = () => setInfoOpen(true)
+    window.addEventListener('info-popup-opened', handleInfoOpen)
+    return () => window.removeEventListener('info-popup-opened', handleInfoOpen)
   }, [])
 
   useEffect(() => {
@@ -123,6 +131,8 @@ function App() {
               level={answerLevel}
               microbe={currentMicrobe}
             />
+
+            <InfoPopup open={infoOpen} onClose={() => setInfoOpen(false)} />
 
             <Game />
           </div>
