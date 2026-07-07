@@ -277,7 +277,7 @@ export function createRooms(scene) {
     hWall(scene, 0, 700, 430, [[315, 375]], walls);
 
     // ---- BIG DIVIDER x:700 (Corridor <-> Labs door, opening nudged: top up, bottom down) ----
-    vWall(scene, 700, 0, 720, [[292, 425]], walls);
+    vWall(scene, 700, 0, 720, [[292, 435]], walls);
 
     // ---- MIDDLE-RIGHT COLUMN: BSL 2 / Labs / BSL 1 ----
     hWall(scene, 700, 960, 250, [[790, 880]], walls); // BSL 2 <-> Labs
