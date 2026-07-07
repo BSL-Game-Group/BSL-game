@@ -56,3 +56,15 @@ test('entering the lecture room shows the task in the lecture panel', async ({ g
     await expect(microbeInfo).not.toBeEmpty();
   }
 });
+
+test('info popup opens via event and shows the instructions', async ({ game }) => {
+  await game.start();
+
+  await game.page.evaluate(() => {
+    window.dispatchEvent(new Event('info-popup-opened'));
+  });
+
+  await expect(
+    game.page.getByRole('heading', { name: /how to play/i })
+  ).toBeVisible();
+});

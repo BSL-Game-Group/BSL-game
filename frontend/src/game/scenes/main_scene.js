@@ -85,6 +85,7 @@ class MainScene extends Phaser.Scene {
         this.load.image('glasses', 'assets/equipment/equipment_on_character/glasses.png');
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
+        this.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
 
         // Rooms
         this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
@@ -92,6 +93,9 @@ class MainScene extends Phaser.Scene {
         this.load.image('bsl2_room', 'assets/rooms/BSL-2.jpg');
         this.load.image('bsl3_room', 'assets/rooms/BSL-3 ver. 2.png');
         this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
+        this.load.image('air_systems', 'assets/rooms/air-systems.jpeg');
+        this.load.image('dressing_room', 'assets/rooms/dressing-room.png');
+        this.load.image('info_desk', 'assets/rooms/info-desk.png');
     }
 
     createWoodFloor() {
@@ -142,11 +146,31 @@ class MainScene extends Phaser.Scene {
         layer.setDepth(-10);
     }
 
+    // Clinical tile floor for the labs side — everything right of the x:700 divider
+    // (BSL rooms 1-4, the Labs room, the airlocks and the air system). The left,
+    // human side (lecture/corridor/dressing/exit) keeps the wood floor.
+    createLabFloor() {
+        const startX = 700;
+        const width = 1280 - startX;
+        const height = 720;
+        // Source tiles are ~442px; show them near 110px so the pattern reads at play scale.
+        const tileScale = 110 / 442;
+
+        const floor = this.add
+            .tileSprite(startX, 0, width, height, 'labs_floor')
+            .setOrigin(0, 0);
+        floor.tileScaleX = tileScale;
+        floor.tileScaleY = tileScale;
+        // Above the wood floor (-10), below room art (-5), walls (0) and the player (10).
+        floor.setDepth(-9);
+    }
+
     create() {
         const walls = createRooms(this);
         this.physics.world.setBounds(0, 0, 1280, 720);
         this.playArea = new Phaser.Geom.Rectangle(0, 0, 1280, 720);
         this.createWoodFloor();
+        this.createLabFloor();
 
         // Initialize session ID if not already present
         if (!window.__gameData?.sessionId) {
@@ -154,9 +178,14 @@ class MainScene extends Phaser.Scene {
         }
 
         // 1. Create the Base Player (start in the corridor hub)
-        this.player = this.physics.add.sprite(360, 360, 'player_base');
+        this.player = this.physics.add.sprite(590, 150, 'player_base');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.4);
+        // Narrow but full-height collision body: narrow so the character moves
+        // smoothly through doors and gaps, full height so the head is covered too
+        // and it can't slip through walls.
+        this.player.body.setSize(60, 205);
+        this.player.body.setOffset(23, 6);
         this.player.setDepth(10);
 
         // 2. CONFIGURATION: Tweaking values for size and placement relative to player center
@@ -292,6 +321,16 @@ class MainScene extends Phaser.Scene {
             }
         }
 
+        // Same trick for the dressing room (top door at y:430): its front occludes
+        // the player at the doorway, then drops behind once they step inside.
+        if (this.dressingImage) {
+            if (this.player.y < 465) {
+                this.dressingImage.setDepth(20);
+            } else {
+                this.dressingImage.setDepth(-5);
+            }
+        }
+
         // 1. MOVEMENT CONTROLS (Locked when popup is open)
         if (!this.isPopupOpen) {
             // Keyboard movement
@@ -356,7 +395,8 @@ class MainScene extends Phaser.Scene {
 
             if (inside && !this.playerInsideDressingRoom) {
                 if (this.closetImage) {
-                    this.closetImage.setVisible(true);
+                    // The dresser sprite stays hidden — the green glow is the
+                    // visible element; the sprite is only the invisible click target.
                     this.closetImage.setInteractive({useHandCursor: true});
                 }
                 if (this.closetGlow) {
@@ -398,6 +438,23 @@ class MainScene extends Phaser.Scene {
                 }
             } else {
                 this.pressEText.setVisible(false);
+            }
+        }
+
+        // Info point: only active in the corridor. Show the glow and a Press E hint
+        // there, and open the how-to-play popup on E.
+        if (this.infoGlow && this.corridorZone && this.infoPoint) {
+            const inCorridor = playerIsInsideZone(this.player, this.corridorZone);
+            this.infoGlow.setVisible(inCorridor);
+            if (this.infoGlowTween) {
+                if (inCorridor) { this.infoGlowTween.resume(); } else { this.infoGlowTween.pause(); }
+            }
+            if (inCorridor) {
+                this.pressEText.setVisible(true);
+                this.pressEText.setPosition(this.infoPoint.x - 40, this.infoPoint.y - 45);
+                if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                    window.dispatchEvent(new Event('info-popup-opened'));
+                }
             }
         }
 

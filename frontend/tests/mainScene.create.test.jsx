@@ -48,6 +48,7 @@ function fakeSprite() {
     setCollideWorldBounds: jest.fn().mockReturnThis(),
     setInteractive: jest.fn().mockReturnThis(),
     disableInteractive: jest.fn().mockReturnThis(),
+    body: { setSize: jest.fn(), setOffset: jest.fn() },
   }
 }
 
@@ -67,6 +68,10 @@ function createScene() {
   scene.add = {
     sprite: jest.fn(() => fakeSprite()),
     text: jest.fn(() => fakeSprite()),
+    tileSprite: jest.fn(() => ({
+      setOrigin: jest.fn().mockReturnThis(),
+      setDepth: jest.fn().mockReturnThis(),
+    })),
   }
 
   scene.input = {
@@ -118,13 +123,31 @@ test('create sets world bounds', () => {
     .toHaveBeenCalledWith(0, 0, 1280, 720)
 })
 
+test('create tiles the labs side with the lab floor', () => {
+  const scene = createScene()
+
+  scene.create()
+
+  expect(scene.add.tileSprite)
+    .toHaveBeenCalledWith(700, 0, 580, 720, 'labs_floor')
+})
+
 test('create creates player sprite', () => {
   const scene = createScene()
 
   scene.create()
 
   expect(scene.physics.add.sprite)
-    .toHaveBeenCalledWith(360, 360, 'player_base')
+    .toHaveBeenCalledWith(590, 150, 'player_base')
+})
+
+test('create shrinks the player collision body', () => {
+  const scene = createScene()
+
+  scene.create()
+
+  expect(scene.player.body.setSize).toHaveBeenCalledWith(60, 205)
+  expect(scene.player.body.setOffset).toHaveBeenCalledWith(23, 6)
 })
 
 test('create creates equipment sprites', () => {

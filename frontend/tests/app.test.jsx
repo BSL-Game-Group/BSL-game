@@ -246,3 +246,19 @@ test('answer popup says Not quite when chosen room does not match the microbe cl
   expect(screen.getByText(/not quite/i)).toBeInTheDocument()
   expect(screen.getByText(/wrong containment for this one/i)).toBeInTheDocument()
 })
+
+// -----------------------------
+// INFO POPUP TESTS
+// -----------------------------
+test('info popup opens on info-popup-opened event and shows the steps', () => {
+  startGame()
+
+  act(() => {
+    window.dispatchEvent(new Event('info-popup-opened'))
+  })
+
+  expect(
+    screen.getByRole('heading', { name: /how to play/i })
+  ).toBeInTheDocument()
+  expect(screen.getByText(/remember the bsl level/i)).toBeInTheDocument()
+})

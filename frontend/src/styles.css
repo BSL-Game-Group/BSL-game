@@ -17,7 +17,8 @@ body {
 .phaser-game-canvas, canvas {
   display: block;
   max-width: 100%;
-  height: auto;
+  /* Height is controlled by Phaser's Scale manager (FIT); forcing height:auto
+     here fought it and distorted / blurred the canvas. */
 }
 
 /* Game container utility */

@@ -3,6 +3,8 @@ import Game from './Game.jsx'
 import ClosetPopup from './components/ClosetPopup/ClosetPopup'
 import Task from './components/Task.jsx'
 import AnswerPopup from './components/AnswerPopup/AnswerPopup'
+import HowToPlay from './components/HowToPlay'
+import InfoPopup from './components/InfoPopup/InfoPopup'
 import { EventBus } from './game/EventBus'
 
 function App() {
@@ -13,6 +15,7 @@ function App() {
   const [answerOpen, setAnswerOpen] = useState(false)
   const [answerLevel, setAnswerLevel] = useState('')
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
+  const [infoOpen, setInfoOpen] = useState(false)
 
   useEffect(() => {
     fetch('/api/test')
@@ -36,6 +39,12 @@ function App() {
     const handleClosetClick = () => setPopupOpen(true)
     window.addEventListener('closet-popup-opened', handleClosetClick)
     return () => window.removeEventListener('closet-popup-opened', handleClosetClick)
+  }, [])
+
+  useEffect(() => {
+    const handleInfoOpen = () => setInfoOpen(true)
+    window.addEventListener('info-popup-opened', handleInfoOpen)
+    return () => window.removeEventListener('info-popup-opened', handleInfoOpen)
   }, [])
 
   useEffect(() => {
@@ -85,26 +94,7 @@ function App() {
             Start Game
           </button>
 
-          <section className="game-instructions">
-            <h2>How to play</h2>
-            <ol className="instruction-steps">
-              <li>Remember the BSL level — it decides everything.</li>
-              <li>Go to the lecture room to read the microbe&apos;s details and its BSL level.</li>
-              <li>In the lecture room you can also study the materials to learn about different microbes and BSL classes (1–4).</li>
-              <li>Go to the dressing room and open the closet (press <kbd>E</kbd>).</li>
-              <li>Put on the protective equipment the level requires (lab coat, mask, glasses…).</li>
-              <li>Go to the matching BSL room (1–4).</li>
-              <li>Press <kbd>E</kbd> at the dark green ring to handle the microbe.</li>
-              <li>The game checks your work — were the equipment and room correct for this microbe?</li>
-              <li>Wash up at the shower or eyewash station to decontaminate before leaving.</li>
-              <li>A new microbe is drawn — try again!</li>
-              <li>After several rounds, see your summary: score, correct vs. wrong, and the levels you mastered.</li>
-              <li>You can leave any time through the Exit — the game shuts down.</li>
-            </ol>
-            <p className="game-instructions__controls">
-              <strong>Controls:</strong> Arrow keys / click to move · <kbd>E</kbd> or click to interact · <strong>Close</strong> button to close windows
-            </p>
-          </section>
+          <HowToPlay />
         </div>
       ) : (
         <div style={{ display: 'flex', alignItems: 'flex-start' }}>
@@ -141,6 +131,8 @@ function App() {
               level={answerLevel}
               microbe={currentMicrobe}
             />
+
+            <InfoPopup open={infoOpen} onClose={() => setInfoOpen(false)} />
 
             <Game />
           </div>

@@ -71,7 +71,7 @@ describe('createRooms', () => {
 
     createRooms(scene)
 
-    // The dressing-room door sits on the y=430 wall line, spanning x 300..390.
+    // The dressing-room door sits on the y=430 wall line, spanning x 315..375.
     const doorLineY = 430
     const doorMidX = 345
     const wallsOnDoorLine = scene.__created.rectangles.filter(
@@ -152,6 +152,80 @@ describe('createRooms', () => {
   })
 })
 
+// The air-system cell (bottom-right of the airlock block) is filled by a machine
+// image wall-to-wall, with a black 'AIR SYSTEMS' text label drawn on top.
+describe('createRooms — air system', () => {
+  test('fills the air-system cell with the machine image', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    expect(scene.add.image).toHaveBeenCalledWith(1110, 360, 'air_systems')
+    const airImg = scene.__created.images.find((i) => i.args.key === 'air_systems')
+    expect(airImg.setDisplaySize).toHaveBeenCalledWith(170, 110)
+  })
+
+  test('draws an AIR SYSTEMS label on top', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const labelTexts = scene.__created.texts.map((t) => t.args.text)
+    expect(labelTexts).toContain('AIR SYSTEMS')
+  })
+})
+
+// The dressing room (ppe zone) is filled wall-to-wall by its background image.
+describe('createRooms — dressing room', () => {
+  test('fills the dressing-room zone with its background image', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    expect(scene.add.image).toHaveBeenCalledWith(0, 430, 'dressing_room')
+    const img = scene.__created.images.find((i) => i.args.key === 'dressing_room')
+    expect(img.setDisplaySize).toHaveBeenCalledWith(700, 290)
+  })
+
+  test('adds invisible colliders over the furniture (deadzones)', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    // Left: only the top strip and the thin bench block. Right: the glass booth.
+    expect(scene.add.rectangle).toHaveBeenCalledWith(209, 450, 212, 40)      // lockers strip (40 tall)
+    expect(scene.add.rectangle).toHaveBeenCalledWith(162.5, 585, 155, 26)    // thin bench
+    expect(scene.add.rectangle).toHaveBeenCalledWith(634.5, 631.5, 119, 147) // glass booth
+  })
+})
+
+// The info desk sits in the corridor's top-left corner with a solid counter.
+describe('createRooms — info desk', () => {
+  test('draws the info desk and a solid counter in the corridor corner', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    expect(scene.add.image).toHaveBeenCalledWith(6, 294, 'info_desk')
+    const img = scene.__created.images.find((i) => i.args.key === 'info_desk')
+    expect(img.setDisplaySize).toHaveBeenCalledWith(150, 108)
+    // counter: solidBox(6,300,156,402) -> centre 81,351 · 150x102
+    expect(scene.add.rectangle).toHaveBeenCalledWith(81, 351, 150, 102)
+  })
+
+  test('clicking the info point opens the info popup', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const opened = []
+    const listener = () => opened.push(true)
+    window.addEventListener('info-popup-opened', listener)
+
+    const infoZone = scene.__created.zones.find(
+      (z) => z.args.x === 140 && z.args.y === 360
+    )
+    infoZone.handlers.pointerdown()
+
+    window.removeEventListener('info-popup-opened', listener)
+    expect(opened).toHaveLength(1)
+  })
+})
+
 // The lecture room is drawn as a transparent pixel-art overlay (its floor comes
 // from the game). The back wall is a real solid wall, and the bookshelves are
 // solid too but live in their OWN named group (`scene.lectureShelves`) — the
@@ -190,10 +264,13 @@ describe('setupCloset (via createRooms)', () => {
 
     createRooms(scene)
 
-    expect(scene.closetZone).toEqual({ x: 85, y: 440, width: 80, height: 80 })
+    expect(scene.closetZone).toEqual({ x: 55, y: 440, width: 80, height: 80 })
     expect(window.__gameData.closetZone).toEqual(scene.closetZone)
 
-    expect(scene.add.image).toHaveBeenCalledWith(120, 500, 'dresser')
+    // The dresser sprite sits in the top-left corner and stays hidden (only a click
+    // target); the green glow is the visible element.
+    expect(scene.add.image).toHaveBeenCalledWith(90, 500, 'dresser')
+    expect(scene.closetImage.setVisible).toHaveBeenCalledWith(false)
     expect(scene.closetImage.setInteractive).toHaveBeenCalled()
     // The glow is created hidden until the player is near.
     expect(scene.closetGlow.setVisible).toHaveBeenCalledWith(false)
@@ -272,9 +349,9 @@ describe('setupBslInteractables (via createRooms)', () => {
       scene.bslGlows.map((g) => [g.key, g.center])
     )
     // BSL-3 is centred horizontally within its 320-wide zone (x 960..1280).
-    expect(centreByKey['BSL-3']).toEqual({ x: 1120, y: 505 })
+    expect(centreByKey['BSL-3']).toEqual({ x: 1120, y: 530 })
     // BSL-1 is inset from the left edge of its zone (x 700).
-    expect(centreByKey['BSL-1']).toEqual({ x: 735, y: 505 })
+    expect(centreByKey['BSL-1']).toEqual({ x: 735, y: 530 })
   })
 
   test('clicking a BSL glow opens the answer popup for that room, only when inside', () => {

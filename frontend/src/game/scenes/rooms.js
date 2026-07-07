@@ -76,9 +76,10 @@ function label(scene, cx, cy, text, size = 14, bold = false, depth = 21) {
         .setDepth(depth);
 }
 
-// Dresser + glow + interaction inside the dressing room.
+// Closet interactable inside the dressing room: a green glow marks the spot and an
+// invisible sprite is the click target (the dresser art now lives in the room image).
 function setupCloset(scene) {
-    const dresserX = 120;
+    const dresserX = 90;
     const dresserY = 500;
 
     scene.closetZone = { x: dresserX - 35, y: dresserY - 60, width: 80, height: 80 };
@@ -125,10 +126,11 @@ function setupCloset(scene) {
 // Position per room: BSL-1/2/4 top-left, BSL-3 top-centre.
 function setupBslInteractables(scene) {
     const inset = 35;
+    const vInset = 60; // a bit lower than the horizontal inset so the element sits inside the room
     const radius = 24;
 
     const glowPos = (zone) => {
-        const cy = zone.y + inset;
+        const cy = zone.y + vInset;
         if (zone.key === 'BSL-3') {
             return { x: zone.x + zone.width / 2, y: cy }; // top-centre
         }
@@ -200,6 +202,63 @@ function setupLectureRoom(scene, walls) {
     ];
 }
 
+// Invisible colliders over the dressing-room furniture, estimated from the room
+// art (image 1024x419 mapped onto the 700x290 ppe zone at x:0,y:430). Everything
+// that isn't floor blocks — only the grey tile floor and the shower approach
+// (the gap at x ~315..469, which also holds the top door) stay walkable.
+function setupDressingRoomDeadzones(scene, walls) {
+    // Left side: only the top strip of the room (back wall + lockers) and the
+    // thin bench block; the rest of the left floor is walkable.
+    solidBox(scene, 103, 430, 315, 470, walls);  // lockers strip, 40 units tall (y430..470)
+    solidBox(scene, 85, 572, 240, 598, walls);   // thin bench
+    // Right side (kept): furniture blocks; the shower approach and floor stay open.
+    solidBox(scene, 469, 458, 677, 555, walls);  // top-right: decon counter + suits
+    solidBox(scene, 469, 558, 571, 617, walls);  // shelves
+    solidBox(scene, 575, 558, 694, 705, walls);  // glass booth
+}
+
+// Info desk in the corridor's top-left corner, flush against the walls (a future
+// info point). The counter is solid so the player can't walk through it.
+function setupInfoDesk(scene, walls) {
+    scene.add.image(6, 294, 'info_desk')
+        .setOrigin(0, 0)
+        .setDisplaySize(150, 108)
+        .setDepth(-5);
+    solidBox(scene, 6, 300, 156, 402, walls);
+
+    // Green info point in front of the desk: a pulsing glow + clickable area that
+    // opens the how-to-play popup (same green-ring look as the room interactables).
+    const gx = 140;
+    const gy = 360;
+    const radius = 22;
+
+    const glow = scene.add.graphics();
+    glow.fillStyle(0x0b6623, 0.8);
+    glow.fillCircle(gx, gy, radius);
+    glow.lineStyle(3, 0x0b6623);
+    glow.strokeCircle(gx, gy, radius);
+    glow.setDepth(5);
+    glow.setVisible(false);
+    const infoTween = scene.tweens.add({
+        targets: glow,
+        alpha: { from: 1.0, to: 0.3 },
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+    });
+    infoTween.pause();
+    scene.infoGlow = glow;
+    scene.infoGlowTween = infoTween;
+    scene.infoPoint = { x: gx, y: gy };
+
+    scene.add
+        .zone(gx, gy, radius * 2.4, radius * 2.4)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+            window.dispatchEvent(new Event('info-popup-opened'));
+        });
+}
+
 export function createRooms(scene) {
     const walls = [];
 
@@ -214,15 +273,15 @@ export function createRooms(scene) {
     vWall(scene, 480, 0, 290, [], walls);
     // Lecture/Exit bottom = Corridor top (doors to both)
     hWall(scene, 0, 700, 290, [[180, 270], [540, 630]], walls);
-    // Corridor bottom = Dressing room top (one door)
-    hWall(scene, 0, 700, 430, [[300, 390]], walls);
+    // Corridor bottom = Dressing room top (one narrower door)
+    hWall(scene, 0, 700, 430, [[315, 375]], walls);
 
     // ---- BIG DIVIDER x:700 (Corridor <-> Labs door, opening nudged: top up, bottom down) ----
-    vWall(scene, 700, 0, 720, [[292, 425]], walls);
+    vWall(scene, 700, 0, 720, [[292, 435]], walls);
 
     // ---- MIDDLE-RIGHT COLUMN: BSL 2 / Labs / BSL 1 ----
     hWall(scene, 700, 960, 250, [[790, 880]], walls); // BSL 2 <-> Labs
-    hWall(scene, 700, 960, 470, [[790, 880]], walls); // Labs <-> BSL 1
+    hWall(scene, 700, 960, 470, [[805, 865]], walls); // Labs <-> BSL 1 (narrower door)
 
     // ---- x:960 wall (Labs <-> airlock column), one clean door spanning the airlock rows ----
     vWall(scene, 960, 0, 720, [[250, 470]], walls);
@@ -244,12 +303,13 @@ export function createRooms(scene) {
     label(scene, 1035, 305, 'BSL4\nAIRLOCK 1', 9);
     label(scene, 1195, 305, 'BSL4\nAIRLOCK 2', 9);
     label(scene, 1035, 415, 'BSL3\nAIRLOCK', 9);
-    label(scene, 1195, 415, 'AIR\nSYSTEM', 9);
+    label(scene, 1195, 430, 'AIR SYSTEMS', 11, true);
     label(scene, 1120, 595, 'BSL 3', 16, true);
 
     // ---- ZONES (game logic) ----
     scene.lectureRoomZone = { x: 0, y: 0, width: 480, height: 290 };
     scene.ppeRoomZone = { x: 0, y: 430, width: 700, height: 290 };
+    scene.corridorZone = { x: 0, y: 290, width: 700, height: 140 };
     scene.bslRoomZones = [
         { key: 'BSL-1', x: 700, y: 470, width: 260, height: 250 },
         { key: 'BSL-2', x: 700, y: 0, width: 260, height: 250 },
@@ -296,9 +356,28 @@ export function createRooms(scene) {
         .setDisplaySize(bsl4.width, bsl4.height)
         .setDepth(-5);
 
+    // Draw the air-system machine into its cell (bottom-right of the airlock block).
+    // Fill the whole air-system cell wall-to-wall (like the BSL room backgrounds
+    // fill their zones); the walls at depth 0 tuck over its edges.
+    const airCell = { x: 1110, y: 360, width: 170, height: 110 };
+    scene.add.image(airCell.x, airCell.y, 'air_systems')
+        .setOrigin(0, 0)
+        .setDisplaySize(airCell.width, airCell.height)
+        .setDepth(-5);
+
+    // Draw the dressing-room background, filling its zone wall-to-wall. Kept as a
+    // named ref so main_scene can depth-switch it at the door (like the BSL rooms).
+    const dressing = scene.ppeRoomZone;
+    scene.dressingImage = scene.add.image(dressing.x, dressing.y, 'dressing_room')
+        .setOrigin(0, 0)
+        .setDisplaySize(dressing.width, dressing.height)
+        .setDepth(-5);
+
     setupCloset(scene);
     setupBslInteractables(scene);
     setupLectureRoom(scene, walls);
+    setupDressingRoomDeadzones(scene, walls);
+    setupInfoDesk(scene, walls);
 
     return walls;
 }

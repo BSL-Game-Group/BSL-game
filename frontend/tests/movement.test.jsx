@@ -277,7 +277,10 @@ describe('Closet behavior', () => {
 
     scene.update()
 
-    expect(scene.closetImage.setVisible).toHaveBeenCalledWith(true)
+    // The dresser sprite stays hidden now; entering shows the green glow and
+    // activates the (invisible) click target.
+    expect(scene.closetGlow.setVisible).toHaveBeenCalledWith(true)
+    expect(scene.closetImage.setInteractive).toHaveBeenCalled()
   })
 
   test('hides closet when leaving dressing room', () => {
@@ -355,4 +358,82 @@ test('resets lecture room state when player leaves room', () => {
   scene.update()
 
   expect(scene.playerInsideLectureRoom).toBe(false)
+})
+// =====================================================
+// DRESSING-ROOM DEPTH SWITCH
+// =====================================================
+describe('Dressing-room depth switch', () => {
+  test('room image is drawn in front of the player at the door (y < 465)', () => {
+    const dressingImage = { setDepth: jest.fn() }
+    const scene = createScene({ dressingImage })
+    scene.player.y = 450
+
+    scene.update()
+
+    expect(dressingImage.setDepth).toHaveBeenCalledWith(20)
+  })
+
+  test('room image drops behind the player once inside (y >= 465)', () => {
+    const dressingImage = { setDepth: jest.fn() }
+    const scene = createScene({ dressingImage })
+    scene.player.y = 600
+
+    scene.update()
+
+    expect(dressingImage.setDepth).toHaveBeenCalledWith(-5)
+  })
+})
+
+// =====================================================
+// INFO POINT (press E, only in the corridor)
+// =====================================================
+describe('Info point', () => {
+  const infoScene = (overrides) => createScene({
+    infoPoint: { x: 140, y: 360 },
+    infoGlow: { setVisible: jest.fn() },
+    infoGlowTween: { resume: jest.fn(), pause: jest.fn() },
+    corridorZone: { x: 0, y: 290, width: 700, height: 140 },
+    ...overrides,
+  })
+
+  test('pressing E in the corridor opens the info popup', () => {
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+    const scene = infoScene()
+    scene.player.x = 140
+    scene.player.y = 360 // inside the corridor
+
+    const opened = []
+    const listener = () => opened.push(true)
+    window.addEventListener('info-popup-opened', listener)
+    scene.update()
+    window.removeEventListener('info-popup-opened', listener)
+    expect(opened).toHaveLength(1)
+  })
+
+  test('does not open when the player is outside the corridor', () => {
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+    const scene = infoScene()
+    scene.player.x = 600
+    scene.player.y = 600 // outside the corridor
+
+    const opened = []
+    const listener = () => opened.push(true)
+    window.addEventListener('info-popup-opened', listener)
+    scene.update()
+    window.removeEventListener('info-popup-opened', listener)
+    expect(opened).toHaveLength(0)
+  })
+
+  test('shows the glow only while in the corridor', () => {
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(false)
+    const scene = infoScene()
+    scene.player.x = 140
+    scene.player.y = 360
+    scene.update()
+    expect(scene.infoGlow.setVisible).toHaveBeenLastCalledWith(true)
+
+    scene.player.y = 600
+    scene.update()
+    expect(scene.infoGlow.setVisible).toHaveBeenLastCalledWith(false)
+  })
 })
