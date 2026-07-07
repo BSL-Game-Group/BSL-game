@@ -238,14 +238,17 @@ function setupInfoDesk(scene, walls) {
     glow.lineStyle(3, 0x0b6623);
     glow.strokeCircle(gx, gy, radius);
     glow.setDepth(5);
-    scene.tweens.add({
+    glow.setVisible(false);
+    const infoTween = scene.tweens.add({
         targets: glow,
         alpha: { from: 1.0, to: 0.3 },
         duration: 1000,
         yoyo: true,
         repeat: -1,
     });
+    infoTween.pause();
     scene.infoGlow = glow;
+    scene.infoGlowTween = infoTween;
     scene.infoPoint = { x: gx, y: gy };
 
     scene.add
@@ -306,6 +309,7 @@ export function createRooms(scene) {
     // ---- ZONES (game logic) ----
     scene.lectureRoomZone = { x: 0, y: 0, width: 480, height: 290 };
     scene.ppeRoomZone = { x: 0, y: 430, width: 700, height: 290 };
+    scene.corridorZone = { x: 0, y: 290, width: 700, height: 140 };
     scene.bslRoomZones = [
         { key: 'BSL-1', x: 700, y: 470, width: 260, height: 250 },
         { key: 'BSL-2', x: 700, y: 0, width: 260, height: 250 },

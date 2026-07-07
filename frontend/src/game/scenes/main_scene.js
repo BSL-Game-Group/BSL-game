@@ -441,13 +441,20 @@ class MainScene extends Phaser.Scene {
             }
         }
 
-        // Info point: press E near the desk glow to open the how-to-play popup.
-        if (this.infoPoint) {
-            const d = Phaser.Math.Distance.Between(
-                this.player.x, this.player.y, this.infoPoint.x, this.infoPoint.y
-            );
-            if (d < 70 && Phaser.Input.Keyboard.JustDown(this.keyE)) {
-                window.dispatchEvent(new Event('info-popup-opened'));
+        // Info point: only active in the corridor. Show the glow and a Press E hint
+        // there, and open the how-to-play popup on E.
+        if (this.infoGlow && this.corridorZone && this.infoPoint) {
+            const inCorridor = playerIsInsideZone(this.player, this.corridorZone);
+            this.infoGlow.setVisible(inCorridor);
+            if (this.infoGlowTween) {
+                if (inCorridor) { this.infoGlowTween.resume(); } else { this.infoGlowTween.pause(); }
+            }
+            if (inCorridor) {
+                this.pressEText.setVisible(true);
+                this.pressEText.setPosition(this.infoPoint.x - 40, this.infoPoint.y - 45);
+                if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                    window.dispatchEvent(new Event('info-popup-opened'));
+                }
             }
         }
 
