@@ -383,3 +383,40 @@ describe('Dressing-room depth switch', () => {
     expect(dressingImage.setDepth).toHaveBeenCalledWith(-5)
   })
 })
+
+// =====================================================
+// INFO POINT (press E)
+// =====================================================
+describe('Info point', () => {
+  test('pressing E near the info point opens the info popup', () => {
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+    const scene = createScene({ infoPoint: { x: 140, y: 360 } })
+    scene.player.x = 140
+    scene.player.y = 400 // ~40px away, within range
+
+    const opened = []
+    const listener = () => opened.push(true)
+    window.addEventListener('info-popup-opened', listener)
+
+    scene.update()
+
+    window.removeEventListener('info-popup-opened', listener)
+    expect(opened).toHaveLength(1)
+  })
+
+  test('does not open when the player is far from the info point', () => {
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+    const scene = createScene({ infoPoint: { x: 140, y: 360 } })
+    scene.player.x = 600
+    scene.player.y = 600 // far away
+
+    const opened = []
+    const listener = () => opened.push(true)
+    window.addEventListener('info-popup-opened', listener)
+
+    scene.update()
+
+    window.removeEventListener('info-popup-opened', listener)
+    expect(opened).toHaveLength(0)
+  })
+})

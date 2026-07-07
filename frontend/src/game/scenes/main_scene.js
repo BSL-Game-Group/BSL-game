@@ -441,6 +441,16 @@ class MainScene extends Phaser.Scene {
             }
         }
 
+        // Info point: press E near the desk glow to open the how-to-play popup.
+        if (this.infoPoint) {
+            const d = Phaser.Math.Distance.Between(
+                this.player.x, this.player.y, this.infoPoint.x, this.infoPoint.y
+            );
+            if (d < 70 && Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                window.dispatchEvent(new Event('info-popup-opened'));
+            }
+        }
+
         // BSL room interactables: show the blue glow while inside a BSL room,
         // and open the answer popup when E is pressed there.
         if (this.bslGlows) {

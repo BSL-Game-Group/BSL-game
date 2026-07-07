@@ -217,7 +217,7 @@ describe('createRooms — info desk', () => {
     window.addEventListener('info-popup-opened', listener)
 
     const infoZone = scene.__created.zones.find(
-      (z) => z.args.x === 140 && z.args.y === 400
+      (z) => z.args.x === 140 && z.args.y === 360
     )
     infoZone.handlers.pointerdown()
 
