@@ -228,8 +228,8 @@ function setupInfoDesk(scene, walls) {
 
     // Green info point in front of the desk: a pulsing glow + clickable area that
     // opens the how-to-play popup (same green-ring look as the room interactables).
-    const gx = 80;
-    const gy = 410;
+    const gx = 140;
+    const gy = 400;
     const radius = 22;
 
     const glow = scene.add.graphics();
