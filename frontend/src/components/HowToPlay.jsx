@@ -5,6 +5,7 @@ function HowToPlay() {
     <section className="game-instructions">
       <h2>How to play</h2>
       <ol className="instruction-steps">
+        <li>If you need to reread these instructions, visit the <strong>INFO</strong> desk in the corridor.</li>
         <li>Remember the BSL level — it decides everything.</li>
         <li>Go to the lecture room to read the microbe&apos;s details and its BSL level.</li>
         <li>In the lecture room you can also study the materials to learn about different microbes and BSL classes (1–4).</li>
