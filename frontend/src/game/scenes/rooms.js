@@ -225,6 +225,34 @@ function setupInfoDesk(scene, walls) {
         .setDisplaySize(150, 108)
         .setDepth(-5);
     solidBox(scene, 6, 300, 156, 402, walls);
+
+    // Green info point in front of the desk: a pulsing glow + clickable area that
+    // opens the how-to-play popup (same green-ring look as the room interactables).
+    const gx = 80;
+    const gy = 410;
+    const radius = 22;
+
+    const glow = scene.add.graphics();
+    glow.fillStyle(0x0b6623, 0.8);
+    glow.fillCircle(gx, gy, radius);
+    glow.lineStyle(3, 0x0b6623);
+    glow.strokeCircle(gx, gy, radius);
+    glow.setDepth(5);
+    scene.tweens.add({
+        targets: glow,
+        alpha: { from: 1.0, to: 0.3 },
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+    });
+    scene.infoGlow = glow;
+
+    scene.add
+        .zone(gx, gy, radius * 2.4, radius * 2.4)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+            window.dispatchEvent(new Event('info-popup-opened'));
+        });
 }
 
 export function createRooms(scene) {

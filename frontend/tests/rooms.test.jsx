@@ -207,6 +207,23 @@ describe('createRooms — info desk', () => {
     // counter: solidBox(6,300,156,402) -> centre 81,351 · 150x102
     expect(scene.add.rectangle).toHaveBeenCalledWith(81, 351, 150, 102)
   })
+
+  test('clicking the info point opens the info popup', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const opened = []
+    const listener = () => opened.push(true)
+    window.addEventListener('info-popup-opened', listener)
+
+    const infoZone = scene.__created.zones.find(
+      (z) => z.args.x === 80 && z.args.y === 410
+    )
+    infoZone.handlers.pointerdown()
+
+    window.removeEventListener('info-popup-opened', listener)
+    expect(opened).toHaveLength(1)
+  })
 })
 
 // The lecture room is drawn as a transparent pixel-art overlay (its floor comes
