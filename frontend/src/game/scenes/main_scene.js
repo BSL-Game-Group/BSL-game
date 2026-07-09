@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { createRooms } from './rooms';
+import microbeService from '../../services/microbes'
+import { EventBus } from '../EventBus'
 
 export function playerIsInsideZone(player, zone) {
     return (
@@ -15,13 +17,85 @@ class MainScene extends Phaser.Scene {
         super({ key: 'MainScene' });
     }
 
+    generateSessionId() {
+        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    async notifyRoomEntry(roomKey) {
+        try {
+            const sessionId = window.__gameData?.sessionId;
+            if (!sessionId) {
+                return;
+            }
+
+            const backendUrl = this.getBackendUrl();
+            const response = await fetch(`${backendUrl}/api/rooms/enter`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    room_key: roomKey,
+                    session_id: sessionId,
+                }),
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            await response.json();
+        // eslint-disable-next-line no-unused-vars
+        } catch (error) {
+            // Silently fail - room entry is not critical to gameplay
+        }
+    }
+
+    getBackendUrl() {
+        // Try process.env first (set by build tools)
+        if (process.env.VITE_API_URL) {
+            return process.env.VITE_API_URL;
+        }
+
+        // Fallback: use current window location to determine backend URL
+        if (typeof window !== 'undefined') {
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+
+            // If running on localhost, use localhost:3001
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:3001';
+            }
+
+            // In OpenShift/Kubernetes/Docker, use backend service name
+            return `${protocol}//backend:3001`;
+        }
+
+        // Jest/Node environment fallback
+        return 'http://localhost:3001';
+    }
+
     preload() {
+        // Player base
         this.load.image('player_base', 'assets/player/base.png');
+
+        // Equipment
         this.load.image('lab_coat', 'assets/equipment/equipment_on_character/lab_coat.png');
         this.load.image('mask', 'assets/equipment/equipment_on_character/mask.png');
         this.load.image('glasses', 'assets/equipment/equipment_on_character/glasses.png');
         this.load.image('dresser', 'assets/dresser.png');
-        this.load.image('wood', 'assets/tiles/wood.png');
+        this.load.image('wood', 'assets/tiles/birchwood.png');
+        this.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
+
+        // Rooms
+        this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
+        this.load.image('lecture_room', 'assets/lecture_room.png');
+        this.load.image('bsl2_room', 'assets/rooms/BSL-2.jpg');
+        this.load.image('bsl3_room', 'assets/rooms/BSL-3 ver. 2.png');
+        this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
+        this.load.image('air_systems', 'assets/rooms/air-systems.jpeg');
+        this.load.image('dressing_room', 'assets/rooms/dressing-room.png');
+        this.load.image('info_desk', 'assets/rooms/info-desk.png');
     }
 
     createWoodFloor() {
@@ -40,9 +114,11 @@ class MainScene extends Phaser.Scene {
                     ctx.drawImage(woodSrc, 0, 0, srcW, srcH, 0, 0, tileSize, tileSize);
                     tileTexture.refresh();
                 } else {
+                    // eslint-disable-next-line no-console
                     console.warn('wood source image not available when creating wood_tile');
                 }
             } else {
+                // eslint-disable-next-line no-console
                 console.warn('wood texture not found when creating wood_tile');
             }
         }
@@ -70,17 +146,47 @@ class MainScene extends Phaser.Scene {
         layer.setDepth(-10);
     }
 
+    // Clinical tile floor for the labs side — everything right of the x:700 divider
+    // (BSL rooms 1-4, the Labs room, the airlocks and the air system). The left,
+    // human side (lecture/corridor/dressing/exit) keeps the wood floor.
+    createLabFloor() {
+        const startX = 700;
+        const width = 1280 - startX;
+        const height = 720;
+        // Source tiles are ~442px; show them near 110px so the pattern reads at play scale.
+        const tileScale = 110 / 442;
+
+        const floor = this.add
+            .tileSprite(startX, 0, width, height, 'labs_floor')
+            .setOrigin(0, 0);
+        floor.tileScaleX = tileScale;
+        floor.tileScaleY = tileScale;
+        // Above the wood floor (-10), below room art (-5), walls (0) and the player (10).
+        floor.setDepth(-9);
+    }
+
     create() {
         const walls = createRooms(this);
         this.physics.world.setBounds(0, 0, 1280, 720);
         this.playArea = new Phaser.Geom.Rectangle(0, 0, 1280, 720);
         this.createWoodFloor();
+        this.createLabFloor();
 
-        // 1. Create the Base Player
-        this.player = this.physics.add.sprite(700, 300, 'player_base');
+        // Initialize session ID if not already present
+        if (!window.__gameData?.sessionId) {
+            window.__gameData = { ...window.__gameData, sessionId: this.generateSessionId() };
+        }
+
+        // 1. Create the Base Player (start in the corridor hub)
+        this.player = this.physics.add.sprite(590, 150, 'player_base');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.4);
-        this.player.setDepth(10); 
+        // Narrow but full-height collision body: narrow so the character moves
+        // smoothly through doors and gaps, full height so the head is covered too
+        // and it can't slip through walls.
+        this.player.body.setSize(60, 205);
+        this.player.body.setOffset(23, 6);
+        this.player.setDepth(10);
 
         // 2. CONFIGURATION: Tweaking values for size and placement relative to player center
         // Adjust these numbers until your equipment aligns perfectly!
@@ -134,6 +240,9 @@ class MainScene extends Phaser.Scene {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
             window.removeEventListener('popup-opened', this.handlePopupOpen);
             window.removeEventListener('popup-closed', this.handlePopupClosed);
+            if (this.handleNewMicrobeRequest) {
+                EventBus.off('request-new-microbe', this.handleNewMicrobeRequest);
+            }
         });
 
         // Setup inputs, text and colliders
@@ -148,6 +257,9 @@ class MainScene extends Phaser.Scene {
         }).setDepth(1000).setVisible(false);
 
         this.physics.add.collider(this.player, walls);
+        if (this.lectureShelves) {
+            this.physics.add.collider(this.player, this.lectureShelves);
+        }
 
         this.playerInsideLectureRoom = false;
         this.playerInsideDressingRoom = false;
@@ -157,11 +269,67 @@ class MainScene extends Phaser.Scene {
             color: "#ffffff",
             padding: { left: 6, right: 6, top: 3, bottom: 3 }
         }).setDepth(1000).setVisible(false);
+
+        // Hint shown near a BSL room's blue glow while the player is inside it.
+        this.bslHint = this.add.text(0, 0, "Press E", {
+            fontSize: "14px",
+            backgroundColor: "#000",
+            color: "#fff",
+            padding: { x: 6, y: 3 }
+        }).setDepth(1000).setVisible(false);
+        
+        this.currentMicrobe = null;
+        this.registerEventBusListeners();
+        this.replaceCurrentMicrobeRandomly()
+    }
+
+    // Wire EventBus listeners the scene owns. React (App) asks for a fresh
+    // microbe after each answer; the scene stays the single source of truth.
+    registerEventBusListeners() {
+        this.handleNewMicrobeRequest = () => this.replaceCurrentMicrobeRandomly()
+        EventBus.on('request-new-microbe', this.handleNewMicrobeRequest)
+    }
+
+    async replaceCurrentMicrobeRandomly() {
+        const microbe = await microbeService.getRandom()
+        if (microbe === null) {
+            return
+        }
+        this.currentMicrobe = microbe
+        EventBus.emit('current-microbe-updated', microbe)
     }
 
     update() {
         this.player.setVelocityX(0);
         this.player.setVelocityY(0);
+
+        // Change BSL-1 image depth depending on player position
+        if (this.bsl1Image) {
+            if (this.player.y < 505) {
+                this.bsl1Image.setDepth(20);
+            } else {
+                this.bsl1Image.setDepth(-5);
+            }
+        }
+
+        // Change BSL-3 image depth depending on player position
+        if (this.bsl3Image) {
+            if (this.player.y < 505) {
+                this.bsl3Image.setDepth(20);
+            } else {
+                this.bsl3Image.setDepth(-5);
+            }
+        }
+
+        // Same trick for the dressing room (top door at y:430): its front occludes
+        // the player at the doorway, then drops behind once they step inside.
+        if (this.dressingImage) {
+            if (this.player.y < 465) {
+                this.dressingImage.setDepth(20);
+            } else {
+                this.dressingImage.setDepth(-5);
+            }
+        }
 
         // 1. MOVEMENT CONTROLS (Locked when popup is open)
         if (!this.isPopupOpen) {
@@ -227,7 +395,8 @@ class MainScene extends Phaser.Scene {
 
             if (inside && !this.playerInsideDressingRoom) {
                 if (this.closetImage) {
-                    this.closetImage.setVisible(true);
+                    // The dresser sprite stays hidden — the green glow is the
+                    // visible element; the sprite is only the invisible click target.
                     this.closetImage.setInteractive({useHandCursor: true});
                 }
                 if (this.closetGlow) {
@@ -269,6 +438,67 @@ class MainScene extends Phaser.Scene {
                 }
             } else {
                 this.pressEText.setVisible(false);
+            }
+        }
+
+        // Info point: only active in the corridor. Show the glow and a Press E hint
+        // there, and open the how-to-play popup on E.
+        if (this.infoGlow && this.corridorZone && this.infoPoint) {
+            const inCorridor = playerIsInsideZone(this.player, this.corridorZone);
+            this.infoGlow.setVisible(inCorridor);
+            if (this.infoGlowTween) {
+                if (inCorridor) { this.infoGlowTween.resume(); } else { this.infoGlowTween.pause(); }
+            }
+            if (inCorridor) {
+                this.pressEText.setVisible(true);
+                this.pressEText.setPosition(this.infoPoint.x - 40, this.infoPoint.y - 45);
+                if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                    window.dispatchEvent(new Event('info-popup-opened'));
+                }
+            }
+        }
+
+        // BSL room interactables: show the blue glow while inside a BSL room,
+        // and open the answer popup when E is pressed there.
+        if (this.bslGlows) {
+            let activeCenter = null;
+
+            for (const entry of this.bslGlows) {
+                const inside = playerIsInsideZone(this.player, entry.zone);
+
+                if (inside && !entry.playerInside) {
+                    entry.glow.setVisible(true);
+                    entry.tween.resume();
+                    entry.playerInside = true;
+                    this.notifyRoomEntry(entry.key);
+                } else if (!inside && entry.playerInside) {
+                    entry.glow.setVisible(false);
+                    entry.tween.pause();
+                    entry.playerInside = false;
+                }
+
+                if (inside) {
+                    activeCenter = entry.center;
+                    if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                        window.dispatchEvent(
+                            new CustomEvent('answer-popup-opened', { detail: { level: entry.key } })
+                        );
+                    }
+                }
+            }
+
+            if (this.bslHint) {
+                if (activeCenter) {
+                    // Top-row rooms (glow near the screen top) would push the hint
+                    // off-screen / behind the wall, so show it below the glow there.
+                    const hintY = activeCenter.y > 80
+                        ? activeCenter.y - 48   // room lower down: hint above the glow
+                        : activeCenter.y + 36;  // top room: hint below the glow
+                    this.bslHint.setVisible(true);
+                    this.bslHint.setPosition(activeCenter.x - 28, hintY);
+                } else {
+                    this.bslHint.setVisible(false);
+                }
             }
         }
     }

@@ -5,7 +5,7 @@ metadata:
   annotations:
     alpha.image.policy.openshift.io/resolve-names: "*"
     image.openshift.io/triggers: >
-      [{"from":{"kind":"ImageStreamTag","name":"bsl-backend-service:staging"},"fieldPath":"spec.template.spec.containers[?(@.name==\"bsl-backend\")].image","pause":"false"}]
+      [{"from":{"kind":"ImageStreamTag","name":"bsl-backend-service:staging"},"fieldPath":"spec.template.spec.containers[?(@.name==\"bsl-backend\")].image","pause":"false"},{"from":{"kind":"ImageStreamTag","name":"bsl-backend-service:staging"},"fieldPath":"spec.template.spec.initContainers[?(@.name==\"db-init\")].image","pause":"false"}]
 spec:
   replicas: 1
   selector:

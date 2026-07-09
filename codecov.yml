@@ -1,0 +1,12 @@
+flag_management:
+  default_rules:
+    carryforward: true
+
+flags:
+  frontend:
+    paths:
+      - frontend/
+
+  backend:
+    paths:
+      - backend/

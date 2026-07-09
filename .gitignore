@@ -9,10 +9,12 @@ backend/manifests/configmap.yaml
 # Playwright
 node_modules/
 frontend/test-results/
-frontend/coverage/
-backend/coverage/
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Coverage reports
+backend/coverage/
+frontend/coverage/
