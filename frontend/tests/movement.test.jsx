@@ -346,10 +346,30 @@ describe('Closet behavior', () => {
 // =====================================================
 // EXTRA STATE EDGE CASES
 // =====================================================
-test('resets lecture room state when player leaves room', () => {
+test('dispatches lecture-room-entered as soon as the player walks into the room', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 200, height: 200 },
+    playerInsideLectureRoom: false,
+  })
+
+  scene.player.x = 20
+  scene.player.y = 20
+
+  const handler = jest.fn()
+  window.addEventListener('lecture-room-entered', handler)
+  scene.update()
+  window.removeEventListener('lecture-room-entered', handler)
+
+  expect(handler).toHaveBeenCalledTimes(1)
+  expect(scene.playerInsideLectureRoom).toBe(true)
+})
+
+test('hides the lecture info-point glow and hint when player leaves the room', () => {
   const scene = createScene({
     lectureRoomZone: { x: 0, y: 0, width: 100, height: 100 },
-    playerInsideLectureRoom: true,
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
   })
 
   scene.player.x = 500
@@ -357,7 +377,30 @@ test('resets lecture room state when player leaves room', () => {
 
   scene.update()
 
-  expect(scene.playerInsideLectureRoom).toBe(false)
+  expect(scene.lectureGlow.setVisible).toHaveBeenCalledWith(false)
+  expect(scene.lectureGlowTween.pause).toHaveBeenCalled()
+})
+
+test('shows the lecture info-point glow, and unlocks materials on E when close to it', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 200, height: 200 },
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
+  })
+
+  scene.player.x = 55
+  scene.player.y = 55
+  Phaser.Input.Keyboard.JustDown.mockReturnValueOnce(true)
+
+  const handler = jest.fn()
+  window.addEventListener('lecture-materials-unlocked', handler)
+  scene.update()
+  window.removeEventListener('lecture-materials-unlocked', handler)
+
+  expect(scene.lectureGlow.setVisible).toHaveBeenCalledWith(true)
+  expect(scene.lectureGlowTween.resume).toHaveBeenCalled()
+  expect(handler).toHaveBeenCalledTimes(1)
 })
 // =====================================================
 // DRESSING-ROOM DEPTH SWITCH

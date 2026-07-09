@@ -56,6 +56,13 @@ function enterLectureRoom() {
   })
 }
 
+function unlockLectureMaterials() {
+  enterLectureRoom()
+  act(() => {
+    window.dispatchEvent(new Event('lecture-materials-unlocked'))
+  })
+}
+
 function openCloset() {
   startGame()
   act(() => {
@@ -155,12 +162,26 @@ test('lecture-room-entered event shows lecture panel', () => {
   expect(screen.getByTestId('lecture-panel')).toBeVisible()
 })
 
-test('clicking the show button opens the lecture materials popup', () => {
+test('lecture materials section is hidden until unlocked at the info point', () => {
   enterLectureRoom()
+
+  expect(screen.queryByRole('heading', { name: /lecture materials/i })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: /show/i })).not.toBeInTheDocument()
+})
+
+test('lecture-materials-unlocked event reveals the Lecture Materials section', () => {
+  unlockLectureMaterials()
+
+  expect(screen.getByRole('heading', { name: /lecture materials/i })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /show/i })).toBeInTheDocument()
+})
+
+test('clicking the show button opens the lecture materials popup', () => {
+  unlockLectureMaterials()
 
   fireEvent.click(screen.getByRole('button', { name: /show/i }))
 
-  expect(screen.getByText(/Click a link below to open the lecture material in a new tab/i)).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /BSL Game Material \(Biosafety Levels\)/i })).toBeInTheDocument()
 })
 
 // -----------------------------
