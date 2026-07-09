@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Game from './Game.jsx'
 import ClosetPopup from './components/ClosetPopup/ClosetPopup'
+import SidebarPopup from './components/SidebarPopup'
 import Task from './components/Task.jsx'
 import AnswerPopup from './components/AnswerPopup/AnswerPopup'
 import HowToPlay from './components/HowToPlay'
@@ -10,8 +11,9 @@ import { EventBus } from './game/EventBus'
 function App() {
   const [gameStarted, setGameStarted] = useState(false)
   const [lectureOpen, setLectureOpen] = useState(false)
+  const [isPopupOpen, setPopupOpen] = useState(false)
+  const [isLecturePopupOpen, setLecturePopupOpen] = useState(false)
   const [linksVisible, setLinksVisible] = useState(true)
-  const [isPopupOpen, setPopupOpen] = useState(false);
   const [answerOpen, setAnswerOpen] = useState(false)
   const [answerLevel, setAnswerLevel] = useState('')
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
@@ -105,23 +107,23 @@ function App() {
             <Task />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <h2 style={{ margin: 0 }}>Lecture Materials</h2>
-              <button onClick={() => setLinksVisible(!linksVisible)} style={{ marginLeft: '8px', fontSize: '0.9rem', cursor: 'pointer' }}>
-                {linksVisible ? 'Hide' : 'Show'}
+              <button
+                onClick={() => setLecturePopupOpen((open) => !open)}
+                style={{ marginLeft: '8px', fontSize: '0.9rem', cursor: 'pointer' }}
+              >
+                {isLecturePopupOpen ? 'Hide' : 'Show'}
               </button>
             </div>
-            {linksVisible && (
-              <ul>
-                <li><a href="https://consteril.com/biosafety-levels-difference/" target="_blank" rel="noreferrer">Biosafety Levels – Consteril</a></li>
-                <li><a href="https://www.ncbi.nlm.nih.gov/books/NBK535351/" target="_blank" rel="noreferrer">Biosafety in Microbiological Laboratories – NCBI</a></li>
-                <li><a href="https://www.sciencedirect.com/science/chapter/monograph/pii/B9780128092316000119" target="_blank" rel="noreferrer">Biosafety – ScienceDirect</a></li>
-              </ul>
-            )}
           </div>
 
           <div style={{ position: 'relative' }}>
             <ClosetPopup
               open={isPopupOpen}
               onClose={() => setPopupOpen(false)}
+            />
+            <SidebarPopup
+              open={isLecturePopupOpen}
+              onClose={() => setLecturePopupOpen(false)}
             />
 
             <AnswerPopup
