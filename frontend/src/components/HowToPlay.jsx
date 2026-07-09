@@ -7,7 +7,7 @@ function HowToPlay() {
       <ol className="instruction-steps">
         <li>Remember the BSL level — it decides everything. If you need to reread these instructions, visit the <strong>INFO</strong> desk in the corridor.</li>
         <li>Go to the lecture room to read the microbe&apos;s details and its BSL level.</li>
-        <li>In the lecture room you can also study the materials to learn about different microbes and BSL classes (1–4).</li>
+        <li>Press <kbd>E</kbd> at the green ring in the lecture room to study the materials and learn about different microbes and BSL classes (1–4).</li>
         <li>Go to the dressing room and open the closet (press <kbd>E</kbd>).</li>
         <li>Put on the protective equipment the level requires (lab coat, mask, glasses…).</li>
         <li>Go to the matching BSL room (1–4).</li>
