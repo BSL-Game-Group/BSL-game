@@ -69,6 +69,7 @@ body {
 
 .popup-close-button:hover {
   background-color: #a31414;
+}
 /* ---------- Start screen (shown only before the game starts) ---------- */
 .start-screen {
   display: flex;
