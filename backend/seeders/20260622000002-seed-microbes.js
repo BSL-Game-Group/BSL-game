@@ -1,19 +1,34 @@
 'use strict';
 
-const microbes = require('../data/microbes_eng_v2.json');
+const microbesEn = require('../data/microbes_eng_v2.json');
+const microbesSv = require('../data/microbes_swe_v2.json');
 
 module.exports = {
   async up(queryInterface) {
-    const rows = microbes.map((m) => ({
-      id: m.id,
-      common_name: m.common_name,
-      scientific_name: m.scientific_name,
-      type: m.type,
-      bsl_level: m.bsl_level,
-      lecture_text: m.lecture_text,
-      feedback_correct: m.feedback_correct,
-      feedback_incorrect: m.feedback_incorrect,
-    }));
+    const rows = microbesEn.map((en, index) => {
+      const sv = microbesSv[index];
+
+      return {
+        id: en.id,
+
+        // English
+        common_name: en.common_name,
+        scientific_name: en.scientific_name,
+        type: en.type,
+        bsl_level: en.bsl_level,
+        lecture_text: en.lecture_text,
+        feedback_correct: en.feedback_correct,
+        feedback_incorrect: en.feedback_incorrect,
+
+        // Swedish
+        common_name_sv: sv.common_name,
+        type_sv: sv.type,
+        lecture_text_sv: sv.lecture_text,
+        feedback_correct_sv: sv.feedback_correct,
+        feedback_incorrect_sv: sv.feedback_incorrect,
+      };
+    });
+
     await queryInterface.bulkInsert('microbes', rows);
   },
 

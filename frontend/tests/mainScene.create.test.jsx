@@ -48,7 +48,22 @@ function fakeSprite() {
     setCollideWorldBounds: jest.fn().mockReturnThis(),
     setInteractive: jest.fn().mockReturnThis(),
     disableInteractive: jest.fn().mockReturnThis(),
-    body: { setSize: jest.fn(), setOffset: jest.fn() },
+    body: {
+      setSize: jest.fn(),
+      setOffset: jest.fn(),
+    },
+  }
+}
+
+// NEW: mock Phaser Text object
+function fakeText() {
+  return {
+    setText: jest.fn().mockReturnThis(),
+    setDepth: jest.fn().mockReturnThis(),
+    setScrollFactor: jest.fn().mockReturnThis(),
+    setOrigin: jest.fn().mockReturnThis(),
+    setVisible: jest.fn().mockReturnThis(),
+    setPosition: jest.fn().mockReturnThis(),
   }
 }
 
@@ -67,7 +82,10 @@ function createScene() {
 
   scene.add = {
     sprite: jest.fn(() => fakeSprite()),
-    text: jest.fn(() => fakeSprite()),
+
+    // CHANGED: return a text object instead of a sprite
+    text: jest.fn(() => fakeText()),
+
     tileSprite: jest.fn(() => ({
       setOrigin: jest.fn().mockReturnThis(),
       setDepth: jest.fn().mockReturnThis(),
@@ -99,7 +117,7 @@ function createScene() {
 
   scene.make = {
     tilemap: jest.fn(() => ({
-      addTilesetImage: jest.fn(() => ({ })),
+      addTilesetImage: jest.fn(() => ({})),
       createBlankLayer: jest.fn(() => ({
         fill: jest.fn(),
         setDepth: jest.fn(),
@@ -170,11 +188,8 @@ test('create initializes keyboard controls', () => {
 
   scene.create()
 
-  expect(scene.input.keyboard.createCursorKeys)
-    .toHaveBeenCalled()
-
-  expect(scene.input.keyboard.addKey)
-    .toHaveBeenCalled()
+  expect(scene.input.keyboard.createCursorKeys).toHaveBeenCalled()
+  expect(scene.input.keyboard.addKey).toHaveBeenCalled()
 })
 
 test('create adds collider', () => {
@@ -182,8 +197,7 @@ test('create adds collider', () => {
 
   scene.create()
 
-  expect(scene.physics.add.collider)
-    .toHaveBeenCalled()
+  expect(scene.physics.add.collider).toHaveBeenCalled()
 })
 
 test('create registers window event listeners', () => {
@@ -223,9 +237,10 @@ test('create registers shutdown handler', () => {
 })
 
 test('create wires a separate collider for the lecture shelves when present', () => {
-  // createRooms is mocked; make it expose a lectureShelves group like the real one does.
   const rooms = require('../src/game/scenes/rooms')
+
   const shelves = [{ name: 'lecture-shelf-1' }]
+
   rooms.createRooms.mockImplementationOnce((scene) => {
     scene.lectureShelves = shelves
     return []

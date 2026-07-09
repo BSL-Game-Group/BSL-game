@@ -4,8 +4,10 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { ItemType, EQUIPMENT_CONFIG } from './ItemConfig'
 import Character from './Character'
 import DraggableItem from './DragFunctionality'
+import { useTranslation } from '../../i18n/context'
 
 function InventoryPanel({ equipped, onToggleEquip }) {
+  const { t } = useTranslation()
   const [, drop] = useDrop(() => ({
     accept: ItemType,
     drop: (item) => onToggleEquip(item.id, false) // False means we are unequipping it
@@ -13,7 +15,7 @@ function InventoryPanel({ equipped, onToggleEquip }) {
 
   return (
     <div ref={drop} style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      <h3 style={{ marginTop: 0 }}>Equipment</h3>
+      <h3 style={{ marginTop: 0 }}>{t('closet.equipmentLabel')}</h3>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {/* Dynamically render unequipped items */}
@@ -36,6 +38,7 @@ function InventoryPanel({ equipped, onToggleEquip }) {
 }
 
 function ClosetPopup({ open, onClose, onEquipmentChange }) {
+  const { t } = useTranslation()
   const [equipped, setEquipped] = useState({
     mask: false,
     lab_coat: false,
@@ -74,12 +77,12 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
             onClick={onClose}
             className="popup-close-button"
           >
-            Close
+            {t('common.close')}
           </button>
 
           <div style={{ display: 'flex', gap: '40px', flex: 1, marginTop: '20px' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid #eee' }}>
-              <h3 style={{ marginTop: 0 }}>Player</h3>
+              <h3 style={{ marginTop: 0 }}>{t('closet.player')}</h3>
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <Character equipped={equipped} onToggleEquip={handleToggleEquip} />
               </div>

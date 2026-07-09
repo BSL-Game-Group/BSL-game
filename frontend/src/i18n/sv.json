@@ -1,0 +1,80 @@
+{
+  "app": {
+    "title": "BSL-spel"
+  },
+  "startScreen": {
+    "subtitle": "Hantera mikrober på ett säkert sätt — välj rätt skyddsutrustning och rätt laboratorium.",
+    "startButton": "Starta spelet"
+  },
+  "howToPlay": {
+    "title": "Hur man spelar",
+    "steps": [
+      "Kom ihåg BSL-nivån — den avgör allt. Om du behöver läsa om instruktionerna igen, besök INFO-desken i korridoren.",
+      "Gå till föreläsningsrummet för att läsa mikrobes detaljer och dess BSL-nivå.",
+      "I föreläsningsrummet kan du också studera materialet för att lära dig om olika mikrober och BSL-klasser (1–4).",
+      "Gå till påklädningsrummet och öppna garderobsskåpet (tryck E).",
+      "Sätt på den skyddsutrustning som nivån kräver (lab coat, mask, glasögon…).",
+      "Gå till motsvarande BSL-rum (1–4).",
+      "Tryck E vid den mörkt gröna ringen för att hantera mikroben.",
+      "Spelet kontrollerar ditt arbete — var utrustningen och rummet rätt för denna mikrobе?",
+      "Tvätta dig vid duschen eller ögonduschstationen för att dekontaminera innan du lämnar.",
+      "En ny mikrobе ritas — prova igen!",
+      "Efter flera rundor, se din sammanfattning: poäng, rätt vs. fel, och de nivåer du behärskade.",
+      "Du kan lämna när som helst genom utgången — spelet avslutas."
+    ],
+    "controls": "Kontroller: Piltangenter / klick för att röra sig · E eller klick för att interagera · Stäng-knapp för att stänga fönster"
+  },
+  "lecturePanel": {
+    "title": "Föreläsningsmaterial",
+    "hideButton": "Dölj",
+    "showButton": "Visa",
+    "links": {
+      "link1": "Biosäkerhetsnivåer – Consteril",
+      "link2": "Biosäkerhet i mikrobiologiska laboratorier – NCBI",
+      "link3": "Biosäkerhet – ScienceDirect"
+    }
+  },
+  "task": {
+    "title": "Mikroben du kommer att hantera"
+  },
+  "closet": {
+    "player": "Spelare",
+    "equipmentLabel": "Utrustning"
+  },
+  "answerPopup": {
+    "correct": "Rätt!",
+    "incorrect": "Inte riktigt",
+    "correctFallback": "Det är rätt rum.",
+    "incorrectFallback": "Det är inte rätt rum.",
+    "chosenLevel": "Du valde {level}.",
+    "belongs": "{name} tillhör BSL-{level}."
+  },
+  "common": {
+    "close": "Stäng"
+  },
+  "rooms": {
+    "exit": "Utgång",
+    "corridor": "Korridor",
+    "dressingRoom": "Påklädningsrum",
+    "bsl2": "BSL 2",
+    "labs": "Laboratorier",
+    "bsl1": "BSL 1",
+    "bsl4": "BSL 4",
+    "bsl4Airlock1": "BSL4\nSLÅS LUFT 1",
+    "bsl4Airlock2": "BSL4\nSLÅS LUFT 2",
+    "bsl3Airlock": "BSL3\nSLÅS LUFT",
+    "lectureRoom": "Föreläsningsrum",
+    "showerRoom": "Duschrum",
+    "eyewashStation": "Ögonduschstation"
+  },
+  "equipment": {
+    "labCoat": "Vita rocken",
+    "mask": "Mask",
+    "glasses": "Glasögon"
+  },
+  "phaser": {
+    "pressEToOpen": "Tryck E för att öppna",
+    "openCloset": "Öppna garderobsskåpet",
+    "pressE": "Tryck E"
+  }
+}

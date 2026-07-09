@@ -1,0 +1,80 @@
+{
+  "app": {
+    "title": "BSL-game"
+  },
+  "startScreen": {
+    "subtitle": "Handle microbes safely — choose the right protective gear and the right laboratory.",
+    "startButton": "Start Game"
+  },
+  "howToPlay": {
+    "title": "How to play",
+    "steps": [
+      "Remember the BSL level — it decides everything. If you need to reread these instructions, visit the INFO desk in the corridor.",
+      "Go to the lecture room to read the microbe's details and its BSL level.",
+      "In the lecture room you can also study the materials to learn about different microbes and BSL classes (1–4).",
+      "Go to the dressing room and open the closet (press E).",
+      "Put on the protective equipment the level requires (lab coat, mask, glasses…).",
+      "Go to the matching BSL room (1–4).",
+      "Press E at the dark green ring to handle the microbe.",
+      "The game checks your work — were the equipment and room correct for this microbe?",
+      "Wash up at the shower or eyewash station to decontaminate before leaving.",
+      "A new microbe is drawn — try again!",
+      "After several rounds, see your summary: score, correct vs. wrong, and the levels you mastered.",
+      "You can leave any time through the Exit — the game shuts down."
+    ],
+    "controls": "Controls: Arrow keys / click to move · E or click to interact · Close button to close windows"
+  },
+  "lecturePanel": {
+    "title": "Lecture Materials",
+    "hideButton": "Hide",
+    "showButton": "Show",
+    "links": {
+      "link1": "Biosafety Levels – Consteril",
+      "link2": "Biosafety in Microbiological Laboratories – NCBI",
+      "link3": "Biosafety – ScienceDirect"
+    }
+  },
+  "task": {
+    "title": "The microbe you will handle"
+  },
+  "closet": {
+    "player": "Player",
+    "equipmentLabel": "Equipment"
+  },
+  "answerPopup": {
+    "correct": "Correct!",
+    "incorrect": "Not quite",
+    "correctFallback": "That's the right room.",
+    "incorrectFallback": "That isn't the right room.",
+    "chosenLevel": "You chose {level}.",
+    "belongs": "{name} belongs to BSL-{level}."
+  },
+  "common": {
+    "close": "Close"
+  },
+  "rooms": {
+    "exit": "Exit",
+    "corridor": "Corridor",
+    "dressingRoom": "Dressing room",
+    "bsl2": "BSL 2",
+    "labs": "Labs",
+    "bsl1": "BSL 1",
+    "bsl4": "BSL 4",
+    "bsl4Airlock1": "BSL4\nAIRLOCK 1",
+    "bsl4Airlock2": "BSL4\nAIRLOCK 2",
+    "bsl3Airlock": "BSL3\nAIRLOCK",
+    "lectureRoom": "Lecture room",
+    "showerRoom": "Shower room",
+    "eyewashStation": "Eyewash station"
+  },
+  "equipment": {
+    "labCoat": "Lab coat",
+    "mask": "Mask",
+    "glasses": "Glasses"
+  },
+  "phaser": {
+    "pressEToOpen": "Press E to open",
+    "openCloset": "Open Closet",
+    "pressE": "Press E"
+  }
+}

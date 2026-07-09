@@ -6,14 +6,18 @@ import Task from './components/Task.jsx'
 import AnswerPopup from './components/AnswerPopup/AnswerPopup'
 import HowToPlay from './components/HowToPlay'
 import InfoPopup from './components/InfoPopup/InfoPopup'
+import LanguageSelector from './components/LanguageSelector'
 import { EventBus } from './game/EventBus'
+import { useTranslation } from './i18n/context'
 
 function App() {
+  const { t, language } = useTranslation()
   const [gameStarted, setGameStarted] = useState(false)
   const [lectureOpen, setLectureOpen] = useState(false)
   const [isPopupOpen, setPopupOpen] = useState(false)
   const [isLecturePopupOpen, setLecturePopupOpen] = useState(false)
   const [linksVisible, setLinksVisible] = useState(true)
+  const [isPopupOpen, setPopupOpen] = useState(false);
   const [answerOpen, setAnswerOpen] = useState(false)
   const [answerLevel, setAnswerLevel] = useState('')
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
@@ -58,6 +62,20 @@ function App() {
     return () => window.removeEventListener('answer-popup-opened', handleAnswerOpen)
   }, [])
 
+  // Emit Phaser translations to the game scene whenever language changes
+  useEffect(() => {
+    const translations = {
+      pressEToOpen: t('phaser.pressEToOpen'),
+      openCloset: t('phaser.openCloset'),
+      pressE: t('phaser.pressE')
+    }
+
+    // Save the latest translations so Phaser can read them
+    window.__translations = translations
+
+    EventBus.emit('translations-updated', translations)
+  }, [language, t])
+
   // The room is a string ('BSL-3'); the microbe's class is a plain number (3).
   // Strip the 'BSL-' prefix and compare numbers.
   const correctLevel = currentMicrobe?.bsl_level
@@ -72,7 +90,8 @@ function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', paddingTop: '24px' }}>
-      <h1 className="app-title">BSL-game</h1>
+      <LanguageSelector />
+      <h1 className="app-title">{t('app.title')}</h1>
 
       {!gameStarted ? (
         <div className="start-screen">
@@ -89,11 +108,11 @@ function App() {
           </div>
 
           <p className="start-screen__subtitle">
-            Handle microbes safely — choose the right protective gear and the right laboratory.
+            {t('startScreen.subtitle')}
           </p>
 
           <button className="start-button" onClick={() => setGameStarted(true)}>
-            Start Game
+            {t('startScreen.startButton')}
           </button>
 
           <HowToPlay />
@@ -114,6 +133,39 @@ function App() {
                 {isLecturePopupOpen ? 'Hide' : 'Show'}
               </button>
             </div>
+            {linksVisible && (
+              <ul>
+                <li>
+                  <a
+                    href="https://consteril.com/biosafety-levels-difference/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {t('lecturePanel.links.link1')}
+                  </a>
+                </li>
+
+                <li>
+                  <a
+                    href="https://www.ncbi.nlm.nih.gov/books/NBK535351/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {t('lecturePanel.links.link2')}
+                  </a>
+                </li>
+
+                <li>
+                  <a
+                    href="https://www.sciencedirect.com/science/chapter/monograph/pii/B9780128092316000119"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {t('lecturePanel.links.link3')}
+                  </a>
+                </li>
+              </ul>
+            )}
           </div>
 
           <div style={{ position: 'relative' }}>
