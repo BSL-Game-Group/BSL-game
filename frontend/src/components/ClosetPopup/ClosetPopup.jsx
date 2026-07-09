@@ -72,11 +72,7 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
         <div className="popup-box">
           <button
             onClick={onClose}
-            style={{
-              position: 'absolute', top: '12px', right: '12px', padding: '8px 16px',
-              backgroundColor: '#c51a1a', color: '#fff', border: '1px solid #ccc',
-              borderRadius: '4px', cursor: 'pointer', zIndex: 10,
-            }}
+            className="popup-close-button"
           >
             Close
           </button>

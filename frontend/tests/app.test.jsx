@@ -83,6 +83,15 @@ test('lecture-room-entered event shows lecture panel', () => {
   expect(screen.getByTestId('lecture-panel')).toBeVisible()
 })
 
+test('clicking the show button opens the lecture materials popup', () => {
+  enterLectureRoom()
+
+  fireEvent.click(screen.getByRole('button', { name: /hide/i }))
+  fireEvent.click(screen.getByRole('button', { name: /show/i }))
+
+  expect(screen.getByText(/Click a link below to open the lecture material in a new tab/i)).toBeInTheDocument()
+})
+
 test('hide button collapses lecture links and updates label', () => {
   enterLectureRoom()
 
