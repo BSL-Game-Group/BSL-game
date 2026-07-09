@@ -28,6 +28,16 @@ const EQUIPMENT_CONFIG = {
       position: 'absolute', top: '35px', left: '75px', width: '70px', height: 'auto',
       transform: 'scale(1.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
+  },
+
+  face_shield: {
+    id: 'face_shield',
+    inventorySrc: '/assets/equipment/equipment_in_inventory/face_shield_inventory.png',
+    equippedSrc: '/assets/equipment/equipment_on_character/face_shield_on.png',
+    equippedStyle: {
+      position: 'absolute', top: '35px', left: '75px', width: '70px', height: 'auto',
+      transform: 'scale(1.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+    }
   }
 }
 
