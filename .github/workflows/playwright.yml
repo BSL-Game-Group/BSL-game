@@ -18,7 +18,7 @@ jobs:
       
     - name: Start Docker Containers
       # This starts your frontend & backend exactly like it does on your laptop
-      run: docker compose up -d 
+      run: docker compose up -d --build
       
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
