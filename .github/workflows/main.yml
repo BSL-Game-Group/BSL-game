@@ -164,8 +164,12 @@ jobs:
         with:
           context: ./backend
           file: ./backend/Dockerfile
+          pull: true
+          no-cache: true
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/bsl-backend:staging
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/bsl-backend:staging
+            ${{ secrets.DOCKER_USERNAME }}/bsl-backend:${{ github.sha }}
 
       # ---------------------------
       # Frontend image
@@ -175,5 +179,9 @@ jobs:
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
+          pull: true
+          no-cache: true
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/bsl-frontend:staging
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/bsl-frontend:staging
+            ${{ secrets.DOCKER_USERNAME }}/bsl-frontend:${{ github.sha }}

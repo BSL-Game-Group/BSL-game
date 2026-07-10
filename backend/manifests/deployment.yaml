@@ -6,19 +6,23 @@ metadata:
     alpha.image.policy.openshift.io/resolve-names: "*"
     image.openshift.io/triggers: >
       [{"from":{"kind":"ImageStreamTag","name":"bsl-backend-service:staging"},"fieldPath":"spec.template.spec.containers[?(@.name==\"bsl-backend\")].image","pause":"false"},{"from":{"kind":"ImageStreamTag","name":"bsl-backend-service:staging"},"fieldPath":"spec.template.spec.initContainers[?(@.name==\"db-init\")].image","pause":"false"}]
+
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: bsl-backend
+
   template:
     metadata:
       labels:
         app: bsl-backend
+
     spec:
       initContainers:
         - name: db-init
           image: bsl-backend-service:staging
+          imagePullPolicy: Always
           command: ["npm", "run", "db:init"]
           env:
             - name: DB_URL
@@ -26,6 +30,7 @@ spec:
                 secretKeyRef:
                   name: bsl-backend-secret
                   key: DB_URL
+
       containers:
         - name: bsl-backend
           image: bsl-backend-service:staging
