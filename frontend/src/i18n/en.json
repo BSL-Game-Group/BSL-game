@@ -26,6 +26,7 @@
   },
   "lecturePanel": {
     "title": "Lecture Materials",
+    "description": "Click a link below to open the lecture material in a new tab.",
     "hideButton": "Hide",
     "showButton": "Show",
     "links": {

@@ -25,7 +25,8 @@
     "controls": "Kontroller: Piltangenter / klick för att röra sig · E eller klick för att interagera · Stäng-knapp för att stänga fönster"
   },
   "lecturePanel": {
-    "title": "Föreläsningsmaterial",
+    "title": "Kursmaterial",
+    "description": "Klicka på en länk nedan för att öppna föreläsningsmaterialet i en ny flik.",
     "hideButton": "Dölj",
     "showButton": "Visa",
     "links": {
