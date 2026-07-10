@@ -144,8 +144,9 @@ function App() {
               <div
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  gap: '4px',
                 }}
               >
                 <h2 style={{ margin: 0 }}>
@@ -155,7 +156,6 @@ function App() {
                 <button
                   onClick={() => setLecturePopupOpen((open) => !open)}
                   style={{
-                    marginLeft: '8px',
                     fontSize: '0.9rem',
                     cursor: 'pointer',
                   }}
