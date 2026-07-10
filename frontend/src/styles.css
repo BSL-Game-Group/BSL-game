@@ -52,6 +52,24 @@ body {
   color: #000;
   box-shadow: 0 16px 48px rgba(0,0,0,0.25);
 }
+.popup-box--incorrect {
+  border-color: #c51a1a;
+  background: #fff3f3;
+  box-shadow: 0 0 28px rgba(197, 26, 26, 0.35);
+  animation: wrongAnswerPop 0.25s ease-out;
+}
+
+@keyframes wrongAnswerPop {
+  0% {
+    transform: scale(0.94);
+  }
+  70% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 
 .popup-close-button {
   position: absolute;

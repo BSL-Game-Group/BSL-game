@@ -43,7 +43,9 @@ if (!open) {
 
   return (
       <div className="popup-overlay">
-        <div className="popup-box">
+        <div
+          className={`popup-box ${isCorrect ? '' : 'popup-box--incorrect'}`}
+        >
         <button
           onClick={onClose}
           style={{
