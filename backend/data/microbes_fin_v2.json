@@ -1,0 +1,482 @@
+[
+  {
+    "id": 1,
+    "common_name": "Leivinhiiva",
+    "type": "Sieni",
+    "lecture_text": "Sama organismi jota käytetään leivän ja oluen valmistuksessa. Mallilajike eukaryoottisen solubiologian tutkimuksessa laboratorioissa. Ei aiheuta sairautta terveille ihmisille eikä leviä ihmisten välillä.",
+    "feedback_correct": "Oikein! BSL-1 riittää — peruslabratakki ja käsineet tarvittaessa.",
+    "feedback_incorrect": "Väärin! Leivinhiiva on täysin vaaraton terveille aikuisille. BSL-1 on ainoa vaadittu taso."
+  },
+  {
+    "id": 2,
+    "common_name": "Maaperän bakteeri",
+    "type": "Bakteeri",
+    "lecture_text": "Yleinen maaperän bakteeri, jota käytetään laajalti molekyylibiologian tutkimuksessa. Ei ole patogeeninen terveille ihmisille. Käytetään mallina itiöitymistutkimuksessa.",
+    "feedback_correct": "Oikein! BSL-1 riittää — ei tartuntariskiä terveille yksilöille.",
+    "feedback_incorrect": "Väärin! Bacillus subtilis on BSL-1-organismi — se ei aiheuta sairautta."
+  },
+  {
+    "id": 3,
+    "common_name": "Laboratorio-E. coli",
+    "type": "Bakteeri",
+    "lecture_text": "Geneettisesti heikennetty laboratorioversio E. colista. Ei kykene asettumaan ihmisen suolistoon. Maailman yleisimmin käytetty tutkimusbakteeri molekyylibiologiassa.",
+    "feedback_correct": "Oikein! Laboratorio-E. coli on BSL-1 — heikennetty kanta ilman tartuntariskiä.",
+    "feedback_incorrect": "Väärin! Laboratoriokannat on erikseen heikennetty. BSL-1 riittää."
+  },
+  {
+    "id": 4,
+    "common_name": "Maitohiiva",
+    "type": "Sieni",
+    "lecture_text": "Maitotuotteista löytyvä hiiva, jota käytetään proteiinintuotannossa. Ei aiheuta sairautta. GRAS-organismi (yleisesti turvalliseksi katsottu).",
+    "feedback_correct": "Oikein! BSL-1 riittää tälle turvalliselle hiivalle.",
+    "feedback_incorrect": "Väärin! Kluyveromyces lactis on BSL-1-sieni — täysin turvallinen."
+  },
+  {
+    "id": 5,
+    "common_name": "Adenoassosioitunut virus (AAV)",
+    "type": "Virus",
+    "lecture_text": "Geeniterapian vektorina käytetty virus. Ei kykene lisääntymään ilman apuvirusta. Luonnollisessa muodossaan ei aiheuta sairautta ihmisillä. Käytetään lääketieteellisessä geeniterapiassa.",
+    "feedback_correct": "Oikein! AAV on BSL-1 — geenivektori joka ei aiheuta sairautta.",
+    "feedback_incorrect": "Väärin! AAV on turvallinen geenivektori, BSL-1 riittää."
+  },
+  {
+    "id": 6,
+    "common_name": "Maitohappobakteeri",
+    "type": "Bakteeri",
+    "lecture_text": "Bakteeri joka kuuluu normaaliin suoliston mikrobistoon, löytyy jogurtista ja probioottituotteista. Hyödyllinen organismi, ei patogeeni. Ei tartuntariskiä.",
+    "feedback_correct": "Oikein! Lactobacillus on BSL-1-probioottiorganismi.",
+    "feedback_incorrect": "Väärin! Tämä maitohappobakteeri kuuluu normaaliin suolistoflooraan — BSL-1 riittää."
+  },
+  {
+    "id": 7,
+    "common_name": "Caulobacter (mallibakteeri)",
+    "type": "Bakteeri",
+    "lecture_text": "Vesibakteeri jota käytetään mallina solunjakautumistutkimuksessa. Ei ole patogeeninen ihmisille. Yleinen tutkimusbakteeri solubiologiassa.",
+    "feedback_correct": "Oikein! Caulobacter crescentus on BSL-1.",
+    "feedback_incorrect": "Väärin! Caulobacter ei aiheuta sairautta — BSL-1 on oikea taso."
+  },
+  {
+    "id": 8,
+    "common_name": "Halobakteeri",
+    "type": "Arkki",
+    "lecture_text": "Erittäin suolaisessa vedessä elävä arkkilajike. Käytetään mallina fotosynteesi- ja kalvotutkimuksessa. Ei selviä ihmiskehon olosuhteissa.",
+    "feedback_correct": "Oikein! Halobacterium on BSL-1-ekstremofiili.",
+    "feedback_incorrect": "Väärin! Halobacterium salinarum ei selviä kehomme olosuhteissa. BSL-1 riittää."
+  },
+  {
+    "id": 9,
+    "common_name": "Syanobakteeri",
+    "type": "Bakteeri",
+    "lecture_text": "Fotosynteettinen syanobakteeri jota käytetään aurinkoenergiatutkimuksessa. Ei patogeeninen. Mallilajike fotosynteesitutkimuksessa.",
+    "feedback_correct": "Oikein! Synechocystis on BSL-1-syanobakteeri.",
+    "feedback_incorrect": "Väärin! Tämä syanobakteeri on BSL-1 — fotosynteettinen ei-patogeeni."
+  },
+  {
+    "id": 10,
+    "common_name": "Phi29-bakteriofagi",
+    "type": "Virus",
+    "lecture_text": "Virus joka infektoi Bacillus subtilis -bakteeria, käytetään DNA:n replikaatiotutkimuksessa. Ei kykene infektoimaan ihmissoluja. Käytetään bioteknologiassa.",
+    "feedback_correct": "Oikein! Bakteriofagi on BSL-1 — ei infektoi ihmissoluja.",
+    "feedback_incorrect": "Väärin! Bakteriofagit ovat BSL-1-viruksia — ne eivät infektoi ihmisiä."
+  },
+  {
+    "id": 11,
+    "common_name": "Pseudomonas fluorescens (ei-patogeeninen)",
+    "type": "Bakteeri",
+    "lecture_text": "Bakteeri joka on yleinen maaperässä ja kasvien juurissa. Pseudomonas-suvun ei-patogeeninen lajike. Käytetään biopuhdistuksessa ja tutkimuksessa.",
+    "feedback_correct": "Oikein! P. fluorescens on BSL-1 — ei-patogeeninen maaperälajike.",
+    "feedback_incorrect": "Väärin! Pseudomonas fluorescens on BSL-1, toisin kuin sen patogeeniset sukulaiset."
+  },
+  {
+    "id": 12,
+    "common_name": "Agrobakteeri (kasvien geenitekniikka)",
+    "type": "Bakteeri",
+    "lecture_text": "Maaperälajike jota käytetään geeninsiirtovektorina kasvibiologiassa. Ei infektoi ihmisiä. Yleinen työkalu kasvien geenimuokkauksessa.",
+    "feedback_correct": "Oikein! Agrobakteeri on BSL-1 — se infektoi vain kasveja.",
+    "feedback_incorrect": "Väärin! Agrobakteeri ei infektoi ihmisiä — BSL-1 riittää."
+  },
+  {
+    "id": 13,
+    "common_name": "Tetrahymena (värekarvaeliö)",
+    "type": "Alkueliö",
+    "lecture_text": "Yksisoluinen vedessä elävä organismi jota käytetään solubiologian tutkimuksessa. Ei patogeeninen. Tutkimusmalli joka on tuottanut Nobel-palkintoja (telomeerit, ribotsyymit).",
+    "feedback_correct": "Oikein! Tetrahymena on BSL-1-mallilajike.",
+    "feedback_incorrect": "Väärin! Tetrahymena ei aiheuta sairautta — BSL-1-tutkimusmalli."
+  },
+  {
+    "id": 14,
+    "common_name": "Lambda-bakteriofagi",
+    "type": "Virus",
+    "lecture_text": "Virus joka infektoi E. coli -bakteeria, käytetty vuosikymmeniä molekyylibiologian perustutkimuksessa. Ei kykene infektoimaan ihmissoluja. Klassinen tutkimusmalli geenisäätelylle.",
+    "feedback_correct": "Oikein! Lambdafagi on BSL-1.",
+    "feedback_incorrect": "Väärin! Lambdafagi infektoi vain E. coli -bakteeria — BSL-1 riittää."
+  },
+  {
+    "id": 15,
+    "common_name": "Neurospora-home",
+    "type": "Sieni",
+    "lecture_text": "Punainen homesieni jota on käytetty genetiikan tutkimuksessa 1940-luvulta lähtien. Tutkimusmalli joka on johtanut Nobel-palkintoihin. Ei patogeeninen terveille ihmisille.",
+    "feedback_correct": "Oikein! Neurospora crassa on BSL-1-mallisieni.",
+    "feedback_incorrect": "Väärin! Neurospora crassa on klassinen genetiikan tutkimusmalli — BSL-1 riittää."
+  },
+  {
+    "id": 16,
+    "common_name": "Influenssa A (kausi-influenssa)",
+    "type": "Virus",
+    "lecture_text": "Vuosittainen kausi-influenssavirus joka leviää pisaroiden ja ilman kautta. Aiheuttaa kuumetta, lihaskipuja ja hengitystieoireita. Rokote saatavilla. Vakavin vanhuksille ja riskiryhmille.",
+    "feedback_correct": "Oikein! Kausi-influenssa A on BSL-2.",
+    "feedback_incorrect": "Väärin! Kausi-influenssa on BSL-2-virus — zoonoottiset kannat kuten H5N1 ovat BSL-3."
+  },
+  {
+    "id": 17,
+    "common_name": "Tuhkarokko",
+    "type": "Virus",
+    "lecture_text": "Yksi tarttuvimmista ihmisviruksista — leviää ilman kautta pisaroina ja aerosoleina. Aiheuttaa ihottumaa, kuumetta ja voi johtaa keuhkokuumeeseen. Tehokas MMR-rokote suojaa.",
+    "feedback_correct": "Oikein! Tuhkarokkovirus on BSL-2 — rokote suojaa.",
+    "feedback_incorrect": "Väärin! Tuhkarokkovirus on BSL-2, koska tehokas rokote on saatavilla."
+  },
+  {
+    "id": 18,
+    "common_name": "HIV (diagnostiikka)",
+    "type": "Virus",
+    "lecture_text": "Työskentely immuunikatoviruksen kanssa. Virus ei leviä ilman kautta — tartunta vaatii suoran verikontaktin. Hoito estää taudin etenemisen.",
+    "feedback_correct": "Oikein! HIV on BSL-3 — luokiteltu ryhmään 3 Suomen asetuksen 748/2020 mukaan.",
+    "feedback_incorrect": "Väärin! HIV luokitellaan Suomessa BSL-3:ksi (asetus 748/2020), vaikka tartunta vaatii suoran verikontaktin."
+  },
+  {
+    "id": 19,
+    "common_name": "Hepatiitti B",
+    "type": "Virus",
+    "lecture_text": "Erittäin tarttuva verivälitteinen virus. Leviää veren, seksin ja äidiltä lapselle -kontaktin kautta. Voi aiheuttaa kroonisen maksatulehduksen ja kirroosin. Rokote saatavilla.",
+    "feedback_correct": "Oikein! Hepatiitti B on BSL-3 — luokiteltu ryhmään 3 Suomen asetuksen 748/2020 mukaan.",
+    "feedback_incorrect": "Väärin! Hepatiitti B luokitellaan Suomessa BSL-3:ksi (asetus 748/2020), vaikka tartunta vaatii verikontaktin."
+  },
+  {
+    "id": 20,
+    "common_name": "Hepatiitti C",
+    "type": "Virus",
+    "lecture_text": "Yleisin maksansiirtojen syy maailmanlaajuisesti. Leviää verikontaktin kautta. Ei rokotetta, mutta nykyinen antiviraalinen hoito on erittäin tehokas.",
+    "feedback_correct": "Oikein! Hepatiitti C on BSL-3 — luokiteltu ryhmään 3 Suomen asetuksen 748/2020 mukaan.",
+    "feedback_incorrect": "Väärin! Hepatiitti C luokitellaan Suomessa BSL-3:ksi (asetus 748/2020)."
+  },
+  {
+    "id": 21,
+    "common_name": "Salmonella",
+    "type": "Bakteeri",
+    "lecture_text": "Yleisin ruokamyrkytysten aiheuttaja. Leviää saastuneen ruoan tai veden kautta. Aiheuttaa vatsaoireita, ripulia ja kuumetta. Ei leviä ilman kautta laboratoriossa.",
+    "feedback_correct": "Oikein! Salmonella on BSL-2 — ruokavälitteinen, ei ilmavälitteinen.",
+    "feedback_incorrect": "Väärin! Salmonella leviää ruoan kautta — BSL-2 riittää."
+  },
+  {
+    "id": 22,
+    "common_name": "Stafylokokki",
+    "type": "Bakteeri",
+    "lecture_text": "Yleinen ihmisen iholla esiintyvä bakteeri. Voi aiheuttaa haavatulehduksia, keuhkokuumeen tai sepsiksen. MRSA-kannat ovat antibioottiresistenttejä. Leviää kosketuksen kautta.",
+    "feedback_correct": "Oikein! Staphylococcus aureus on BSL-2.",
+    "feedback_incorrect": "Väärin! Stafylokokki on BSL-2-bakteeri — ei ilmavälitteinen."
+  },
+  {
+    "id": 23,
+    "common_name": "Borrelioosi",
+    "type": "Bakteeri",
+    "lecture_text": "Punkkien levittämä bakteeri. Aiheuttaa maalitaulumaisen ihottuman, nivelkipuja ja neurologisia oireita. Ei leviä ihmisestä toiseen. Antibioottihoito tehoaa hyvin varhaisessa vaiheessa.",
+    "feedback_correct": "Oikein! Borrelia burgdorferi on BSL-2 — punkkivälitteinen, ei ihmisestä toiseen.",
+    "feedback_incorrect": "Väärin! Borrelia ei leviä ihmisten välillä — BSL-2 riittää."
+  },
+  {
+    "id": 24,
+    "common_name": "Kolera",
+    "type": "Bakteeri",
+    "lecture_text": "Saastuneen veden kautta leviävä bakteeri. Aiheuttaa massiivista vetistä ripulia. Ei leviä ilman kautta. Rokote saatavilla.",
+    "feedback_correct": "Oikein! Kolera on BSL-2 — vesivälitteinen, ei ilmavälitteinen.",
+    "feedback_incorrect": "Väärin! Vibrio cholerae on BSL-2 — leviää veden kautta."
+  },
+  {
+    "id": 25,
+    "common_name": "Vesirokko",
+    "type": "Virus",
+    "lecture_text": "Leviää ilman ja kosketuksen kautta. Aiheuttaa kutisevia rakkuloita. Saman viruksen uudelleenaktivoituminen aiheuttaa vyöruusun aikuisilla. Rokote saatavilla.",
+    "feedback_correct": "Oikein! VZV on BSL-2 — rokote ja hoito saatavilla.",
+    "feedback_incorrect": "Väärin! Vesirokkovirus on BSL-2 — tehokas rokote on olemassa."
+  },
+  {
+    "id": 26,
+    "common_name": "Norovirus (mahatauti)",
+    "type": "Virus",
+    "lecture_text": "Yleisin akuutin maha-suolitulehduksen aiheuttaja. Erittäin tarttuva — jo muutama viruspartikkeli aiheuttaa tartunnan. Leviää ulosteen ja oksennuksen kautta. Ei tehokasta hoitoa tai rokotetta.",
+    "feedback_correct": "Oikein! Norovirus on BSL-2 — leviää ulosteperäisesti.",
+    "feedback_incorrect": "Väärin! Norovirus on BSL-2 — ei ilmavälitteinen."
+  },
+  {
+    "id": 27,
+    "common_name": "Kuppa",
+    "type": "Bakteeri",
+    "lecture_text": "Sukupuoliteitse leviävä bakteeri. Etenee vaiheittain: kivuton haava, ihottuma, sisäelinvaurio. Ei leviä laboratorioilman kautta. Penisilliini tehoaa edelleen.",
+    "feedback_correct": "Oikein! Treponema pallidum on BSL-2 — ei ilmavälitteinen.",
+    "feedback_incorrect": "Väärin! Kuppa on BSL-2 — tartunta vaatii suoran limakalvokontaktin."
+  },
+  {
+    "id": 28,
+    "common_name": "Hinkuyskä",
+    "type": "Bakteeri",
+    "lecture_text": "Pisaratartuntana leviävä bakteeri. Aiheuttaa vakavia yskänkohtauksia, erityisen vaarallinen imeväisille. Rokote suojaa tehokkaasti.",
+    "feedback_correct": "Oikein! Bordetella pertussis on BSL-2 — rokote suojaa.",
+    "feedback_incorrect": "Väärin! Hinkuyskä on BSL-2 — rokote on saatavilla."
+  },
+  {
+    "id": 29,
+    "common_name": "Klamydia",
+    "type": "Bakteeri",
+    "lecture_text": "Yleisin sukupuoliteitse leviävä bakteeri-infektio. Usein oireeton. Hoitamattomana voi aiheuttaa hedelmättömyyttä. Antibioottihoito tehoaa.",
+    "feedback_correct": "Oikein! Chlamydia trachomatis on BSL-2.",
+    "feedback_incorrect": "Väärin! Klamydia on BSL-2 — helposti hoidettavissa."
+  },
+  {
+    "id": 30,
+    "common_name": "Meningokokki",
+    "type": "Bakteeri",
+    "lecture_text": "Vaarallinen aivokalvontulehduksen aiheuttaja nuorilla. Leviää pisaroiden kautta. Voi johtaa kuolemaan tuntien sisällä. Rokote suojaa tärkeimmiltä serotyypeiltä.",
+    "feedback_correct": "Oikein! Neisseria meningitidis on BSL-2 — rokote suojaa.",
+    "feedback_incorrect": "Väärin! Meningokokki on BSL-2 — rokote on saatavilla."
+  },
+  {
+    "id": 31,
+    "common_name": "Toksoplasmoosi",
+    "type": "Loinen",
+    "lecture_text": "Kissat ovat päävärikkäät. Tartunta saastuneen lihan tai kissan ulosteen kautta. Vaarallinen raskaana oleville. Ei leviä ihmisestä toiseen.",
+    "feedback_correct": "Oikein! Toxoplasma gondii on BSL-2.",
+    "feedback_incorrect": "Väärin! Toksoplasma on BSL-2-loinen — ei tartu ihmisestä toiseen."
+  },
+  {
+    "id": 32,
+    "common_name": "Kryptosporidioosi",
+    "type": "Loinen",
+    "lecture_text": "Vesivälitteinen loinen. Aiheuttaa vaikeaa ripulia, erityisesti immuunipuutteisilla. Ookystat kestävät kloorausta. Löytyy saastuneesta juomavedestä.",
+    "feedback_correct": "Oikein! Cryptosporidium parvum on BSL-2.",
+    "feedback_incorrect": "Väärin! Kryptosporidium on BSL-2-loinen."
+  },
+  {
+    "id": 33,
+    "common_name": "Candida (hiiva)",
+    "type": "Sieni",
+    "lecture_text": "Yleisin ihmisen sieni-infektioiden aiheuttaja. Elää normaalisti limakalvoilla, voi aiheuttaa vakavan infektion immuunipuutteisilla. Ei ilmavälitteinen. Allergisoiva.",
+    "feedback_correct": "Oikein! Candida albicans on BSL-2-sieni.",
+    "feedback_incorrect": "Väärin! Candida on BSL-2 — ei tartu ihmisestä toiseen."
+  },
+  {
+    "id": 34,
+    "common_name": "Aspergillus (home)",
+    "type": "Sieni",
+    "lecture_text": "Yleinen ympäristön sieni. Itiöitä hengitetään päivittäin. Voi aiheuttaa vakavan keuhkoinfektion immuunivajeisilla. Allergisoiva. Ei tartu ihmisestä toiseen.",
+    "feedback_correct": "Oikein! Aspergillus fumigatus on BSL-2.",
+    "feedback_incorrect": "Väärin! Aspergillus on BSL-2 — ei tartu ihmisestä toiseen."
+  },
+  {
+    "id": 35,
+    "common_name": "Listeria",
+    "type": "Bakteeri",
+    "lecture_text": "Ruokavälitteinen bakteeri joka kasvaa myös jääkaappilämpötilassa. Erityisen vaarallinen raskaana oleville, vastasyntyneille ja immuunipuutteisille. Ei ilmavälitteinen.",
+    "feedback_correct": "Oikein! Listeria monocytogenes on BSL-2.",
+    "feedback_incorrect": "Väärin! Listeria on BSL-2 — ruokavälitteinen."
+  },
+  {
+    "id": 36,
+    "common_name": "Denguekuume",
+    "type": "Virus",
+    "lecture_text": "Hyttysten levittämä flavivirus trooppisilla alueilla. Aiheuttaa korkeaa kuumetta, nivelkipuja ja ihottumaa. Vaikeassa muodossa mahdollinen verenvuoto. Ei leviä suoraan ihmisestä toiseen.",
+    "feedback_correct": "Oikein! Denguekuume on BSL-3 — luokiteltu ryhmään 3 Suomen asetuksen 748/2020 mukaan, ilman poikkeusta.",
+    "feedback_incorrect": "Väärin! Denguekuume luokitellaan Suomessa BSL-3:ksi (asetus 748/2020) ilman erityispoikkeusta."
+  },
+  {
+    "id": 37,
+    "common_name": "Ihmisen papilloomavirus (HPV)",
+    "type": "Virus",
+    "lecture_text": "Yleisin sukupuoliteitse leviävä virus. Tietyt kannat voivat aiheuttaa kohdunkaulan syöpää. Rokote suojaa tärkeimmiltä syöpää aiheuttavilta kannoilta.",
+    "feedback_correct": "Oikein! HPV on BSL-2 — rokote suojaa.",
+    "feedback_incorrect": "Väärin! HPV on BSL-2 — rokote on saatavilla."
+  },
+  {
+    "id": 38,
+    "common_name": "Hepatiitti A",
+    "type": "Virus",
+    "lecture_text": "Ulosteperäisesti leviävä maksatulehdus. Yleinen kehitysmaissa saastuneen veden tai ruoan kautta. Ei kroonista muotoa. Rokote suojaa tehokkaasti.",
+    "feedback_correct": "Oikein! Hepatiitti A on BSL-2 — rokote suojaa.",
+    "feedback_incorrect": "Väärin! Hepatiitti A on BSL-2 — leviää ulosteperäisesti."
+  },
+  {
+    "id": 39,
+    "common_name": "Jäykkäkouristus",
+    "type": "Bakteeri",
+    "lecture_text": "Bakteeri joka pääsee haavoihin maaperästä. Tuottaa hermomyrkkyä joka aiheuttaa lihaskouristuksia. Rokote on erittäin tehokas.",
+    "feedback_correct": "Oikein! Clostridium tetani on BSL-2 — rokote suojaa.",
+    "feedback_incorrect": "Väärin! Jäykkäkouristus on BSL-2-bakteeri — rokote on erittäin tehokas."
+  },
+  {
+    "id": 40,
+    "common_name": "Malaria (muut lajit)",
+    "type": "Loinen",
+    "lecture_text": "Lievempi malarialajike kuin P. falciparum. Leviää hyttysten kautta, ei ihmisestä toiseen laboratoriossa. Hoito saatavilla.",
+    "feedback_correct": "Oikein! Muut Plasmodium-lajit kuin falciparum ovat BSL-2.",
+    "feedback_incorrect": "Väärin! Muut malarialajit kuin P. falciparum ovat BSL-2."
+  },
+  {
+    "id": 41,
+    "common_name": "Tuberkuloosi",
+    "type": "Bakteeri",
+    "lecture_text": "Maailman toiseksi yleisin tartuntataudin aiheuttama kuolinsyy. Leviää ilman kautta pieninä aerosolihiukkasina. Voi pysyä piilevänä vuosikymmeniä. Moniresistentit kannat ovat kasvava uhka.",
+    "feedback_correct": "Oikein! Tuberkuloosi on BSL-3 — leviää ilman kautta, vaatii hengityssuojaimen ja kokopuvun.",
+    "feedback_incorrect": "Väärin! Tuberkuloosi on erittäin vakava ilmavälitteinen bakteeri. BSL-3 vaaditaan: hengityssuojain, kokopuku, kaksinkertaiset käsineet."
+  },
+  {
+    "id": 42,
+    "common_name": "Pernarutto",
+    "type": "Bakteeri",
+    "lecture_text": "Itiöitä muodostava bakteeri joka voi selvitä maaperässä vuosikymmeniä. Hengitystiealtistus aiheuttaa vakavan keuhkomuodon. On käytetty myös biologisena aseena.",
+    "feedback_correct": "Oikein! Bacillus anthracis on BSL-3 — itiöt voivat levitä ilman kautta.",
+    "feedback_incorrect": "Väärin! Pernarutto on BSL-3 — hengitystiealtistus on erittäin vaarallinen."
+  },
+  {
+    "id": 43,
+    "common_name": "COVID-19 (viruskasvatus)",
+    "type": "Virus",
+    "lecture_text": "Viruskasvatustyö COVID-19-viruksen kanssa, joka leviää ilman kautta aerosoleina. Elävän viruksen kasvattaminen on paljon vaarallisempaa kuin pelkkä diagnostinen testaus.",
+    "feedback_correct": "Oikein! SARS-CoV-2:n viruskasvatus vaatii BSL-3-suojauksen.",
+    "feedback_incorrect": "Väärin! SARS-CoV-2:n viruskasvatus vaatii BSL-3:n — virus leviää ilman kautta aerosoleina."
+  },
+  {
+    "id": 44,
+    "common_name": "Rutto",
+    "type": "Bakteeri",
+    "lecture_text": "Bakteeri joka aiheutti mustan surman. Leviää kirppujen kautta, mutta keuhkomuoto on ilmavälitteinen. Antibioottihoito tehoaa nykyään.",
+    "feedback_correct": "Oikein! Rutto on BSL-3 — keuhkomuoto leviää ilman kautta.",
+    "feedback_incorrect": "Väärin! Yersinia pestis on BSL-3 — erityisesti keuhkomuoto on hyvin vaarallinen."
+  },
+  {
+    "id": 45,
+    "common_name": "Myyräkuume",
+    "type": "Virus",
+    "lecture_text": "Metsämyyrien levittämä hantavirus, Suomen yleisin verenvuotokuume. Leviää aerosolina jyrsijöiden eritteistä. Voi aiheuttaa vakavan munuaisvaurion.",
+    "feedback_correct": "Oikein! Puumala-hantavirus (luonnonkanta) on BSL-3.",
+    "feedback_incorrect": "Väärin! Tämä hantavirus on BSL-3 — aerosolitartunta vaatii hengityssuojauksen."
+  },
+  {
+    "id": 46,
+    "common_name": "Keltakuume",
+    "type": "Virus",
+    "lecture_text": "Trooppinen hyttysten levittämä flavivirus. Aiheuttaa korkeaa kuumetta ja maksavaurion. Tehokas rokote olemassa.",
+    "feedback_correct": "Oikein! Keltakuumevirus on BSL-3.",
+    "feedback_incorrect": "Väärin! Keltakuumevirus on BSL-3 — vakava taudinkuva vaatii BSL-3-suojauksen."
+  },
+  {
+    "id": 47,
+    "common_name": "Puutiaisaivotulehdus (TBE)",
+    "type": "Virus",
+    "lecture_text": "Punkkien levittämä flavivirus, esiintyy Suomen rannikkoalueilla. Aiheuttaa kaksivaiheisen taudin: ensin flunssan kaltaiset oireet, sitten aivotulehdus. Rokote saatavilla.",
+    "feedback_correct": "Oikein! TBE-virus on BSL-3.",
+    "feedback_incorrect": "Väärin! Puutiaisaivotulehduksen aiheuttaja on BSL-3 — aivotulehduksen riski."
+  },
+  {
+    "id": 48,
+    "common_name": "Malaria (falciparum)",
+    "type": "Loinen",
+    "lecture_text": "Vaarallisin malarialoinen. Leviää hyttysten kautta. Aiheuttaa aivomalarian, hengenvaarallisen komplikaation.",
+    "feedback_correct": "Oikein! Plasmodium falciparum on BSL-3.",
+    "feedback_incorrect": "Väärin! P. falciparum on vaarallisin malarialoinen — BSL-3 vaaditaan."
+  },
+  {
+    "id": 49,
+    "common_name": "Bruselloosi",
+    "type": "Bakteeri",
+    "lecture_text": "Eläimistä ihmisiin leviävä bakteeri. Voi levitä aerosoleina. Aiheuttaa pitkittynyttä kuumetta, nivelkipuja ja elinvaurioita.",
+    "feedback_correct": "Oikein! Brucella melitensis on BSL-3 — aerosolitartunta mahdollinen.",
+    "feedback_incorrect": "Väärin! Brucella on BSL-3 — voi levitä aerosoleina."
+  },
+  {
+    "id": 50,
+    "common_name": "Papukaijakuume",
+    "type": "Bakteeri",
+    "lecture_text": "Lintujen ulosteiden kautta leviävä klamydia. Aiheuttaa vakavan keuhkokuumeen. Erityinen riski linnunkasvattajille ja eläinlääkäreille. Aerosolitartunta mahdollinen.",
+    "feedback_correct": "Oikein! Chlamydia psittacin lintukanta on BSL-3 — aerosoliriski.",
+    "feedback_incorrect": "Väärin! Papukaijakuumeen aiheuttaja on BSL-3 — aerosolitartunta tekee siitä vaarallisemman."
+  },
+  {
+    "id": 51,
+    "common_name": "Ebola",
+    "type": "Virus",
+    "lecture_text": "Yksi maailman vaarallisimmista viruksista. Aiheuttaa verenvuotokuumetta. Leviää suoran kehonesteiden kontaktin kautta. Ei tehokasta hoitoa.",
+    "feedback_correct": "Oikein! Ebola on BSL-4 — vaatii ylipainepuvun jolla on oma ilmansyöttö.",
+    "feedback_incorrect": "Väärin! Ebola on BSL-4 — ylipainepuku omalla ilmansyötöllä on pakollinen."
+  },
+  {
+    "id": 52,
+    "common_name": "Marburg",
+    "type": "Virus",
+    "lecture_text": "Ebolaa läheisesti muistuttava filovirus. Aiheuttaa vakavan verenvuotokuumeen. Ei hoitoa.",
+    "feedback_correct": "Oikein! Marburg-virus on BSL-4.",
+    "feedback_incorrect": "Väärin! Marburg on BSL-4 — täysi suojapuku on välttämätön."
+  },
+  {
+    "id": 53,
+    "common_name": "Lassakuume",
+    "type": "Virus",
+    "lecture_text": "Länsiafrikkalainen arenavirus. Leviää jyrsijöistä ja ihmisestä toiseen. Voi aiheuttaa kuulon menetyksen jälkitautina. Ei tehokasta hoitoa.",
+    "feedback_correct": "Oikein! Lassavirus on BSL-4.",
+    "feedback_incorrect": "Väärin! Lassavirus on BSL-4 — leviää ihmisestä toiseen ilman tehokasta hoitoa."
+  },
+  {
+    "id": 54,
+    "common_name": "Nipah-aivotulehdus",
+    "type": "Virus",
+    "lecture_text": "Lepakoiden levittämä paramyksovirus. Leviää ihmisestä toiseen. Erittäin korkea kuolleisuus. Ei rokotetta tai erityistä hoitoa.",
+    "feedback_correct": "Oikein! Nipah-virus on BSL-4 — erittäin korkea kuolleisuus.",
+    "feedback_incorrect": "Väärin! Nipah on BSL-4 — leviää ihmisestä toiseen, ei hoitoa."
+  },
+  {
+    "id": 55,
+    "common_name": "Hendra-virus",
+    "type": "Virus",
+    "lecture_text": "Australialainen lepakoiden levittämä paramyksovirus. Tarttuu hevosista ihmisiin. Läheistä sukua Nipah-virukselle. Ei hoitoa.",
+    "feedback_correct": "Oikein! Hendra-virus on BSL-4.",
+    "feedback_incorrect": "Väärin! Hendra on BSL-4 — ei hoitoa."
+  },
+  {
+    "id": 56,
+    "common_name": "Krimin-Kongon verenvuotokuume",
+    "type": "Virus",
+    "lecture_text": "Punkkien levittämä nairovirus. Leviää myös suoran verikontaktin kautta. Esiintyy Afrikassa, Aasiassa ja Etelä-Euroopassa. Ei tehokasta hoitoa.",
+    "feedback_correct": "Oikein! CCHFV on BSL-4.",
+    "feedback_incorrect": "Väärin! Krimin-Kongon verenvuotokuumevirus on BSL-4."
+  },
+  {
+    "id": 57,
+    "common_name": "Isorokko (hävitetty)",
+    "type": "Virus",
+    "lecture_text": "Hävitetty luonnosta vuonna 1980. Nykyään säilössä vain kahdessa korkean turvallisuuden laboratoriossa maailmassa.",
+    "feedback_correct": "Oikein! Variola-virus on BSL-4.",
+    "feedback_incorrect": "Väärin! Variola major on BSL-4-patogeeni — hävitetty luonnosta."
+  },
+  {
+    "id": 58,
+    "common_name": "Bolivian verenvuotokuume",
+    "type": "Virus",
+    "lecture_text": "Bolivialainen jyrsijöiden levittämä arenavirus. On levinnyt myös ihmisestä toiseen sairaalaoloissa. Ei tehokasta hoitoa.",
+    "feedback_correct": "Oikein! Machupo-virus on BSL-4.",
+    "feedback_incorrect": "Väärin! Machupo on BSL-4 — vakava verenvuotokuume ilman hoitoa."
+  },
+  {
+    "id": 59,
+    "common_name": "Junín-virus (Argentiinan verenvuotokuume)",
+    "type": "Virus",
+    "lecture_text": "Argentiinalainen arenavirus. Leviää jyrsijöistä ihmisiin. Vain erikoislaboratoriot saavat tutkia sitä.",
+    "feedback_correct": "Oikein! Junín-virus on BSL-4.",
+    "feedback_incorrect": "Väärin! Junín on BSL-4-patogeeni — vakava verenvuotokuume."
+  },
+  {
+    "id": 60,
+    "common_name": "Creutzfeldt-Jakobin tauti (prioni)",
+    "type": "Prioni",
+    "lecture_text": "Harvinainen mutta aina kuolemaan johtava aivojen prionitauti. Prioneja ei tuhota tavanomaisella sterilisoinnilla. Itämisaika voi olla vuosikymmeniä.",
+    "feedback_correct": "Oikein! CJD-prioni on BSL-3.",
+    "feedback_incorrect": "Väärin! Creutzfeldt-Jakobin taudin prioni on BSL-3 — ei tuhoudu tavanomaisessa sterilisoinnissa."
+  }
+]
