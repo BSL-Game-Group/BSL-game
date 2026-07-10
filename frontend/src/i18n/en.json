@@ -35,6 +35,13 @@
       "link3": "Biosafety – ScienceDirect"
     }
   },
+  "bslMaterial": {
+    "title": "BSL Game Material (Biosafety Levels)",
+    "protectiveEquipment": "Protective equipment:",
+    "exampleOrganisms": "Example organisms:",
+    "tableHeaders": ["#", "Common name", "Scientific name", "Type", "Note"],
+    "sources": "Sources"
+  },
   "task": {
     "title": "The microbe you will handle"
   },

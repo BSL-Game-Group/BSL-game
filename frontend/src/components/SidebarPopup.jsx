@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
-import { intro, riskGroups, bslLevels, organismTables, sources } from '../data/bslMaterial'
+import * as materialEn from '../data/bslMaterial'
+import * as materialFi from '../data/bslMaterialFi'
 import { useTranslation } from '../i18n/context'
 
 function SidebarPopup({ open, onClose }) {
-  const { t } = useTranslation()
+  const { t, tList, language } = useTranslation()
 
   useEffect(() => {
     window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
@@ -12,6 +13,12 @@ function SidebarPopup({ open, onClose }) {
   if (!open) {
     return null
   }
+
+  // Only Finnish has a translated version of the material so far; Swedish
+  // falls back to the English content until it gets its own translation.
+  const { intro, riskGroups, bslLevels, organismTables, sources } =
+    language === 'fi' ? materialFi : materialEn
+  const tableHeaders = tList('bslMaterial.tableHeaders')
 
   return (
     <div className="popup-overlay">
@@ -30,7 +37,7 @@ function SidebarPopup({ open, onClose }) {
         </button>
 
         <div style={{ overflowY: 'auto', color: '#000', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <h2 style={{ margin: 0 }}>BSL Game Material (Biosafety Levels)</h2>
+          <h2 style={{ margin: 0 }}>{t('bslMaterial.title')}</h2>
 
           <section>
             <h3>{intro.heading}</h3>
@@ -51,11 +58,11 @@ function SidebarPopup({ open, onClose }) {
             <section key={lvl.level}>
               <h3>{lvl.title}</h3>
               <p style={{ fontSize: '0.95rem', lineHeight: 1.5 }}>{lvl.description}</p>
-              <p style={{ fontSize: '0.95rem', margin: '8px 0 4px' }}><strong>Protective equipment:</strong></p>
+              <p style={{ fontSize: '0.95rem', margin: '8px 0 4px' }}><strong>{t('bslMaterial.protectiveEquipment')}</strong></p>
               <ul>
                 {lvl.equipment.map((e) => <li key={e}>{e}</li>)}
               </ul>
-              <p style={{ fontSize: '0.95rem' }}><strong>Example organisms:</strong> {lvl.examples}</p>
+              <p style={{ fontSize: '0.95rem' }}><strong>{t('bslMaterial.exampleOrganisms')}</strong> {lvl.examples}</p>
             </section>
           ))}
 
@@ -67,7 +74,7 @@ function SidebarPopup({ open, onClose }) {
                 <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '0.85rem' }}>
                   <thead>
                     <tr>
-                      {['#', 'Common name', 'Scientific name', 'Type', 'Note'].map((h) => (
+                      {tableHeaders.map((h) => (
                         <th key={h} style={{ textAlign: 'left', borderBottom: '2px solid #0b6623', padding: '4px 8px' }}>{h}</th>
                       ))}
                     </tr>
@@ -87,7 +94,7 @@ function SidebarPopup({ open, onClose }) {
           ))}
 
           <section>
-            <h3>Sources</h3>
+            <h3>{t('bslMaterial.sources')}</h3>
             <ul>
               {sources.map((s) => (
                 <li key={s.url}>
