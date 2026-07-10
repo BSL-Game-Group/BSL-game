@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen, fireEvent, act } from './test-utils'
 import '@testing-library/jest-dom'
 import ClosetPopup from '../src/components/ClosetPopup/ClosetPopup'
 
@@ -99,12 +99,31 @@ describe('ClosetPopup component', () => {
   // UI TESTS
   // -----------------------------
 
-  test('renders inventory items when not equipped', () => {
+  test('shows each item under its own tab', () => {
     renderPopup(true)
 
-    expect(screen.getAllByAltText(/mask/i).length).toBeGreaterThan(0)
+    // Eyewear is the default (lowest-order) tab.
     expect(screen.getAllByAltText(/glasses/i).length).toBeGreaterThan(0)
+
+    fireEvent.click(screen.getByRole('button', { name: /^masks$/i }))
+    expect(screen.getAllByAltText(/mask/i).length).toBeGreaterThan(0)
+
+    fireEvent.click(screen.getByRole('button', { name: /^body$/i }))
     expect(screen.getAllByAltText(/lab_coat/i).length).toBeGreaterThan(0)
+  })
+
+  test('renders a tab per category in order', () => {
+    const { container } = renderPopup(true)
+
+    const labels = [...container.querySelectorAll('.gear-tab')].map((el) => el.textContent)
+    expect(labels).toEqual(['Eyewear', 'Masks', 'Body', 'Gloves'])
+  })
+
+  test('empty Gloves tab shows the empty state', () => {
+    renderPopup(true)
+
+    fireEvent.click(screen.getByRole('button', { name: /^gloves$/i }))
+    expect(screen.getByText(/no gloves available yet/i)).toBeInTheDocument()
   })
 
   test('renders player heading', () => {

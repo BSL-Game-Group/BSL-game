@@ -1,41 +1,66 @@
 import { useState, useEffect } from 'react'
 import { DndProvider, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { ItemType, EQUIPMENT_CONFIG } from './ItemConfig'
+import { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip } from './ItemConfig'
 import Character from './Character'
 import DraggableItem from './DragFunctionality'
+import { useTranslation } from '../../i18n/context'
+
+// Tabs in display order, derived from the category registry.
+const CATEGORIES = Object.values(CATEGORY_CONFIG).sort((a, b) => a.order - b.order)
 
 function InventoryPanel({ equipped, onToggleEquip }) {
+  const { t } = useTranslation()
+  const [activeTab, setActiveTab] = useState(CATEGORIES[0].id)
+
   const [, drop] = useDrop(() => ({
     accept: ItemType,
     drop: (item) => onToggleEquip(item.id, false) // False means we are unequipping it
   }))
 
+  const itemsInTab = Object.values(EQUIPMENT_CONFIG).filter((c) => c.category === activeTab)
+  const available = itemsInTab.filter((c) => !equipped[c.id])
+
   return (
     <div ref={drop} style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      <h3 style={{ marginTop: 0 }}>Equipment</h3>
+      <h3 style={{ marginTop: 0 }}>{t('closet.equipmentLabel')}</h3>
+
+      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 12 }}>
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat.id}
+            className={`gear-tab${activeTab === cat.id ? ' active' : ''}`}
+            onClick={() => setActiveTab(cat.id)}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {/* Dynamically render unequipped items */}
-        {Object.values(EQUIPMENT_CONFIG).map((config) => {
-          if (equipped[config.id]) {
-            return null;}
+        {available.map((config) => (
+          <DraggableItem
+            key={`inventory-${config.id}`}
+            id={config.id}
+            src={config.inventorySrc}
+            isEquipped={false}
+          />
+        ))}
 
-          return (
-            <DraggableItem 
-              key={`inventory-${config.id}`}
-              id={config.id} 
-              src={config.inventorySrc} 
-              isEquipped={false}
-            />
-          )
-        })}
+        {available.length === 0 && (
+          <p style={{ color: '#888', fontStyle: 'italic', margin: 0 }}>
+            {itemsInTab.length === 0
+              ? `No ${CATEGORY_CONFIG[activeTab].label.toLowerCase()} available yet`
+              : 'All equipped.'}
+          </p>
+        )}
       </div>
     </div>
   )
 }
 
 function ClosetPopup({ open, onClose, onEquipmentChange }) {
+  const { t } = useTranslation()
   const [equipped, setEquipped] = useState({
     mask: false,
     lab_coat: false,
@@ -44,10 +69,9 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
 
   // Helper function to handle equip/unequip logic
   const handleToggleEquip = (itemId, isEquipped) => {
-    setEquipped(prev => ({
-      ...prev,
-      [itemId]: isEquipped
-    }))
+    setEquipped((prev) =>
+      isEquipped ? applyEquip(prev, itemId) : { ...prev, [itemId]: false }
+    )
   }
 
   // Effect to handle external broadcasts
@@ -74,12 +98,12 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
             onClick={onClose}
             className="popup-close-button"
           >
-            Close
+            {t('common.close')}
           </button>
 
           <div style={{ display: 'flex', gap: '40px', flex: 1, marginTop: '20px' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid #eee' }}>
-              <h3 style={{ marginTop: 0 }}>Player</h3>
+              <h3 style={{ marginTop: 0 }}>{t('closet.player')}</h3>
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <Character equipped={equipped} onToggleEquip={handleToggleEquip} />
               </div>

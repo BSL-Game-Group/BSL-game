@@ -1,7 +1,10 @@
 import { useEffect } from 'react'
 import { intro, riskGroups, bslLevels, organismTables, sources } from '../data/bslMaterial'
+import { useTranslation } from '../i18n/context'
 
 function SidebarPopup({ open, onClose }) {
+  const { t } = useTranslation()
+
   useEffect(() => {
     window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
   }, [open])
@@ -23,7 +26,7 @@ function SidebarPopup({ open, onClose }) {
           onClick={onClose}
           className="popup-close-button"
         >
-          Close
+          {t('common.close')}
         </button>
 
         <div style={{ overflowY: 'auto', color: '#000', display: 'flex', flexDirection: 'column', gap: '20px' }}>

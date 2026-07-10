@@ -243,13 +243,16 @@ class MainScene extends Phaser.Scene {
             if (this.handleNewMicrobeRequest) {
                 EventBus.off('request-new-microbe', this.handleNewMicrobeRequest);
             }
+            if (this.handleTranslationsUpdate) {
+                EventBus.off('translations-updated', this.handleTranslationsUpdate);
+            }
         });
 
         // Setup inputs, text and colliders
         this.cursors = this.input.keyboard.createCursorKeys();
         this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
         
-        this.pressEText = this.add.text(0, 0, "Press E to open", {
+        this.pressEText = this.add.text(0, 0, "", {
             fontSize: "14px",
             backgroundColor: "#000",
             color: "#fff",
@@ -263,7 +266,7 @@ class MainScene extends Phaser.Scene {
 
         this.playerInsideLectureRoom = false;
         this.playerInsideDressingRoom = false;
-        this.closetHint = this.add.text(0, 0, "Open Closet", {
+        this.closetHint = this.add.text(0, 0, "", {
             fontSize: "14px",
             backgroundColor: "#222222",
             color: "#ffffff",
@@ -271,7 +274,7 @@ class MainScene extends Phaser.Scene {
         }).setDepth(1000).setVisible(false);
 
         // Hint shown near a BSL room's blue glow while the player is inside it.
-        this.bslHint = this.add.text(0, 0, "Press E", {
+        this.bslHint = this.add.text(0, 0, "", {
             fontSize: "14px",
             backgroundColor: "#000",
             color: "#fff",
@@ -280,6 +283,11 @@ class MainScene extends Phaser.Scene {
         
         this.currentMicrobe = null;
         this.registerEventBusListeners();
+        this.updateTextTranslations({
+            pressEToOpen: window.__translations?.pressEToOpen ?? 'Press E to open',
+            openCloset: window.__translations?.openCloset ?? 'Open Closet',
+            pressE: window.__translations?.pressE ?? 'Press E'
+        })
         this.replaceCurrentMicrobeRandomly()
     }
 
@@ -288,6 +296,21 @@ class MainScene extends Phaser.Scene {
     registerEventBusListeners() {
         this.handleNewMicrobeRequest = () => this.replaceCurrentMicrobeRandomly()
         EventBus.on('request-new-microbe', this.handleNewMicrobeRequest)
+        
+        this.handleTranslationsUpdate = (translations) => this.updateTextTranslations(translations)
+        EventBus.on('translations-updated', this.handleTranslationsUpdate)
+    }
+
+    updateTextTranslations(translations) {
+        if (this.pressEText) {
+            this.pressEText.setText(translations.pressEToOpen)
+        }
+        if (this.closetHint) {
+            this.closetHint.setText(translations.openCloset)
+        }
+        if (this.bslHint) {
+            this.bslHint.setText(translations.pressE)
+        }
     }
 
     async replaceCurrentMicrobeRandomly() {
