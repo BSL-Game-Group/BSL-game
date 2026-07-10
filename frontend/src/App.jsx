@@ -6,14 +6,17 @@ import Task from './components/Task.jsx'
 import AnswerPopup from './components/AnswerPopup/AnswerPopup'
 import HowToPlay from './components/HowToPlay'
 import InfoPopup from './components/InfoPopup/InfoPopup'
+import LanguageSelector from './components/LanguageSelector'
 import { EventBus } from './game/EventBus'
+import { useTranslation } from './i18n/context'
 
 function App() {
+  const { t, language } = useTranslation()
+
   const [gameStarted, setGameStarted] = useState(false)
   const [lectureOpen, setLectureOpen] = useState(false)
   const [isPopupOpen, setPopupOpen] = useState(false)
   const [isLecturePopupOpen, setLecturePopupOpen] = useState(false)
-  const [linksVisible, setLinksVisible] = useState(true)
   const [answerOpen, setAnswerOpen] = useState(false)
   const [answerLevel, setAnswerLevel] = useState('')
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
@@ -23,8 +26,6 @@ function App() {
     fetch('/api/test')
   }, [])
 
-  // The Phaser scene owns the current microbe and broadcasts it here; we need it
-  // to judge whether the room the player entered matches the microbe's class.
   useEffect(() => {
     const handleMicrobeUpdate = (microbe) => setCurrentMicrobe({ ...microbe })
     EventBus.on('current-microbe-updated', handleMicrobeUpdate)
@@ -54,25 +55,46 @@ function App() {
       setAnswerLevel(e?.detail?.level ?? '')
       setAnswerOpen(true)
     }
+
     window.addEventListener('answer-popup-opened', handleAnswerOpen)
     return () => window.removeEventListener('answer-popup-opened', handleAnswerOpen)
   }, [])
 
-  // The room is a string ('BSL-3'); the microbe's class is a plain number (3).
-  // Strip the 'BSL-' prefix and compare numbers.
+  // Emit Phaser translations whenever language changes
+  useEffect(() => {
+    const translations = {
+      pressEToOpen: t('phaser.pressEToOpen'),
+      openCloset: t('phaser.openCloset'),
+      pressE: t('phaser.pressE'),
+    }
+
+    window.__translations = translations
+    EventBus.emit('translations-updated', translations)
+  }, [language, t])
+
   const correctLevel = currentMicrobe?.bsl_level
   const chosenLevel = Number(String(answerLevel).replace('BSL-', ''))
-  const isCorrect = typeof correctLevel === 'number' && chosenLevel === correctLevel
+  const isCorrect =
+    typeof correctLevel === 'number' && chosenLevel === correctLevel
 
   const handleAnswerClose = () => {
     setAnswerOpen(false)
-    // Advance to a new microbe after every answer (no immediate retry).
     EventBus.emit('request-new-microbe')
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', paddingTop: '24px' }}>
-      <h1 className="app-title">BSL-game</h1>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        minHeight: '100vh',
+        paddingTop: '24px',
+      }}
+    >
+      <LanguageSelector />
+
+      <h1 className="app-title">{t('app.title')}</h1>
 
       {!gameStarted ? (
         <div className="start-screen">
@@ -89,11 +111,14 @@ function App() {
           </div>
 
           <p className="start-screen__subtitle">
-            Handle microbes safely — choose the right protective gear and the right laboratory.
+            {t('startScreen.subtitle')}
           </p>
 
-          <button className="start-button" onClick={() => setGameStarted(true)}>
-            Start Game
+          <button
+            className="start-button"
+            onClick={() => setGameStarted(true)}
+          >
+            {t('startScreen.startButton')}
           </button>
 
           <HowToPlay />
@@ -102,16 +127,35 @@ function App() {
         <div style={{ display: 'flex', alignItems: 'flex-start' }}>
           <div
             data-testid="lecture-panel"
-            style={{ display: lectureOpen ? 'block' : 'none', width: 220 }}
+            style={{
+              display: lectureOpen ? 'block' : 'none',
+              width: 220,
+            }}
           >
             <Task />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h2 style={{ margin: 0 }}>Lecture Materials</h2>
+
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <h2 style={{ margin: 0 }}>
+                {t('lecturePanel.title')}
+              </h2>
+
               <button
                 onClick={() => setLecturePopupOpen((open) => !open)}
-                style={{ marginLeft: '8px', fontSize: '0.9rem', cursor: 'pointer' }}
+                style={{
+                  marginLeft: '8px',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                }}
               >
-                {isLecturePopupOpen ? 'Hide' : 'Show'}
+                {isLecturePopupOpen
+                  ? t('lecturePanel.hideButton')
+                  : t('lecturePanel.showButton')}
               </button>
             </div>
           </div>
@@ -121,6 +165,7 @@ function App() {
               open={isPopupOpen}
               onClose={() => setPopupOpen(false)}
             />
+
             <SidebarPopup
               open={isLecturePopupOpen}
               onClose={() => setLecturePopupOpen(false)}
@@ -134,7 +179,10 @@ function App() {
               microbe={currentMicrobe}
             />
 
-            <InfoPopup open={infoOpen} onClose={() => setInfoOpen(false)} />
+            <InfoPopup
+              open={infoOpen}
+              onClose={() => setInfoOpen(false)}
+            />
 
             <Game />
           </div>

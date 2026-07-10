@@ -1,6 +1,15 @@
 import { AUTO, Game, Scale } from 'phaser';
 import MainScene from './scenes/main_scene';
 
+// Initialize global translations object that React and Phaser can share
+if (typeof window !== 'undefined') {
+    window.__gameTranslations = {
+        pressEToOpen: 'Press E to open',
+        openCloset: 'Open Closet',
+        pressE: 'Press E'
+    };
+}
+
 const config = {
     type: AUTO,
     width: 1280,
