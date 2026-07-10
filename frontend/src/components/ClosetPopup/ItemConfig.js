@@ -8,50 +8,60 @@ const CATEGORY_CONFIG = {
   gloves:  { id: 'gloves',  label: 'Gloves',  order: 3, stackable: true  },
 };
 
-// Add new equipment here
-const EQUIPMENT_CONFIG = {
+// Image paths are derived from each item's id + category, so the asset tree is
+// usage -> category -> file:
+//   /assets/equipment/in_inventory/<category>/<id>.png
+//   /assets/equipment/on_character/<category>/<id>_on.png
+const INVENTORY_ROOT = '/assets/equipment/in_inventory';
+const CHARACTER_ROOT = '/assets/equipment/on_character';
+
+// Injects id + derived inventorySrc/equippedSrc into each item definition.
+function buildEquipment(items) {
+  const out = {};
+  for (const [id, item] of Object.entries(items)) {
+    out[id] = {
+      ...item,
+      id,
+      inventorySrc: `${INVENTORY_ROOT}/${item.category}/${id}.png`,
+      equippedSrc: `${CHARACTER_ROOT}/${item.category}/${id}_on.png`,
+    };
+  }
+  return out;
+}
+
+// Add new equipment here — only `category` + `equippedStyle` are needed;
+// paths are derived from the key + category above.
+const EQUIPMENT_CONFIG = buildEquipment({
   lab_coat: {
-    id: 'lab_coat',
     category: 'body',
-    inventorySrc: '/assets/equipment/equipment_in_inventory/lab_coat.png',
-    equippedSrc: '/assets/equipment/equipment_on_character/lab_coat.png',
     equippedStyle: {
       position: 'absolute', top: '45px', left: '55px', width: '130px', height: 'auto',
       transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   mask: {
-    id: 'mask',
     category: 'masks',
-    inventorySrc: '/assets/equipment/equipment_in_inventory/mask.png',
-    equippedSrc: '/assets/equipment/equipment_on_character/mask.png',
     equippedStyle: {
       position: 'absolute', top: '49px', left: '79px', width: '70px', height: 'auto',
       transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   glasses: {
-    id: 'glasses',
     category: 'eyewear',
-    inventorySrc: '/assets/equipment/equipment_in_inventory/glasses.png',
-    equippedSrc: '/assets/equipment/equipment_on_character/glasses.png',
     equippedStyle: {
       position: 'absolute', top: '35px', left: '75px', width: '70px', height: 'auto',
       transform: 'scale(1.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   sunglasses: {
-    id: 'sunglasses',
     category: 'eyewear',
-    inventorySrc: '/assets/equipment/equipment_in_inventory/sunglasses.png',
-    equippedSrc: '/assets/equipment/equipment_on_character/sunglasses_on.png',
     equippedStyle: {
       position: 'absolute', top: '9px', left: '66px', width: '106px', height: 'auto',
-      transform: 'perspective(360px) rotateY(14deg) rotate(-2deg) scale(1.1) translateY(5px)',
+      transform: 'perspective(360px) rotateY(20deg) rotate(-2deg) scale(1.1) translateY(5px)',
       transformOrigin: 'center center',
     }
   }
-};
+});
 
 // Pure equip rule: returns a new equipped map with `itemId` on. For a
 // non-stackable category, first clears any other item in that category (swap).
