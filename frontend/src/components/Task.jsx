@@ -22,30 +22,22 @@ const Task = () => {
         return null
     }
 
+    const localized = (field) => {
+        if (language === 'sv' || language === 'fi') {
+            return microbe[`${field}_${language}`]
+        }
+        return microbe[field]
+    }
+
     return (
         <div>
             <h2>{t('task.title')}</h2>
 
             <ul>
-                <li>
-                    {language === 'sv'
-                        ? microbe.common_name_sv
-                        : microbe.common_name}
-                </li>
-
+                <li>{localized('common_name')}</li>
                 <li>{microbe.scientific_name}</li>
-
-                <li>
-                    {language === 'sv'
-                        ? microbe.type_sv
-                        : microbe.type}
-                </li>
-
-                <li>
-                    {language === 'sv'
-                        ? microbe.lecture_text_sv
-                        : microbe.lecture_text}
-                </li>
+                <li>{localized('type')}</li>
+                <li>{localized('lecture_text')}</li>
             </ul>
         </div>
     )
