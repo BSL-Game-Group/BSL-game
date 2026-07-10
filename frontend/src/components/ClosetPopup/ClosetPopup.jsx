@@ -62,6 +62,7 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
     mask: false,
     lab_coat: false,
     glasses: false,
+    sunglasses: false,
   })
 
   // Helper function to handle equip/unequip logic

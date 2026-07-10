@@ -39,6 +39,17 @@ const EQUIPMENT_CONFIG = {
       position: 'absolute', top: '35px', left: '75px', width: '70px', height: 'auto',
       transform: 'scale(1.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
+  },
+  sunglasses: {
+    id: 'sunglasses',
+    category: 'eyewear',
+    inventorySrc: '/assets/equipment/equipment_in_inventory/sunglasses.png',
+    equippedSrc: '/assets/equipment/equipment_on_character/sunglasses_on.png',
+    equippedStyle: {
+      position: 'absolute', top: '9px', left: '66px', width: '106px', height: 'auto',
+      transform: 'perspective(360px) rotateY(14deg) rotate(-2deg) scale(1.1) translateY(5px)',
+      transformOrigin: 'center center',
+    }
   }
 };
 

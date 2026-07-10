@@ -83,6 +83,7 @@ class MainScene extends Phaser.Scene {
         this.load.image('lab_coat', 'assets/equipment/equipment_on_character/lab_coat.png');
         this.load.image('mask', 'assets/equipment/equipment_on_character/mask.png');
         this.load.image('glasses', 'assets/equipment/equipment_on_character/glasses.png');
+        this.load.image('sunglasses', 'assets/equipment/equipment_on_character/sunglasses_on.png');
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
         this.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
@@ -193,7 +194,8 @@ class MainScene extends Phaser.Scene {
         this.equipmentConfig = {
             lab_coat: { scale: 0.05, offsetX: -1,  offsetY: 5 },
             mask:     { scale: 0.075, offsetX: -1,  offsetY: -20 },
-            glasses:  { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 }
+            glasses:  { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
+            sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 }
         };
 
         // 3. Create the Equipment Sprites using the configurations above
@@ -209,6 +211,10 @@ class MainScene extends Phaser.Scene {
             glasses: this.add.sprite(700, 300, 'glasses')
                 .setScale(this.equipmentConfig.glasses.scale)
                 .setVisible(false)
+                .setDepth(13),
+            sunglasses: this.add.sprite(700, 300, 'sunglasses')
+                .setScale(this.equipmentConfig.sunglasses.scale)
+                .setVisible(false)
                 .setDepth(13)
         };
 
@@ -218,6 +224,7 @@ class MainScene extends Phaser.Scene {
             this.equipment.lab_coat.setVisible(equipped.lab_coat);
             this.equipment.mask.setVisible(equipped.mask);
             this.equipment.glasses.setVisible(equipped.glasses);
+            this.equipment.sunglasses.setVisible(equipped.sunglasses);
         };
         window.addEventListener('equipment-changed', this.handleEquipmentChange);
 
@@ -374,8 +381,12 @@ class MainScene extends Phaser.Scene {
                 this.player.y + this.equipmentConfig.mask.offsetY
             );
             this.equipment.glasses.setPosition(
-                this.player.x + this.equipmentConfig.glasses.offsetX, 
+                this.player.x + this.equipmentConfig.glasses.offsetX,
                 this.player.y + this.equipmentConfig.glasses.offsetY
+            );
+            this.equipment.sunglasses.setPosition(
+                this.player.x + this.equipmentConfig.sunglasses.offsetX,
+                this.player.y + this.equipmentConfig.sunglasses.offsetY
             );
         }
 
