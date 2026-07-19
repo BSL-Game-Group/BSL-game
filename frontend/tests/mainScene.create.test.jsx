@@ -181,6 +181,9 @@ test('create creates equipment sprites', () => {
 
   expect(scene.add.sprite)
     .toHaveBeenCalledWith(700, 300, 'glasses')
+
+  expect(scene.add.sprite)
+    .toHaveBeenCalledWith(700, 300, 'sunglasses')
 })
 
 test('create initializes keyboard controls', () => {
