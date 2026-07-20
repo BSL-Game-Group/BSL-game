@@ -4,22 +4,37 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.addColumn('bsl_classes', 'required_equipment',
-       { type: Sequelize.ARRAY(Sequelize.STRING),
+       { type: Sequelize.JSONB,
          allowNull: false,
-         defaultValue: '[]' });
+         defaultValue: {} });
 
     const requiredByClass = {
-      1: ['lab_coat', 'glasses', 'gloves'],
-      2: ['lab_coat', 'glasses', 'gloves', 'face_shield'],
-      3: ['disposable_overall','closable_lab_coat', 'glasses','face_shield',
-         'double_gloves', 'respirator', 'mask'],
-      4: ['pressurized_suit', 'gloves'],
-       };
+      1: { required:['lab_coat', 'glasses'],    anyOf:[],                      optional:['gloves'] },
+      2: { required:['lab_coat','gloves'],      anyOf:['mask','face_shield'],  optional:[] },
+
+
+
+
+      3: {
+        required: ['gloves'],
+        anyOf: [
+          { anyOf: ['closable_lab_coat', 'disposable_overall'] },
+          { anyOf: [
+              { allOf: ['mask', { anyOf: ['glasses', 'face_shield'] }] },
+              'respirator'
+            ]
+          }
+        ],
+        optional: []
+      },
+
+      4: { required:['pressurized_suit', 'gloves'], anyOf:[], optional:[] },
+    };
        for (const [classNumber, equipment] of Object.entries(requiredByClass)) {
          await queryInterface.bulkUpdate(
            'bsl_classes',
            { required_equipment: equipment },
-           { class_number: classNumber }
+           { class_number: Number(classNumber) }
          );
        }
   },
