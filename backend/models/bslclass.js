@@ -11,9 +11,13 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     },
     required_equipment: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
+      type: DataTypes.JSONB,
       allowNull: false,
-      defaultValue: [],
+      defaultValue: {
+        required: [],
+        anyOf: [],
+        optional: [],
+      },
     },
   }, {
     tableName: 'bsl_classes',

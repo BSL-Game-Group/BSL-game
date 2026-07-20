@@ -86,8 +86,43 @@ function App() {
 
   const correctLevel = currentMicrobe?.bsl_level
   const chosenLevel = Number(String(answerLevel).replace('BSL-', ''))
-  const isCorrect =
+
+  const isLevelCorrect =
     typeof correctLevel === 'number' && chosenLevel === correctLevel
+
+  let equipmentRules = currentMicrobe?.bsl_class?.required_equipment;
+
+    // Safeguard: If the backend sends it as a string, parse it into an object first
+    if (typeof equipmentRules === 'string') {
+      try {
+        equipmentRules = JSON.parse(equipmentRules);
+      } catch (e) {
+        console.error("Failed to parse equipmentRules", e);
+      }
+    }
+
+    // Replace your existing fallback logic with this safer check:
+    if (!equipmentRules || !Array.isArray(equipmentRules.required)) {
+      equipmentRules = {
+        required: [],
+        anyOf: [],
+        optional: [],
+      };
+    }
+
+  const chosenEquipment = Object.keys(PlayerEquipment).filter(
+    (item) => PlayerEquipment[item]
+  )
+
+  console.log(equipmentRules)
+  console.log(equipmentRules.required)
+  console.log(Array.isArray(equipmentRules.required))
+
+  const isEquipmentCorrect = (equipmentRules?.required || []).every((item) =>
+    chosenEquipment.includes(item)
+  )
+
+  const isCorrect = isLevelCorrect && isEquipmentCorrect
 
   const handleAnswerClose = () => {
     setAnswerOpen(false)
