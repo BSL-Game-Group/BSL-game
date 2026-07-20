@@ -21,6 +21,18 @@ function App() {
   const [answerLevel, setAnswerLevel] = useState('')
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
   const [infoOpen, setInfoOpen] = useState(false)
+  const [PlayerEquipment, setPlayerEquipment] = useState({
+    mask: false,
+    gloves: false,
+    closable_lab_coat: false,
+    disposable_overall: false,
+    respirator: false,
+    face_shield: false,
+    lab_coat: false,
+    glasses: false,
+    sunglasses: false,
+    pressurized_suit: false,
+  })
 
   useEffect(() => {
     fetch('/api/test')
@@ -164,6 +176,7 @@ function App() {
             <ClosetPopup
               open={isPopupOpen}
               onClose={() => setPopupOpen(false)}
+              onEquipmentChange={(newEquipment) => setPlayerEquipment(newEquipment)}
             />
 
             <SidebarPopup
@@ -177,6 +190,7 @@ function App() {
               isCorrect={isCorrect}
               level={answerLevel}
               microbe={currentMicrobe}
+              equipment={PlayerEquipment}
             />
 
             <InfoPopup
