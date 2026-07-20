@@ -42,8 +42,8 @@ const EQUIPMENT_CONFIG = {
 
   bsl3_resporator: {
     id: 'bsl3_resporator',
-    inventorySrc: '/assets/equipment/equipment_in_inventory/bsl3_resporator.png',
-    equippedSrc: '/assets/equipment/equipment_on_character/bsl3_resporator.png',
+    inventorySrc: '/assets/equipment/equipment_in_inventory/bsl3_respirator_inventory.png',
+    equippedSrc: '/assets/equipment/equipment_on_character/bsl3_respirator_on.png',
     equippedStyle: {
       position: 'absolute', top: '35px', left: '75px', width: '70px', height: 'auto',
       transform: 'scale(1.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
