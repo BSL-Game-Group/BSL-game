@@ -1,0 +1,88 @@
+{
+  "app": {
+    "title": "BSL-peli"
+  },
+  "startScreen": {
+    "subtitle": "Käsittele mikrobeja turvallisesti — valitse oikea suojavarustus ja oikea laboratorio.",
+    "startButton": "Aloita peli"
+  },
+  "howToPlay": {
+    "title": "Näin pelaat",
+    "steps": [
+      "Muista BSL-taso — se ratkaisee kaiken. Jos haluat lukea ohjeet uudelleen, käy INFO-pisteellä käytävällä.",
+      "Mene luentohuoneeseen lukemaan mikrobin tiedot ja sen BSL-taso.",
+      "Paina E vihreän renkaan kohdalla luentohuoneessa opiskellaksesi materiaalia ja oppiaksesi eri mikrobeista ja BSL-luokista (1–4).",
+      "Mene pukuhuoneeseen ja avaa kaappi (paina E).",
+      "Pue tason vaatima suojavarustus (labratakki, maski, silmälasit…).",
+      "Mene oikeaan BSL-huoneeseen (1–4).",
+      "Paina E tummanvihreän renkaan kohdalla käsitelläksesi mikrobia.",
+      "Peli tarkistaa työsi — olivatko varustus ja huone oikein tälle mikrobille?",
+      "Peseydy suihkussa tai silmänhuuhtelupisteellä ennen poistumista.",
+      "Uusi mikrobi arvotaan — yritä uudelleen!",
+      "Useamman kierroksen jälkeen näet yhteenvedon: pisteet, oikein vs. väärin, ja hallitsemasi tasot.",
+      "Voit poistua milloin tahansa Exitin kautta — peli sulkeutuu."
+    ],
+    "controls": "Ohjaimet: Nuolinäppäimet / klikkaus liikkumiseen · E tai klikkaus vuorovaikutukseen · Sulje-painike sulkee ikkunat"
+  },
+  "lecturePanel": {
+    "title": "Luentomateriaali",
+    "description": "Klikkaa alla olevaa linkkiä avataksesi luentomateriaalin uuteen välilehteen.",
+    "hideButton": "Piilota",
+    "showButton": "Näytä",
+    "links": {
+      "link1": "Biosafety Levels – Consteril",
+      "link2": "Biosafety in Microbiological Laboratories – NCBI",
+      "link3": "Biosafety – ScienceDirect"
+    }
+  },
+  "bslMaterial": {
+    "title": "BSL-pelin materiaali (biosafety-tasot)",
+    "protectiveEquipment": "Suojavarustus:",
+    "exampleOrganisms": "Esimerkkiorganismeja:",
+    "tableHeaders": ["#", "Yleinen nimi", "Tieteellinen nimi", "Tyyppi", "Huomio"],
+    "sources": "Lähteet"
+  },
+  "task": {
+    "title": "Mikrobi jota tulet käsittelemään"
+  },
+  "closet": {
+    "player": "Pelaaja",
+    "equipmentLabel": "Varusteet"
+  },
+  "answerPopup": {
+    "correct": "Oikein!",
+    "incorrect": "Ei aivan",
+    "correctFallback": "Se on oikea huone.",
+    "incorrectFallback": "Se ei ole oikea huone.",
+    "chosenLevel": "Valitsit {level}.",
+    "belongs": "{name} kuuluu tasolle BSL-{level}."
+  },
+  "common": {
+    "close": "Sulje"
+  },
+  "rooms": {
+    "exit": "Poistuminen",
+    "corridor": "Käytävä",
+    "dressingRoom": "Pukuhuone",
+    "bsl2": "BSL 2",
+    "labs": "Laboratoriot",
+    "bsl1": "BSL 1",
+    "bsl4": "BSL 4",
+    "bsl4Airlock1": "BSL4\nSULKUTILA 1",
+    "bsl4Airlock2": "BSL4\nSULKUTILA 2",
+    "bsl3Airlock": "BSL3\nSULKUTILA",
+    "lectureRoom": "Luentohuone",
+    "showerRoom": "Suihkuhuone",
+    "eyewashStation": "Silmänhuuhtelupiste"
+  },
+  "equipment": {
+    "labCoat": "Labratakki",
+    "mask": "Maski",
+    "glasses": "Silmälasit"
+  },
+  "phaser": {
+    "pressEToOpen": "Paina E avataksesi",
+    "openCloset": "Avaa kaappi",
+    "pressE": "Paina E"
+  }
+}

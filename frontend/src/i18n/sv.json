@@ -11,7 +11,7 @@
     "steps": [
       "Kom ihåg BSL-nivån — den avgör allt. Om du behöver läsa om instruktionerna igen, besök INFO-desken i korridoren.",
       "Gå till föreläsningsrummet för att läsa mikrobes detaljer och dess BSL-nivå.",
-      "I föreläsningsrummet kan du också studera materialet för att lära dig om olika mikrober och BSL-klasser (1–4).",
+      "Tryck E vid den gröna ringen i föreläsningsrummet för att studera materialet och lära dig om olika mikrober och BSL-klasser (1–4).",
       "Gå till påklädningsrummet och öppna garderobsskåpet (tryck E).",
       "Sätt på den skyddsutrustning som nivån kräver (lab coat, mask, glasögon…).",
       "Gå till motsvarande BSL-rum (1–4).",
@@ -34,6 +34,13 @@
       "link2": "Biosäkerhet i mikrobiologiska laboratorier – NCBI",
       "link3": "Biosäkerhet – ScienceDirect"
     }
+  },
+  "bslMaterial": {
+    "title": "BSL Game Material (Biosafety Levels)",
+    "protectiveEquipment": "Protective equipment:",
+    "exampleOrganisms": "Example organisms:",
+    "tableHeaders": ["#", "Common name", "Scientific name", "Type", "Note"],
+    "sources": "Sources"
   },
   "task": {
     "title": "Mikroben du kommer att hantera"

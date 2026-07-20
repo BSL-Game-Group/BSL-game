@@ -256,6 +256,34 @@ describe('createRooms — lecture room', () => {
     // shelves are NOT part of the walls array (they are their own collision group)
     scene.lectureShelves.forEach((shelf) => expect(walls).not.toContain(shelf))
   })
+
+  test('creates the info-point glow and exposes its scene refs', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    expect(scene.lecturePoint).toEqual({ x: 130, y: 110 })
+    expect(scene.lectureGlow).toBeDefined()
+    expect(scene.lectureGlowTween).toBeDefined()
+
+    const glow = scene.__created.graphics.find((g) => g === scene.lectureGlow)
+    expect(glow.fillCircle).toHaveBeenCalledWith(130, 110, 35)
+  })
+
+  test('clicking the info point unlocks the lecture materials', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const handler = jest.fn()
+    window.addEventListener('lecture-materials-unlocked', handler)
+
+    const lectureZone = scene.__created.zones.find(
+      (z) => z.args.x === 130 && z.args.y === 110
+    )
+    lectureZone.handlers.pointerdown()
+
+    window.removeEventListener('lecture-materials-unlocked', handler)
+    expect(handler).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('setupCloset (via createRooms)', () => {

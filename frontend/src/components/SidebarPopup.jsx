@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
+import * as materialEn from '../data/bslMaterial'
+import * as materialFi from '../data/bslMaterialFi'
 import { useTranslation } from '../i18n/context'
 
 function SidebarPopup({ open, onClose }) {
-  const { t } = useTranslation()
+  const { t, tList, language } = useTranslation()
 
   useEffect(() => {
     window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
@@ -12,17 +14,19 @@ function SidebarPopup({ open, onClose }) {
     return null
   }
 
+  // Only Finnish has a translated version of the material so far; Swedish
+  // falls back to the English content until it gets its own translation.
+  const { intro, riskGroups, bslLevels, organismTables, sources } =
+    language === 'fi' ? materialFi : materialEn
+  const tableHeaders = tList('bslMaterial.tableHeaders')
+
   return (
     <div className="popup-overlay">
       <div
         className="popup-box"
         style={{
-          width: '88%',
-          maxWidth: '620px',
-          minHeight: '320px',
-          gap: '20px',
-          display: 'flex',
-          flexDirection: 'column',
+          width: '92%', maxWidth: '820px', minHeight: '320px', maxHeight: '85vh', gap: '20px',
+          display: 'flex', flexDirection: 'column',
         }}
       >
         <button
@@ -32,46 +36,73 @@ function SidebarPopup({ open, onClose }) {
           {t('common.close')}
         </button>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h2 style={{ margin: 0, color: '#000' }}>
-            {t('lecturePanel.title')}
-          </h2>
+        <div style={{ overflowY: 'auto', color: '#000', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <h2 style={{ margin: 0 }}>{t('bslMaterial.title')}</h2>
 
-          <p style={{ margin: 0, color: '#000', fontSize: '1rem' }}>
-            {t('lecturePanel.description')}
-          </p>
+          <section>
+            <h3>{intro.heading}</h3>
+            {intro.paragraphs.map((p) => (
+              <p key={p.slice(0, 20)} style={{ fontSize: '0.95rem', lineHeight: 1.5 }}>{p}</p>
+            ))}
+          </section>
 
-          <ul style={{ margin: 0, paddingLeft: '20px', color: '#000' }}>
-            <li>
-              <a
-                href="https://consteril.com/biosafety-levels-difference/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {t('lecturePanel.links.link1')}
-              </a>
-            </li>
+          <section>
+            <h3>{riskGroups.heading}</h3>
+            <p style={{ fontSize: '0.95rem' }}>{riskGroups.intro}</p>
+            <ol>
+              {riskGroups.factors.map((f) => <li key={f}>{f}</li>)}
+            </ol>
+          </section>
 
-            <li>
-              <a
-                href="https://www.ncbi.nlm.nih.gov/books/NBK535351/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {t('lecturePanel.links.link2')}
-              </a>
-            </li>
+          {bslLevels.map((lvl) => (
+            <section key={lvl.level}>
+              <h3>{lvl.title}</h3>
+              <p style={{ fontSize: '0.95rem', lineHeight: 1.5 }}>{lvl.description}</p>
+              <p style={{ fontSize: '0.95rem', margin: '8px 0 4px' }}><strong>{t('bslMaterial.protectiveEquipment')}</strong></p>
+              <ul>
+                {lvl.equipment.map((e) => <li key={e}>{e}</li>)}
+              </ul>
+              <p style={{ fontSize: '0.95rem' }}><strong>{t('bslMaterial.exampleOrganisms')}</strong> {lvl.examples}</p>
+            </section>
+          ))}
 
-            <li>
-              <a
-                href="https://www.sciencedirect.com/science/chapter/monograph/pii/B9780128092316000119"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {t('lecturePanel.links.link3')}
-              </a>
-            </li>
-          </ul>
+          {organismTables.map((table) => (
+            <section key={table.level}>
+              <h3>{table.heading}</h3>
+              {table.note && <p style={{ fontSize: '0.85rem', fontStyle: 'italic' }}>{table.note}</p>}
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '0.85rem' }}>
+                  <thead>
+                    <tr>
+                      {tableHeaders.map((h) => (
+                        <th key={h} style={{ textAlign: 'left', borderBottom: '2px solid #0b6623', padding: '4px 8px' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {table.rows.map((row) => (
+                      <tr key={row[0]}>
+                        {row.map((cell, i) => (
+                          <td key={i} style={{ borderBottom: '1px solid #ddd', padding: '4px 8px' }}>{cell}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          ))}
+
+          <section>
+            <h3>{t('bslMaterial.sources')}</h3>
+            <ul>
+              {sources.map((s) => (
+                <li key={s.url}>
+                  <a href={s.url} target="_blank" rel="noreferrer">{s.text}</a>
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
       </div>
     </div>

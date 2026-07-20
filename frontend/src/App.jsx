@@ -17,6 +17,7 @@ function App() {
   const [lectureOpen, setLectureOpen] = useState(false)
   const [isPopupOpen, setPopupOpen] = useState(false)
   const [isLecturePopupOpen, setLecturePopupOpen] = useState(false)
+  const [materialsUnlocked, setMaterialsUnlocked] = useState(false)
   const [answerOpen, setAnswerOpen] = useState(false)
   const [answerLevel, setAnswerLevel] = useState('')
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
@@ -36,6 +37,12 @@ function App() {
     const handler = () => setLectureOpen(true)
     window.addEventListener('lecture-room-entered', handler)
     return () => window.removeEventListener('lecture-room-entered', handler)
+  }, [])
+
+  useEffect(() => {
+    const handler = () => setMaterialsUnlocked(true)
+    window.addEventListener('lecture-materials-unlocked', handler)
+    return () => window.removeEventListener('lecture-materials-unlocked', handler)
   }, [])
 
   useEffect(() => {
@@ -133,31 +140,32 @@ function App() {
             }}
           >
             <Task />
-
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <h2 style={{ margin: 0 }}>
-                {t('lecturePanel.title')}
-              </h2>
-
-              <button
-                onClick={() => setLecturePopupOpen((open) => !open)}
+            {materialsUnlocked && (
+              <div
                 style={{
-                  marginLeft: '8px',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  gap: '4px',
                 }}
               >
-                {isLecturePopupOpen
-                  ? t('lecturePanel.hideButton')
-                  : t('lecturePanel.showButton')}
-              </button>
-            </div>
+                <h2 style={{ margin: 0 }}>
+                  {t('lecturePanel.title')}
+                </h2>
+
+                <button
+                  onClick={() => setLecturePopupOpen((open) => !open)}
+                  style={{
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {isLecturePopupOpen
+                    ? t('lecturePanel.hideButton')
+                    : t('lecturePanel.showButton')}
+                </button>
+              </div>
+            )}
           </div>
 
           <div style={{ position: 'relative' }}>

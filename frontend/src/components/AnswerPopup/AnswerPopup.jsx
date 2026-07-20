@@ -19,22 +19,17 @@ if (!open) {
 
   const headlineColor = isCorrect ? '#1a8a34' : '#c51a1a'
 
+  const localized = (field) => {
+    if (language === 'sv' || language === 'fi') {
+      return microbe[`${field}_${language}`]
+    }
+    return microbe[field]
+  }
+
   // With a microbe loaded, use the backend's feedback text; otherwise fall back
   // to a generic verdict. The chosen room is always shown for context.
   const feedback = microbe
-      ? (
-          isCorrect
-            ? (
-                language === 'sv'
-                  ? microbe.feedback_correct_sv
-                  : microbe.feedback_correct
-              )
-            : (
-                language === 'sv'
-                  ? microbe.feedback_incorrect_sv
-                  : microbe.feedback_incorrect
-              )
-        )
+      ? (isCorrect ? localized('feedback_correct') : localized('feedback_incorrect'))
       : (
           isCorrect
             ? t('answerPopup.correctFallback')
@@ -64,12 +59,7 @@ if (!open) {
           <p style={{ margin: '4px 0 0', fontSize: '0.95rem' }}>
             {
               t('answerPopup.belongs')
-                .replace(
-                  '{name}',
-                  language === 'sv'
-                    ? microbe.common_name_sv
-                    : microbe.common_name
-                )
+                .replace('{name}', localized('common_name'))
                 .replace('{level}', microbe.bsl_level)
             }
           </p>

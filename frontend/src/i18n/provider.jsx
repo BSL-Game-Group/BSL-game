@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import en from './en.json'
 import sv from './sv.json'
+import fi from './fi.json'
 import { TranslationContext } from './context'
 
 export function TranslationProvider({ children }) {
@@ -9,7 +10,7 @@ export function TranslationProvider({ children }) {
     return saved || 'en'
   })
 
-  const translations = { en, sv }
+  const translations = { en, sv, fi }
 
   useEffect(() => {
     localStorage.setItem('language', language)

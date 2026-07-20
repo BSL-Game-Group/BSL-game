@@ -202,6 +202,44 @@ function setupLectureRoom(scene, walls) {
     ];
 }
 
+// Info point in the lecture room's top-left area: a green pulsing glow (same look
+// as the corridor info desk) that opens the lecture-materials panel on E, instead
+// of it opening automatically when the player enters the room. Placed just right
+// of the left-upper bookshelf and below the back wall, since both are solid.
+function setupLectureInfoPoint(scene) {
+    const gx = 130;
+    const gy = 110;
+    const radius = 35;
+
+    const glow = scene.add.graphics();
+    glow.fillStyle(0x0b6623, 0.8);
+    glow.fillCircle(gx, gy, radius);
+    glow.lineStyle(3, 0x0b6623);
+    glow.strokeCircle(gx, gy, radius);
+    glow.setDepth(5);
+    glow.setVisible(false);
+
+    const tween = scene.tweens.add({
+        targets: glow,
+        alpha: { from: 1.0, to: 0.3 },
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+    });
+    tween.pause();
+
+    scene.lectureGlow = glow;
+    scene.lectureGlowTween = tween;
+    scene.lecturePoint = { x: gx, y: gy };
+
+    scene.add
+        .zone(gx, gy, radius * 2.4, radius * 2.4)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+            window.dispatchEvent(new Event('lecture-materials-unlocked'));
+        });
+}
+
 // Invisible colliders over the dressing-room furniture, estimated from the room
 // art (image 1024x419 mapped onto the 700x290 ppe zone at x:0,y:430). Everything
 // that isn't floor blocks — only the grey tile floor and the shower approach
@@ -376,6 +414,7 @@ export function createRooms(scene) {
     setupCloset(scene);
     setupBslInteractables(scene);
     setupLectureRoom(scene, walls);
+    setupLectureInfoPoint(scene);
     setupDressingRoomDeadzones(scene, walls);
     setupInfoDesk(scene, walls);
 

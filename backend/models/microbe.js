@@ -51,6 +51,28 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
 
+    // Finnish
+    common_name_fi: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    type_fi: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    lecture_text_fi: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    feedback_correct_fi: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    feedback_incorrect_fi: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+
     // Language-independent
     scientific_name: {
       type: DataTypes.STRING,
