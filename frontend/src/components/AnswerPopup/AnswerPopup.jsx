@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useTranslation } from '../../i18n/context'
 
-function AnswerPopup({ open, onClose, isCorrect, level, microbe }) {
+function AnswerPopup({ open, onClose, isLevelCorrect, isEquipmentCorrect, isCorrect, level, microbe }) {
   // Lock player movement while the verdict is showing (Phaser listens for these).
   useEffect(() => {
     window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
@@ -23,7 +23,7 @@ if (!open) {
   // to a generic verdict. The chosen room is always shown for context.
   const feedback = microbe
       ? (
-          isCorrect
+          isLevelCorrect
             ? (
                 language === 'sv'
                   ? microbe.feedback_correct_sv

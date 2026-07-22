@@ -9,6 +9,7 @@ import InfoPopup from './components/InfoPopup/InfoPopup'
 import LanguageSelector from './components/LanguageSelector'
 import { EventBus } from './game/EventBus'
 import { useTranslation } from './i18n/context'
+import { evaluateEquipmentRules } from './utils/equipmentRules'
 
 function App() {
   const { t, language } = useTranslation()
@@ -114,12 +115,9 @@ function App() {
     (item) => PlayerEquipment[item]
   )
 
-  console.log(equipmentRules)
-  console.log(equipmentRules.required)
-  console.log(Array.isArray(equipmentRules.required))
-
-  const isEquipmentCorrect = (equipmentRules?.required || []).every((item) =>
-    chosenEquipment.includes(item)
+  const isEquipmentCorrect = evaluateEquipmentRules(
+    equipmentRules,
+    chosenEquipment
   )
 
   const isCorrect = isLevelCorrect && isEquipmentCorrect
@@ -225,6 +223,8 @@ function App() {
               isCorrect={isCorrect}
               level={answerLevel}
               microbe={currentMicrobe}
+              isLevelCorrect={isLevelCorrect}
+              isEquipmentCorrect={isEquipmentCorrect}
               equipment={PlayerEquipment}
             />
 
