@@ -9,6 +9,7 @@ import InfoPopup from './components/InfoPopup/InfoPopup'
 import LanguageSelector from './components/LanguageSelector'
 import { EventBus } from './game/EventBus'
 import { useTranslation } from './i18n/context'
+import { evaluateEquipmentRules, getEquipmentRulesForBslLevel } from './utils/equipmentRules'
 
 function App() {
   const { t, language } = useTranslation()
@@ -21,6 +22,18 @@ function App() {
   const [answerLevel, setAnswerLevel] = useState('')
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
   const [infoOpen, setInfoOpen] = useState(false)
+  const [PlayerEquipment, setPlayerEquipment] = useState({
+    mask: false,
+    gloves: false,
+    closable_lab_coat: false,
+    disposable_overall: false,
+    respirator: false,
+    face_shield: false,
+    lab_coat: false,
+    glasses: false,
+    sunglasses: false,
+    pressurized_suit: false,
+  })
 
   useEffect(() => {
     fetch('/api/test')
@@ -74,8 +87,22 @@ function App() {
 
   const correctLevel = currentMicrobe?.bsl_level
   const chosenLevel = Number(String(answerLevel).replace('BSL-', ''))
-  const isCorrect =
+
+  const isLevelCorrect =
     typeof correctLevel === 'number' && chosenLevel === correctLevel
+
+  const equipmentRules = getEquipmentRulesForBslLevel(chosenLevel)
+
+  const chosenEquipment = Object.keys(PlayerEquipment).filter(
+    (item) => PlayerEquipment[item]
+  )
+
+  const isEquipmentCorrect = evaluateEquipmentRules(
+    equipmentRules,
+    chosenEquipment
+  )
+
+  const isCorrect = isLevelCorrect && isEquipmentCorrect
 
   const handleAnswerClose = () => {
     setAnswerOpen(false)
@@ -164,6 +191,7 @@ function App() {
             <ClosetPopup
               open={isPopupOpen}
               onClose={() => setPopupOpen(false)}
+              onEquipmentChange={(newEquipment) => setPlayerEquipment(newEquipment)}
             />
 
             <SidebarPopup
@@ -177,6 +205,9 @@ function App() {
               isCorrect={isCorrect}
               level={answerLevel}
               microbe={currentMicrobe}
+              isLevelCorrect={isLevelCorrect}
+              isEquipmentCorrect={isEquipmentCorrect}
+              equipment={PlayerEquipment}
             />
 
             <InfoPopup

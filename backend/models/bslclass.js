@@ -10,6 +10,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    required_equipment: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+      defaultValue: {
+        required: [],
+        anyOf: [],
+        optional: [],
+      },
+    },
   }, {
     tableName: 'bsl_classes',
     timestamps: false,

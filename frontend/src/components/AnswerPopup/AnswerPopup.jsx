@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useTranslation } from '../../i18n/context'
 
-function AnswerPopup({ open, onClose, isCorrect, level, microbe }) {
+function AnswerPopup({ open, onClose, isLevelCorrect, isEquipmentCorrect, isCorrect, level, microbe }) {
   // Lock player movement while the verdict is showing (Phaser listens for these).
   useEffect(() => {
     window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
@@ -23,7 +23,7 @@ if (!open) {
   // to a generic verdict. The chosen room is always shown for context.
   const feedback = microbe
       ? (
-          isCorrect
+          isLevelCorrect
             ? (
                 language === 'sv'
                   ? microbe.feedback_correct_sv
@@ -40,6 +40,10 @@ if (!open) {
             ? t('answerPopup.correctFallback')
             : t('answerPopup.incorrectFallback')
         )
+
+  const equipmentFeedback = isEquipmentCorrect
+    ? t('answerPopup.equipmentCorrect')
+    : t('answerPopup.equipmentIncorrect')
 
   return (
       <div className="popup-overlay">
@@ -59,6 +63,7 @@ if (!open) {
 
         <h2 style={{ margin: '0 0 12px', color: headlineColor }}>{headline}</h2>
         <p style={{ margin: 0, fontSize: '1.05rem' }}>{feedback}</p>
+        <p style={{ margin: '8px 0 0', fontSize: '0.95rem' }}>{equipmentFeedback}</p>
         <p style={{ margin: '12px 0 0', fontSize: '0.95rem' }}>{t('answerPopup.chosenLevel').replace('{level}', level)}</p>
         {microbe && (
           <p style={{ margin: '4px 0 0', fontSize: '0.95rem' }}>
