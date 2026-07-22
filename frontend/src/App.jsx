@@ -9,7 +9,7 @@ import InfoPopup from './components/InfoPopup/InfoPopup'
 import LanguageSelector from './components/LanguageSelector'
 import { EventBus } from './game/EventBus'
 import { useTranslation } from './i18n/context'
-import { evaluateEquipmentRules } from './utils/equipmentRules'
+import { evaluateEquipmentRules, getEquipmentRulesForBslLevel } from './utils/equipmentRules'
 
 function App() {
   const { t, language } = useTranslation()
@@ -91,25 +91,7 @@ function App() {
   const isLevelCorrect =
     typeof correctLevel === 'number' && chosenLevel === correctLevel
 
-  let equipmentRules = currentMicrobe?.bsl_class?.required_equipment;
-
-    // Safeguard: If the backend sends it as a string, parse it into an object first
-    if (typeof equipmentRules === 'string') {
-      try {
-        equipmentRules = JSON.parse(equipmentRules);
-      } catch (e) {
-        console.error("Failed to parse equipmentRules", e);
-      }
-    }
-
-    // Replace your existing fallback logic with this safer check:
-    if (!equipmentRules || !Array.isArray(equipmentRules.required)) {
-      equipmentRules = {
-        required: [],
-        anyOf: [],
-        optional: [],
-      };
-    }
+  const equipmentRules = getEquipmentRulesForBslLevel(chosenLevel)
 
   const chosenEquipment = Object.keys(PlayerEquipment).filter(
     (item) => PlayerEquipment[item]

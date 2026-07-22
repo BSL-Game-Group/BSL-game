@@ -87,6 +87,8 @@ class MainScene extends Phaser.Scene {
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
         this.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
+        this.load.image('gloves', 'assets/equipment/on_character/gloves/gloves_on.png');
+        this.load.image('closable_lab_coat', 'assets/equipment/on_character/body/closable_lab_coat_on.png');
 
         // Rooms
         this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
@@ -195,7 +197,9 @@ class MainScene extends Phaser.Scene {
             lab_coat: { scale: 0.05, offsetX: -1,  offsetY: 5 },
             mask:     { scale: 0.075, offsetX: -1,  offsetY: -20 },
             glasses:  { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
-            sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 }
+            sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
+            gloves: { scale: 0.07, offsetX: -1, offsetY: 20 },
+            closable_lab_coat: { scale: 0.05, offsetX: -1,  offsetY: 5 }
         };
 
         // 3. Create the Equipment Sprites using the configurations above
@@ -215,7 +219,15 @@ class MainScene extends Phaser.Scene {
             sunglasses: this.add.sprite(700, 300, 'sunglasses')
                 .setScale(this.equipmentConfig.sunglasses.scale)
                 .setVisible(false)
-                .setDepth(13)
+                .setDepth(13),
+            gloves: this.add.sprite(700, 300, 'gloves')
+                .setScale(this.equipmentConfig.gloves.scale)
+                .setVisible(false)
+                .setDepth(10),
+            closable_lab_coat: this.add.sprite(700, 300, 'closable_lab_coat')
+                .setScale(this.equipmentConfig.closable_lab_coat.scale)
+                .setVisible(false)
+                .setDepth(11)
         };
 
         // 4. Listen for React's CustomEvent
@@ -225,6 +237,8 @@ class MainScene extends Phaser.Scene {
             this.equipment.mask.setVisible(equipped.mask);
             this.equipment.glasses.setVisible(equipped.glasses);
             this.equipment.sunglasses.setVisible(equipped.sunglasses);
+            this.equipment.gloves.setVisible(equipped.gloves);
+            this.equipment.closable_lab_coat.setVisible(equipped.closable_lab_coat);
         };
         window.addEventListener('equipment-changed', this.handleEquipmentChange);
 
@@ -410,6 +424,14 @@ class MainScene extends Phaser.Scene {
             this.equipment.sunglasses.setPosition(
                 this.player.x + this.equipmentConfig.sunglasses.offsetX,
                 this.player.y + this.equipmentConfig.sunglasses.offsetY
+            );
+            this.equipment.gloves.setPosition(
+                this.player.x + this.equipmentConfig.gloves.offsetX,
+                this.player.y + this.equipmentConfig.gloves.offsetY
+            );
+            this.equipment.closable_lab_coat.setPosition(
+                this.player.x + this.equipmentConfig.closable_lab_coat.offsetX,
+                this.player.y + this.equipmentConfig.closable_lab_coat.offsetY
             );
         }
 

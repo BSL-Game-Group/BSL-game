@@ -216,11 +216,11 @@ test('answer popup closes when close button is clicked', () => {
   expect(screen.queryByText(/BSL-2/i)).not.toBeInTheDocument()
 })
 
-test('answer popup says Correct! when chosen room matches the microbe class', () => {
+test('answer popup says Not quite when the room matches but required equipment is missing', () => {
   openAnswerPopupWithMicrobe('BSL-1')
 
-  expect(screen.getByText(/correct!/i)).toBeInTheDocument()
-  expect(screen.getByText(/matched the containment perfectly/i)).toBeInTheDocument()
+  expect(screen.getByText(/not quite/i)).toBeInTheDocument()
+  expect(screen.getByText(/your protective equipment did not fully match the required setup/i)).toBeInTheDocument()
 })
 
 test('answer popup says Not quite when chosen room does not match the microbe class', () => {

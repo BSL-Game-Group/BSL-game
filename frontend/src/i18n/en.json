@@ -47,6 +47,8 @@
     "incorrect": "Not quite",
     "correctFallback": "That's the right room.",
     "incorrectFallback": "That isn't the right room.",
+    "equipmentCorrect": "Your protective equipment matched the required setup.",
+    "equipmentIncorrect": "Your protective equipment did not fully match the required setup.",
     "chosenLevel": "You chose {level}.",
     "belongs": "{name} belongs to BSL-{level}."
   },

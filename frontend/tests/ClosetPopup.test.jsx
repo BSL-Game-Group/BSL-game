@@ -119,11 +119,11 @@ describe('ClosetPopup component', () => {
     expect(labels).toEqual(['Eyewear', 'Masks', 'Body', 'Gloves'])
   })
 
-  test('empty Gloves tab shows the empty state', () => {
+  test('Gloves tab shows the gloves item', () => {
     renderPopup(true)
 
     fireEvent.click(screen.getByRole('button', { name: /^gloves$/i }))
-    expect(screen.getByText(/no gloves available yet/i)).toBeInTheDocument()
+    expect(screen.getAllByAltText(/gloves/i).length).toBeGreaterThan(0)
   })
 
   test('renders player heading', () => {

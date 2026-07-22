@@ -41,6 +41,10 @@ if (!open) {
             : t('answerPopup.incorrectFallback')
         )
 
+  const equipmentFeedback = isEquipmentCorrect
+    ? t('answerPopup.equipmentCorrect')
+    : t('answerPopup.equipmentIncorrect')
+
   return (
       <div className="popup-overlay">
         <div
@@ -59,6 +63,7 @@ if (!open) {
 
         <h2 style={{ margin: '0 0 12px', color: headlineColor }}>{headline}</h2>
         <p style={{ margin: 0, fontSize: '1.05rem' }}>{feedback}</p>
+        <p style={{ margin: '8px 0 0', fontSize: '0.95rem' }}>{equipmentFeedback}</p>
         <p style={{ margin: '12px 0 0', fontSize: '0.95rem' }}>{t('answerPopup.chosenLevel').replace('{level}', level)}</p>
         {microbe && (
           <p style={{ margin: '4px 0 0', fontSize: '0.95rem' }}>

@@ -1,4 +1,4 @@
-import { evaluateEquipmentRules } from '../src/utils/equipmentRules'
+import { evaluateEquipmentRules, getEquipmentRulesForBslLevel } from '../src/utils/equipmentRules'
 
 describe('evaluateEquipmentRules', () => {
   test('treats anyOf entries as alternative equipment requirements', () => {
@@ -42,5 +42,12 @@ describe('evaluateEquipmentRules', () => {
 
     expect(evaluateEquipmentRules(rules, ['gloves', 'mask', 'lab_coat'])).toBe(true)
     expect(evaluateEquipmentRules(rules, ['gloves', 'mask'])).toBe(true)
+  })
+
+  test('derives equipment rules from the selected BSL room level', () => {
+    const rules = getEquipmentRulesForBslLevel(2)
+
+    expect(evaluateEquipmentRules(rules, ['lab_coat', 'gloves', 'mask'])).toBe(true)
+    expect(evaluateEquipmentRules(rules, ['lab_coat', 'gloves'])).toBe(false)
   })
 })
