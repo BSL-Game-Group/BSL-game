@@ -83,6 +83,8 @@ class MainScene extends Phaser.Scene {
         this.load.image('lab_coat', 'assets/equipment/equipment_on_character/lab_coat.png');
         this.load.image('mask', 'assets/equipment/equipment_on_character/mask.png');
         this.load.image('glasses', 'assets/equipment/equipment_on_character/glasses.png');
+        this.load.image('face_shield', 'assets/equipment/equipment_on_character/face_shield_on.png');
+        this.load.image('bsl3_resporator', 'assets/equipment/equipment_on_character/bsl3_respirator_on.png');
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
         this.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
@@ -193,7 +195,9 @@ class MainScene extends Phaser.Scene {
         this.equipmentConfig = {
             lab_coat: { scale: 0.05, offsetX: -1,  offsetY: 5 },
             mask:     { scale: 0.075, offsetX: -1,  offsetY: -20 },
-            glasses:  { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 }
+            glasses:  { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
+            face_shield: { scale: 0.08, offsetX: -1, offsetY: -30 },
+            bsl3_respirator: { scale: 0.09, offsetX: -1, offsetY: -35 }
         };
 
         // 3. Create the Equipment Sprites using the configurations above
@@ -209,7 +213,15 @@ class MainScene extends Phaser.Scene {
             glasses: this.add.sprite(700, 300, 'glasses')
                 .setScale(this.equipmentConfig.glasses.scale)
                 .setVisible(false)
-                .setDepth(13)
+                .setDepth(13),
+            face_shield: this.add.sprite(700, 300, 'face_shield')
+                .setScale(this.equipmentConfig.face_shield.scale)
+                .setVisible(false)
+                .setDepth(14),
+            bsl3_respirator: this.add.sprite(700, 300, 'bsl3_respirator')
+                .setScale(this.equipmentConfig.bsl3_respirator.scale)
+                .setVisible(false)
+                .setDepth(15)
         };
 
         // 4. Listen for React's CustomEvent
@@ -218,6 +230,8 @@ class MainScene extends Phaser.Scene {
             this.equipment.lab_coat.setVisible(equipped.lab_coat);
             this.equipment.mask.setVisible(equipped.mask);
             this.equipment.glasses.setVisible(equipped.glasses);
+            this.equipment.face_shield.setVisible(equipped.face_shield);
+            this.equipment.bsl3_respirator.setVisible(equipped.bsl3_respirator);
         };
         window.addEventListener('equipment-changed', this.handleEquipmentChange);
 
@@ -376,6 +390,14 @@ class MainScene extends Phaser.Scene {
             this.equipment.glasses.setPosition(
                 this.player.x + this.equipmentConfig.glasses.offsetX, 
                 this.player.y + this.equipmentConfig.glasses.offsetY
+            );
+            this.equipment.face_shield.setPosition(
+                this.player.x + this.equipmentConfig.face_shield.offsetX, 
+                this.player.y + this.equipmentConfig.face_shield.offsetY
+            );
+            this.equipment.bsl3_respirator.setPosition(
+                this.player.x + this.equipmentConfig.bsl3_respirator.offsetX, 
+                this.player.y + this.equipmentConfig.bsl3_respirator.offsetY
             );
         }
 
