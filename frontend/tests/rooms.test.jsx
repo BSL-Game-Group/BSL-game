@@ -136,8 +136,6 @@ describe('createRooms', () => {
     const labelTexts = scene.__created.texts.map((t) => t.args.text)
     expect(labelTexts).toEqual(
       expect.arrayContaining([
-        'Corridor',
-        'Dressing room',
         'BSL 1',
         'BSL 2',
       ])
@@ -164,13 +162,6 @@ describe('createRooms — air system', () => {
     expect(airImg.setDisplaySize).toHaveBeenCalledWith(170, 110)
   })
 
-  test('draws an AIR SYSTEMS label on top', () => {
-    const scene = makeFakeScene()
-    createRooms(scene)
-
-    const labelTexts = scene.__created.texts.map((t) => t.args.text)
-    expect(labelTexts).toContain('AIR SYSTEMS')
-  })
 })
 
 // The dressing room (ppe zone) is filled wall-to-wall by its background image.
@@ -227,9 +218,7 @@ describe('createRooms — info desk', () => {
 })
 
 // The lecture room is drawn as a transparent pixel-art overlay (its floor comes
-// from the game). The back wall is a real solid wall, and the bookshelves are
-// solid too but live in their OWN named group (`scene.lectureShelves`) — the
-// contract the future "shelves as buttons" feature builds on.
+// from the game). The back wall, front ledge and both workstations are solid.
 describe('createRooms — lecture room', () => {
   test('adds the transparent lecture-room overlay at the room origin', () => {
     const scene = makeFakeScene()
@@ -237,24 +226,29 @@ describe('createRooms — lecture room', () => {
     expect(scene.add.image).toHaveBeenCalledWith(0, 0, 'lecture_room')
   })
 
-  test('adds a solid back-wall box (centre 240,30 · 480×60)', () => {
+  test('adds the lecture room collision boxes', () => {
     const scene = makeFakeScene()
     createRooms(scene)
+
+    // Back wall
     expect(scene.add.rectangle).toHaveBeenCalledWith(240, 30, 480, 60)
+
+    // Front ledge
+    expect(scene.add.rectangle).toHaveBeenCalledWith(240, 85, 480, 50)
+
+    // Left workstation
+    expect(scene.add.rectangle).toHaveBeenCalledWith(127, 184, 174, 104)
+
+    // Right workstation
+    expect(scene.add.rectangle).toHaveBeenCalledWith(353, 184, 174, 104)
   })
 
-  test('exposes exactly 4 named bookshelves in their own group', () => {
+  test('does not expose bookshelf colliders anymore', () => {
     const scene = makeFakeScene()
-    const walls = createRooms(scene)
+    createRooms(scene)
 
     expect(Array.isArray(scene.lectureShelves)).toBe(true)
-    expect(scene.lectureShelves).toHaveLength(4)
-    expect(scene.lectureShelves.map((s) => s.name)).toEqual([
-      'lecture-shelf-1', 'lecture-shelf-2', 'lecture-shelf-3', 'lecture-shelf-4',
-    ])
-
-    // shelves are NOT part of the walls array (they are their own collision group)
-    scene.lectureShelves.forEach((shelf) => expect(walls).not.toContain(shelf))
+    expect(scene.lectureShelves).toHaveLength(0)
   })
 })
 
@@ -377,4 +371,36 @@ describe('setupBslInteractables (via createRooms)', () => {
     window.removeEventListener('answer-popup-opened', listener)
     expect(levels).toEqual(['BSL-2'])
   })
+
+  describe('createRooms — exit area', () => {
+  test('adds the exit area background image', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.add.image).toHaveBeenCalledWith(480, 0, 'exit_area')
+  })
+
+  test('creates the exit room back wall collider', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.add.rectangle).toHaveBeenCalledWith(590, 30, 220, 60)
+  })
+
+  test('creates the exit zone', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.exitZone).toEqual({
+      x: 480,
+      y: 0,
+      width: 220,
+      height: 290,
+    })
+  })
 })
+})
+
