@@ -19,6 +19,16 @@ jest.mock('../src/Game', () => () => (
 
 jest.mock('../game/main', () => jest.fn(() => ({ destroy: jest.fn() })))
 
+jest.mock('../src/services/bslMaterial', () => ({
+  getMaterial: jest.fn(() => Promise.resolve({
+    intro: { heading: 'International development', paragraphs: [] },
+    riskGroups: { heading: 'The four risk groups', intro: '', factors: [] },
+    bslLevels: [],
+    organismTables: [],
+    sources: [],
+  })),
+}))
+
 // The real EventBus is a Phaser emitter that is inert under jsdom, so route
 // on/off/emit through a tiny in-memory registry (same approach as MainScene.test).
 jest.mock('../src/game/EventBus', () => {
@@ -181,12 +191,12 @@ test('lecture-materials-unlocked event reveals the Lecture Materials section', (
   expect(screen.getByRole('button', { name: /show/i })).toBeInTheDocument()
 })
 
-test('clicking the show button opens the lecture materials popup', () => {
+test('clicking the show button opens the lecture materials popup', async () => {
   unlockLectureMaterials()
 
   fireEvent.click(screen.getByRole('button', { name: /show/i }))
 
-  expect(screen.getByRole('heading', { name: /BSL Game Material \(Biosafety Levels\)/i })).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: /BSL Game Material \(Biosafety Levels\)/i })).toBeInTheDocument()
 })
 
 // -----------------------------

@@ -2,6 +2,9 @@ import { render as rtlRender, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import SidebarPopup from '../src/components/SidebarPopup'
 import { TranslationContext } from '../src/i18n/context'
+import bslMaterialService from '../src/services/bslMaterial'
+
+jest.mock('../src/services/bslMaterial')
 
 const translations = {
   en: {
@@ -21,6 +24,38 @@ const translations = {
 }
 translations.sv = translations.en
 
+const materialEn = {
+  intro: { heading: 'International development', paragraphs: ['Roots of the BSL system.'] },
+  riskGroups: { heading: 'The four risk groups', intro: 'Based on four factors:', factors: ['Pathogenicity'] },
+  bslLevels: [
+    {
+      level: 1,
+      title: 'BSL-1 — Low risk',
+      description: 'Low risk description.',
+      equipment: ['Lab coat'],
+      examples: 'Example organisms.',
+    },
+  ],
+  organismTables: [],
+  sources: [],
+}
+
+const materialFi = {
+  intro: { heading: 'Kansainvälinen kehitys', paragraphs: ['BSL-järjestelmän juuret.'] },
+  riskGroups: { heading: 'Neljä riskiryhmää', intro: 'Perustuu neljään tekijään:', factors: ['Patogeenisuus'] },
+  bslLevels: [
+    {
+      level: 1,
+      title: 'BSL-1 — Matala riski',
+      description: 'Matalan riskin kuvaus.',
+      equipment: ['Laboratoriotakki'],
+      examples: 'Esimerkkiorganismeja.',
+    },
+  ],
+  organismTables: [],
+  sources: [],
+}
+
 function renderWithLanguage(language, props = {}) {
   const value = {
     language,
@@ -36,28 +71,41 @@ function renderWithLanguage(language, props = {}) {
 }
 
 describe('SidebarPopup', () => {
-  test('shows the English material by default', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  test('shows the English material by default', async () => {
+    bslMaterialService.getMaterial.mockResolvedValue(materialEn)
+
     renderWithLanguage('en')
 
     expect(
-      screen.getByRole('heading', { name: /BSL Game Material \(Biosafety Levels\)/i })
+      await screen.findByRole('heading', { name: /BSL Game Material \(Biosafety Levels\)/i })
     ).toBeInTheDocument()
-    expect(screen.getByText(/International development/i)).toBeInTheDocument()
+    expect(await screen.findByText(/International development/i)).toBeInTheDocument()
+    expect(bslMaterialService.getMaterial).toHaveBeenCalledWith('en')
   })
 
-  test('shows the Finnish material when language is fi', () => {
+  test('shows the Finnish material when language is fi', async () => {
+    bslMaterialService.getMaterial.mockResolvedValue(materialFi)
+
     renderWithLanguage('fi')
 
     expect(
-      screen.getByRole('heading', { name: /BSL-pelin materiaali \(biosafety-tasot\)/i })
+      await screen.findByRole('heading', { name: /BSL-pelin materiaali \(biosafety-tasot\)/i })
     ).toBeInTheDocument()
-    expect(screen.getByText(/Kansainvälinen kehitys/i)).toBeInTheDocument()
+    expect(await screen.findByText(/Kansainvälinen kehitys/i)).toBeInTheDocument()
     expect(screen.getAllByText(/Suojavarustus:/i).length).toBeGreaterThan(0)
+    expect(bslMaterialService.getMaterial).toHaveBeenCalledWith('fi')
   })
 
-  test('falls back to English content for Swedish (not yet translated)', () => {
+  test('falls back to English content for Swedish (not yet translated)', async () => {
+    bslMaterialService.getMaterial.mockResolvedValue(materialEn)
+
     renderWithLanguage('sv')
 
-    expect(screen.getByText(/International development/i)).toBeInTheDocument()
+    expect(await screen.findByText(/International development/i)).toBeInTheDocument()
+    expect(bslMaterialService.getMaterial).toHaveBeenCalledWith('sv')
   })
 })
