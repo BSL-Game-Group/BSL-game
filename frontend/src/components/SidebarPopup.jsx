@@ -1,24 +1,56 @@
-import { useEffect } from 'react'
-import * as materialEn from '../data/bslMaterial'
-import * as materialFi from '../data/bslMaterialFi'
+import { useEffect, useState } from 'react'
+import bslMaterialService from '../services/bslMaterial'
 import { useTranslation } from '../i18n/context'
 
 function SidebarPopup({ open, onClose }) {
   const { t, tList, language } = useTranslation()
+  const [material, setMaterial] = useState(null)
 
   useEffect(() => {
     window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
   }, [open])
 
+  useEffect(() => {
+    if (!open) {
+      return undefined
+    }
+    let cancelled = false
+    bslMaterialService.getMaterial(language).then((data) => {
+      if (!cancelled) {
+        setMaterial(data)
+      }
+    })
+    return () => { cancelled = true }
+  }, [open, language])
+
   if (!open) {
     return null
   }
 
-  // Only Finnish has a translated version of the material so far; Swedish
-  // falls back to the English content until it gets its own translation.
-  const { intro, riskGroups, bslLevels, organismTables, sources } =
-    language === 'fi' ? materialFi : materialEn
   const tableHeaders = tList('bslMaterial.tableHeaders')
+
+  if (!material) {
+    return (
+      <div className="popup-overlay">
+        <div
+          className="popup-box"
+          style={{
+            width: '92%', maxWidth: '820px', minHeight: '320px', maxHeight: '85vh', gap: '20px',
+            display: 'flex', flexDirection: 'column',
+          }}
+        >
+          <button
+            onClick={onClose}
+            className="popup-close-button"
+          >
+            {t('common.close')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const { intro, riskGroups, bslLevels, organismTables, sources } = material
 
   return (
     <div className="popup-overlay">
