@@ -1,0 +1,612 @@
+[
+  {
+    "id": 1,
+    "common_name": "bakjäst",
+    "scientific_name": "Saccharomyces cerevisiae",
+    "type": "Svamp",
+    "bsl_level": 1,
+    "lecture_text": "Samma organism som används i produktionen av bröd och öl. En modellorganism för eukaryotisk cellbiologi i laboratorier. Orsakar inte sjukdom hos friska människor och sprider sig inte mellan människor.",
+    "feedback_correct": "Rätt! BSL-1 räcker — laboratorirock och handskar vid behov.",
+    "feedback_incorrect": "Fel! Bagerjäst är helt ofarlig för friska vuxna. BSL-1 är den enda nivån som krävs."
+  },
+  {
+    "id": 2,
+    "common_name": "Jordbakterie",
+    "scientific_name": "höbakterie, kallas även tråddragare",
+    "type": "Bakterie",
+    "bsl_level": 1,
+    "lecture_text": "En vanlig jordbakterie som ofta används inom molekylärbiologisk forskning. Inte patogen för friska människor. Används som modell i sporuleringsforskning.",
+    "feedback_correct": "Rätt! BSL-1 räcker — ingen infektionsrisk för friska individer.",
+    "feedback_incorrect": "Fel! Bacillus subtilis är en BSL-1 organism — den orsakar inte sjukdom."
+  },
+  {
+    "id": 3,
+    "common_name": "Laboratorie-E. coli",
+    "scientific_name": "Escherichia coli (laboratoriestammar, icke-patogena)",
+    "type": "Bakterie",
+    "bsl_level": 1,
+    "lecture_text": "En genetiskt försvagad laboratorieversion av E. coli. Oförmögen att kolonisera den mänskliga tarmen. Den mest använda forskningsbakterien i molekylärbiologi världen över.",
+    "feedback_correct": "Rätt! Laboratorie-E. coli är BSL-1 — en försvagad stam utan infektionsrisk.",
+    "feedback_incorrect": "Fel! Laboratoriestammar är specifikt försvagade. BSL-1 är tillräckligt."
+  },
+  {
+    "id": 4,
+    "common_name": "Mjölkjäst",
+    "scientific_name": "Kluyveromyces lactis",
+    "type": "Svamp",
+    "bsl_level": 1,
+    "lecture_text": "En jäst som finns i mejeriprodukter och används i proteinproduktion. Orsakar inte sjukdom. En GRAS-organism (allmänt betraktad som säker).",
+    "feedback_correct": "Rätt! BSL-1 räcker för denna säkra jäst.",
+    "feedback_incorrect": "Fel! Kluyveromyces lactis är en BSL-1 svamp — helt säker."
+  },
+  {
+    "id": 5,
+    "common_name": "Adeno-associerat virus (AAV)",
+    "scientific_name": "Adeno-associated virus",
+    "type": "Virus",
+    "bsl_level": 1,
+    "lecture_text": "Ett virus som används som vektor för genterapi. Kan inte replikera utan ett hjälpvirus. I sin naturliga form orsakar det inte sjukdom hos människor. Används i medicinsk genterapi.",
+    "feedback_correct": "Rätt! AAV är BSL-1 — en genvektor som inte orsakar sjukdom.",
+    "feedback_incorrect": "Fel! AAV är en säker genvektor, BSL-1 räcker."
+  },
+  {
+    "id": 6,
+    "common_name": "Mjölksyrabakterie",
+    "scientific_name": "Lactobacillus acidophilus",
+    "type": "Bakterie",
+    "bsl_level": 1,
+    "lecture_text": "En bakterie som är en del av den normala tarmmikrobiotan, finns i yoghurt och probiotiska produkter. En nyttig organism, inte en patogen. Ingen infektionsrisk.",
+    "feedback_correct": "Rätt! Lactobacillus är en BSL-1 probiotisk organism.",
+    "feedback_incorrect": "Fel! Denna mjölksyrabakterie är en del av den normala tarmfloran — BSL-1 räcker."
+  },
+  {
+    "id": 7,
+    "common_name": "Caulobacter crescentus (modellbakterie)",
+    "scientific_name": "Caulobacter crescentus",
+    "type": "Bakterie",
+    "bsl_level": 1,
+    "lecture_text": "En vattenlevande bakterie som används som modellorganism i forskning om celldelning. Inte patogen för människor. En vanlig forskningsbakterie inom cellbiologi.",
+    "feedback_correct": "Rätt! Caulobacter crescentus är BSL-1.",
+    "feedback_incorrect": "Fel! Caulobacter orsakar inte sjukdom — BSL-1 är rätt nivå."
+  },
+  {
+    "id": 8,
+    "common_name": "Halobacterium",
+    "scientific_name": "Halobacterium salinarum",
+    "type": "Arké",
+    "bsl_level": 1,
+    "lecture_text": "En arké som lever i extremt salt vatten. Används som modell för fotosyntes och membranforskning. Kan inte överleva i kroppens förhållanden.",
+    "feedback_correct": "Rätt! Halobakterium är en BSL-1 extremofil.",
+    "feedback_incorrect": "Fel! Halobacterium salinarum kan inte överleva i vår kropps förhållanden. BSL-1 räcker."
+  },
+  {
+    "id": 9,
+    "common_name": "Cyanobakterie",
+    "scientific_name": "Synechocystis spp.",
+    "type": "Bakterie",
+    "bsl_level": 1,
+    "lecture_text": "En fotosyntetisk cyanobakterie som används i forskning om solenergi. Inte patogen. En modellorganism för forskning om fotosyntes.",
+    "feedback_correct": "Rätt! Synechocystis är en BSL-1 cyanobakterie.",
+    "feedback_incorrect": "Fel! Denna cyanobakterie är BSL-1 — en fotosyntetisk icke-patogen."
+  },
+  {
+    "id": 10,
+    "common_name": "Phi29-bakteriofag",
+    "scientific_name": "Bacillus phage phi29",
+    "type": "Virus",
+    "bsl_level": 1,
+    "lecture_text": "Ett virus som infekterar Bacillus subtilis-bakterier och används i forskning om DNA-replikation. Kan inte infektera mänskliga celler. Används inom bioteknik.",
+    "feedback_correct": "Rätt! Bakteriofagen är BSL-1 — infekterar inte mänskliga celler.",
+    "feedback_incorrect": "Fel! Bakteriofager är BSL-1 virus — de infekterar inte människor."
+  },
+  {
+    "id": 11,
+    "common_name": "Pseudomonas fluorescens (icke-patogen)",
+    "scientific_name": "Pseudomonas fluorescens",
+    "type": "Bakterie",
+    "bsl_level": 1,
+    "lecture_text": "En bakterie vanlig i jord och växtrötter. En icke-patogen art inom Pseudomonas-släktet. Används vid bioremediering och forskning.",
+    "feedback_correct": "Rätt! P. fluorescens är BSL-1 — en icke-patogen jordart.",
+    "feedback_incorrect": "Fel! Pseudomonas fluorescens är BSL-1, till skillnad från sina patogena släktingar."
+  },
+  {
+    "id": 12,
+    "common_name": "Agrobacterium",
+    "scientific_name": "Agrobacterium tumefaciens",
+    "type": "Bakterie",
+    "bsl_level": 1,
+    "lecture_text": "En jordart som används som genöverföringsvektor i växtbiologi. Infekterar inte människor. Ett vanligt verktyg inom genetisk modifiering av växter.",
+    "feedback_correct": "Rätt! Agrobacterium är BSL-1 — det infekterar endast växter.",
+    "feedback_incorrect": "Fel! Agrobacterium infekterar inte människor — BSL-1 räcker."
+  },
+  {
+    "id": 13,
+    "common_name": "Tetrahymena (cilium)",
+    "scientific_name": "Tetrahymena thermophila",
+    "type": "Protozo",
+    "bsl_level": 1,
+    "lecture_text": "En encellig organism som lever i vatten, använd i cellbiologisk forskning. Inte patogen. En forskningsmodell som har gett Nobelpris (telomerer, ribosymer).",
+    "feedback_correct": "Rätt! Tetrahymena är en BSL-1 modellorganism.",
+    "feedback_incorrect": "Fel! Tetrahymena orsakar inte sjukdom — en BSL-1 forskningsmodell."
+  },
+  {
+    "id": 14,
+    "common_name": "Lambda-bakteriofag",
+    "scientific_name": "Enterobacteria phage lambda",
+    "type": "Virus",
+    "bsl_level": 1,
+    "lecture_text": "Ett virus som infekterar E. coli bakterier, använt i årtionden för grundläggande molekylärbiologisk forskning. Kan inte infektera mänskliga celler. En klassisk forskningsmodell för genetisk reglering.",
+    "feedback_correct": "Rätt! Lambda-bakteriofagen är BSL-1.",
+    "feedback_incorrect": "Fel! Lambda-bakteriofagen infekterar endast E. coli bakterier — BSL-1 räcker."
+  },
+  {
+    "id": 15,
+    "common_name": "Neurospora crassa",
+    "scientific_name": "Neurospora crassa",
+    "type": "Svamp",
+    "bsl_level": 1,
+    "lecture_text": "En röd mögelsvamp som använts i genetikforskning sedan 1940-talet. En forskningsmodell som lett till Nobelpris. Inte patogen för friska människor.",
+    "feedback_correct": "Rätt! Neurospora crassa är en BSL-1 modellsvamp.",
+    "feedback_incorrect": "Fel! Neurospora crassa är en klassisk genetikforskningsmodell — BSL-1 räcker."
+  },
+  {
+    "id": 16,
+    "common_name": "Influensa A (säsong influensa)",
+    "scientific_name": "Influenza A virus (seasonal strains)",
+    "type": "Virus",
+    "bsl_level": 2,
+    "lecture_text": "Ett årligt säsongsinfluensavirus som sprids via droppar och luft. Orsakar feber, muskelvärk och luftvägssymtom. Vaccin finns tillgängligt. Allvarligast för äldre och riskgrupper.",
+    "feedback_correct": "Rätt! Säsongsinfluensa A är BSL-2.",
+    "feedback_incorrect": "Fel! Säsongsinfluensan är ett BSL-2 virus — zoonotiska stammar som H5N1 är BSL-3."
+  },
+  {
+    "id": 17,
+    "common_name": "Mässling",
+    "scientific_name": "Measles morbillivirus",
+    "type": "Virus",
+    "bsl_level": 2,
+    "lecture_text": "Ett av de mest smittsamma människovirusen — sprids via luftburna droppar och aerosoler. Orsakar utslag, feber och kan leda till lunginflammation. Ett effektivt MMR-vaccin ger skydd.",
+    "feedback_correct": "Rätt! Mässlingsvirus är BSL-2 — vaccin finns tillgängligt.",
+    "feedback_incorrect": "Fel! Mässlingsvirus är BSL-2 eftersom ett effektivt vaccin finns."
+  },
+  {
+    "id": 18,
+    "common_name": "HIV (diagnostik)",
+    "scientific_name": "Human immunodeficiency virus 1",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "Arbete med immunsvärsighetsviruset. Viruset sprids inte genom luften — infektion kräver direkt blodkontakt. Behandling förhindrar sjukdomens progression.",
+    "feedback_correct": "Rätt! HIV är BSL-3 — klassificerat som Grupp 3 enligt svensk reglering (motsvarande regelverk).",
+    "feedback_incorrect": "Fel! HIV är klassificerat som BSL-3, trots att infektion kräver direkt blodkontakt."
+  },
+  {
+    "id": 19,
+    "common_name": "Hepatit B",
+    "scientific_name": "Hepatitis B virus",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "Ett mycket smittsamt blodburnt virus. Sprids genom blod, sex och från mor till barn. Kan orsaka kronisk leverinflammation och skrumplever. Ett vaccin finns tillgängligt.",
+    "feedback_correct": "Rätt! Hepatit B är BSL-3 — klassificerat som Grupp 3 enligt reglering.",
+    "feedback_incorrect": "Fel! Hepatit B är klassificerat som BSL-3, även om överföring kräver blodkontakt."
+  },
+  {
+    "id": 20,
+    "common_name": "Hepatit C",
+    "scientific_name": "Hepacivirus C",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "Den ledande orsaken till levertransplantationer världen över. Sprids genom blodkontakt. Inget vaccin, men nuvarande antiviral behandling är mycket effektiv.",
+    "feedback_correct": "Rätt! Hepatit C är BSL-3 — klassificerat som Grupp 3 enligt reglering.",
+    "feedback_incorrect": "Fel! Hepatit C är klassificerat som BSL-3."
+  },
+  {
+    "id": 21,
+    "common_name": "Salmonella",
+    "scientific_name": "Salmonella Typhimurium",
+    "type": "Bakterie",
+    "bsl_level": 2,
+    "lecture_text": "Den vanligaste orsaken till matförgiftning. Sprids via förorenad mat eller vatten. Orsakar buksymtom, diarré och feber. Sprids inte genom luften i laboratorier.",
+    "feedback_correct": "Rätt! Salmonella är BSL-2 — livsmedelsburen, inte luftburen.",
+    "feedback_incorrect": "Fel! Salmonella sprids via mat — BSL-2 räcker."
+  },
+  {
+    "id": 22,
+    "common_name": "Gul stafylokock",
+    "scientific_name": "Staphylococcus aureus",
+    "type": "Bakterie",
+    "bsl_level": 2,
+    "lecture_text": "En vanlig bakterie som finns på människans hud. Kan orsaka sårinfektioner, lunginflammation eller sepsis. MRSA-stammar är antibiotikaresistenta. Sprids genom kontakt.",
+    "feedback_correct": "Rätt! Staphylococcus aureus är BSL-2.",
+    "feedback_incorrect": "Fel! Gul stafylokock är en BSL-2 bakterie — inte luftburen."
+  },
+  {
+    "id": 23,
+    "common_name": "Borrelios",
+    "scientific_name": "Borrelia burgdorferi",
+    "type": "Bakterie",
+    "bsl_level": 2,
+    "lecture_text": "En bakterie som sprids av fästingar. Orsakar en måltavla-liknande utslag, ledvärk och neurologiska symtom. Sprids inte mellan människor. Antibiotikabehandling är effektiv i tidiga stadier.",
+    "feedback_correct": "Rätt! Borrelia burgdorferi är BSL-2 — fästingburen, inte person-till-person.",
+    "feedback_incorrect": "Fel! Borrelia sprids inte mellan människor — BSL-2 räcker."
+  },
+  {
+    "id": 24,
+    "common_name": "Kolera",
+    "scientific_name": "Vibrio cholerae",
+    "type": "Bakterie",
+    "bsl_level": 2,
+    "lecture_text": "En bakterie som sprids via förorenat vatten. Orsakar kraftig vattnig diarré. Sprids inte genom luften. Ett vaccin finns tillgängligt.",
+    "feedback_correct": "Rätt! Kolera är BSL-2 — vattenburen, inte luftburen.",
+    "feedback_incorrect": "Fel! Vibrio cholerae är BSL-2 — sprids via vatten."
+  },
+  {
+    "id": 25,
+    "common_name": "Vattkoppor",
+    "scientific_name": "Human alphaherpesvirus 3 (varicella-zoster virus)",
+    "type": "Virus",
+    "bsl_level": 2,
+    "lecture_text": "Sprids genom luften och via kontakt. Orsakar kliande blåsor. Återaktivering av samma virus orsakar skabb hos vuxna. Ett vaccin finns tillgängligt.",
+    "feedback_correct": "Rätt! VZV är BSL-2 — vaccin och behandling finns tillgängliga.",
+    "feedback_incorrect": "Fel! Vattkopporvirus är BSL-2 — ett effektivt vaccin existerar."
+  },
+  {
+    "id": 26,
+    "common_name": "Norovirus (maginfluenza)",
+    "scientific_name": "Norovirus (Norwalk virus)",
+    "type": "Virus",
+    "bsl_level": 2,
+    "lecture_text": "Den vanligaste orsaken till akut gastroenterit. Mycket smittsamt — endast några få virala partiklar krävs för infektion. Sprids via avföring och krämning. Ingen effektiv behandling eller vaccin.",
+    "feedback_correct": "Rätt! Norovirus är BSL-2 — sprids via fekal-oral väg.",
+    "feedback_incorrect": "Fel! Norovirus är BSL-2 — inte luftburen."
+  },
+  {
+    "id": 27,
+    "common_name": "Syfilis",
+    "scientific_name": "Treponema pallidum",
+    "type": "Bakterie",
+    "bsl_level": 2,
+    "lecture_text": "En könssmittad bakterie. Progressiv i stadier: smärtfri sår, utslag, skador på inre organ. Sprids inte genom laboratorieluften. Penicillin är fortfarande en effektiv behandling.",
+    "feedback_correct": "Rätt! Treponema pallidum är BSL-2 — inte luftburen.",
+    "feedback_incorrect": "Fel! Syfilis är BSL-2 — överföring kräver direkt mukös kontakt."
+  },
+  {
+    "id": 28,
+    "common_name": "Kikhosta",
+    "scientific_name": "Bordetella pertussis",
+    "type": "Bakterie",
+    "bsl_level": 2,
+    "lecture_text": "En bakterie som sprids via droppar. Orsakar kraftiga hostattacker, särskilt farligt för spädbarn. Vaccin ger effektivt skydd.",
+    "feedback_correct": "Rätt! Bordetella pertussis är BSL-2 — vaccin finns tillgängligt.",
+    "feedback_incorrect": "Fel! Kikhosta är BSL-2 — ett vaccin finns."
+  },
+  {
+    "id": 29,
+    "common_name": "Klamydia",
+    "scientific_name": "Chlamydia trachomatis",
+    "type": "Bakterie",
+    "bsl_level": 2,
+    "lecture_text": "Den vanligaste könssmittade bakteriella infektionen. Ofta asymptomatisk. Om den lämnas obehandlad kan den orsaka infertilitet. Antibiotikabehandling är effektiv.",
+    "feedback_correct": "Rätt! Chlamydia trachomatis är BSL-2.",
+    "feedback_incorrect": "Fel! Klamydia är BSL-2 — lätt att behandla."
+  },
+  {
+    "id": 30,
+    "common_name": "Meningokocker",
+    "scientific_name": "Neisseria meningitidis",
+    "type": "Bakterie",
+    "bsl_level": 2,
+    "lecture_text": "En farlig orsak till meningit hos unga människor. Sprids via droppar. Kan leda till döden inom några timmar. Vaccin skyddar mot de viktigaste serotyperna.",
+    "feedback_correct": "Rätt! Neisseria meningitidis är BSL-2 — vaccin finns tillgängligt.",
+    "feedback_incorrect": "Fel! Meningokocker är BSL-2 — ett vaccin finns."
+  },
+  {
+    "id": 31,
+    "common_name": "Toxoplasmos",
+    "scientific_name": "Toxoplasma gondii",
+    "type": "Parasit",
+    "bsl_level": 2,
+    "lecture_text": "Katter är de primära värdarna. Infektion sker genom förorenat kött eller kattavföring. Farligt för gravida kvinnor. Sprids inte person till person.",
+    "feedback_correct": "Rätt! Toxoplasma gondii är BSL-2.",
+    "feedback_incorrect": "Fel! Toxoplasmos är en BSL-2 parasit — sprids inte person till person."
+  },
+  {
+    "id": 31,
+    "common_name": "Toxoplasmos",
+    "scientific_name": "Toxoplasma gondii",
+    "type": "Parasit",
+    "bsl_level": 2,
+    "lecture_text": "Katter är de primära värdarna. Infektion sker via kontaminerat kött eller kattavföring. Farligt för gravida kvinnor. Sprids inte mellan människor.",
+    "feedback_correct": "Rätt! Toxoplasma gondii är en BSL-2-parasit.",
+    "feedback_incorrect": "Fel! Toxoplasmos är en BSL-2-parasit – sprids inte mellan människor."
+  },
+  {
+    "id": 32,
+    "common_name": "Kryptosporidiose",
+    "scientific_name": "Cryptosporidium parvum",
+    "type": "Parasit",
+    "bsl_level": 2,
+    "lecture_text": "En vattenburen parasit. Orsakar kraftig diarré, särskilt hos immunsvaga individer. Oocystor tål klorering. Finns i förorenat dricksvatten.",
+    "feedback_correct": "Rätt! Cryptosporidium parvum är en BSL-2-parasit.",
+    "feedback_incorrect": "Fel! Cryptosporidium är en BSL-2-parasit."
+  },
+  {
+    "id": 33,
+    "common_name": "Candida (jäst)",
+    "scientific_name": "Candida albicans",
+    "type": "Svamp",
+    "bsl_level": 2,
+    "lecture_text": "Den vanligaste orsaken till mänskliga svampinfektioner. Lever vanligtvis på slemhinnor, kan orsaka allvarlig infektion hos immunsvaga individer. Inte luftburen. Allergenisk.",
+    "feedback_correct": "Rätt! Candida albicans är en BSL-2-svamp.",
+    "feedback_incorrect": "Fel! Candida är BSL-2 – inte överförbart mellan människor."
+  },
+  {
+    "id": 34,
+    "common_name": "Aspergillus (mögel)",
+    "scientific_name": "Aspergillus fumigatus group",
+    "type": "Svamp",
+    "bsl_level": 2,
+    "lecture_text": "En vanlig miljösvamp. Sporer andas in dagligen. Kan orsaka allvarlig lunginfektion hos immunsvaga individer. Allergenisk. Inte överförbart mellan människor.",
+    "feedback_correct": "Rätt! Aspergillus fumigatus är BSL-2.",
+    "feedback_incorrect": "Fel! Aspergillus är BSL-2 – inte överförbart mellan människor."
+  },
+  {
+    "id": 35,
+    "common_name": "Listeria",
+    "scientific_name": "Listeria monocytogenes",
+    "type": "Bakterie",
+    "bsl_level": 2,
+    "lecture_text": "En livsmedelsburen bakterie som kan växa i kyltemperaturer. Särskilt farlig för gravida kvinnor, nyfödda och immunsvaga individer. Inte luftburen.",
+    "feedback_correct": "Rätt! Listeria monocytogenes är BSL-2.",
+    "feedback_incorrect": "Fel! Listeria är BSL-2 – livsmedelsburen."
+  },
+  {
+    "id": 36,
+    "common_name": "Dengue",
+    "scientific_name": "Dengue virus",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "Ett myggburet flavivirus som finns i tropiska regioner. Orsakar hög feber, ledvärk och utslag. I svåra fall kan blödningar förekomma. Sprids inte direkt från person till person.",
+    "feedback_correct": "Rätt! Dengue är BSL-3 – klassificerad som Grupp 3 enligt finländsk reglering 748/2020, utan några undantag noterade.",
+    "feedback_incorrect": "Fel! Dengue är klassificerat som BSL-3 i Finland (reglering 748/2020) utan något särskilt undantag."
+  },
+  {
+    "id": 37,
+    "common_name": "Humant papillomvirus (HPV)",
+    "scientific_name": "Papillomaviridae (human papillomavirus)",
+    "type": "Virus",
+    "bsl_level": 2,
+    "lecture_text": "Det vanligaste sexuellt överförda viruset. Vissa stammar kan orsaka livmoderhalscancer. Vaccin skyddar mot de viktigaste cancerframkallande stammarna.",
+    "feedback_correct": "Rätt! HPV är BSL-2 – vaccin finns tillgängligt.",
+    "feedback_incorrect": "Fel! HPV är BSL-2 – ett vaccin finns tillgängligt."
+  },
+  {
+    "id": 38,
+    "common_name": "Hepatit A",
+    "scientific_name": "Hepatovirus A",
+    "type": "Virus",
+    "bsl_level": 2,
+    "lecture_text": "Leverinfektion spridd via den fekal-orala vägen. Vanligt i utvecklingsländer från förorenat vatten eller mat. Ingen kronisk form. Vaccin ger effektivt skydd.",
+    "feedback_correct": "Rätt! Hepatit A är BSL-2 – vaccin finns tillgängligt.",
+    "feedback_incorrect": "Fel! Hepatit A är BSL-2 – sprids via fekal-oral väg."
+  },
+  {
+    "id": 39,
+    "common_name": "Stelkramp",
+    "scientific_name": "Clostridium tetani",
+    "type": "Bakterie",
+    "bsl_level": 2,
+    "lecture_text": "En bakterie som tränger in i sår från jord. Producerar ett nervgift som orsakar muskelkramper. Vaccinet är mycket effektivt.",
+    "feedback_correct": "Rätt! Clostridium tetani är BSL-2 – vaccinet är mycket effektivt.",
+    "feedback_incorrect": "Fel! Stelkramp är en BSL-2-bakterie – vaccinet är mycket effektivt."
+  },
+  {
+    "id": 40,
+    "common_name": "Malaria (andra arter)",
+    "scientific_name": "Plasmodium spp. (human and simian)",
+    "type": "Parasit",
+    "bsl_level": 2,
+    "lecture_text": "Mindre allvarliga malariaparasiter än P. falciparum. Sprids via myggor, inte från person till person i laboratorier. Behandling finns tillgänglig.",
+    "feedback_correct": "Rätt! Plasmodium-arter utom falciparum är BSL-2.",
+    "feedback_incorrect": "Fel! Plasmodium-arter utom falciparum är BSL-2."
+  },
+  {
+    "id": 41,
+    "common_name": "Tuberkulos",
+    "scientific_name": "Mycobacterium tuberculosis",
+    "type": "Bakterie",
+    "bsl_level": 3,
+    "lecture_text": "Världens näst vanligaste dödsorsak av infektionssjukdomar. Sprids genom luften via små aerosolpartiklar. Kan ligga latent i decennier. Multiresistenta stammar är ett växande hot.",
+    "feedback_correct": "Rätt! TB är BSL-3 – sprids genom luften, kräver andningsskydd och helkroppsdräkt.",
+    "feedback_incorrect": "Fel! TB är en mycket allvarlig luftburen bakterie. BSL-3 krävs: andningsskydd, helkroppsdräkt, dubbla handskar."
+  },
+  {
+    "id": 42,
+    "common_name": "Miltbrand",
+    "scientific_name": "Bacillus anthracis",
+    "type": "Bakterie",
+    "bsl_level": 3,
+    "lecture_text": "En sporbildande bakterie som kan överleva i jord i decennier. Respiratorisk exponering orsakar en svår lungform. Har även använts som biovapen.",
+    "feedback_correct": "Rätt! Bacillus anthracis är BSL-3 – sporer kan spridas genom luften.",
+    "feedback_incorrect": "Fel! Miltbrand är BSL-3 – respiratorisk exponering är mycket farlig."
+  },
+  {
+    "id": 43,
+    "common_name": "COVID-19 (virusodling)",
+    "scientific_name": "Severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2)",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "Arbete med virusodling av COVID-19-viruset, som sprids genom luften som aerosoler. Odling av det levande viruset är betydligt farligare än enbart diagnostisk testning.",
+    "feedback_correct": "Rätt! Virusodling av SARS-CoV-2 kräver BSL-3-skydd.",
+    "feedback_incorrect": "Fel! Virusodling av SARS-CoV-2 kräver BSL-3 – viruset sprids genom luften som aerosoler."
+  },
+  {
+    "id": 44,
+    "common_name": "Pest",
+    "scientific_name": "Yersinia pestis",
+    "type": "Bakterie",
+    "bsl_level": 3,
+    "lecture_text": "Bakterien som orsakade digerdöden. Sprids via loppor, men den pneumoniska formen är luftburen. Antibiotikabehandling är effektiv idag.",
+    "feedback_correct": "Rätt! Pest är BSL-3 – den pneumoniska formen sprids genom luften.",
+    "feedback_incorrect": "Fel! Yersinia pestis är BSL-3 – den pneumoniska formen i synnerhet är mycket farlig."
+  },
+  {
+    "id": 45,
+    "common_name": "Puumalavirus",
+    "scientific_name": "Puumala orthohantavirus",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "Ett hantavirus som sprids av skogsmöss, Finlands vanligaste hemorragiska feber. Sprids som aerosol från gnagarsekretioner. Kan orsaka svår njursvikt.",
+    "feedback_correct": "Rätt! Puumala orthohantavirus (vildtypstam) är BSL-3.",
+    "feedback_incorrect": "Fel! Detta hantavirus är BSL-3 – aerosolöverföring kräver andningsskydd."
+  },
+  {
+    "id": 46,
+    "common_name": "Gula febern",
+    "scientific_name": "Yellow fever virus",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "Ett tropiskt myggburet flavivirus. Ger hög feber, ledvärk och utslag. I svåra fall är blödning möjlig. Det finns ett effektivt vaccin.",
+    "feedback_correct": "Rätt! Gula febern-virus är BSL-3.",
+    "feedback_incorrect": "Fel! Gula febern-virus är BSL-3 — den allvarliga sjukdomsbilden kräver BSL-3-skydd."
+  },
+  {
+    "id": 47,
+    "common_name": "Fästingburen encefalit (TBE)",
+    "scientific_name": "Tick-borne encephalitis virus (Central European subtype)",
+    "type": "Virus",
+    "bsl_level": 3,
+    "lecture_text": "Ett flavivirus som sprids av fästingar, vanligt i kustnära områden i Finland. Orsakar en tvåfasig sjukdom: först influensaliknande symtom, sedan encefalit. Ett vaccin finns tillgängligt.",
+    "feedback_correct": "Rätt! Fästingburen encefalit (TBE) är BSL-3.",
+    "feedback_incorrect": "Fel! Fästingburen encefalit (TBE) är BSL-3 — den allvarliga sjukdomsbilden kräver BSL-3-skydd."
+  },
+  {
+    "id": 48,
+    "common_name": "Malaria (falciparum)",
+    "scientific_name": "Plasmodium falciparum",
+    "type": "Parasit",
+    "bsl_level": 3,
+    "lecture_text": "Den farligaste malariaparasiten. Sprids via myggor. Orsakar cerebral malaria, en livshotande komplikation.",
+    "feedback_correct": "Rätt! Plasmodium falciparum är BSL-3.",
+    "feedback_incorrect": "Fel! P. falciparum är den farligaste malariaparasiten — BSL-3 krävs."
+  },
+  {
+    "id": 49,
+    "common_name": "Brucella (Maltafeber)",
+    "scientific_name": "Brucella melitensis",
+    "type": "Bakterium",
+    "bsl_level": 3,
+    "lecture_text": "En bakterie som överförs från djur till människor. Kan spridas som aerosoler. Orsakar långvarig feber, ledvärk och organskador.",
+    "feedback_correct": "Rätt! Brucella melitensis är BSL-3.",
+    "feedback_incorrect": "Fel! Brucella melitensis är BSL-3 — den allvarliga sjukdomsbilden kräver BSL-3-skydd."
+  },
+  {
+    "id": 50,
+    "common_name": "Psittakos (papegojsjuka)",
+    "scientific_name": "Chlamydia psittaci (avian strains)",
+    "type": "Bakterium",
+    "bsl_level": 3,
+    "lecture_text": "En klamydia som överförs via fågelspillning. Orsakar svår lunginflammation. Särskild risk för fågel uppfödare och veterinärer. Aerosolöverföring möjlig.",
+    "feedback_correct": "Rätt! Chlamydia psittaci är BSL-3.",
+    "feedback_incorrect": "Fel! Chlamydia psittaci är BSL-3 — den allvarliga sjukdomsbilden kräver BSL-3-skydd."
+  },
+  {
+    "id": 51,
+    "common_name": "Ebola",
+    "scientific_name": "Ebolavirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "Ett av världens farligaste virus. Orsakar hemorragisk feber. Sprids genom direktkontakt med kroppsvätskor. Ingen effektiv behandling.",
+    "feedback_correct": "Rätt! Ebola är BSL-4 — extremt farligt, sprids via kroppsvätskor.",
+    "feedback_incorrect": "Fel! Ebola är BSL-4 — extremt farligt, sprids via kroppsvätskor."
+  },
+  {
+    "id": 52,
+    "common_name": "marburgvirus",
+    "scientific_name": "Marburg marburgvirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "Ett filovirus närliktat med Ebola. Orsakar svår hemorragisk feber. Ingen behandling.",
+    "feedback_correct": "Rätt! Marburg är BSL-4 — extremt farligt, sprids via kroppsvätskor.",
+    "feedback_incorrect": "Fel! Marburg är BSL-4 — extremt farligt, sprids via kroppsvätskor."
+  },
+  {
+    "id": 53,
+    "common_name": "Lassafeber",
+    "scientific_name": "Lassa mammarenavirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "Ett västafrikanskt arenavirus. Sprids från gnagare och mellan människor. Kan orsaka dövhet som en efterverkan. Ingen effektiv behandling.",
+    "feedback_correct": "Rätt! Lassafeber är BSL-4 — extremt farligt, sprids via kroppsvätskor.",
+    "feedback_incorrect": "Fel! Lassafeber är BSL-4 — extremt farligt, sprids via kroppsvätskor."
+  },
+  {
+    "id": 54,
+    "common_name": "Nipah-encefalit",
+    "scientific_name": "Nipah henipavirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "Ett paramyxovirus buret av fladdermöss. Sprids mellan människor. Extremt hög dödlighet. Inget vaccin eller specifik behandling.",
+    "feedback_correct": "Rätt! Nipah-virus är BSL-4 — extremt farligt, sprids via kroppsvätskor.",
+    "feedback_incorrect": "Fel! Nipah-virus är BSL-4 — extremt farligt, sprids via kroppsvätskor."
+  },
+  {
+    "id": 55,
+    "common_name": "Hendra-virus",
+    "scientific_name": "Hendra henipavirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "Ett australiensiskt paramyxovirus buret av fladdermöss. Överförs från hästar till människor. Närliggande med Nipah-virus. Ingen behandling.",
+    "feedback_correct": "Rätt! Hendra-virus är BSL-4 — extremt farligt, sprids via kroppsvätskor.",
+    "feedback_incorrect": "Fel! Hendra-virus är BSL-4 — extremt farligt, sprids via kroppsvätskor."
+  },
+  {
+    "id": 56,
+    "common_name": "Krim-Kongo-hemorragisk feber",
+    "scientific_name": "Crimean-Congo hemorrhagic fever virus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "Ett nairovirus som sprids av fästingar. Sprids även genom direkt blodkontakt. Finns i Afrika, Asien och södra Europa. Ingen effektiv behandling.",
+    "feedback_correct": "Rätt! Krim-Kongo-hemorragisk feber är BSL-4 — extremt farligt, sprids via kroppsvätskor.",
+    "feedback_incorrect": "Fel! Krim-Kongo-hemorragisk feber är BSL-4 — extremt farligt, sprids via kroppsvätskor."
+  },
+  {
+    "id": 57,
+    "common_name": "Smittkoppor (utrotatd)",
+    "scientific_name": "Variola virus (Variola major and minor)",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "Utrotad från naturen 1980. Idag förvaras det endast i två högsäkerhetslaboratorier i världen.",
+    "feedback_correct": "Rätt! Smittkoppor är BSL-4 — extremt farligt, sprids via kroppsvätskor.",
+    "feedback_incorrect": "Fel! Smittkoppor är BSL-4 — extremt farligt, sprids via kroppsvätskor."
+  },
+  {
+    "id": 58,
+    "common_name": "boliviansk blödarfeber",
+    "scientific_name": "Machupo mammarenavirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "Ett bolivianskt arenavirus som sprids av gnagare. Har även spridit sig mellan människor i sjukhusmiljöer. Ingen effektiv behandling.",
+    "feedback_correct": "Rätt! Boliviansk hemorragisk feber är BSL-4 — extremt farligt, sprids via kroppsvätskor.",
+    "feedback_incorrect": "Fel! Boliviansk hemorragisk feber är BSL-4 — extremt farligt, sprids via kroppsvätskor."
+  },
+  {
+    "id": 59,
+    "common_name": "Junín-virus (argentinsk hemorragisk feber)",
+    "scientific_name": "Junín mammarenavirus",
+    "type": "Virus",
+    "bsl_level": 4,
+    "lecture_text": "Ett argentinskt arenavirus. Sprids från gnagare till människor. Endast specialiserade laboratorier får studera det.",
+    "feedback_correct": "Rätt! Junín-virus är BSL-4 — extremt farligt, sprids via kroppsvätskor.",
+    "feedback_incorrect": "Fel! Junín-virus är BSL-4 — extremt farligt, sprids via kroppsvätskor."
+  },
+  {
+    "id": 60,
+    "common_name": "Creutzfeldt-Jakob sjukdom (prion)",
+    "scientific_name": "Creutzfeldt-Jakob disease agent (PrPSc prion protein)",
+    "type": "Prion",
+    "bsl_level": 3,
+    "lecture_text": "En ovanlig men alltid dödlig prionsjukdom i hjärnan. Prioner förstörs inte av standardsterilisering. Inkubationstiden kan vara decennier.",
+    "feedback_correct": "Rätt! Creutzfeldt-Jakob sjukdom är BSL-3 — prioner är extremt resistenta mot sterilisering.",
+    "feedback_incorrect": "Fel! Creutzfeldt-Jakob sjukdom är BSL-3 — prioner är extremt resistenta mot sterilisering."
+  }
+]

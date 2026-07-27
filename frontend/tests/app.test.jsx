@@ -1,6 +1,7 @@
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen, fireEvent, act } from './test-utils'
 import '@testing-library/jest-dom'
 import App from '../src/App'
+import { TranslationProvider } from '../src/i18n'
 import { EventBus } from '../src/game/EventBus'
 
 // -----------------------------
@@ -41,7 +42,11 @@ jest.mock('../src/game/EventBus', () => {
 // HELPERS
 // -----------------------------
 function renderApp() {
-  return render(<App />)
+  return render(
+    <TranslationProvider>
+      <App />
+    </TranslationProvider>
+  )
 }
 
 function startGame() {

@@ -80,11 +80,12 @@ class MainScene extends Phaser.Scene {
         this.load.image('player_base', 'assets/player/base.png');
 
         // Equipment
-        this.load.image('lab_coat', 'assets/equipment/equipment_on_character/lab_coat.png');
-        this.load.image('mask', 'assets/equipment/equipment_on_character/mask.png');
-        this.load.image('glasses', 'assets/equipment/equipment_on_character/glasses.png');
-        this.load.image('face_shield', 'assets/equipment/equipment_on_character/face_shield_on.png');
-        this.load.image('bsl3_respirator', 'assets/equipment/equipment_on_character/bsl3_respirator_on.png');
+        this.load.image('lab_coat', 'assets/equipment/on_character/body/lab_coat_on.png');
+        this.load.image('mask', 'assets/equipment/on_character/masks/mask_on.png');
+        this.load.image('glasses', 'assets/equipment/on_character/eyewear/glasses_on.png');
+        this.load.image('sunglasses', 'assets/equipment/on_character/eyewear/sunglasses_on.png');
+        this.load.image('face_shield', 'assets/equipment/on_character/eyewear/face_shield_on.png');
+        this.load.image('bsl3_respirator', 'assets/equipment/on_character/masks/bsl3_respirator_on.png');
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
         this.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
@@ -197,7 +198,8 @@ class MainScene extends Phaser.Scene {
             mask:     { scale: 0.075, offsetX: -1,  offsetY: -20 },
             glasses:  { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
             face_shield: { scale: 0.08, offsetX: -1, offsetY: -30 },
-            bsl3_respirator: { scale: 0.09, offsetX: -1, offsetY: -35 }
+            bsl3_respirator: { scale: 0.09, offsetX: -1, offsetY: -35 },
+            sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 }
         };
 
         // 3. Create the Equipment Sprites using the configurations above
@@ -221,7 +223,11 @@ class MainScene extends Phaser.Scene {
             bsl3_respirator: this.add.sprite(700, 300, 'bsl3_respirator')
                 .setScale(this.equipmentConfig.bsl3_respirator.scale)
                 .setVisible(false)
-                .setDepth(15)
+                .setDepth(15),
+            sunglasses: this.add.sprite(700, 300, 'sunglasses')
+                .setScale(this.equipmentConfig.sunglasses.scale)
+                .setVisible(false)
+                .setDepth(16)
         };
 
         // 4. Listen for React's CustomEvent
@@ -232,6 +238,7 @@ class MainScene extends Phaser.Scene {
             this.equipment.glasses.setVisible(equipped.glasses);
             this.equipment.face_shield.setVisible(equipped.face_shield);
             this.equipment.bsl3_respirator.setVisible(equipped.bsl3_respirator);
+            this.equipment.sunglasses.setVisible(equipped.sunglasses);
         };
         window.addEventListener('equipment-changed', this.handleEquipmentChange);
 
@@ -257,13 +264,16 @@ class MainScene extends Phaser.Scene {
             if (this.handleNewMicrobeRequest) {
                 EventBus.off('request-new-microbe', this.handleNewMicrobeRequest);
             }
+            if (this.handleTranslationsUpdate) {
+                EventBus.off('translations-updated', this.handleTranslationsUpdate);
+            }
         });
 
         // Setup inputs, text and colliders
         this.cursors = this.input.keyboard.createCursorKeys();
         this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
         
-        this.pressEText = this.add.text(0, 0, "Press E to open", {
+        this.pressEText = this.add.text(0, 0, "", {
             fontSize: "14px",
             backgroundColor: "#000",
             color: "#fff",
@@ -277,7 +287,7 @@ class MainScene extends Phaser.Scene {
 
         this.playerInsideLectureRoom = false;
         this.playerInsideDressingRoom = false;
-        this.closetHint = this.add.text(0, 0, "Open Closet", {
+        this.closetHint = this.add.text(0, 0, "", {
             fontSize: "14px",
             backgroundColor: "#222222",
             color: "#ffffff",
@@ -285,7 +295,7 @@ class MainScene extends Phaser.Scene {
         }).setDepth(1000).setVisible(false);
 
         // Hint shown near a BSL room's blue glow while the player is inside it.
-        this.bslHint = this.add.text(0, 0, "Press E", {
+        this.bslHint = this.add.text(0, 0, "", {
             fontSize: "14px",
             backgroundColor: "#000",
             color: "#fff",
@@ -294,6 +304,11 @@ class MainScene extends Phaser.Scene {
         
         this.currentMicrobe = null;
         this.registerEventBusListeners();
+        this.updateTextTranslations({
+            pressEToOpen: window.__translations?.pressEToOpen ?? 'Press E to open',
+            openCloset: window.__translations?.openCloset ?? 'Open Closet',
+            pressE: window.__translations?.pressE ?? 'Press E'
+        })
         this.replaceCurrentMicrobeRandomly()
     }
 
@@ -302,6 +317,21 @@ class MainScene extends Phaser.Scene {
     registerEventBusListeners() {
         this.handleNewMicrobeRequest = () => this.replaceCurrentMicrobeRandomly()
         EventBus.on('request-new-microbe', this.handleNewMicrobeRequest)
+        
+        this.handleTranslationsUpdate = (translations) => this.updateTextTranslations(translations)
+        EventBus.on('translations-updated', this.handleTranslationsUpdate)
+    }
+
+    updateTextTranslations(translations) {
+        if (this.pressEText) {
+            this.pressEText.setText(translations.pressEToOpen)
+        }
+        if (this.closetHint) {
+            this.closetHint.setText(translations.openCloset)
+        }
+        if (this.bslHint) {
+            this.bslHint.setText(translations.pressE)
+        }
     }
 
     async replaceCurrentMicrobeRandomly() {
@@ -388,7 +418,7 @@ class MainScene extends Phaser.Scene {
                 this.player.y + this.equipmentConfig.mask.offsetY
             );
             this.equipment.glasses.setPosition(
-                this.player.x + this.equipmentConfig.glasses.offsetX, 
+                this.player.x + this.equipmentConfig.glasses.offsetX,
                 this.player.y + this.equipmentConfig.glasses.offsetY
             );
             this.equipment.face_shield.setPosition(
@@ -398,6 +428,10 @@ class MainScene extends Phaser.Scene {
             this.equipment.bsl3_respirator.setPosition(
                 this.player.x + this.equipmentConfig.bsl3_respirator.offsetX, 
                 this.player.y + this.equipmentConfig.bsl3_respirator.offsetY
+            );
+            this.equipment.sunglasses.setPosition(
+                this.player.x + this.equipmentConfig.sunglasses.offsetX,
+                this.player.y + this.equipmentConfig.sunglasses.offsetY
             );
         }
 

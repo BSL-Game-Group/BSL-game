@@ -24,7 +24,14 @@ describe('microbeService', () => {
       const result = await microbeService.getRandom()
 
       expect(axios.get).toHaveBeenCalledTimes(1)
-      expect(axios.get).toHaveBeenCalledWith('/api/microbes/random')
+      expect(axios.get).toHaveBeenCalledWith(
+        '/api/microbes/random',
+        {
+          params: {
+            lang: 'en',
+          },
+        }
+      )
       expect(result).toEqual(microbe)
     })
 
@@ -34,7 +41,14 @@ describe('microbeService', () => {
       const result = await microbeService.getRandom()
 
       expect(axios.get).toHaveBeenCalledTimes(1)
-      expect(axios.get).toHaveBeenCalledWith('/api/microbes/random')
+      expect(axios.get).toHaveBeenCalledWith(
+        '/api/microbes/random',
+        {
+          params: {
+            lang: 'en',
+          },
+        }
+      )
       expect(result).toBeNull()
     })
   })

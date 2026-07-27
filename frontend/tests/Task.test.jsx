@@ -1,4 +1,4 @@
-import { render, screen, act } from '@testing-library/react'
+import { render, screen, act } from './test-utils'
 import Task from '../src/components/Task'
 import { EventBus } from '../src/game/EventBus'
 
