@@ -188,6 +188,12 @@ test('create creates equipment sprites', () => {
 
   expect(scene.add.sprite)
     .toHaveBeenCalledWith(700, 300, 'sunglasses')
+  
+  expect(scene.add.sprite)
+    .toHaveBeenCalledWith(700, 300, 'face_shield')
+
+  expect(scene.add.sprite)
+    .toHaveBeenCalledWith(700, 300, 'bsl3_respirator')
 })
 
 test('preload registers the respirator asset with the correct key', () => {
@@ -195,8 +201,8 @@ test('preload registers the respirator asset with the correct key', () => {
 
   scene.preload()
 
-  expect(scene.load.image).toHaveBeenCalledWith('face_shield', 'assets/equipment/equipment_on_character/face_shield_on.png')
-  expect(scene.load.image).toHaveBeenCalledWith('bsl3_respirator', 'assets/equipment/equipment_on_character/bsl3_respirator_on.png')
+  expect(scene.load.image).toHaveBeenCalledWith('face_shield', 'assets/equipment/on_character/eyewear/face_shield_on.png')
+  expect(scene.load.image).toHaveBeenCalledWith('bsl3_respirator', 'assets/equipment/on_character/masks/bsl3_respirator_on.png')
 })
 
 test('create initializes keyboard controls', () => {
