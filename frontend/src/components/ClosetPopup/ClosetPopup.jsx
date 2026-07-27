@@ -64,6 +64,7 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
   const [equipped, setEquipped] = useState({
     mask: false,
     gloves: false,
+    gloves_2: false,
     closable_lab_coat: false,
     disposable_overall: false,
     respirator: false,

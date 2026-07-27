@@ -64,8 +64,15 @@ const EQUIPMENT_CONFIG = buildEquipment({
   gloves: {
     category: 'gloves',
     equippedStyle: {
-      position: 'absolute', top: '177px', left: '89px', width: '60px', height: 'auto',
+      position: 'absolute', top: '169px', left: '89px', width: '59px', height: '35px',
       transform: 'scale(2.25) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+  gloves_2: {
+    category: 'gloves',
+    equippedStyle: {
+      position: 'absolute', top: '178px', left: '91px', width: '60px', height: 'auto',
+      transform: 'scale(2.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   closable_lab_coat: {
