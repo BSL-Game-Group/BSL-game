@@ -65,6 +65,10 @@ function createScene() {
     },
   }
 
+  scene.load = {
+    image: jest.fn(),
+  }
+
   scene.add = {
     sprite: jest.fn(() => fakeSprite()),
     text: jest.fn(() => fakeSprite()),
@@ -163,6 +167,15 @@ test('create creates equipment sprites', () => {
 
   expect(scene.add.sprite)
     .toHaveBeenCalledWith(700, 300, 'glasses')
+})
+
+test('preload registers the respirator asset with the correct key', () => {
+  const scene = createScene()
+
+  scene.preload()
+
+  expect(scene.load.image).toHaveBeenCalledWith('face_shield', 'assets/equipment/equipment_on_character/face_shield_on.png')
+  expect(scene.load.image).toHaveBeenCalledWith('bsl3_respirator', 'assets/equipment/equipment_on_character/bsl3_respirator_on.png')
 })
 
 test('create initializes keyboard controls', () => {

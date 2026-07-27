@@ -84,7 +84,7 @@ class MainScene extends Phaser.Scene {
         this.load.image('mask', 'assets/equipment/equipment_on_character/mask.png');
         this.load.image('glasses', 'assets/equipment/equipment_on_character/glasses.png');
         this.load.image('face_shield', 'assets/equipment/equipment_on_character/face_shield_on.png');
-        this.load.image('bsl3_resporator', 'assets/equipment/equipment_on_character/bsl3_respirator_on.png');
+        this.load.image('bsl3_respirator', 'assets/equipment/equipment_on_character/bsl3_respirator_on.png');
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
         this.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
