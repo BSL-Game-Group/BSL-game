@@ -81,7 +81,9 @@ app.get('/api/bsl-material', async (req, res) => {
   try {
     const lang = req.query.lang || 'en'
     let row = await db.BSLMaterial.findByPk(lang)
-    if (!row) row = await db.BSLMaterial.findByPk('en')
+    if (!row) {
+      row = await db.BSLMaterial.findByPk('en')
+    }
     res.json(row.content)
   } catch (error) {
     console.error(error)
