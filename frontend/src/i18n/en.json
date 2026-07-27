@@ -39,6 +39,7 @@
     "title": "The microbe you will handle"
   },
   "closet": {
+    "title": "Closet",
     "player": "Player",
     "equipmentLabel": "Equipment"
   },

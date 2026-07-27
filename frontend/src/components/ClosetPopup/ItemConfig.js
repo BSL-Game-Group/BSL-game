@@ -29,11 +29,13 @@ function buildEquipment(items) {
   return out;
 }
 
-// Add new equipment here — only `category` + `equippedStyle` are needed;
-// paths are derived from the key + category above.
+// Add new equipment here — only `category`, `label` + `equippedStyle` are
+// needed; paths are derived from the key + category above. `label` is the
+// item button's accessible name.
 const EQUIPMENT_CONFIG = buildEquipment({
   lab_coat: {
     category: 'body',
+    label: 'Lab coat',
     equippedStyle: {
       position: 'absolute', top: '45px', left: '55px', width: '130px', height: 'auto',
       transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
@@ -41,6 +43,7 @@ const EQUIPMENT_CONFIG = buildEquipment({
   },
   mask: {
     category: 'masks',
+    label: 'Mask',
     equippedStyle: {
       position: 'absolute', top: '49px', left: '79px', width: '70px', height: 'auto',
       transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
@@ -48,6 +51,7 @@ const EQUIPMENT_CONFIG = buildEquipment({
   },
   glasses: {
     category: 'eyewear',
+    label: 'Glasses',
     equippedStyle: {
       position: 'absolute', top: '35px', left: '75px', width: '70px', height: 'auto',
       transform: 'scale(1.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
@@ -55,6 +59,7 @@ const EQUIPMENT_CONFIG = buildEquipment({
   },
   sunglasses: {
     category: 'eyewear',
+    label: 'Sunglasses',
     equippedStyle: {
       position: 'absolute', top: '9px', left: '66px', width: '106px', height: 'auto',
       transform: 'perspective(360px) rotateY(20deg) rotate(-2deg) scale(1.1) translateY(5px)',

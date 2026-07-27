@@ -22,6 +22,8 @@ const translationValue = {
       'answerPopup.chosenLevel': 'You chose {level}.',
       'answerPopup.belongs': '{name} belongs to BSL-{level}.',
 
+      'closet.title': 'Closet',
+
       'common.close': 'Close',
     }
 

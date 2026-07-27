@@ -3,13 +3,24 @@ import en from './en.json'
 import sv from './sv.json'
 import { TranslationContext } from './context'
 
-export function TranslationProvider({ children }) {
-  const [language, setLanguage] = useState(() => {
-    const saved = localStorage.getItem('language')
-    return saved || 'en'
-  })
+const translations = { en, sv }
+const DEFAULT_LANGUAGE = 'en'
 
-  const translations = { en, sv }
+const supportedLanguage = (value) =>
+  Object.prototype.hasOwnProperty.call(translations, value) ? value : DEFAULT_LANGUAGE
+
+export function TranslationProvider({ children }) {
+  const [language, setLanguageState] = useState(() =>
+    supportedLanguage(localStorage.getItem('language'))
+  )
+
+  // Ignores unsupported values rather than storing them, so the app can never
+  // end up in the no-language state at runtime either.
+  const setLanguage = (next) => {
+    if (Object.prototype.hasOwnProperty.call(translations, next)) {
+      setLanguageState(next)
+    }
+  }
 
   useEffect(() => {
     localStorage.setItem('language', language)
