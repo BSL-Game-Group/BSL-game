@@ -21,8 +21,14 @@ const translations = {
     'bslMaterial.exampleOrganisms': 'Esimerkkiorganismeja:',
     'bslMaterial.sources': 'Lähteet',
   },
+  sv: {
+    'common.close': 'Stäng',
+    'bslMaterial.title': 'BSL-spelets material (biosäkerhetsnivåer)',
+    'bslMaterial.protectiveEquipment': 'Skyddsutrustning:',
+    'bslMaterial.exampleOrganisms': 'Exempelorganismer:',
+    'bslMaterial.sources': 'Källor',
+  },
 }
-translations.sv = translations.en
 
 const materialEn = {
   intro: { heading: 'International development', paragraphs: ['Roots of the BSL system.'] },
@@ -50,6 +56,22 @@ const materialFi = {
       description: 'Matalan riskin kuvaus.',
       equipment: ['Laboratoriotakki'],
       examples: 'Esimerkkiorganismeja.',
+    },
+  ],
+  organismTables: [],
+  sources: [],
+}
+
+const materialSv = {
+  intro: { heading: 'Internationell utveckling', paragraphs: ['BSL-systemets rötter.'] },
+  riskGroups: { heading: 'De fyra riskgrupperna', intro: 'Baseras på fyra faktorer:', factors: ['Patogenicitet'] },
+  bslLevels: [
+    {
+      level: 1,
+      title: 'BSL-1 — Låg risk',
+      description: 'Beskrivning av låg risk.',
+      equipment: ['Labbrock'],
+      examples: 'Exempelorganismer.',
     },
   ],
   organismTables: [],
@@ -100,12 +122,16 @@ describe('SidebarPopup', () => {
     expect(bslMaterialService.getMaterial).toHaveBeenCalledWith('fi')
   })
 
-  test('falls back to English content for Swedish (not yet translated)', async () => {
-    bslMaterialService.getMaterial.mockResolvedValue(materialEn)
+  test('shows the Swedish material when language is sv', async () => {
+    bslMaterialService.getMaterial.mockResolvedValue(materialSv)
 
     renderWithLanguage('sv')
 
-    expect(await screen.findByText(/International development/i)).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: /BSL-spelets material \(biosäkerhetsnivåer\)/i })
+    ).toBeInTheDocument()
+    expect(await screen.findByText(/Internationell utveckling/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/Skyddsutrustning:/i).length).toBeGreaterThan(0)
     expect(bslMaterialService.getMaterial).toHaveBeenCalledWith('sv')
   })
 })

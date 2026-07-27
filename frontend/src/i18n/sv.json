@@ -36,11 +36,11 @@
     }
   },
   "bslMaterial": {
-    "title": "BSL Game Material (Biosafety Levels)",
-    "protectiveEquipment": "Protective equipment:",
-    "exampleOrganisms": "Example organisms:",
-    "tableHeaders": ["#", "Common name", "Scientific name", "Type", "Note"],
-    "sources": "Sources"
+    "title": "BSL-spelets material (biosäkerhetsnivåer)",
+    "protectiveEquipment": "Skyddsutrustning:",
+    "exampleOrganisms": "Exempelorganismer:",
+    "tableHeaders": ["#", "Vanligt namn", "Vetenskapligt namn", "Typ", "Anmärkning"],
+    "sources": "Källor"
   },
   "task": {
     "title": "Mikroben du kommer att hantera"

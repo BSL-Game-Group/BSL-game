@@ -1,0 +1,181 @@
+{
+  "intro": {
+    "heading": "Internationell utveckling",
+    "paragraphs": [
+      "BSL-systemets rötter finns i 1970-talets forskning om rekombinant-DNA. Efter Asilomar-konferensen publicerade amerikanska NIH år 1976 riktlinjer för forskning om rekombinant nukleinsyra. WHO följde efter 1983 genom att publicera den första Laboratory Biosafety Manual, som sedan dess har uppdaterats flera gånger — den tredje upplagan (2004) introducerade för första gången begreppet biosecurity, och den fjärde upplagan (2020) övergick starkare till en riskbaserad bedömning.",
+      "Den centrala principen är densamma i alla system: varje biologisk agens klassificeras först in i en riskgrupp (Risk Group 1–4) baserat på dess patogenicitet, smittväg, tillgång till behandling och samhällsrisk. Därefter tilldelas laboratoriet där organismen hanteras en motsvarande biosäkerhetsnivå (BSL 1–4), som avgör praxis, skyddsutrustning och lokalkrav."
+    ]
+  },
+  "riskGroups": {
+    "heading": "De fyra riskgrupperna (Nambisan, NIH Guidelines Appendix B)",
+    "intro": "Indelningen i en riskgrupp baseras på fyra faktorer:",
+    "factors": [
+      "Organismens patogenicitet (om den alls orsakar sjukdom)",
+      "Värdomfång och smittväg",
+      "Lokal tillgång till effektiva förebyggande åtgärder",
+      "Lokal tillgång till effektiv behandling"
+    ]
+  },
+  "bslLevels": [
+    {
+      "level": 1,
+      "title": "BSL-1 — Låg risk",
+      "description": "BSL-1-organismer orsakar inte sjukdom hos friska vuxna. De används inom grundforskning och undervisning. Laboratoriet kräver ingen särskild inneslutning, och arbetet utförs på öppen bänk.",
+      "equipment": ["Labbrock", "Handskar vid behov", "Skyddsglasögon mot stänk"],
+      "examples": "Bagerjäst, jordbakterier, laboratoriestammar av E. coli."
+    },
+    {
+      "level": 2,
+      "title": "BSL-2 — Måttlig risk",
+      "description": "BSL-2-organismer kan orsaka sjukdom, men effektiv behandling eller vaccin finns oftast tillgängligt. Smitta kräver direkt kontakt (blod, sekret, mat) — sprids inte via luften. Tillträdet till laboratoriet är begränsat under pågående arbete.",
+      "equipment": [
+        "Labbrock",
+        "Handskar hela tiden",
+        "Skyddsglasögon eller visir",
+        "Dragskåp/biosäkerhetsbänk för hantering av aerosoler"
+      ],
+      "examples": "Salmonella, stafylokocker, vattkoppor, hepatit A, klamydia."
+    },
+    {
+      "level": 3,
+      "title": "BSL-3 — Hög risk",
+      "description": "BSL-3-organismer kan orsaka allvarlig eller livshotande sjukdom, och vissa sprids via luften som aerosoler. Tillträdet är strikt kontrollerat, och laboratoriet har riktat luftflöde som förhindrar att patogener läcker ut.",
+      "equipment": [
+        "Engångsoverall eller sluten heltäckande rock",
+        "Dubbla handskar",
+        "Andningsskydd (N95 eller bättre)",
+        "Dusch vid utgång"
+      ],
+      "examples": "Tuberkulos, mjältbrand, covid-19 (virusodling), hiv, hepatit B och C, denguefeber."
+    },
+    {
+      "level": 4,
+      "title": "BSL-4 — Maximal risk",
+      "description": "BSL-4-organismer orsakar ofta en dödlig sjukdom, och ingen effektiv behandling eller vaccin finns tillgänglig. Fullständig isolering från omgivningen och ett specialbyggt laboratorium krävs.",
+      "equipment": [
+        "Helt sluten övertrycksdräkt med egen luftförsörjning",
+        "Handskar integrerade i dräkten",
+        "Dusch och dekontaminering vid utgång",
+        "Allt material autoklaveras"
+      ],
+      "examples": "Ebola, Marburg, Lassafeber, smittkoppor (utrotad), Krim-Kongo-hemorragisk feber."
+    }
+  ],
+  "organismTables": [
+    {
+      "level": 1,
+      "heading": "BSL-1 — Låg risk (15 organismer)",
+      "rows": [
+        [1, "Bagerjäst", "Saccharomyces cerevisiae", "Svamp", "Modellorganism för eukaryot cellbiologi"],
+        [2, "Jordbakterie", "Bacillus subtilis", "Bakterie", "Modell för sporuleringsforskning"],
+        [3, "Laboratorie-E. coli", "E. coli (icke-patogena stammar)", "Bakterie", "Biologiskt försvagad (EK1-systemet)"],
+        [4, "Mjölkjäst", "Kluyveromyces lactis", "Svamp", "GRAS-organism"],
+        [5, "Adeno-associerat virus", "AAV", "Virus", "Replikerar inte utan en hjälparvirus"],
+        [6, "Mjölksyrabakterie", "Lactobacillus acidophilus", "Bakterie", "Del av tarmens normalflora"],
+        [7, "Caulobacter", "Caulobacter crescentus", "Bakterie", "Modell för celldelningsforskning"],
+        [8, "Halobacterium", "Halobacterium salinarum", "Arké", "Extremofil, lever inte i människokroppen"],
+        [9, "Cyanobakterie", "Synechocystis spp.", "Bakterie", "Modell för fotosyntesforskning"],
+        [10, "Phi29-bakteriofag", "Bacillus phage phi29", "Virus", "Infekterar endast bakterier"],
+        [11, "Pseudomonas fluorescens", "Pseudomonas fluorescens", "Bakterie", "Icke-patogen jordart"],
+        [12, "Agrobacterium", "Agrobacterium tumefaciens", "Bakterie", "Infekterar endast växter"],
+        [13, "Tetrahymena", "Tetrahymena thermophila", "Protozo", "Nobelprisbelönad forskningsmodell"],
+        [14, "Lambda-bakteriofag", "Enterobacteria phage lambda", "Virus", "Klassisk modell för genreglering"],
+        [15, "Neurospora-mögelsvamp", "Neurospora crassa", "Svamp", "Genetisk forskningsmodell sedan 1940-talet"]
+      ]
+    },
+    {
+      "level": 2,
+      "heading": "BSL-2 — Måttlig risk (21 organismer)",
+      "note": "Hiv, hepatit B, hepatit C och denguefeber finns inte med i denna BSL-2-lista — de har flyttats till BSL-3 enligt finsk lagstiftning (se del 3).",
+      "rows": [
+        [16, "Influensa A", "Säsongsinfluensavirus", "Virus", "Vaccin finns tillgängligt"],
+        [17, "Mässling", "Morbillivirus", "Virus", "MPR-vaccin skyddar"],
+        [18, "Salmonella", "Salmonella Typhimurium", "Bakterie", "Livsmedelsburen"],
+        [19, "Stafylokocker", "Staphylococcus aureus", "Bakterie", "MRSA-stammar resistenta"],
+        [20, "Borrelios", "Borrelia burgdorferi", "Bakterie", "Fästingburen"],
+        [21, "Kolera", "Vibrio cholerae", "Bakterie", "Vattenburen, vaccin finns"],
+        [22, "Vattkoppor", "VZV", "Virus", "Vaccin skyddar"],
+        [23, "Norovirus", "Norwalk-virus", "Virus", "Fekal-oral smittväg"],
+        [24, "Syfilis", "Treponema pallidum", "Bakterie", "Penicillin effektivt"],
+        [25, "Kikhosta", "Bordetella pertussis", "Bakterie", "Vaccin skyddar"],
+        [26, "Klamydia", "Chlamydia trachomatis", "Bakterie", "Vanligaste bakteriella STI:n"],
+        [27, "Meningokocker", "Neisseria meningitidis", "Bakterie", "Vaccin skyddar"],
+        [28, "Toxoplasmos", "Toxoplasma gondii", "Protozo/parasit", "Farlig för gravida"],
+        [29, "Kryptosporidios", "Cryptosporidium parvum", "Parasit", "Klorresistent"],
+        [30, "Candida", "Candida albicans", "Svamp", "Vanligaste svampinfektionen"],
+        [31, "Aspergillus", "Aspergillus fumigatus", "Svamp", "Allergiframkallande"],
+        [32, "Listeria", "Listeria monocytogenes", "Bakterie", "Växer i kylskåpstemperatur"],
+        [33, "Papillomvirus", "HPV", "Virus", "Vaccin skyddar mot cancerstammar"],
+        [34, "Hepatit A", "Hepatovirus A", "Virus", "Fekal-oral smitta"],
+        [35, "Stelkramp", "Clostridium tetani", "Bakterie", "Vaccin mycket effektivt"],
+        [36, "Malaria (andra arter)", "Plasmodium spp.", "Parasit", "Myggburen"]
+      ]
+    },
+    {
+      "level": 3,
+      "heading": "BSL-3 — Hög risk (15 organismer)",
+      "rows": [
+        [37, "Tuberkulos", "Mycobacterium tuberculosis", "Bakterie", "Luftburen smitta"],
+        [38, "Mjältbrand", "Bacillus anthracis", "Bakterie", "Sporer överlever i decennier"],
+        [39, "Covid-19 (virusodling)", "SARS-CoV-2", "Virus", "Diagnostik BSL-2, odling BSL-3"],
+        [40, "Pest", "Yersinia pestis", "Bakterie", "Lungpestformen luftburen"],
+        [41, "Sorkfeber (nefropathia epidemica)", "Puumala ortohantavirus", "Virus", "Vildtyp BSL-3, cellodlingsstam BSL-2"],
+        [42, "Gula febern", "Gula febern-virus", "Virus", "Vaccin finns"],
+        [43, "Fästingburen hjärninflammation (TBE)", "TBE-virus", "Virus", "Vaccin finns"],
+        [44, "Malaria (falciparum)", "Plasmodium falciparum", "Parasit", "Risk för cerebral malaria"],
+        [45, "Brucellos", "Brucella melitensis", "Bakterie", "Aerosolsmitta möjlig"],
+        [46, "Papegojsjuka (psittakos)", "Chlamydia psittaci (fågelstammar)", "Bakterie", "Andra stammar BSL-2"],
+        [47, "CJS-prion", "Creutzfeldt-Jakobs sjukas agens", "Prion", "Förstörs inte vid sterilisering"],
+        [48, "Hiv", "Humant immunbristvirus 1", "Virus", "BSL-3 i Finland"],
+        [49, "Hepatit B", "Hepatit B-virus", "Virus", "BSL-3 i Finland"],
+        [50, "Hepatit C", "Hepacivirus C", "Virus", "BSL-3 i Finland"],
+        [51, "Denguefeber", "Denguevirus", "Virus", "BSL-3 i Finland"]
+      ]
+    },
+    {
+      "level": 4,
+      "heading": "BSL-4 — Maximal risk (9 organismer)",
+      "rows": [
+        [52, "Ebola", "Ebolavirus", "Virus", "Dödlighet upp till 90 %"],
+        [53, "Marburg", "Marburg-marburgvirus", "Virus", "Första utbrottet skedde i ett laboratorium"],
+        [54, "Lassafeber", "Lassa-mammarenavirus", "Virus", "Sprids från person till person"],
+        [55, "Nipah-hjärninflammation", "Nipah-henipavirus", "Virus", "Dödlighet 40–75 %"],
+        [56, "Hendravirus", "Hendra-henipavirus", "Virus", "Överförs från hästar"],
+        [57, "Krim-Kongo-hemorragisk feber", "CCHFV", "Virus", "Fästing- och blodkontakt"],
+        [58, "Smittkoppor", "Variola major", "Virus", "Utrotad från naturen 1980"],
+        [59, "Boliviansk blödarfeber", "Machupo-mammarenavirus", "Virus", "Dokumenterad sjukhusspridning"],
+        [60, "Junín-virus", "Junín-mammarenavirus", "Virus", "Endast specialiserade laboratorier"]
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "text": "Finlands social- och hälsovårdsministeriums förordning 748/2020 om biologiska agens. Baserad på EU-direktiven 2000/54/EG, 2019/1833 och 2020/739.",
+      "url": "https://www.edilex.fi/lainsaadanto/aiempi/20200748"
+    },
+    {
+      "text": "WHO Laboratory Biosafety Manual, 4:e upplagan (2020) och 3:e upplagan (2004).",
+      "url": "https://iris.who.int/server/api/core/bitstreams/6bcee6cb-9841-4c36-a86f-f0caf920fa46/content"
+    },
+    {
+      "text": "Trapotsis, A. \"Biosafety Levels 1, 2, 3 & 4: What's the Difference?\" — baserad på CDC:s Biosafety in Microbiological and Biomedical Laboratories (BMBL), 6:e upplagan.",
+      "url": "https://consteril.com/biosafety-levels-difference/"
+    },
+    {
+      "text": "Nambisan, P. \"Chapter 11 — Laboratory Biosafety and Good Laboratory Practices.\" Baserad på NIH Guidelines for Research Involving Recombinant or Synthetic Nucleic Acid Molecules och WHO Laboratory Biosafety Manual (2004).",
+      "url": "https://www.sciencedirect.com/science/chapter/monograph/pii/B9780128092316000119"
+    },
+    {
+      "text": "Bayot, M.L. & King, K.C. \"Biohazard Levels.\" StatPearls (2022).",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK535351/"
+    },
+    {
+      "text": "BSL wiki",
+      "url": "https://en.wikipedia.org/wiki/Biosafety_level"
+    },
+    {
+      "text": "BSL-material",
+      "url": "https://tuttnauer.com/sites/default/files/2021-07/bsl-lab-tuttnauer-en-29-07-21.pdf"
+    }
+  ]
+}
