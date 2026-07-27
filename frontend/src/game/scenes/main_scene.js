@@ -97,6 +97,7 @@ class MainScene extends Phaser.Scene {
         this.load.image('air_systems', 'assets/rooms/air-systems.jpeg');
         this.load.image('dressing_room', 'assets/rooms/dressing-room.png');
         this.load.image('info_desk', 'assets/rooms/info-desk.png');
+        this.load.image('exit_area', 'assets/rooms/exit_area.png');
     }
 
     createWoodFloor() {
@@ -272,6 +273,7 @@ class MainScene extends Phaser.Scene {
         }
 
         this.playerInsideLectureRoom = false;
+        this.playerInsideExitRoom = false;
         this.playerInsideDressingRoom = false;
         this.closetHint = this.add.text(0, 0, "", {
             fontSize: "14px",
@@ -421,6 +423,15 @@ class MainScene extends Phaser.Scene {
                 this.playerInsideLectureRoom = true;
             } else if (!inside) {
                 this.playerInsideLectureRoom = false;
+            }
+        }
+        if (this.exitZone) {
+            const inside = playerIsInsideZone(this.player, this.exitZone);
+
+            if (inside && !this.playerInsideExitRoom) {
+                this.playerInsideExitRoom = true;
+            } else if (!inside && this.playerInsideExitRoom) {
+                this.playerInsideExitRoom = false;
             }
         }
 

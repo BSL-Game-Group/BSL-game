@@ -201,6 +201,15 @@ function setupLectureRoom(scene, walls) {
         namedSolid(scene, 404, 184, 472, 248, 'lecture-shelf-4'), // right-lower
     ];
 }
+function setupExitArea(scene, walls) {
+    scene.add.image(480, 0, 'exit_area')
+        .setOrigin(0, 0)
+        .setDisplaySize(220, 290)
+        .setDepth(-5);
+
+    // back wall
+    solidBox(scene, 480, 0, 700, 60, walls);
+}
 
 // Invisible colliders over the dressing-room furniture, estimated from the room
 // art (image 1024x419 mapped onto the 700x290 ppe zone at x:0,y:430). Everything
@@ -316,12 +325,19 @@ export function createRooms(scene) {
         { key: 'BSL-3', x: 960, y: 470, width: 320, height: 250 },
         { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 },
     ];
+    scene.exitZone = {
+        x: 480,
+        y: 0,
+        width: 220,
+        height: 290,
+    };
 
     window.__gameData = {
         ...window.__gameData,
         lectureRoomZone: scene.lectureRoomZone,
         ppeRoomZone: scene.ppeRoomZone,
         bslRoomZones: scene.bslRoomZones,
+        exitZone: scene.exitZone,
     };
 
     // Draw the BSL-1 background image
@@ -378,6 +394,7 @@ export function createRooms(scene) {
     setupLectureRoom(scene, walls);
     setupDressingRoomDeadzones(scene, walls);
     setupInfoDesk(scene, walls);
+    setupExitArea(scene, walls);
 
     return walls;
 }
