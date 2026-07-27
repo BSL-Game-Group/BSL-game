@@ -227,9 +227,7 @@ describe('createRooms — info desk', () => {
 })
 
 // The lecture room is drawn as a transparent pixel-art overlay (its floor comes
-// from the game). The back wall is a real solid wall, and the bookshelves are
-// solid too but live in their OWN named group (`scene.lectureShelves`) — the
-// contract the future "shelves as buttons" feature builds on.
+// from the game). The back wall, front ledge and both workstations are solid.
 describe('createRooms — lecture room', () => {
   test('adds the transparent lecture-room overlay at the room origin', () => {
     const scene = makeFakeScene()
@@ -237,24 +235,29 @@ describe('createRooms — lecture room', () => {
     expect(scene.add.image).toHaveBeenCalledWith(0, 0, 'lecture_room')
   })
 
-  test('adds a solid back-wall box (centre 240,30 · 480×60)', () => {
+  test('adds the lecture room collision boxes', () => {
     const scene = makeFakeScene()
     createRooms(scene)
+
+    // Back wall
     expect(scene.add.rectangle).toHaveBeenCalledWith(240, 30, 480, 60)
+
+    // Front ledge
+    expect(scene.add.rectangle).toHaveBeenCalledWith(240, 85, 480, 50)
+
+    // Left workstation
+    expect(scene.add.rectangle).toHaveBeenCalledWith(127, 184, 174, 104)
+
+    // Right workstation
+    expect(scene.add.rectangle).toHaveBeenCalledWith(353, 184, 174, 104)
   })
 
-  test('exposes exactly 4 named bookshelves in their own group', () => {
+  test('does not expose bookshelf colliders anymore', () => {
     const scene = makeFakeScene()
-    const walls = createRooms(scene)
+    createRooms(scene)
 
     expect(Array.isArray(scene.lectureShelves)).toBe(true)
-    expect(scene.lectureShelves).toHaveLength(4)
-    expect(scene.lectureShelves.map((s) => s.name)).toEqual([
-      'lecture-shelf-1', 'lecture-shelf-2', 'lecture-shelf-3', 'lecture-shelf-4',
-    ])
-
-    // shelves are NOT part of the walls array (they are their own collision group)
-    scene.lectureShelves.forEach((shelf) => expect(walls).not.toContain(shelf))
+    expect(scene.lectureShelves).toHaveLength(0)
   })
 })
 

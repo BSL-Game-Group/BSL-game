@@ -268,9 +268,7 @@ class MainScene extends Phaser.Scene {
         }).setDepth(1000).setVisible(false);
 
         this.physics.add.collider(this.player, walls);
-        if (this.lectureShelves) {
-            this.physics.add.collider(this.player, this.lectureShelves);
-        }
+
 
         this.playerInsideLectureRoom = false;
         this.playerInsideExitRoom = false;

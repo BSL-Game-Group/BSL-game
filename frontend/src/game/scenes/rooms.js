@@ -182,24 +182,28 @@ function setupBslInteractables(scene) {
 }
 
 // Lecture-room decor: a transparent pixel-art furniture overlay (the room's floor comes
-// from the game). The back wall is solid (a real wall). The bookshelves are solid too,
+// from the game). The back wall is solid (a real wall).
 // but live in their OWN named group (`scene.lectureShelves`) rather than `walls`.
 function setupLectureRoom(scene, walls) {
     scene.add.image(0, 0, 'lecture_room')
         .setOrigin(0, 0)
         .setDisplaySize(480, 290)
-        .setDepth(-5); // above the floor (-10), below walls (0) and the player (10)
+        .setDepth(-5);
 
-    // Back wall: solid. The game's black wall reads as its rear; the plaster face is in the overlay.
+    // Back wall
     solidBox(scene, 0, 0, 480, 60, walls);
 
-    // Bookshelves — own named group so a future "shelves as buttons" feature can hook onto them.
-    scene.lectureShelves = [
-        namedSolid(scene, 8, 72, 76, 136, 'lecture-shelf-1'),     // left-upper
-        namedSolid(scene, 8, 184, 76, 248, 'lecture-shelf-2'),    // left-lower
-        namedSolid(scene, 404, 72, 472, 136, 'lecture-shelf-3'),  // right-upper
-        namedSolid(scene, 404, 184, 472, 248, 'lecture-shelf-4'), // right-lower
-    ];
+    // Front ledge under the display wall
+    solidBox(scene, 0, 60, 480, 110, walls);
+
+    // Left workstation
+    solidBox(scene, 40, 132, 214, 236, walls);
+
+    // Right workstation
+    solidBox(scene, 266, 132, 440, 236, walls);
+
+    // No bookshelf colliders anymore
+    scene.lectureShelves = [];
 }
 function setupExitArea(scene, walls) {
     scene.add.image(480, 0, 'exit_area')
