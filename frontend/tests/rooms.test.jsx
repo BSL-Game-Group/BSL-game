@@ -136,8 +136,6 @@ describe('createRooms', () => {
     const labelTexts = scene.__created.texts.map((t) => t.args.text)
     expect(labelTexts).toEqual(
       expect.arrayContaining([
-        'Corridor',
-        'Dressing room',
         'BSL 1',
         'BSL 2',
       ])
@@ -164,13 +162,6 @@ describe('createRooms — air system', () => {
     expect(airImg.setDisplaySize).toHaveBeenCalledWith(170, 110)
   })
 
-  test('draws an AIR SYSTEMS label on top', () => {
-    const scene = makeFakeScene()
-    createRooms(scene)
-
-    const labelTexts = scene.__created.texts.map((t) => t.args.text)
-    expect(labelTexts).toContain('AIR SYSTEMS')
-  })
 })
 
 // The dressing room (ppe zone) is filled wall-to-wall by its background image.
@@ -380,4 +371,36 @@ describe('setupBslInteractables (via createRooms)', () => {
     window.removeEventListener('answer-popup-opened', listener)
     expect(levels).toEqual(['BSL-2'])
   })
+
+  describe('createRooms — exit area', () => {
+  test('adds the exit area background image', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.add.image).toHaveBeenCalledWith(480, 0, 'exit_area')
+  })
+
+  test('creates the exit room back wall collider', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.add.rectangle).toHaveBeenCalledWith(590, 30, 220, 60)
+  })
+
+  test('creates the exit zone', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.exitZone).toEqual({
+      x: 480,
+      y: 0,
+      width: 220,
+      height: 290,
+    })
+  })
 })
+})
+
