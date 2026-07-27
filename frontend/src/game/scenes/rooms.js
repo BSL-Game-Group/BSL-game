@@ -305,18 +305,10 @@ export function createRooms(scene) {
     vWall(scene, 1110, 250, 470, [[250, 360]], walls);   // BSL4 airlock 1 <-> 2 (clean top-row opening)
     hWall(scene, 960, 1280, 470, [[970, 1040]], walls);  // BSL3 airlock <-> BSL 3 only
 
-    // ---- LABELS ---- (lecture room now shown via the pixel-art overlay, so no text label)
-    label(scene, 590, 145, 'Exit', 12);
-    label(scene, 350, 360, 'Corridor', 12);
-    label(scene, 350, 575, 'Dressing room');
+    // ---- LABELS ----
     label(scene, 830, 125, 'BSL 2', 16, true);
-    label(scene, 830, 360, 'Labs', 12);
     label(scene, 830, 595, 'BSL 1', 16, true);
     label(scene, 1120, 125, 'BSL 4', 16, true);
-    label(scene, 1035, 305, 'BSL4\nAIRLOCK 1', 9);
-    label(scene, 1195, 305, 'BSL4\nAIRLOCK 2', 9);
-    label(scene, 1035, 415, 'BSL3\nAIRLOCK', 9);
-    label(scene, 1195, 430, 'AIR SYSTEMS', 11, true);
     label(scene, 1120, 595, 'BSL 3', 16, true);
 
     // ---- ZONES (game logic) ----
