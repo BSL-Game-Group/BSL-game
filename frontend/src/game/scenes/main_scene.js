@@ -90,7 +90,7 @@ class MainScene extends Phaser.Scene {
 
         // Rooms
         this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
-        this.load.image('lecture_room', 'assets/lecture_room.png');
+        this.load.image('lecture_room', 'assets/rooms/lecture_room2.png');
         this.load.image('bsl2_room', 'assets/rooms/BSL-2.jpg');
         this.load.image('bsl3_room', 'assets/rooms/BSL-3 ver. 2.png');
         this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
