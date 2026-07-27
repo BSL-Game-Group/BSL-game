@@ -77,6 +77,18 @@ app.get('/api/microbes/:id', async (req, res) => {
   }
 })
 
+app.get('/api/bsl-material', async (req, res) => {
+  try {
+    const lang = req.query.lang || 'en'
+    let row = await db.BSLMaterial.findByPk(lang)
+    if (!row) row = await db.BSLMaterial.findByPk('en')
+    res.json(row.content)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Failed to fetch BSL material' })
+  }
+})
+
 app.post('/api/rooms/enter', async (req, res) => {
   try {
     const { room_key, session_id } = req.body
