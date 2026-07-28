@@ -215,13 +215,14 @@ function setupExitArea(scene, walls) {
     solidBox(scene, 480, 0, 700, 60, walls);
 }
 
-// Info point in the lecture room's top-left area: a green pulsing glow (same look
-// as the corridor info desk) that opens the lecture-materials panel on E, instead
-// of it opening automatically when the player enters the room. Placed just right
-// of the left-upper bookshelf and below the back wall, since both are solid.
+// Info point in the lecture room: a green pulsing glow (same look as the corridor
+// info desk) that opens the lecture-materials panel on E, instead of it opening
+// automatically when the player enters the room. Placed in the aisle between the
+// two workstations (x:214-266 is open floor at every y), since the display wall
+// (y:0-110) and both workstations (x:40-214 and x:266-440, y:132-236) are solid.
 function setupLectureInfoPoint(scene) {
-    const gx = 130;
-    const gy = 110;
+    const gx = 240;
+    const gy = 180;
     const radius = 35;
 
     const glow = scene.add.graphics();
