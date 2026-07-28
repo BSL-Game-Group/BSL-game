@@ -255,12 +255,12 @@ describe('createRooms — lecture room', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
-    expect(scene.lecturePoint).toEqual({ x: 240, y: 180 })
+    expect(scene.lecturePoint).toEqual({ x: 300, y: 240 })
     expect(scene.lectureGlow).toBeDefined()
     expect(scene.lectureGlowTween).toBeDefined()
 
     const glow = scene.__created.graphics.find((g) => g === scene.lectureGlow)
-    expect(glow.fillCircle).toHaveBeenCalledWith(240, 180, 35)
+    expect(glow.fillCircle).toHaveBeenCalledWith(300, 240, 35)
   })
 
   test('clicking the info point unlocks the lecture materials', () => {
@@ -271,7 +271,7 @@ describe('createRooms — lecture room', () => {
     window.addEventListener('lecture-materials-unlocked', handler)
 
     const lectureZone = scene.__created.zones.find(
-      (z) => z.args.x === 240 && z.args.y === 180
+      (z) => z.args.x === 300 && z.args.y === 240
     )
     lectureZone.handlers.pointerdown()
 
