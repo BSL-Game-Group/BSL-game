@@ -2,7 +2,7 @@
   "intro": {
     "heading": "Internationell utveckling",
     "paragraphs": [
-      "BSL-systemets rötter finns i 1970-talets forskning om rekombinant-DNA. Efter Asilomar-konferensen publicerade amerikanska NIH år 1976 riktlinjer för forskning om rekombinant nukleinsyra. WHO följde efter 1983 genom att publicera den första Laboratory Biosafety Manual, som sedan dess har uppdaterats flera gånger — den tredje upplagan (2004) introducerade för första gången begreppet biosecurity, och den fjärde upplagan (2020) övergick starkare till en riskbaserad bedömning.",
+      "BSL-systemets rötter finns i 1970-talets forskning om rekombinant-DNA. Efter Asilomar-konferensen publicerade amerikanska NIH år 1976 riktlinjer för forskning om rekombinant nukleinsyra. WHO följde efter 1983 genom att publicera den första Laboratory Biosafety Manualen, som sedan dess har uppdaterats flera gånger — den tredje upplagan (2004) introducerade för första gången begreppet biosecurity, och den fjärde upplagan (2020) övergick starkare till en riskbaserad bedömning.",
       "Den centrala principen är densamma i alla system: varje biologisk agens klassificeras först in i en riskgrupp (Risk Group 1–4) baserat på dess patogenicitet, smittväg, tillgång till behandling och samhällsrisk. Därefter tilldelas laboratoriet där organismen hanteras en motsvarande biosäkerhetsnivå (BSL 1–4), som avgör praxis, skyddsutrustning och lokalkrav."
     ]
   },
