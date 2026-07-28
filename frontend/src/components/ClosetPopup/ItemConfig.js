@@ -39,6 +39,13 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
+    closable_lab_coat: {
+    category: 'body',
+    equippedStyle: {
+      position: 'absolute', top: '95px', left: '55px', width: '130px', height: 'auto',
+      transform: 'scale(0.93) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
   mask: {
     category: 'masks',
     equippedStyle: {
@@ -75,13 +82,7 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transform: 'scale(2.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
-  closable_lab_coat: {
-    category: 'body',
-    equippedStyle: {
-      position: 'absolute', top: '45px', left: '55px', width: '130px', height: 'auto',
-      transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
-    }
-  },
+
 });
 
 // Pure equip rule: returns a new equipped map with `itemId` on. For a

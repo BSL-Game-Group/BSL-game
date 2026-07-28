@@ -201,7 +201,7 @@ class MainScene extends Phaser.Scene {
             sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
             gloves: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
             gloves_2: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
-            closable_lab_coat: { scale: 0.05, offsetX: -1,  offsetY: 5 }
+            closable_lab_coat: { scale: 0.33, offsetX: -1,  offsetY: 7 }
         };
 
         // 3. Create the Equipment Sprites using the configurations above
