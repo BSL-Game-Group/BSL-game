@@ -80,22 +80,24 @@ class MainScene extends Phaser.Scene {
         this.load.image('player_base', 'assets/player/base.png');
 
         // Equipment
-        this.load.image('lab_coat', 'assets/equipment/equipment_on_character/lab_coat.png');
-        this.load.image('mask', 'assets/equipment/equipment_on_character/mask.png');
-        this.load.image('glasses', 'assets/equipment/equipment_on_character/glasses.png');
+        this.load.image('lab_coat', 'assets/equipment/on_character/body/lab_coat_on.png');
+        this.load.image('mask', 'assets/equipment/on_character/masks/mask_on.png');
+        this.load.image('glasses', 'assets/equipment/on_character/eyewear/glasses_on.png');
+        this.load.image('sunglasses', 'assets/equipment/on_character/eyewear/sunglasses_on.png');
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
         this.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
 
         // Rooms
         this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
-        this.load.image('lecture_room', 'assets/lecture_room.png');
+        this.load.image('lecture_room', 'assets/rooms/lecture_room2.png');
         this.load.image('bsl2_room', 'assets/rooms/BSL-2.jpg');
         this.load.image('bsl3_room', 'assets/rooms/BSL-3 ver. 2.png');
         this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
         this.load.image('air_systems', 'assets/rooms/air-systems.jpeg');
         this.load.image('dressing_room', 'assets/rooms/dressing-room.png');
         this.load.image('info_desk', 'assets/rooms/info-desk.png');
+        this.load.image('exit_area', 'assets/rooms/exit_area.png');
     }
 
     createWoodFloor() {
@@ -193,7 +195,8 @@ class MainScene extends Phaser.Scene {
         this.equipmentConfig = {
             lab_coat: { scale: 0.05, offsetX: -1,  offsetY: 5 },
             mask:     { scale: 0.075, offsetX: -1,  offsetY: -20 },
-            glasses:  { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 }
+            glasses:  { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
+            sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 }
         };
 
         // 3. Create the Equipment Sprites using the configurations above
@@ -209,6 +212,10 @@ class MainScene extends Phaser.Scene {
             glasses: this.add.sprite(700, 300, 'glasses')
                 .setScale(this.equipmentConfig.glasses.scale)
                 .setVisible(false)
+                .setDepth(13),
+            sunglasses: this.add.sprite(700, 300, 'sunglasses')
+                .setScale(this.equipmentConfig.sunglasses.scale)
+                .setVisible(false)
                 .setDepth(13)
         };
 
@@ -218,6 +225,7 @@ class MainScene extends Phaser.Scene {
             this.equipment.lab_coat.setVisible(equipped.lab_coat);
             this.equipment.mask.setVisible(equipped.mask);
             this.equipment.glasses.setVisible(equipped.glasses);
+            this.equipment.sunglasses.setVisible(equipped.sunglasses);
         };
         window.addEventListener('equipment-changed', this.handleEquipmentChange);
 
@@ -260,11 +268,10 @@ class MainScene extends Phaser.Scene {
         }).setDepth(1000).setVisible(false);
 
         this.physics.add.collider(this.player, walls);
-        if (this.lectureShelves) {
-            this.physics.add.collider(this.player, this.lectureShelves);
-        }
+
 
         this.playerInsideLectureRoom = false;
+        this.playerInsideExitRoom = false;
         this.playerInsideDressingRoom = false;
         this.closetHint = this.add.text(0, 0, "", {
             fontSize: "14px",
@@ -397,8 +404,12 @@ class MainScene extends Phaser.Scene {
                 this.player.y + this.equipmentConfig.mask.offsetY
             );
             this.equipment.glasses.setPosition(
-                this.player.x + this.equipmentConfig.glasses.offsetX, 
+                this.player.x + this.equipmentConfig.glasses.offsetX,
                 this.player.y + this.equipmentConfig.glasses.offsetY
+            );
+            this.equipment.sunglasses.setPosition(
+                this.player.x + this.equipmentConfig.sunglasses.offsetX,
+                this.player.y + this.equipmentConfig.sunglasses.offsetY
             );
         }
 
@@ -412,6 +423,15 @@ class MainScene extends Phaser.Scene {
                 this.playerInsideLectureRoom = true;
             } else if (!inside) {
                 this.playerInsideLectureRoom = false;
+            }
+        }
+        if (this.exitZone) {
+            const inside = playerIsInsideZone(this.player, this.exitZone);
+
+            if (inside && !this.playerInsideExitRoom) {
+                this.playerInsideExitRoom = true;
+            } else if (!inside && this.playerInsideExitRoom) {
+                this.playerInsideExitRoom = false;
             }
         }
 

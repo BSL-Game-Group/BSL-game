@@ -183,15 +183,15 @@ test('preload loads all game assets', () => {
   )
   expect(scene.load.image).toHaveBeenCalledWith(
     'lab_coat',
-    'assets/equipment/equipment_on_character/lab_coat.png'
+    'assets/equipment/on_character/body/lab_coat_on.png'
   )
   expect(scene.load.image).toHaveBeenCalledWith(
     'mask',
-    'assets/equipment/equipment_on_character/mask.png'
+    'assets/equipment/on_character/masks/mask_on.png'
   )
   expect(scene.load.image).toHaveBeenCalledWith(
     'glasses',
-    'assets/equipment/equipment_on_character/glasses.png'
+    'assets/equipment/on_character/eyewear/glasses_on.png'
   )
   expect(scene.load.image).toHaveBeenCalledWith(
     'dresser',

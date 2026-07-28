@@ -181,6 +181,9 @@ test('create creates equipment sprites', () => {
 
   expect(scene.add.sprite)
     .toHaveBeenCalledWith(700, 300, 'glasses')
+
+  expect(scene.add.sprite)
+    .toHaveBeenCalledWith(700, 300, 'sunglasses')
 })
 
 test('create initializes keyboard controls', () => {
@@ -234,22 +237,4 @@ test('create registers shutdown handler', () => {
     'shutdown',
     expect.any(Function)
   )
-})
-
-test('create wires a separate collider for the lecture shelves when present', () => {
-  const rooms = require('../src/game/scenes/rooms')
-
-  const shelves = [{ name: 'lecture-shelf-1' }]
-
-  rooms.createRooms.mockImplementationOnce((scene) => {
-    scene.lectureShelves = shelves
-    return []
-  })
-
-  const scene = createScene()
-
-  scene.create()
-
-  expect(scene.physics.add.collider)
-    .toHaveBeenCalledWith(scene.player, shelves)
 })
