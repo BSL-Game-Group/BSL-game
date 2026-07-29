@@ -79,7 +79,6 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
   const handleToggleEquip = (itemId, isEquipped) => {
     setEquipped((prev) => {
       const next = isEquipped ? applyEquip(prev, itemId) : { ...prev, [itemId]: false }
-      console.log('Equipment changed:', next)
       return next
     })
   }
