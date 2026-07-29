@@ -8,7 +8,14 @@ import { TranslationContext } from '../src/i18n/context'
 // HELPERS
 // -----------------------------
 function renderPopup(props = {}) {
-  const defaults = { open: true, onClose: jest.fn(), isCorrect: true, level: 'BSL-2' }
+  const defaults = {
+    open: true,
+    onClose: jest.fn(),
+    isCorrect: true,
+    isLevelCorrect: true,
+    isEquipmentCorrect: true,
+    level: 'BSL-2',
+  }
   return render(<AnswerPopup {...defaults} {...props} />)
 }
 
@@ -78,13 +85,13 @@ describe('AnswerPopup component', () => {
   })
 
   test('shows the backend incorrect feedback when wrong with a microbe', () => {
-    renderPopup({ isCorrect: false, microbe })
+    renderPopup({ isCorrect: false, isLevelCorrect: false, microbe })
 
     expect(screen.getByText(/that organism belongs elsewhere/i)).toBeInTheDocument()
   })
 
   test('shows the true class of the microbe', () => {
-    renderPopup({ isCorrect: false, level: 'BSL-3', microbe })
+    renderPopup({ isCorrect: false, isLevelCorrect: false, level: 'BSL-3', microbe })
 
     expect(screen.getByText(/E\. coli belongs to BSL-1/i)).toBeInTheDocument()
   })

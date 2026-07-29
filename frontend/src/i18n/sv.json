@@ -54,6 +54,8 @@
     "incorrect": "Inte riktigt",
     "correctFallback": "Det är rätt rum.",
     "incorrectFallback": "Det är inte rätt rum.",
+    "equipmentCorrect": "Din skyddsutrustning upfyller BSL-kraven",
+    "equipmentIncorrect": "Din skyddsutrustning upfyller inte BSL-kraven.",
     "chosenLevel": "Du valde {level}.",
     "belongs": "{name} tillhör BSL-{level}."
   },
