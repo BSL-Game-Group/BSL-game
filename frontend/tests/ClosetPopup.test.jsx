@@ -296,11 +296,13 @@ describe('ClosetPopup component', () => {
     expect(labels).toEqual(['Eyewear', 'Masks', 'Body', 'Gloves'])
   })
 
-  test('empty Gloves tab shows the empty state', () => {
+  test('Gloves tab shows the gloves item', () => {
     renderPopup(true)
 
     fireEvent.click(screen.getByRole('button', { name: /^gloves$/i }))
-    expect(screen.getByText(/no gloves available yet/i)).toBeInTheDocument()
+    // Items are exposed as buttons named via aria-label (the image is decorative),
+    // so the glove items appear as buttons alongside the "Gloves" tab.
+    expect(screen.getByRole('button', { name: /^gloves 2$/i })).toBeInTheDocument()
   })
 
   test('renders player heading', () => {

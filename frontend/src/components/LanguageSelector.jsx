@@ -24,6 +24,7 @@ function LanguageSelector() {
         onClick={() => setLanguage('sv')}
         style={{
           padding: '8px 12px',
+          marginRight: '4px',
           backgroundColor: language === 'sv' ? '#0066cc' : '#e0e0e0',
           color: language === 'sv' ? '#fff' : '#000',
           border: 'none',
@@ -33,6 +34,20 @@ function LanguageSelector() {
         }}
       >
         Svenska
+      </button>
+      <button
+        onClick={() => setLanguage('fi')}
+        style={{
+          padding: '8px 12px',
+          backgroundColor: language === 'fi' ? '#0066cc' : '#e0e0e0',
+          color: language === 'fi' ? '#fff' : '#000',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          fontSize: '0.9rem',
+        }}
+      >
+        Suomi
       </button>
     </div>
   )

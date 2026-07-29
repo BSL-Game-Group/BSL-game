@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import en from './en.json'
 import sv from './sv.json'
+import fi from './fi.json'
 import { TranslationContext } from './context'
 
-const translations = { en, sv }
+const translations = { en, sv, fi }
 const DEFAULT_LANGUAGE = 'en'
 
 const supportedLanguage = (value) =>
