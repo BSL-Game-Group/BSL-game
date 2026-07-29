@@ -39,6 +39,13 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
+    closable_lab_coat: {
+    category: 'body',
+    equippedStyle: {
+      position: 'absolute', top: '95px', left: '55px', width: '130px', height: 'auto',
+      transform: 'scale(0.93) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
   mask: {
     category: 'masks',
     equippedStyle: {
@@ -60,7 +67,22 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transform: 'perspective(360px) rotateY(20deg) rotate(-2deg) scale(1.1) translateY(5px)',
       transformOrigin: 'center center',
     }
-  }
+  },
+  gloves: {
+    category: 'gloves',
+    equippedStyle: {
+      position: 'absolute', top: '169px', left: '89px', width: '59px', height: '35px',
+      transform: 'scale(2.25) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+  gloves_2: {
+    category: 'gloves',
+    equippedStyle: {
+      position: 'absolute', top: '178px', left: '91px', width: '60px', height: 'auto',
+      transform: 'scale(2.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+
 });
 
 // Pure equip rule: returns a new equipped map with `itemId` on. For a

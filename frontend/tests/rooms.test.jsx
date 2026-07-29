@@ -250,6 +250,34 @@ describe('createRooms — lecture room', () => {
     expect(Array.isArray(scene.lectureShelves)).toBe(true)
     expect(scene.lectureShelves).toHaveLength(0)
   })
+
+  test('creates the info-point glow and exposes its scene refs', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    expect(scene.lecturePoint).toEqual({ x: 300, y: 240 })
+    expect(scene.lectureGlow).toBeDefined()
+    expect(scene.lectureGlowTween).toBeDefined()
+
+    const glow = scene.__created.graphics.find((g) => g === scene.lectureGlow)
+    expect(glow.fillCircle).toHaveBeenCalledWith(300, 240, 35)
+  })
+
+  test('clicking the info point unlocks the lecture materials', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const handler = jest.fn()
+    window.addEventListener('lecture-materials-unlocked', handler)
+
+    const lectureZone = scene.__created.zones.find(
+      (z) => z.args.x === 300 && z.args.y === 240
+    )
+    lectureZone.handlers.pointerdown()
+
+    window.removeEventListener('lecture-materials-unlocked', handler)
+    expect(handler).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('setupCloset (via createRooms)', () => {

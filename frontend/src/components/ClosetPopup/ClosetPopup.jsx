@@ -63,16 +63,24 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
   const { t } = useTranslation()
   const [equipped, setEquipped] = useState({
     mask: false,
+    gloves: false,
+    gloves_2: false,
+    closable_lab_coat: false,
+    disposable_overall: false,
+    respirator: false,
+    face_shield: false,
     lab_coat: false,
     glasses: false,
     sunglasses: false,
+    pressurized_suit: false,
   })
 
   // Helper function to handle equip/unequip logic
   const handleToggleEquip = (itemId, isEquipped) => {
-    setEquipped((prev) =>
-      isEquipped ? applyEquip(prev, itemId) : { ...prev, [itemId]: false }
-    )
+    setEquipped((prev) => {
+      const next = isEquipped ? applyEquip(prev, itemId) : { ...prev, [itemId]: false }
+      return next
+    })
   }
 
   // Effect to handle external broadcasts

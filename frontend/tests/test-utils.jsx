@@ -21,6 +21,8 @@ const translationValue = {
 
       'answerPopup.chosenLevel': 'You chose {level}.',
       'answerPopup.belongs': '{name} belongs to BSL-{level}.',
+      'answerPopup.equipmentCorrect': 'Your protective equipment matched the required setup.',
+      'answerPopup.equipmentIncorrect': 'Your protective equipment did not fully match the required setup.',
 
       'common.close': 'Close',
     }

@@ -315,6 +315,22 @@ describe('Closet behavior', () => {
     expect(scene.pressEText.setVisible).toHaveBeenCalledWith(false)
   })
 
+  test('shows press E hint at the closet when close enough to it', () => {
+    const scene = createScene({
+      ppeRoomZone: { x: 0, y: 0, width: 1000, height: 1000 },
+      closetZone: { x: 55, y: 40, width: 80, height: 80 },
+    })
+
+    // closetCenter = (55+35, 40+60) = (90, 100)
+    scene.player.x = 90
+    scene.player.y = 100
+
+    scene.update()
+
+    expect(scene.pressEText.setVisible).toHaveBeenCalledWith(true)
+    expect(scene.pressEText.setPosition).toHaveBeenCalledWith(50, 20)
+  })
+
   test('resumes closet glow animation when entering dressing room', () => {
     const scene = createScene({
       ppeRoomZone: { x: 0, y: 0, width: 200, height: 200 },
@@ -346,10 +362,30 @@ describe('Closet behavior', () => {
 // =====================================================
 // EXTRA STATE EDGE CASES
 // =====================================================
-test('resets lecture room state when player leaves room', () => {
+test('dispatches lecture-room-entered as soon as the player walks into the room', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 200, height: 200 },
+    playerInsideLectureRoom: false,
+  })
+
+  scene.player.x = 20
+  scene.player.y = 20
+
+  const handler = jest.fn()
+  window.addEventListener('lecture-room-entered', handler)
+  scene.update()
+  window.removeEventListener('lecture-room-entered', handler)
+
+  expect(handler).toHaveBeenCalledTimes(1)
+  expect(scene.playerInsideLectureRoom).toBe(true)
+})
+
+test('hides the lecture info-point glow and hint when player leaves the room', () => {
   const scene = createScene({
     lectureRoomZone: { x: 0, y: 0, width: 100, height: 100 },
-    playerInsideLectureRoom: true,
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
   })
 
   scene.player.x = 500
@@ -357,7 +393,51 @@ test('resets lecture room state when player leaves room', () => {
 
   scene.update()
 
-  expect(scene.playerInsideLectureRoom).toBe(false)
+  expect(scene.lectureGlow.setVisible).toHaveBeenCalledWith(false)
+  expect(scene.lectureGlowTween.pause).toHaveBeenCalled()
+})
+
+test('shows the lecture info-point glow, and unlocks materials on E when close to it', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 200, height: 200 },
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
+  })
+
+  scene.player.x = 55
+  scene.player.y = 55
+  Phaser.Input.Keyboard.JustDown.mockReturnValueOnce(true)
+
+  const handler = jest.fn()
+  window.addEventListener('lecture-materials-unlocked', handler)
+  scene.update()
+  window.removeEventListener('lecture-materials-unlocked', handler)
+
+  expect(scene.lectureGlow.setVisible).toHaveBeenCalledWith(true)
+  expect(scene.lectureGlowTween.resume).toHaveBeenCalled()
+  expect(handler).toHaveBeenCalledTimes(1)
+})
+
+test('hides the press E hint when inside the lecture room but too far from the info point', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 400, height: 400 },
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
+  })
+
+  scene.player.x = 300
+  scene.player.y = 300
+
+  const handler = jest.fn()
+  window.addEventListener('lecture-materials-unlocked', handler)
+  scene.update()
+  window.removeEventListener('lecture-materials-unlocked', handler)
+
+  expect(scene.lectureGlow.setVisible).toHaveBeenCalledWith(true)
+  expect(scene.pressEText.setVisible).toHaveBeenCalledWith(false)
+  expect(handler).not.toHaveBeenCalled()
 })
 // =====================================================
 // DRESSING-ROOM DEPTH SWITCH
