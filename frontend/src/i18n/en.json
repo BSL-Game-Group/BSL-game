@@ -11,7 +11,7 @@
     "steps": [
       "Remember the BSL level — it decides everything. If you need to reread these instructions, visit the INFO desk in the corridor.",
       "Go to the lecture room to read the microbe's details and its BSL level.",
-      "In the lecture room you can also study the materials to learn about different microbes and BSL classes (1–4).",
+      "Press E at the green ring in the lecture room to study the materials and learn about different microbes and BSL classes (1–4).",
       "Go to the dressing room and open the closet (press E).",
       "Put on the protective equipment the level requires (lab coat, mask, glasses…).",
       "Go to the matching BSL room (1–4).",
@@ -34,6 +34,13 @@
       "link2": "Biosafety in Microbiological Laboratories – NCBI",
       "link3": "Biosafety – ScienceDirect"
     }
+  },
+  "bslMaterial": {
+    "title": "BSL Game Material (Biosafety Levels)",
+    "protectiveEquipment": "Protective equipment:",
+    "exampleOrganisms": "Example organisms:",
+    "tableHeaders": ["#", "Common name", "Scientific name", "Type", "Note"],
+    "sources": "Sources"
   },
   "task": {
     "title": "The microbe you will handle"

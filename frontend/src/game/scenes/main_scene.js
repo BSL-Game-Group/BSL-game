@@ -93,13 +93,14 @@ class MainScene extends Phaser.Scene {
 
         // Rooms
         this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
-        this.load.image('lecture_room', 'assets/lecture_room.png');
+        this.load.image('lecture_room', 'assets/rooms/lecture_room2.png');
         this.load.image('bsl2_room', 'assets/rooms/BSL-2.jpg');
         this.load.image('bsl3_room', 'assets/rooms/BSL-3 ver. 2.png');
         this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
         this.load.image('air_systems', 'assets/rooms/air-systems.jpeg');
         this.load.image('dressing_room', 'assets/rooms/dressing-room.png');
         this.load.image('info_desk', 'assets/rooms/info-desk.png');
+        this.load.image('exit_area', 'assets/rooms/exit_area.png');
     }
 
     createWoodFloor() {
@@ -288,11 +289,10 @@ class MainScene extends Phaser.Scene {
         }).setDepth(1000).setVisible(false);
 
         this.physics.add.collider(this.player, walls);
-        if (this.lectureShelves) {
-            this.physics.add.collider(this.player, this.lectureShelves);
-        }
+
 
         this.playerInsideLectureRoom = false;
+        this.playerInsideExitRoom = false;
         this.playerInsideDressingRoom = false;
         this.closetHint = this.add.text(0, 0, "", {
             fontSize: "14px",
@@ -446,7 +446,9 @@ class MainScene extends Phaser.Scene {
             );
         }
 
-        // Zone checks
+        // Lecture room: the microbe task panel shows as soon as the player walks in.
+        // The lecture-materials section only unlocks once they walk up to the info
+        // point and press E — same glow + hint pattern as the other interactables.
         if (this.lectureRoomZone) {
             const inside = playerIsInsideZone(this.player, this.lectureRoomZone);
             if (inside && !this.playerInsideLectureRoom) {
@@ -454,6 +456,44 @@ class MainScene extends Phaser.Scene {
                 this.playerInsideLectureRoom = true;
             } else if (!inside) {
                 this.playerInsideLectureRoom = false;
+            }
+        }
+        if (this.exitZone) {
+            const inside = playerIsInsideZone(this.player, this.exitZone);
+
+            if (inside && !this.playerInsideExitRoom) {
+                this.playerInsideExitRoom = true;
+            } else if (!inside && this.playerInsideExitRoom) {
+                this.playerInsideExitRoom = false;
+            }
+        }
+
+        if (this.lectureGlow && this.lecturePoint && this.lectureRoomZone) {
+            const inside = playerIsInsideZone(this.player, this.lectureRoomZone);
+            this.lectureGlow.setVisible(inside);
+            if (this.lectureGlowTween) {
+                if (inside) { this.lectureGlowTween.resume(); } else { this.lectureGlowTween.pause(); }
+            }
+
+            if (inside) {
+                const dist = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y, this.lecturePoint.x, this.lecturePoint.y
+                );
+                const closeEnough = dist < 100;
+
+                if (closeEnough) {
+                    this.pressEText.setVisible(true);
+                    // Below the glow (it sits near the top of the room, so a hint
+                    // above it would clip off-screen — same fix as the top BSL rooms).
+                    this.pressEText.setPosition(this.lecturePoint.x - 40, this.lecturePoint.y + 45);
+                    if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                        window.dispatchEvent(new Event('lecture-materials-unlocked'));
+                    }
+                } else {
+                    this.pressEText.setVisible(false);
+                }
+            } else {
+                this.pressEText.setVisible(false);
             }
         }
 
@@ -491,20 +531,20 @@ class MainScene extends Phaser.Scene {
                 window.dispatchEvent(new Event('closet-popup-opened'));
             }
 
-            const closetCenter = this.closetZone ? { x: this.closetZone.x + 35, y: this.closetZone.y + 60 } : null;
+            // Only this room's own presence (`inside`) may hide the shared hint text —
+            // otherwise this always-running block stomps on the other rooms' hints
+            // (e.g. the lecture info point) every frame regardless of where the player is.
+            if (inside) {
+                const closetCenter = this.closetZone ? { x: this.closetZone.x + 35, y: this.closetZone.y + 60 } : null;
+                const dist = closetCenter
+                    ? Phaser.Math.Distance.Between(this.player.x, this.player.y, closetCenter.x, closetCenter.y)
+                    : Infinity;
+                const closeEnough = Boolean(closetCenter) && dist < 90;
 
-            if (closetCenter) {
-                const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, closetCenter.x, closetCenter.y);
-                const closeEnough = dist < 90;
-
+                this.pressEText.setVisible(closeEnough);
                 if (closeEnough) {
-                    this.pressEText.setVisible(true);
                     this.pressEText.setPosition(closetCenter.x - 40, closetCenter.y - 80);
-                } else {
-                    this.pressEText.setVisible(false);
                 }
-            } else {
-                this.pressEText.setVisible(false);
             }
         }
 
