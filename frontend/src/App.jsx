@@ -23,6 +23,7 @@ function App() {
   const [answerLevel, setAnswerLevel] = useState('')
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
   const [infoOpen, setInfoOpen] = useState(false)
+  const [lectureWarningOpen, setLectureWarningOpen] = useState(false);
   const [PlayerEquipment, setPlayerEquipment] = useState({
     mask: false,
     gloves: false,
@@ -53,10 +54,23 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const handler = () => setMaterialsUnlocked(true)
-    window.addEventListener('lecture-materials-unlocked', handler)
-    return () => window.removeEventListener('lecture-materials-unlocked', handler)
-  }, [])
+      window.__lectureOpen = lectureOpen
+  }, [lectureOpen])
+
+  useEffect(() => {
+    const handler = () => setLectureWarningOpen(true);
+
+    window.addEventListener('lecture-required', handler);
+
+    return () =>
+      window.removeEventListener('lecture-required', handler);
+  }, []);
+
+  useEffect(() => {
+  const handleUnlock = () => setMaterialsUnlocked(true);
+  window.addEventListener('lecture-materials-unlocked', handleUnlock);
+  return () => window.removeEventListener('lecture-materials-unlocked', handleUnlock);
+}, []);
 
   useEffect(() => {
     const handleClosetClick = () => setPopupOpen(true)
@@ -206,6 +220,22 @@ function App() {
               open={isLecturePopupOpen}
               onClose={() => setLecturePopupOpen(false)}
             />
+            {lectureWarningOpen && (
+              <div className="popup-overlay">
+                <div className="popup-box popup-box--incorrect">
+                  <button
+                    className="popup-close-button"
+                    onClick={() => setLectureWarningOpen(false)}
+                  >
+                    {t('common.close')}
+                  </button>
+
+                  <h2>{t('lectureRequired.title')}</h2>
+
+                  <p>{t('lectureRequired.message')}</p>
+                </div>
+              </div>
+            )}
 
             <AnswerPopup
               open={answerOpen}

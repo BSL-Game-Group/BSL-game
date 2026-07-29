@@ -254,7 +254,7 @@ class MainScene extends Phaser.Scene {
         this.events.on('shutdown', () => {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
         });
-
+        
         // NEW: Track if the React popup is open
         this.isPopupOpen = false;
 
@@ -586,10 +586,18 @@ class MainScene extends Phaser.Scene {
 
                 if (inside) {
                     activeCenter = entry.center;
+
                     if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
-                        window.dispatchEvent(
-                            new CustomEvent('answer-popup-opened', { detail: { level: entry.key } })
-                        );
+
+                        if (!window.__lectureOpen) {
+                            window.dispatchEvent(new Event('lecture-required'));
+                        } else {
+                            window.dispatchEvent(
+                                new CustomEvent('answer-popup-opened', {
+                                    detail: { level: entry.key }
+                                })
+                            );
+                        }
                     }
                 }
             }
