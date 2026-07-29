@@ -57,15 +57,15 @@ const EQUIPMENT_CONFIG = buildEquipment({
   face_shield: {
     category: 'eyewear',
     equippedStyle: {
-      position: 'absolute', top: '35px', left: '75px', width: '70px', height: 'auto',
-      transform: 'scale(1.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '5px', left: '75px', width: '82px', height: 'auto',
+      transform: 'scale(1.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
 
   bsl3_respirator: {
     category: 'masks',
     equippedStyle: {
-      position: 'absolute', top: '35px', left: '75px', width: '70px', height: 'auto',
+      position: 'absolute', top: '33px', left: '75px', width: '70px', height: 'auto',
       transform: 'scale(1.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
