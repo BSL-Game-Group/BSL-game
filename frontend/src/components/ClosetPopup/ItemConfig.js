@@ -65,8 +65,8 @@ const EQUIPMENT_CONFIG = buildEquipment({
   bsl3_respirator: {
     category: 'masks',
     equippedStyle: {
-      position: 'absolute', top: '33px', left: '75px', width: '70px', height: 'auto',
-      transform: 'scale(1.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '6px', left: '80px', width: '70px', height: 'auto',
+      transform: 'scale(2.0) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   sunglasses: {
