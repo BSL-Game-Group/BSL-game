@@ -66,6 +66,11 @@ function App() {
       window.removeEventListener('lecture-required', handler);
   }, []);
 
+  useEffect(() => {
+  const handleUnlock = () => setMaterialsUnlocked(true);
+  window.addEventListener('lecture-materials-unlocked', handleUnlock);
+  return () => window.removeEventListener('lecture-materials-unlocked', handleUnlock);
+}, []);
 
   useEffect(() => {
     const handleClosetClick = () => setPopupOpen(true)
