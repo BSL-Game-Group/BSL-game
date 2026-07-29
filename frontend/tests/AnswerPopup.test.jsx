@@ -20,7 +20,14 @@ function renderPopup(props = {}) {
 }
 
 function renderPopupWithLanguage(language, props = {}) {
-  const defaults = { open: true, onClose: jest.fn(), isCorrect: true, level: 'BSL-2' }
+  const defaults = { 
+      open: true, 
+      onClose: jest.fn(), 
+      isCorrect: true, 
+      isLevelCorrect: true, 
+      isEquipmentCorrect: true, 
+      level: 'BSL-2' 
+    }
   const translations = {
     'answerPopup.correct': 'Correct!',
     'answerPopup.incorrect': 'Not quite',
