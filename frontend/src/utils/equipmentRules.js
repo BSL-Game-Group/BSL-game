@@ -2,7 +2,7 @@ const BSL_EQUIPMENT_RULES = {
   1: { required: ['lab_coat', 'glasses'], anyOf: [], optional: [] },
   2: { required: ['lab_coat', 'gloves'], anyOf: ['mask', 'face_shield'], optional: [] },
   3: {
-    required: ['gloves'],
+    required: ['gloves', 'gloves_2'],
     anyOf: [
       { anyOf: ['closable_lab_coat', 'disposable_overall'] },
       {
