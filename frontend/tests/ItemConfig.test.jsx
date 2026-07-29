@@ -65,4 +65,11 @@ describe('EQUIPMENT_CONFIG derived paths', () => {
       expect(fs.existsSync(path.join(publicDir, config.equippedSrc))).toBe(true)
     }
   })
+
+  test('every item exposes a non-empty label', () => {
+    for (const config of Object.values(EQUIPMENT_CONFIG)) {
+      expect(typeof config.label).toBe('string')
+      expect(config.label.length).toBeGreaterThan(0)
+    }
+  })
 })
