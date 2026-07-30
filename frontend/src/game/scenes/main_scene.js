@@ -79,6 +79,9 @@ class MainScene extends Phaser.Scene {
         // Player base
         this.load.image('player_base', 'assets/player/base.png');
 
+        // Load your alternative player base for the pressurized suit
+        this.load.image('head_only', 'assets/player/head_only.png');
+
         // Equipment
         this.load.image('lab_coat', 'assets/equipment/on_character/body/lab_coat_on.png');
         this.load.image('mask', 'assets/equipment/on_character/masks/mask_on.png');
@@ -254,6 +257,13 @@ class MainScene extends Phaser.Scene {
             this.equipment.gloves_2.setVisible(equipped.gloves_2);
             this.equipment.closable_lab_coat.setVisible(equipped.closable_lab_coat);
             this.equipment.pressurized_suit.setVisible(equipped.pressurized_suit);
+
+            // Swap the player base texture based on pressurized suit state
+            if (equipped.pressurized_suit) {
+                this.player.setTexture('head_only');
+            } else {
+                this.player.setTexture('player_base');
+            }
         };
         window.addEventListener('equipment-changed', this.handleEquipmentChange);
 
