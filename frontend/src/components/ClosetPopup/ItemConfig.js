@@ -46,6 +46,13 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transform: 'scale(0.93) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
+    pressurized_suit: {
+    category: 'body',
+    equippedStyle: {
+      position: 'absolute', top: '0px', left: '60px', width: '130px', height: 'auto',
+      transform: 'scale(1.32) rotate(0deg) translateY(0px)', transformOrigin: 'top center',
+    }
+  },
   mask: {
     category: 'masks',
     equippedStyle: {
