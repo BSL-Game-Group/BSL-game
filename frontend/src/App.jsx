@@ -112,7 +112,10 @@ function App() {
                   {/* SIDEBAR */}
           {lectureOpen && (
             <Col lg={3} md={4} xs={12} className="mb-3 w-100">
-              <div className="lecture-panel">
+              <div
+                  className="lecture-panel"
+                  data-testid="lecture-panel"
+              >
                 <Task />
                 {materialsUnlocked && (
                   <div className="d-flex flex-column align-items-start gap-1 mt-2">

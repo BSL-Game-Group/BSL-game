@@ -21,11 +21,10 @@ const Task = () => {
     }, [])
 
     if (!microbe) {
-        return null
-    }
+      return null}
 
     const localized = (field) => {
-        if (!microbe) return ''; // Add safety check
+        if (!microbe) {return '';} // Add safety check
         if (language === 'sv' || language === 'fi') {
             return microbe[`${field}_${language}`]
         }

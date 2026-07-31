@@ -8,7 +8,9 @@ function InfoPopup({ open, onClose }) {
     )
   }, [open])
 
-  if (!open) return null
+  if (!open) {
+    return null
+  }
 
   return (
     <div className="popup-overlay">

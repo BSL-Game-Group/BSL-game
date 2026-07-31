@@ -26,7 +26,7 @@ function InventoryPanel({ equipped, onToggleEquip }) {
         {CATEGORIES.map((cat) => (
           <button
             key={cat.id}
-            className={`btn btn-sm ${activeTab === cat.id ? 'btn-primary' : 'btn-outline-secondary'}`}
+            className={`btn btn-sm gear-tab ${activeTab === cat.id ? 'btn-primary' : 'btn-outline-secondary'}`}
             onClick={() => setActiveTab(cat.id)}
           >
             {cat.label}
@@ -79,7 +79,7 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
 
   // Effect to handle external broadcasts
   useEffect(() => {
-    if (onEquipmentChange) onEquipmentChange(equipped);
+    if (onEquipmentChange) {onEquipmentChange(equipped);}
     window.dispatchEvent(new CustomEvent('equipment-changed', { detail: equipped }));
   }, [equipped, onEquipmentChange]);
 
@@ -90,9 +90,8 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
   // Escape closes the closet. Declared before the early return to respect the
   // rules of hooks; only active while the popup is open.
   useEffect(() => {
-    if (!open) {
-      return
-    }
+    if (!open) {return;}
+
     const onKeyDown = (e) => {
       if (e.key === 'Escape') {
         onClose()
@@ -112,17 +111,15 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
   // one selector covers them all; the list is read on each keypress because
   // items come and go as they are equipped.
   useEffect(() => {
-    if (!open) {
-      return
-    }
+    if (!open) {return;}
+
     const onKeyDown = (e) => {
       if (e.key !== 'Tab') {
         return
       }
       const dialog = dialogRef.current
-      if (!dialog) {
-        return
-      }
+      if (!dialog) {return;}
+
       const focusable = [...dialog.querySelectorAll('button:not([disabled])')]
       if (focusable.length === 0) {
         return
@@ -146,23 +143,29 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
 
   useEffect(() => {
     const itemId = pendingFocusRef.current
-    if (!itemId) {
-      return
-    }
+    if (!itemId) {return;}
+
     pendingFocusRef.current = null
     dialogRef.current?.querySelector(`[data-item-id="${itemId}"]`)?.focus()
   }, [equipped])
 
-  if (!open) {
-    return null;}
+  if (!open) {return;}
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="popup-overlay d-flex align-items-center justify-content-center">
-        <div className="popup-box bg-white p-4 h-100 w-100 d-flex flex-column">
+        <div
+            className="popup-box bg-white p-4 h-100 w-100 d-flex flex-column"
+            role="dialog"
+            aria-label="Closet"
+            ref={dialogRef}
+            tabIndex={-1}
+        >
+          <h2>Equipment</h2>
           <button className="btn btn-danger align-self-end mb-3" onClick={onClose}>{t('common.close')}</button>
           <div className="row flex-grow-1 overflow-hidden">
             <div className="col-4 border-end h-100 align-items-start justify-content-center overflow-hidden">
+              <h2>Player</h2>
                <Character equipped={equipped} onToggleEquip={handleToggleEquip} />
             </div>
             <div className="col-8">

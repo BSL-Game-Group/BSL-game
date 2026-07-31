@@ -8,7 +8,9 @@ function AnswerPopup({ open, onClose, isLevelCorrect, isEquipmentCorrect, isCorr
 
   const { t, language } = useTranslation()
 
-  if (!open) return null
+  if (!open) {
+    return null
+  }
 
   const headline = isCorrect ? t('answerPopup.correct') : t('answerPopup.incorrect')
   const headlineColor = isCorrect ? '#1a8a34' : '#c51a1a'
