@@ -250,6 +250,21 @@ body {
   width: auto;
   object-fit: contain;
 }
+/* ---------- Clothing item buttons (click + keyboard equip) ---------- */
+.equipment-item {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: grab;
+  display: block;
+  font: inherit;
+  color: inherit;
+}
+.equipment-item:focus-visible {
+  outline: 3px solid #0b6623;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 /* Ensure the lecture panel title is responsive */
 .lecture-panel h2 {
   font-size: 1.25rem;

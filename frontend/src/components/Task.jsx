@@ -33,7 +33,7 @@ const Task = () => {
     }
 
     return (
-        <div className="p-1 bg-dark text-light rounded">
+        <div className="p-0.8 bg-dark text-light rounded">
             <h2>{t('task.title')}</h2>
 
             {!microbe ? (
