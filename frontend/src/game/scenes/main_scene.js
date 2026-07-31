@@ -641,7 +641,7 @@ class MainScene extends Phaser.Scene {
             bodyYOffset: 105,
             bodyHeight: 9
         }
-        doors.addDoor(1185, 280, 'door_front', config).setScale(0.25);
+        doors.addDoor(1200, 280, 'door_front', config).setScale(0.25);
         config = {
             triggerZoneY: 490,
             bodyXOffset: 75,
