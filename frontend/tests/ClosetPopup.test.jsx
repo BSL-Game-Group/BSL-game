@@ -171,8 +171,6 @@ describe('ClosetPopup component', () => {
 
   test('focuses the dialog when opened', async () => {
     renderPopup(true);
-
-    // Use waitFor to poll until focus is actually on the dialog
     await waitFor(() => {
       expect(screen.getByRole('dialog')).toHaveFocus();
     })
@@ -224,15 +222,12 @@ describe('ClosetPopup component', () => {
     renderPopup(true);
     const dialog = screen.getByRole('dialog');
 
-    // Wait for initial focus to be set
     await waitFor(() => {
       expect(dialog).toHaveFocus();
     })
 
-    // Now trigger the keyboard event
     fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
 
-    // Assert the wrap behavior...
   })
 
   test('Tab pulls focus back in when it has drifted outside the dialog', () => {

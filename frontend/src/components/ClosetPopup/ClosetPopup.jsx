@@ -90,8 +90,9 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
   // Escape closes the closet. Declared before the early return to respect the
   // rules of hooks; only active while the popup is open.
   useEffect(() => {
-    if (!open) {return;}
-
+    if (!open) {
+      return
+    }
     const onKeyDown = (e) => {
       if (e.key === 'Escape') {
         onClose()
@@ -111,15 +112,17 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
   // one selector covers them all; the list is read on each keypress because
   // items come and go as they are equipped.
   useEffect(() => {
-    if (!open) {return;}
-
+    if (!open) {
+      return
+    }
     const onKeyDown = (e) => {
       if (e.key !== 'Tab') {
         return
       }
       const dialog = dialogRef.current
-      if (!dialog) {return;}
-
+      if (!dialog) {
+        return
+      }
       const focusable = [...dialog.querySelectorAll('button:not([disabled])')]
       if (focusable.length === 0) {
         return
@@ -143,8 +146,9 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
 
   useEffect(() => {
     const itemId = pendingFocusRef.current
-    if (!itemId) {return;}
-
+    if (!itemId) {
+      return
+    }
     pendingFocusRef.current = null
     dialogRef.current?.querySelector(`[data-item-id="${itemId}"]`)?.focus()
   }, [equipped])
@@ -155,24 +159,35 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
     <DndProvider backend={HTML5Backend}>
       <div className="popup-overlay d-flex align-items-center justify-content-center">
         <div
-            className="popup-box bg-white p-4 h-100 w-100 d-flex flex-column"
-            role="dialog"
-            aria-label="Closet"
-            ref={dialogRef}
-            tabIndex={-1}
+          className="popup-box bg-white p-4 h-100 w-100 d-flex flex-column"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t('closet.title')}
+          ref={dialogRef}
+          tabIndex={-1}
         >
-          <h2>Equipment</h2>
-          <button className="btn btn-danger align-self-end mb-3" onClick={onClose}>{t('common.close')}</button>
+          {/* Header */}
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h2>{t('closet.title')}</h2>
+            <button className="btn btn-danger" onClick={onClose}>
+              {t('common.close')}
+            </button>
+          </div>
+
+          {/* Main Grid Content */}
           <div className="row flex-grow-1 overflow-hidden">
-            <div className="col-4 border-end h-100 align-items-start justify-content-center overflow-hidden">
-              <h2>Player</h2>
-               <Character equipped={equipped} onToggleEquip={handleToggleEquip} />
+            {/* Player Side */}
+            <div className="col-4 border-end h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden">
+              <h3>{t('closet.player')}</h3>
+              <Character equipped={equipped} onToggleEquip={handleToggleEquip} />
             </div>
-            <div className="col-8">
-               <InventoryPanel
-                  equipped={equipped}
-                  onToggleEquip={handleToggleEquip}
-               />
+
+            {/* Inventory Side */}
+            <div className="col-8 h-100">
+              <InventoryPanel
+                equipped={equipped}
+                onToggleEquip={handleToggleEquip}
+              />
             </div>
           </div>
         </div>

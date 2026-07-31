@@ -288,3 +288,33 @@ body {
     font-size: 0.70rem !important; /* Forces the change regardless of load order */
   }
 }
+/* ---------- Gear category tabs (ClosetPopup Equipment panel) ---------- */
+.gear-tab {
+  padding: 6px 12px;
+  border: 1px solid #0b6623;
+  border-radius: 6px;
+  background: #fff;
+  color: #0b6623;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.gear-tab.active {
+  background: #0b6623;
+  color: #fff;
+}
+
+/* ---------- Clothing item buttons (click + keyboard equip) ---------- */
+.equipment-item {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: grab;
+  display: block;
+  font: inherit;
+  color: inherit;
+}
+.equipment-item:focus-visible {
+  outline: 3px solid #0b6623;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
