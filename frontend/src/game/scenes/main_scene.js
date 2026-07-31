@@ -345,6 +345,9 @@ class MainScene extends Phaser.Scene {
         if (this.bslHint) {
             this.bslHint.setText(translations.pressE)
         }
+        if (this.doorHint) {
+            this.doorHint.setText(translations.pressE)
+        }
     }
 
     async replaceCurrentMicrobeRandomly() {
@@ -362,7 +365,7 @@ class MainScene extends Phaser.Scene {
 
         if (this.player.body.embedded || (this.player.body.touching.none && this.player.body.wasTouching.none)) {
             if (!this.physics.overlap(this.player, this.doors)) {
-                this.bslHint.setVisible(false);
+                this.doorHint.setVisible(false);
             }
         }
 
@@ -623,6 +626,8 @@ class MainScene extends Phaser.Scene {
                         : activeCenter.y + 36;  // top room: hint below the glow
                     this.bslHint.setVisible(true);
                     this.bslHint.setPosition(activeCenter.x - 28, hintY);
+                } else {
+                    this.bslHint.setVisible(false);
                 }
             }
         }
@@ -645,14 +650,22 @@ class MainScene extends Phaser.Scene {
         }
         doors.addDoor(1005, 515, 'door_front', config).setScale(0.25);
         this.physics.add.collider(player, doors.solidSprites);
+
+        this.doorHint = this.add.text(0, 0, "", {
+            fontSize: "14px",
+            backgroundColor: "#000",
+            color: "#fff",
+            padding: { x: 6, y: 3 }
+        }).setDepth(1000).setVisible(false);
+
         this.physics.add.overlap(player, doors, this.handleDoorInteraction, null, this)
         return doors;
     }
 
     handleDoorInteraction(player, zone) {
         const door = zone.parentDoor;
-        this.bslHint.setVisible(true);
-        this.bslHint.setPosition(door.x, door.y);
+        this.doorHint.setVisible(true);
+        this.doorHint.setPosition(door.x, door.y);
         if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
             door.tryToChangeDoorState();
         }
