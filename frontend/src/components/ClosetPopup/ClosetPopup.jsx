@@ -71,6 +71,7 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
     face_shield: false,
     lab_coat: false,
     glasses: false,
+    wow_helmet: false,
     sunglasses: false,
     pressurized_suit: false,
   })

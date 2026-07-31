@@ -75,6 +75,14 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transformOrigin: 'center center',
     }
   },
+  wow_helmet: {
+    category: 'eyewear',
+    equippedStyle: {
+      position: 'absolute', top: '-5px', left: '62px', width: '106px', height: 'auto',
+      transform: 'perspective(360px) rotateY(20deg) rotate(0deg) scale(1.35) translateY(5px)',
+      transformOrigin: 'center center',
+    }
+  },
   gloves: {
     category: 'gloves',
     equippedStyle: {

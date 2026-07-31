@@ -8,21 +8,29 @@ export default function Character({ equipped, onToggleEquip }) {
     drop: (item) => onToggleEquip(item.id, true) // True means we are equipping it
   }))
 
-  // Determine which base image to show
-  const baseImageSrc = equipped.pressurized_suit 
-    ? "/assets/player/head_only.png" 
-    : "/assets/player/base.png";
+  // Determine which player image to show based on the equipment
+  const getBaseImageSrc = () => {
+
+      if (equipped.pressurized_suit) {
+        return "/assets/player/head_only.png";
+      }
+
+      if (equipped.wow_helmet) {
+        return "/assets/player/no_hair.png"; 
+      }
+
+      return "/assets/player/base.png";
+    };
 
   return (
       <div ref={drop} style={{ position: 'relative', width: 250, height: 350 }}>
-        {/* UPDATE THIS: Use the dynamic variable instead of the hardcoded string */}
+        {/* Call the function to get the current image source */}
         <img 
-          src={baseImageSrc} 
+          src={getBaseImageSrc()} 
           alt="base" 
           style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
         />
 
-        {/* Dynamically render equipped items based on the configuration */}
         {Object.values(EQUIPMENT_CONFIG).map((config) => {
           if (!equipped[config.id]) {
             return null;
