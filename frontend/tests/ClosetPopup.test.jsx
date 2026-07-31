@@ -20,7 +20,7 @@ describe('ClosetPopup component', () => {
   test('renders when open', () => {
     renderPopup(true)
 
-    expect(screen.getByText(/equipment/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: /closet/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument()
   })
 
@@ -93,7 +93,7 @@ describe('ClosetPopup component', () => {
     })
 
     // UI should still exist after state update
-    expect(screen.getByText(/equipment/i)).toBeInTheDocument()
+    expect(screen.getByText(/eyewear/i)).toBeInTheDocument()
   })
 
   // -----------------------------

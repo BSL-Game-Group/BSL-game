@@ -205,7 +205,7 @@ test('clicking the show button opens the lecture materials popup', async () => {
 test('closet popup opens when event is triggered', () => {
   openCloset()
 
-  expect(screen.getByText(/equipment/i)).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /closet/i })).toBeInTheDocument()
 })
 
 test('closet popup does NOT appear without event', () => {
