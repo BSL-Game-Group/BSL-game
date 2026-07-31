@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { createRooms } from './rooms';
 import microbeService from '../../services/microbes'
 import { EventBus } from '../EventBus'
+import DoorGroup from '../groups/DoorGroup.js';
 
 export function playerIsInsideZone(player, zone) {
     return (
@@ -101,6 +102,9 @@ class MainScene extends Phaser.Scene {
         this.load.image('dressing_room', 'assets/rooms/dressing-room.png');
         this.load.image('info_desk', 'assets/rooms/info-desk.png');
         this.load.image('exit_area', 'assets/rooms/exit_area.png');
+
+        this.load.image('door_front', 'assets/doors/door_front.png');
+        this.load.image('door_top', 'assets/doors/door_top.png');
     }
 
     createWoodFloor() {
@@ -193,6 +197,8 @@ class MainScene extends Phaser.Scene {
         this.player.body.setOffset(23, 6);
         this.player.setDepth(10);
 
+        this.doors = this.initializeDoors(this.player);
+        
         // 2. CONFIGURATION: Tweaking values for size and placement relative to player center
         // Adjust these numbers until your equipment aligns perfectly!
         this.equipmentConfig = {
@@ -615,6 +621,34 @@ class MainScene extends Phaser.Scene {
                     this.bslHint.setVisible(false);
                 }
             }
+        }
+    }
+
+    initializeDoors(player) {
+        const doors = new DoorGroup(this);
+        let config = {
+            triggerZoneY: 260,
+            bodyXOffset: 75,
+            bodyYOffset: 105,
+            bodyHeight: 9
+        }
+        doors.addDoor(1185, 280, 'door_front', config).setScale(0.25);
+        config = {
+            triggerZoneY: 490,
+            bodyXOffset: 75,
+            bodyYOffset: 95,
+            bodyHeight: 9
+        }
+        doors.addDoor(1005, 515, 'door_front', config).setScale(0.25);
+        this.physics.add.collider(player, doors.solidSprites);
+        this.physics.add.overlap(player, doors, this.handleDoorInteraction, null, this)
+        return doors;
+    }
+
+    handleDoorInteraction(player, zone) {
+        const door = zone.parentDoor;
+        if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+            door.tryToChangeDoorState();
         }
     }
 }
