@@ -3,6 +3,14 @@ import microbeService from '../src/services/microbes'
 import { EventBus } from '../src/game/EventBus'
 
 jest.mock('phaser', () => ({
+  Physics: {
+    Arcade: {
+      Sprite: class MockSprite {},
+      Image: class MockImage {},
+      StaticGroup: class MockStaticGroup {},
+      Group: class MockGroup {},
+    },
+  },
   Scene: class {}
 }))
 
