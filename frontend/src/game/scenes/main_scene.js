@@ -360,6 +360,12 @@ class MainScene extends Phaser.Scene {
         this.player.setVelocityX(0);
         this.player.setVelocityY(0);
 
+        if (this.player.body.embedded || (this.player.body.touching.none && this.player.body.wasTouching.none)) {
+            if (!this.physics.overlap(this.player, this.doors)) {
+                this.bslHint.setVisible(false);
+            }
+        }
+
         // Change BSL-1 image depth depending on player position
         if (this.bsl1Image) {
             if (this.player.y < 505) {
@@ -617,8 +623,6 @@ class MainScene extends Phaser.Scene {
                         : activeCenter.y + 36;  // top room: hint below the glow
                     this.bslHint.setVisible(true);
                     this.bslHint.setPosition(activeCenter.x - 28, hintY);
-                } else {
-                    this.bslHint.setVisible(false);
                 }
             }
         }
@@ -647,6 +651,8 @@ class MainScene extends Phaser.Scene {
 
     handleDoorInteraction(player, zone) {
         const door = zone.parentDoor;
+        this.bslHint.setVisible(true);
+        this.bslHint.setPosition(door.x, door.y);
         if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
             door.tryToChangeDoorState();
         }
