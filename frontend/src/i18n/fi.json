@@ -24,6 +24,10 @@
     ],
     "controls": "Ohjaimet: Nuolinäppäimet / klikkaus liikkumiseen · E tai klikkaus vuorovaikutukseen · Sulje-painike sulkee ikkunat"
   },
+  "lectureRequired": {
+    "title": "Käy ensin luentohuoneessa",
+    "message": "Ennen mikrobin käsittelyä sinun täytyy käydä luentohuoneessa lukemassa mikrobista ja oppimassa sen bioturvallisuustaso (BSL)."
+  },
   "lecturePanel": {
     "title": "Luentomateriaali",
     "description": "Klikkaa alla olevaa linkkiä avataksesi luentomateriaalin uuteen välilehteen.",
@@ -46,6 +50,7 @@
     "title": "Mikrobi jota tulet käsittelemään"
   },
   "closet": {
+    "title": "Pukukaappi",
     "player": "Pelaaja",
     "equipmentLabel": "Varusteet"
   },
@@ -54,6 +59,8 @@
     "incorrect": "Ei aivan",
     "correctFallback": "Se on oikea huone.",
     "incorrectFallback": "Se ei ole oikea huone.",
+    "equipmentCorrect": "Suojavarustuksesi vastasi vaadittua varustusta.",
+    "equipmentIncorrect": "Suojavarustuksesi ei vastannut täysin vaadittua varustusta.",
     "chosenLevel": "Valitsit {level}.",
     "belongs": "{name} kuuluu tasolle BSL-{level}."
   },

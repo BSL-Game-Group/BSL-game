@@ -409,7 +409,7 @@ class MainScene extends Phaser.Scene {
 
         // 2. UI HINTS (Always running)
         const pointer = this.input.activePointer;
-        if (this.closetImage && this.closetHint.visible) {
+        if (this.closetHint && this.closetHint.visible) {
             this.closetHint.setPosition(pointer.x + 15, pointer.y + 15);
         }
 
@@ -500,12 +500,11 @@ class MainScene extends Phaser.Scene {
         if (this.ppeRoomZone) {
             const inside = playerIsInsideZone(this.player, this.ppeRoomZone);
 
+            // Only the glow is toggled here. The click target (closetHit) stays
+            // interactive and renderable for the whole scene — Phaser skips input on
+            // anything that would not render, so hiding it here left the circle
+            // permanently unclickable. Its handlers check playerInsideDressingRoom.
             if (inside && !this.playerInsideDressingRoom) {
-                if (this.closetImage) {
-                    // The dresser sprite stays hidden — the green glow is the
-                    // visible element; the sprite is only the invisible click target.
-                    this.closetImage.setInteractive({useHandCursor: true});
-                }
                 if (this.closetGlow) {
                     this.closetGlow.setVisible(true);
                     if (this.closetGlowTween) {
@@ -514,10 +513,6 @@ class MainScene extends Phaser.Scene {
                 }
                 this.playerInsideDressingRoom = true;
             } else if (!inside && this.playerInsideDressingRoom) {
-                if (this.closetImage) {
-                    this.closetImage.setVisible(false);
-                    this.closetImage.disableInteractive();
-                }
                 if (this.closetGlow) {
                     this.closetGlow.setVisible(false);
                     if (this.closetGlowTween) {

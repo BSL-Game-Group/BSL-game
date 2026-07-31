@@ -81,10 +81,10 @@ function createScene(overrides = {}) {
     setPosition: jest.fn(),
   }
 
-  scene.closetImage = {
+  scene.closetHit = {
     setVisible: jest.fn(),
     setInteractive: jest.fn(),
-    disableInteractive: jest.fn(), // ✅ FIX ADDED HERE
+    disableInteractive: jest.fn(),
   }
 
   scene.closetGlowTween = {
@@ -277,13 +277,12 @@ describe('Closet behavior', () => {
 
     scene.update()
 
-    // The dresser sprite stays hidden now; entering shows the green glow and
-    // activates the (invisible) click target.
+    // Entering shows the green glow. The click target is left alone — it is always
+    // interactive, and its own handler checks playerInsideDressingRoom.
     expect(scene.closetGlow.setVisible).toHaveBeenCalledWith(true)
-    expect(scene.closetImage.setInteractive).toHaveBeenCalled()
   })
 
-  test('hides closet when leaving dressing room', () => {
+  test('hides the glow when leaving the dressing room but keeps the click target hit-testable', () => {
     const scene = createScene({
       ppeRoomZone: { x: 0, y: 0, width: 100, height: 100 },
       playerInsideDressingRoom: true,
@@ -291,15 +290,15 @@ describe('Closet behavior', () => {
 
     scene.player.x = 500
     scene.player.y = 500
-  
-    scene.closetImage = {
-      setVisible: jest.fn(),
-      disableInteractive: jest.fn(), // ✅ FIX
-    }
 
     scene.update()
 
-    expect(scene.closetImage.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.closetGlow.setVisible).toHaveBeenCalledWith(false)
+    // Hiding or disabling the target here is what broke clicking before: Phaser
+    // skips input on anything that would not render, and nothing ever showed it
+    // again, so the circle became permanently unclickable after the first exit.
+    expect(scene.closetHit.setVisible).not.toHaveBeenCalledWith(false)
+    expect(scene.closetHit.disableInteractive).not.toHaveBeenCalled()
   })
 
   test('hides press E hint when far from closet', () => {
