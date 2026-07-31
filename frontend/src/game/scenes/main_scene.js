@@ -641,15 +641,33 @@ class MainScene extends Phaser.Scene {
             bodyYOffset: 105,
             bodyHeight: 9
         }
-        doors.addDoor(1200, 280, 'door_front', config).setScale(0.25);
+        const door1 = doors.addDoor(1200, 280, 'door_front', config).setScale(0.25);
         config = {
             triggerZoneY: 490,
             bodyXOffset: 75,
             bodyYOffset: 95,
             bodyHeight: 9
         }
-        doors.addDoor(1005, 515, 'door_front', config).setScale(0.25);
+        const door2 = doors.addDoor(1005, 515, 'door_front', config).setScale(0.25);
         this.physics.add.collider(player, doors.solidSprites);
+
+        config = {
+            triggerZoneWidth: 40,
+            triggerZoneHeight: 40,
+            bodyWidth: 9
+        }
+        const door3 = doors.addDoor(1110, 305, 'door_top', config).setScale(0.5);
+        const door4 = doors.addDoor(965, 305, 'door_top', config).setScale(0.5);
+        const door5 = doors.addDoor(965, 415, 'door_top', config).setScale(0.5);
+
+        door1.addAirlockDoorPair(door3);
+        door3.addAirlockDoorPair(door1);
+
+        door3.addAirlockDoorPair(door4);
+        door4.addAirlockDoorPair(door3);
+
+        door2.addAirlockDoorPair(door5);
+        door5.addAirlockDoorPair(door2);
 
         this.doorHint = this.add.text(0, 0, "", {
             fontSize: "14px",

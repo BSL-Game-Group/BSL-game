@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 export default class Door extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, {
-        airlockDoorPair = null,
+        airlockDoorPairs = [],
         triggerZoneX = x,
         triggerZoneY = y,
         triggerZoneWidth = 75,
@@ -23,16 +23,20 @@ export default class Door extends Phaser.Physics.Arcade.Sprite {
         this.isOpen = false;
         this.triggerZone = scene.add.zone(triggerZoneX, triggerZoneY, triggerZoneWidth, triggerZoneHeight);
         this.triggerZone.parentDoor = this;
-        this.airlockDoorPair = airlockDoorPair;
+        this.airlockDoorPairs = airlockDoorPairs;
     }
 
     tryToChangeDoorState() {
-        if ((this.airlockDoorPair !== null) && this.airlockDoorPair.isOpen) {
+        if (this.airlockDoorPairs.some((pair) => pair.isOpen)) {
             return false;
         }
         this.isOpen = !this.isOpen;
         this.body.enable = !this.isOpen;
         this.visible = !this.isOpen;
         return true
+    }
+
+    addAirlockDoorPair(pair) {
+        this.airlockDoorPairs.push(pair);
     }
 }
