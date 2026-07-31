@@ -32,13 +32,7 @@ function SidebarPopup({ open, onClose }) {
   if (!material) {
     return (
       <div className="popup-overlay">
-        <div
-          className="popup-box"
-          style={{
-            width: '92%', maxWidth: '820px', minHeight: '320px', maxHeight: '85vh', gap: '20px',
-            display: 'flex', flexDirection: 'column',
-          }}
-        >
+        <div className="popup-box w-75 mw-100 h-auto d-flex flex-column">
           <button
             onClick={onClose}
             className="popup-close-button"

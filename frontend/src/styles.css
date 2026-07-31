@@ -1,112 +1,132 @@
-/* Base styles for BSL-game frontend */
+/* =========================================================
+   BSL GAME - BASE
+   ========================================================= */
 html, body, #root {
+  width: 100%;
   height: 100%;
   margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
+
 body {
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  /* Green to black gradient background */
-  background-color: #093412; /* fallback */
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #093412;
   background-image: linear-gradient(180deg, #0b6623 0%, #000000 100%);
   color: #e6eef6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Ensure Phaser canvas fills the available area */
-.phaser-game-canvas, canvas {
-  display: block;
-  max-width: 100%;
-  /* Height is controlled by Phaser's Scale manager (FIT); forcing height:auto
-     here fought it and distorted / blurred the canvas. */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-/* Game container utility */
-.game-container {
-  width: 1280px;
-  height: 720px;
-  margin: 24px auto;
+/* =========================================================
+   GAME CONTAINER & WRAPPER
+   ========================================================= */
+/* The wrapper ensures the game stays responsive */
+.game-wrapper-grid {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
   position: relative;
 }
 
-/* UI text hints */
-.game-ui-text {
-  font-size: 14px;
-  background: rgba(0,0,0,0.6);
-  padding: 6px 8px;
-  border-radius: 4px;
+/* Ensure the Phaser canvas fills the grid wrapper */
+.game-wrapper-grid canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
 }
 
-/* Closet popup styling */
+/* Mobile responsive override */
+@media (max-width: 767px) {
+  .game-wrapper-grid {
+    aspect-ratio: auto;
+    height: 300px;
+  }
+}
+
+/* =========================================================
+   POPUP SYSTEM
+   ========================================================= */
 .popup-overlay {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  display: flex; justify-content: center; align-items: center;
-  background-color: rgba(0,0,0,0.5); z-index: 1000;
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
 }
 
 .popup-box {
-  background: #fff; padding: 32px; width: 80%; max-width: 820px; min-height: 520px;
-  position: relative; display: flex; flex-direction: column;
+  background: #fff;
+  padding: 32px;
+  width: 90%;
+  max-width: 900px;
+  height: auto;
+  max-height: 95vh;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
   border-radius: 18px;
   border: 8px solid #0b6623;
   color: #000;
   box-shadow: 0 16px 48px rgba(0,0,0,0.25);
 }
+
+/* Only applies specific styles when answer is incorrect */
 .popup-box--incorrect {
   border-color: #c51a1a;
   background: #fff3f3;
-  box-shadow: 0 0 28px rgba(197, 26, 26, 0.35);
   animation: wrongAnswerPop 0.25s ease-out;
 }
 
 @keyframes wrongAnswerPop {
-  0% {
-    transform: scale(0.94);
-  }
-  70% {
-    transform: scale(1.03);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(0.94); }
+  70% { transform: scale(1.03); }
+  100% { transform: scale(1); }
 }
 
 .popup-close-button {
   position: absolute;
   top: 12px;
   right: 12px;
-  z-index: 10;
   padding: 8px 16px;
   background-color: #c51a1a;
   color: #fff;
-  border: 1px solid #ccc;
+  border: none;
   border-radius: 4px;
   cursor: pointer;
   font-weight: 600;
 }
 
-.popup-close-button:hover {
-  background-color: #a31414;
-}
-/* ---------- Start screen (shown only before the game starts) ---------- */
+/* =========================================================
+   START SCREEN & ANIMATIONS
+   ========================================================= */
 .start-screen {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
-/* Animated shimmering game title */
 .app-title {
   position: relative;
   z-index: 1;
-  font-size: 2.4rem;
-  color: #7ee29a; /* fallback if gradient-text clipping is unsupported */
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  color: #7ee29a;
 }
-/* Only make the text transparent (gradient fill) where clipping is supported,
-   so the title can never become invisible on older browsers. */
+
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
   .app-title {
     background: linear-gradient(90deg, #7ee29a, #14a83e, #a8f5c0, #14a83e, #7ee29a);
@@ -114,15 +134,14 @@ body {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    text-shadow: 0 0 22px rgba(20, 168, 62, 0.35);
     animation: titleShimmer 6s linear infinite;
   }
 }
+
 @keyframes titleShimmer {
   to { background-position: 200% center; }
 }
 
-/* ---------- Living microbe field behind the start screen ---------- */
 .microbe-field {
   position: fixed;
   inset: 0;
@@ -130,28 +149,24 @@ body {
   pointer-events: none;
   z-index: 0;
 }
+
 .microbe {
   position: absolute;
   border-radius: 50%;
-  /* cell-like: bright rim fading into a translucent body */
-  background: radial-gradient(circle at 38% 34%,
-    rgba(190, 255, 210, 0.55),
-    rgba(20, 168, 62, 0.18) 55%,
-    rgba(11, 102, 35, 0.06) 72%,
-    transparent 74%);
-  box-shadow: 0 0 16px rgba(20, 168, 62, 0.35),
-              inset 0 0 12px rgba(126, 226, 154, 0.35);
-  opacity: 0.55;
+  background: radial-gradient(circle at 38% 34%, rgba(190, 255, 210, 0.55), rgba(20, 168, 62, 0.18) 55%, rgba(11, 102, 35, 0.06) 72%, transparent 74%);
   animation: microbeDrift 28s ease-in-out infinite;
 }
+
 @keyframes microbeDrift {
-  0%   { transform: translate(0, 0) scale(1); }
-  25%  { transform: translate(40px, -34px) scale(1.08); }
-  50%  { transform: translate(-24px, -72px) scale(0.94); }
-  75%  { transform: translate(32px, -44px) scale(1.05); }
+  0% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(40px, -34px) scale(1.08); }
+  50% { transform: translate(-24px, -72px) scale(0.94); }
+  75% { transform: translate(32px, -44px) scale(1.05); }
   100% { transform: translate(0, 0) scale(1); }
 }
-.microbe:nth-child(1) { width: 72px; height: 72px; left: 8%;  top: 22%; animation-duration: 24s; }
+
+/* Microbe positions remain unchanged */
+.microbe:nth-child(1) { width: 72px; height: 72px; left: 8%; top: 22%; animation-duration: 24s; }
 .microbe:nth-child(2) { width: 46px; height: 46px; left: 22%; top: 66%; animation-duration: 30s; animation-delay: -5s; }
 .microbe:nth-child(3) { width: 94px; height: 94px; left: 77%; top: 30%; animation-duration: 34s; animation-delay: -12s; }
 .microbe:nth-child(4) { width: 34px; height: 34px; left: 64%; top: 76%; animation-duration: 22s; animation-delay: -3s; }
@@ -160,198 +175,52 @@ body {
 .microbe:nth-child(7) { width: 26px; height: 26px; left: 14%; top: 85%; animation-duration: 20s; animation-delay: -7s; }
 .microbe:nth-child(8) { width: 66px; height: 66px; left: 55%; top: 52%; animation-duration: 36s; animation-delay: -18s; opacity: 0.4; }
 .microbe:nth-child(9) { width: 30px; height: 30px; left: 92%; top: 12%; animation-duration: 25s; animation-delay: -2s; }
-.start-screen__subtitle {
-  margin: 2px 0 16px;
-  max-width: 720px;
-  text-align: center;
-  color: #cfe8d6;
-  font-size: 1.08rem;
-}
 
-/* Big call-to-action start button */
 .start-button {
   font-size: 1.15rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
   padding: 13px 40px;
   color: #fff;
   background: linear-gradient(180deg, #14a83e 0%, #0b6623 100%);
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-  transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
-}
-.start-button:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.08);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
-}
-.start-button:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: transform 0.1s ease;
 }
 
-/* "How to play" instruction card */
-.game-instructions {
-  max-width: 960px;
-  width: calc(100% - 48px);
-  margin: 16px auto 0;
-  padding: 24px 40px 28px;
-  box-sizing: border-box;
-  background: rgba(0, 0, 0, 0.28);
-  border: 2px solid #0b6623;
-  border-radius: 14px;
-  text-align: left;
-  line-height: 1.5;
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);
-}
-.game-instructions h2 {
-  margin: 0 0 14px;
-  text-align: center;
-  color: #7ee29a;
-  position: relative;
-  padding-bottom: 8px;
-}
-/* Accent underline under the heading */
-.game-instructions h2::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  width: 64px;
-  height: 3px;
-  border-radius: 3px;
-  background: linear-gradient(90deg, #14a83e, #7ee29a);
-}
-
-/* Numbered steps, each in its own hover-highlighted row */
+/* =========================================================
+   INSTRUCTIONS & TABS
+   ========================================================= */
 .instruction-steps {
   list-style: none;
-  margin: 0;
   padding: 0;
   counter-reset: step;
-  /* Fixed 6 rows x 2 columns, filled column-first, so each column
-     always holds exactly 6 steps regardless of text length. */
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: repeat(6, auto);
-  grid-auto-flow: column;
-  column-gap: 30px;
 }
+
 .instruction-steps li {
-  position: relative;
-  margin-bottom: 7px;
-  padding: 7px 12px 7px 48px;
-  background: rgba(255, 255, 255, 0.04);
-  border-left: 3px solid transparent;
+  margin-bottom: 12px;
+  padding: 10px 12px 10px 48px;
+  background: rgba(0, 0, 0, 0.04);
+  border-left: 3px solid #14a83e;
   border-radius: 8px;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-  /* Keep each step whole inside its column */
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
+  position: relative;
 }
-.instruction-steps li:hover {
-  background: rgba(20, 168, 62, 0.16);
-  border-left-color: #14a83e;
-  transform: translateX(3px);
-}
+
 .instruction-steps li::before {
-  counter-increment: step;
   content: counter(step);
+  counter-increment: step;
   position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(180deg, #14a83e 0%, #0b6623 100%);
-  color: #fff;
+  left: 10px;
+  top: 10px;
+  width: 25px;
+  height: 25px;
+  background: #14a83e;
+  color: white;
   border-radius: 50%;
-  font-size: 0.9rem;
-  font-weight: 700;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  font-weight: bold;
 }
 
-.game-instructions__controls {
-  margin: 16px 0 0;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-  font-size: 0.95rem;
-  color: #d7e6dc;
-}
-.game-instructions kbd {
-  background: rgba(20, 168, 62, 0.14);
-  color: #a8f5c0;
-  border: 1px solid rgba(126, 226, 154, 0.30);
-  border-radius: 4px;
-  padding: 0.5px 5px;
-  font-size: 0.82em;
-  line-height: 1;
-  font-family: inherit;
-  font-weight: 600;
-}
-
-/* ---------- Start-screen animations ---------- */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-/* Start button "breathes" with a soft green glow, echoing the in-game glows */
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(20, 168, 62, 0); }
-  50%      { box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4), 0 0 22px 5px rgba(20, 168, 62, 0.45); }
-}
-
-.start-screen__subtitle { animation: fadeUp 0.5s ease both; }
-.game-instructions { animation: fadeUp 0.55s ease 0.15s both; }
-
-/* Entrance fade only (no transform) so the :hover lift still works */
-.start-button {
-  animation: fadeIn 0.5s ease 0.1s both, pulseGlow 2.6s ease-in-out 0.9s infinite;
-}
-
-/* Steps reveal one after another */
-.instruction-steps li {
-  opacity: 0;
-  animation: fadeIn 0.4s ease forwards;
-}
-.instruction-steps li:nth-child(1) { animation-delay: 0.40s; }
-.instruction-steps li:nth-child(2) { animation-delay: 0.50s; }
-.instruction-steps li:nth-child(3) { animation-delay: 0.60s; }
-.instruction-steps li:nth-child(4) { animation-delay: 0.70s; }
-.instruction-steps li:nth-child(5) { animation-delay: 0.80s; }
-.instruction-steps li:nth-child(6) { animation-delay: 0.90s; }
-.instruction-steps li:nth-child(7)  { animation-delay: 1.00s; }
-.instruction-steps li:nth-child(8)  { animation-delay: 1.10s; }
-.instruction-steps li:nth-child(9)  { animation-delay: 1.20s; }
-.instruction-steps li:nth-child(10) { animation-delay: 1.30s; }
-.instruction-steps li:nth-child(11) { animation-delay: 1.40s; }
-.instruction-steps li:nth-child(12) { animation-delay: 1.50s; }
-.instruction-steps li:nth-child(13) { animation-delay: 1.60s; }
-
-/* Respect users who prefer reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .start-screen__subtitle,
-  .game-instructions,
-  .start-button,
-  .instruction-steps li,
-  .app-title,
-  .microbe {
-    animation: none;
-    opacity: 1;
-  }
-  .microbe { opacity: 0.4; }
-}
-
-/* ---------- Gear category tabs (ClosetPopup Equipment panel) ---------- */
 .gear-tab {
   padding: 6px 12px;
   border: 1px solid #0b6623;
@@ -359,9 +228,48 @@ body {
   background: #fff;
   color: #0b6623;
   cursor: pointer;
-  font-size: 0.9rem;
 }
+
 .gear-tab.active {
   background: #0b6623;
   color: #fff;
+}
+
+/* CLOSET FIX */
+.closet-character-display {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 250px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.closet-character-display img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+}
+/* Ensure the lecture panel title is responsive */
+.lecture-panel h2 {
+  font-size: 1.25rem;
+  transition: font-size 0.2s ease;
+}
+@media (max-width: 800px) {
+  .app-title h1{
+    font-size: 2rem;
+  }
+
+}
+
+@media (max-width: 800px) {
+  .lecture-panel h2 {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 800px) {
+  body {
+    font-size: 0.70rem !important; /* Forces the change regardless of load order */
+  }
 }

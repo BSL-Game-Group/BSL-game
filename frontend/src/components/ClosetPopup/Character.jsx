@@ -9,11 +9,19 @@ export default function Character({ equipped, onToggleEquip }) {
   }))
 
   return (
-    <div ref={drop} style={{ position: 'relative', width: 250, height: 350 }}>
+    <div className="pt-2" ref={drop} style={{
+      position: 'relative',
+      width: '100%',
+      maxHeight: '100%',
+      aspectRatio: '250 / 350',
+      display: 'flex',
+      justifyContent: 'center'
+    }}>
       <img 
-        src="/assets/player/base.png" 
-        alt="base" 
-        style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+        src="/assets/player/base.png"
+        alt="base"
+        className="img-fluid"
+        style={{ height: '100%', width: '100%', objectFit: 'contain' }}
       />
 
       {/* Dynamically render equipped items based on the configuration */}

@@ -15,7 +15,12 @@ const Game = () => {
     };
   }, []);
 
-  return <div id="game-container" />;
-};
+  return (
+      <div
+          id="game-container"
+          className="game-container"
+      />
+  )
+}
 
 export default Game;

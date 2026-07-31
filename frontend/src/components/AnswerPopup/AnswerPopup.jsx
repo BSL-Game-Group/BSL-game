@@ -2,21 +2,15 @@ import { useEffect } from 'react'
 import { useTranslation } from '../../i18n/context'
 
 function AnswerPopup({ open, onClose, isLevelCorrect, isEquipmentCorrect, isCorrect, level, microbe }) {
-  // Lock player movement while the verdict is showing (Phaser listens for these).
   useEffect(() => {
     window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
   }, [open])
 
-const { t, language } = useTranslation()
+  const { t, language } = useTranslation()
 
-if (!open) {
-  return null
-}
+  if (!open) return null
 
-  const headline = isCorrect
-  ? t('answerPopup.correct')
-  : t('answerPopup.incorrect')
-
+  const headline = isCorrect ? t('answerPopup.correct') : t('answerPopup.incorrect')
   const headlineColor = isCorrect ? '#1a8a34' : '#c51a1a'
 
   const localized = (field) => {
@@ -26,34 +20,20 @@ if (!open) {
     return microbe[field]
   }
 
-  // With a microbe loaded, use the backend's feedback text; otherwise fall back
-  // to a generic verdict. The chosen room is always shown for context.
   const feedback = microbe
       ? (isLevelCorrect ? localized('feedback_correct') : localized('feedback_incorrect'))
-
-      : (
-          isCorrect
-            ? t('answerPopup.correctFallback')
-            : t('answerPopup.incorrectFallback')
-        )
+      : (isCorrect ? t('answerPopup.correctFallback') : t('answerPopup.incorrectFallback'))
 
   const equipmentFeedback = isEquipmentCorrect
     ? t('answerPopup.equipmentCorrect')
     : t('answerPopup.equipmentIncorrect')
+    
+  const boxClass = `popup-box ${!isCorrect ? 'popup-box--incorrect' : ''}`
 
   return (
-      <div className="popup-overlay">
-        <div
-          className={`popup-box ${isCorrect ? '' : 'popup-box--incorrect'}`}
-        >
-        <button
-          onClick={onClose}
-          style={{
-            position: 'absolute', top: '12px', right: '12px', padding: '8px 16px',
-            backgroundColor: '#c51a1a', color: '#fff', border: '1px solid #ccc',
-            borderRadius: '4px', cursor: 'pointer', zIndex: 10,
-          }}
-        >
+    <div className="popup-overlay">
+      <div className={boxClass}>
+        <button onClick={onClose} className="popup-close-button position-absolute top-0 end-0 m-3">
           {t('common.close')}
         </button>
 
@@ -63,11 +43,9 @@ if (!open) {
         <p style={{ margin: '12px 0 0', fontSize: '0.95rem' }}>{t('answerPopup.chosenLevel').replace('{level}', level)}</p>
         {microbe && (
           <p style={{ margin: '4px 0 0', fontSize: '0.95rem' }}>
-            {
-              t('answerPopup.belongs')
+            {t('answerPopup.belongs')
                 .replace('{name}', localized('common_name'))
-                .replace('{level}', microbe.bsl_level)
-            }
+                .replace('{level}', microbe.bsl_level)}
           </p>
         )}
       </div>
