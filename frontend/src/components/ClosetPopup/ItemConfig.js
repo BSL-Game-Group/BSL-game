@@ -79,4 +79,13 @@ function applyEquip(equipped, itemId, equipmentConfig = EQUIPMENT_CONFIG, catego
   return next;
 }
 
-export { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip };
+// Returns a new equipped map with every known item unequipped.
+function unequipAll(equipmentConfig = EQUIPMENT_CONFIG) {
+  const next = {};
+  for (const id of Object.keys(equipmentConfig)) {
+    next[id] = false;
+  }
+  return next;
+}
+
+export { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip, unequipAll };
