@@ -246,7 +246,6 @@ class MainScene extends Phaser.Scene {
             disposable_overall: this.add.sprite(700, 300, 'disposable_overall')
                 .setScale(this.equipmentConfig.disposable_overall.scale)
                 .setVisible(false)
-                .setDepth(11)
                 .setDepth(13),
             gloves: this.add.sprite(700, 300, 'gloves')
                 .setScale(this.equipmentConfig.gloves.scale)
@@ -286,8 +285,8 @@ class MainScene extends Phaser.Scene {
             this.equipment.pressurized_suit.setVisible(equipped.pressurized_suit);
             this.equipment.wow_helmet.setVisible(equipped.wow_helmet);
 
-            // Swap the player base texture based on pressurized suit state
-            if (equipped.pressurized_suit) {
+            // Swap the player base texture based on pressurized suit or disposable overall state
+            if (equipped.pressurized_suit || equipped.disposable_overall) {
                 this.player.setTexture('head_only');
             } else if (equipped.wow_helmet) {
                 this.player.setTexture('no_hair');

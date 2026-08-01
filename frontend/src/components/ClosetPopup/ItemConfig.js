@@ -104,8 +104,8 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'body',
     label: 'Disposable overall',
     equippedStyle: {
-      position: 'absolute', top: '45px', left: '55px', width: '130px', height: 'auto',
-      transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '-20px', left: '53px', width: '130px', height: 'auto',
+      transform: 'scale(2) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   wow_helmet: {
