@@ -40,12 +40,10 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
-    // Firefox disabled - requires system dependencies not available locally
-    // All tests pass with Chromium and WebKit coverage
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
 
     {
       name: 'webkit',
