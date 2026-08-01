@@ -219,6 +219,10 @@ function setupBslInteractables(scene) {
             .setInteractive({ useHandCursor: true });
         hit.on('pointerdown', () => {
             if (!entry.playerInside) { return; }
+            if (!window.__lectureOpen) {
+                window.dispatchEvent(new Event('lecture-required'));
+                return;
+            }
             window.dispatchEvent(
                 new CustomEvent('answer-popup-opened', { detail: { level: entry.key } })
             );

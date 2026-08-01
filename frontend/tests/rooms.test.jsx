@@ -437,6 +437,7 @@ describe('setupBslInteractables (via createRooms)', () => {
   test('clicking a BSL glow opens the answer popup for that room, only when inside', () => {
     const scene = makeFakeScene()
     createRooms(scene)
+    window.__lectureOpen = true
 
     const levels = []
     const listener = (e) => levels.push(e.detail.level)
@@ -456,6 +457,28 @@ describe('setupBslInteractables (via createRooms)', () => {
 
     window.removeEventListener('answer-popup-opened', listener)
     expect(levels).toEqual(['BSL-2'])
+    delete window.__lectureOpen
+  })
+
+  test('clicking a BSL glow asks the player to visit the lecture room first when it has not been unlocked yet', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    window.__lectureOpen = false
+
+    const answerListener = jest.fn()
+    const requiredListener = jest.fn()
+    window.addEventListener('answer-popup-opened', answerListener)
+    window.addEventListener('lecture-required', requiredListener)
+
+    const bsl2Zone = scene.__created.zones[1]
+    scene.bslGlows[1].playerInside = true
+    bsl2Zone.handlers.pointerdown()
+
+    window.removeEventListener('answer-popup-opened', answerListener)
+    window.removeEventListener('lecture-required', requiredListener)
+    expect(answerListener).not.toHaveBeenCalled()
+    expect(requiredListener).toHaveBeenCalledTimes(1)
+    delete window.__lectureOpen
   })
 
   describe('createRooms — exit area', () => {
