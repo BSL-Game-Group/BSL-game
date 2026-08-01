@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useTranslation } from '../../i18n/context'
 
-function AnswerPopup({ open, onClose, isCorrect, level, microbe }) {
+function AnswerPopup({ open, onClose, isLevelCorrect, isEquipmentCorrect, isCorrect, level, microbe }) {
   // Lock player movement while the verdict is showing (Phaser listens for these).
   useEffect(() => {
     window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
@@ -19,27 +19,27 @@ if (!open) {
 
   const headlineColor = isCorrect ? '#1a8a34' : '#c51a1a'
 
+  const localized = (field) => {
+    if (language === 'sv' || language === 'fi') {
+      return microbe[`${field}_${language}`]
+    }
+    return microbe[field]
+  }
+
   // With a microbe loaded, use the backend's feedback text; otherwise fall back
   // to a generic verdict. The chosen room is always shown for context.
   const feedback = microbe
-      ? (
-          isCorrect
-            ? (
-                language === 'sv'
-                  ? microbe.feedback_correct_sv
-                  : microbe.feedback_correct
-              )
-            : (
-                language === 'sv'
-                  ? microbe.feedback_incorrect_sv
-                  : microbe.feedback_incorrect
-              )
-        )
+      ? (isLevelCorrect ? localized('feedback_correct') : localized('feedback_incorrect'))
+
       : (
           isCorrect
             ? t('answerPopup.correctFallback')
             : t('answerPopup.incorrectFallback')
         )
+
+  const equipmentFeedback = isEquipmentCorrect
+    ? t('answerPopup.equipmentCorrect')
+    : t('answerPopup.equipmentIncorrect')
 
   return (
       <div className="popup-overlay">
@@ -59,17 +59,13 @@ if (!open) {
 
         <h2 style={{ margin: '0 0 12px', color: headlineColor }}>{headline}</h2>
         <p style={{ margin: 0, fontSize: '1.05rem' }}>{feedback}</p>
+        <p style={{ margin: '8px 0 0', fontSize: '0.95rem' }}>{equipmentFeedback}</p>
         <p style={{ margin: '12px 0 0', fontSize: '0.95rem' }}>{t('answerPopup.chosenLevel').replace('{level}', level)}</p>
         {microbe && (
           <p style={{ margin: '4px 0 0', fontSize: '0.95rem' }}>
             {
               t('answerPopup.belongs')
-                .replace(
-                  '{name}',
-                  language === 'sv'
-                    ? microbe.common_name_sv
-                    : microbe.common_name
-                )
+                .replace('{name}', localized('common_name'))
                 .replace('{level}', microbe.bsl_level)
             }
           </p>

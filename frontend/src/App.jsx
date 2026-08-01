@@ -9,6 +9,7 @@ import InfoPopup from './components/InfoPopup/InfoPopup'
 import LanguageSelector from './components/LanguageSelector'
 import { EventBus } from './game/EventBus'
 import { useTranslation } from './i18n/context'
+import { evaluateEquipmentRules, getEquipmentRulesForBslLevel } from './utils/equipmentRules'
 
 function App() {
   const { t, language } = useTranslation()
@@ -17,10 +18,24 @@ function App() {
   const [lectureOpen, setLectureOpen] = useState(false)
   const [isPopupOpen, setPopupOpen] = useState(false)
   const [isLecturePopupOpen, setLecturePopupOpen] = useState(false)
+  const [materialsUnlocked, setMaterialsUnlocked] = useState(false)
   const [answerOpen, setAnswerOpen] = useState(false)
   const [answerLevel, setAnswerLevel] = useState('')
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
   const [infoOpen, setInfoOpen] = useState(false)
+  const [lectureWarningOpen, setLectureWarningOpen] = useState(false);
+  const [PlayerEquipment, setPlayerEquipment] = useState({
+    mask: false,
+    gloves: false,
+    closable_lab_coat: false,
+    disposable_overall: false,
+    respirator: false,
+    face_shield: false,
+    lab_coat: false,
+    glasses: false,
+    sunglasses: false,
+    pressurized_suit: false,
+  })
 
   useEffect(() => {
     fetch('/api/test')
@@ -37,6 +52,25 @@ function App() {
     window.addEventListener('lecture-room-entered', handler)
     return () => window.removeEventListener('lecture-room-entered', handler)
   }, [])
+
+  useEffect(() => {
+      window.__lectureOpen = lectureOpen
+  }, [lectureOpen])
+
+  useEffect(() => {
+    const handler = () => setLectureWarningOpen(true);
+
+    window.addEventListener('lecture-required', handler);
+
+    return () =>
+      window.removeEventListener('lecture-required', handler);
+  }, []);
+
+  useEffect(() => {
+  const handleUnlock = () => setMaterialsUnlocked(true);
+  window.addEventListener('lecture-materials-unlocked', handleUnlock);
+  return () => window.removeEventListener('lecture-materials-unlocked', handleUnlock);
+}, []);
 
   useEffect(() => {
     const handleClosetClick = () => setPopupOpen(true)
@@ -74,8 +108,22 @@ function App() {
 
   const correctLevel = currentMicrobe?.bsl_level
   const chosenLevel = Number(String(answerLevel).replace('BSL-', ''))
-  const isCorrect =
+
+  const isLevelCorrect =
     typeof correctLevel === 'number' && chosenLevel === correctLevel
+
+  const equipmentRules = getEquipmentRulesForBslLevel(chosenLevel)
+
+  const chosenEquipment = Object.keys(PlayerEquipment).filter(
+    (item) => PlayerEquipment[item]
+  )
+
+  const isEquipmentCorrect = evaluateEquipmentRules(
+    equipmentRules,
+    chosenEquipment
+  )
+
+  const isCorrect = isLevelCorrect && isEquipmentCorrect
 
   const handleAnswerClose = () => {
     setAnswerOpen(false)
@@ -133,43 +181,61 @@ function App() {
             }}
           >
             <Task />
-
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <h2 style={{ margin: 0 }}>
-                {t('lecturePanel.title')}
-              </h2>
-
-              <button
-                onClick={() => setLecturePopupOpen((open) => !open)}
+            {materialsUnlocked && (
+              <div
                 style={{
-                  marginLeft: '8px',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  gap: '4px',
                 }}
               >
-                {isLecturePopupOpen
-                  ? t('lecturePanel.hideButton')
-                  : t('lecturePanel.showButton')}
-              </button>
-            </div>
+                <h2 style={{ margin: 0 }}>
+                  {t('lecturePanel.title')}
+                </h2>
+
+                <button
+                  onClick={() => setLecturePopupOpen((open) => !open)}
+                  style={{
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {isLecturePopupOpen
+                    ? t('lecturePanel.hideButton')
+                    : t('lecturePanel.showButton')}
+                </button>
+              </div>
+            )}
           </div>
 
           <div style={{ position: 'relative' }}>
             <ClosetPopup
               open={isPopupOpen}
               onClose={() => setPopupOpen(false)}
+              onEquipmentChange={(newEquipment) => setPlayerEquipment(newEquipment)}
             />
 
             <SidebarPopup
               open={isLecturePopupOpen}
               onClose={() => setLecturePopupOpen(false)}
             />
+            {lectureWarningOpen && (
+              <div className="popup-overlay">
+                <div className="popup-box popup-box--incorrect">
+                  <button
+                    className="popup-close-button"
+                    onClick={() => setLectureWarningOpen(false)}
+                  >
+                    {t('common.close')}
+                  </button>
+
+                  <h2>{t('lectureRequired.title')}</h2>
+
+                  <p>{t('lectureRequired.message')}</p>
+                </div>
+              </div>
+            )}
 
             <AnswerPopup
               open={answerOpen}
@@ -177,6 +243,9 @@ function App() {
               isCorrect={isCorrect}
               level={answerLevel}
               microbe={currentMicrobe}
+              isLevelCorrect={isLevelCorrect}
+              isEquipmentCorrect={isEquipmentCorrect}
+              equipment={PlayerEquipment}
             />
 
             <InfoPopup

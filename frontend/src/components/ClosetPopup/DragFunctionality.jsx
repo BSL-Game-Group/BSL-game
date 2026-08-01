@@ -1,9 +1,8 @@
 import { ItemType } from './ItemConfig'
 import { useDrag } from 'react-dnd'
 
-// Unified Draggable Component
-// Handles both inventory and equipped states based on the props passed to it.
-export default function DraggableItem({ id, src, style, isEquipped }) {
+
+export default function DraggableItem({ id, src, label, style, isEquipped, onToggleEquip }) {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemType,
     item: { id },
@@ -13,19 +12,29 @@ export default function DraggableItem({ id, src, style, isEquipped }) {
   }))
 
   return (
-    <img
+    <button
       ref={drag}
-      src={src}
-      alt={id}
+      type="button"
+      className="equipment-item"
+      data-item-id={id}
+      aria-label={label}
+      aria-pressed={isEquipped}
+      onClick={() => onToggleEquip(id, !isEquipped)}
       style={{
-        cursor: 'grab',
         opacity: isDragging ? 0.5 : 1,
-        width: isEquipped ? undefined : 80, // Default width for inventory items
+        width: isEquipped ? undefined : 80,
         zIndex: isEquipped ? 10 : undefined,
-        willChange: 'transform', 
+        willChange: 'transform',
         transform: isEquipped ? style?.transform : 'translateZ(0)',
-        ...style // Spreads any specific positioning for equipped items
+        ...style
       }}
-    />
+    >
+      <img
+        src={src}
+        alt=""
+        draggable={false}
+        style={{ width: '100%', height: 'auto', display: 'block' }}
+      />
+    </button>
   )
 }

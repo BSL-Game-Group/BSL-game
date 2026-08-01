@@ -78,6 +78,8 @@ class MainScene extends Phaser.Scene {
     preload() {
         // Player base
         this.load.image('player_base', 'assets/player/base.png');
+        this.load.image('head_only', 'assets/player/head_only.png');
+        this.load.image('no_hair', 'assets/player/no_hair.png');
 
         // Equipment
         this.load.image('lab_coat', 'assets/equipment/on_character/body/lab_coat_on.png');
@@ -90,16 +92,22 @@ class MainScene extends Phaser.Scene {
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
         this.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
+        this.load.image('gloves', 'assets/equipment/on_character/gloves/gloves_on.png');
+        this.load.image('gloves_2', 'assets/equipment/on_character/gloves/gloves_2_on.png');
+        this.load.image('closable_lab_coat', 'assets/equipment/on_character/body/closable_lab_coat_on.png');
+        this.load.image('pressurized_suit', 'assets/equipment/on_character/body/pressurized_suit_on.png');
+        this.load.image('wow_helmet', 'assets/equipment/on_character/eyewear/wow_helmet_on.png');
 
         // Rooms
         this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
-        this.load.image('lecture_room', 'assets/lecture_room.png');
+        this.load.image('lecture_room', 'assets/rooms/lecture_room2.png');
         this.load.image('bsl2_room', 'assets/rooms/BSL-2.jpg');
         this.load.image('bsl3_room', 'assets/rooms/BSL-3 ver. 2.png');
         this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
         this.load.image('air_systems', 'assets/rooms/air-systems.jpeg');
         this.load.image('dressing_room', 'assets/rooms/dressing-room.png');
         this.load.image('info_desk', 'assets/rooms/info-desk.png');
+        this.load.image('exit_area', 'assets/rooms/exit_area.png');
     }
 
     createWoodFloor() {
@@ -201,7 +209,13 @@ class MainScene extends Phaser.Scene {
             face_shield: { scale: 0.03, offsetX: -0.5, offsetY: -28 },
             bsl3_respirator: { scale: 0.04, offsetX: -1, offsetY: -25 },
             sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
-            disposable_overall: { scale: 0.065, offsetX: -0.95,  offsetY: 5 }
+            disposable_overall: { scale: 0.065, offsetX: -0.95,  offsetY: 5 },
+            sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
+            gloves: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
+            gloves_2: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
+            closable_lab_coat: { scale: 0.33, offsetX: -1,  offsetY: 7 },
+            pressurized_suit: { scale: 0.085, offsetX: 0,  offsetY: 0 },
+            wow_helmet: { scale: 0.1, offsetX: -2,  offsetY: -31 }
         };
 
         // 3. Create the Equipment Sprites using the configurations above
@@ -234,6 +248,27 @@ class MainScene extends Phaser.Scene {
                 .setScale(this.equipmentConfig.disposable_overall.scale)
                 .setVisible(false)
                 .setDepth(11)
+                .setDepth(13),
+            gloves: this.add.sprite(700, 300, 'gloves')
+                .setScale(this.equipmentConfig.gloves.scale)
+                .setVisible(false)
+                .setDepth(12),
+            gloves_2: this.add.sprite(700, 300, 'gloves_2')
+                .setScale(this.equipmentConfig.gloves_2.scale)
+                .setVisible(false)
+                .setDepth(13),
+            closable_lab_coat: this.add.sprite(700, 300, 'closable_lab_coat')
+                .setScale(this.equipmentConfig.closable_lab_coat.scale)
+                .setVisible(false)
+                .setDepth(11),
+            pressurized_suit: this.add.sprite(700, 300, 'pressurized_suit')
+                .setScale(this.equipmentConfig.pressurized_suit.scale)
+                .setVisible(false)
+                .setDepth(11),
+            wow_helmet: this.add.sprite(700, 300, 'wow_helmet')
+                .setScale(this.equipmentConfig.wow_helmet.scale)
+                .setVisible(false)
+                .setDepth(13)
         };
 
         // 4. Listen for React's CustomEvent
@@ -246,6 +281,20 @@ class MainScene extends Phaser.Scene {
             this.equipment.bsl3_respirator.setVisible(equipped.bsl3_respirator);
             this.equipment.sunglasses.setVisible(equipped.sunglasses);
             this.equipment.disposable_overall.setVisible(equipped.disposable_overall);
+            this.equipment.gloves.setVisible(equipped.gloves);
+            this.equipment.gloves_2.setVisible(equipped.gloves_2);
+            this.equipment.closable_lab_coat.setVisible(equipped.closable_lab_coat);
+            this.equipment.pressurized_suit.setVisible(equipped.pressurized_suit);
+            this.equipment.wow_helmet.setVisible(equipped.wow_helmet);
+
+            // Swap the player base texture based on pressurized suit state
+            if (equipped.pressurized_suit) {
+                this.player.setTexture('head_only');
+            } else if (equipped.wow_helmet) {
+                this.player.setTexture('no_hair');
+            } else {
+                this.player.setTexture('player_base');
+            }
         };
         window.addEventListener('equipment-changed', this.handleEquipmentChange);
 
@@ -253,7 +302,7 @@ class MainScene extends Phaser.Scene {
         this.events.on('shutdown', () => {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
         });
-
+        
         // NEW: Track if the React popup is open
         this.isPopupOpen = false;
 
@@ -288,11 +337,10 @@ class MainScene extends Phaser.Scene {
         }).setDepth(1000).setVisible(false);
 
         this.physics.add.collider(this.player, walls);
-        if (this.lectureShelves) {
-            this.physics.add.collider(this.player, this.lectureShelves);
-        }
+
 
         this.playerInsideLectureRoom = false;
+        this.playerInsideExitRoom = false;
         this.playerInsideDressingRoom = false;
         this.closetHint = this.add.text(0, 0, "", {
             fontSize: "14px",
@@ -444,9 +492,31 @@ class MainScene extends Phaser.Scene {
                 this.player.x + this.equipmentConfig.disposable_overall.offsetX,
                 this.player.y + this.equipmentConfig.disposable_overall.offsetY
             );
+            this.equipment.gloves.setPosition(
+                this.player.x + this.equipmentConfig.gloves.offsetX,
+                this.player.y + this.equipmentConfig.gloves.offsetY
+            );
+            this.equipment.gloves_2.setPosition(
+                this.player.x + this.equipmentConfig.gloves_2.offsetX,
+                this.player.y + this.equipmentConfig.gloves_2.offsetY
+            );
+            this.equipment.closable_lab_coat.setPosition(
+                this.player.x + this.equipmentConfig.closable_lab_coat.offsetX,
+                this.player.y + this.equipmentConfig.closable_lab_coat.offsetY
+            );
+            this.equipment.pressurized_suit.setPosition(
+                this.player.x + this.equipmentConfig.pressurized_suit.offsetX,
+                this.player.y + this.equipmentConfig.pressurized_suit.offsetY
+            );
+            this.equipment.wow_helmet.setPosition(
+                this.player.x + this.equipmentConfig.wow_helmet.offsetX,
+                this.player.y + this.equipmentConfig.wow_helmet.offsetY
+            );
         }
 
-        // Zone checks
+        // Lecture room: the microbe task panel shows as soon as the player walks in.
+        // The lecture-materials section only unlocks once they walk up to the info
+        // point and press E — same glow + hint pattern as the other interactables.
         if (this.lectureRoomZone) {
             const inside = playerIsInsideZone(this.player, this.lectureRoomZone);
             if (inside && !this.playerInsideLectureRoom) {
@@ -454,6 +524,44 @@ class MainScene extends Phaser.Scene {
                 this.playerInsideLectureRoom = true;
             } else if (!inside) {
                 this.playerInsideLectureRoom = false;
+            }
+        }
+        if (this.exitZone) {
+            const inside = playerIsInsideZone(this.player, this.exitZone);
+
+            if (inside && !this.playerInsideExitRoom) {
+                this.playerInsideExitRoom = true;
+            } else if (!inside && this.playerInsideExitRoom) {
+                this.playerInsideExitRoom = false;
+            }
+        }
+
+        if (this.lectureGlow && this.lecturePoint && this.lectureRoomZone) {
+            const inside = playerIsInsideZone(this.player, this.lectureRoomZone);
+            this.lectureGlow.setVisible(inside);
+            if (this.lectureGlowTween) {
+                if (inside) { this.lectureGlowTween.resume(); } else { this.lectureGlowTween.pause(); }
+            }
+
+            if (inside) {
+                const dist = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y, this.lecturePoint.x, this.lecturePoint.y
+                );
+                const closeEnough = dist < 100;
+
+                if (closeEnough) {
+                    this.pressEText.setVisible(true);
+                    // Below the glow (it sits near the top of the room, so a hint
+                    // above it would clip off-screen — same fix as the top BSL rooms).
+                    this.pressEText.setPosition(this.lecturePoint.x - 40, this.lecturePoint.y + 45);
+                    if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                        window.dispatchEvent(new Event('lecture-materials-unlocked'));
+                    }
+                } else {
+                    this.pressEText.setVisible(false);
+                }
+            } else {
+                this.pressEText.setVisible(false);
             }
         }
 
@@ -491,20 +599,20 @@ class MainScene extends Phaser.Scene {
                 window.dispatchEvent(new Event('closet-popup-opened'));
             }
 
-            const closetCenter = this.closetZone ? { x: this.closetZone.x + 35, y: this.closetZone.y + 60 } : null;
+            // Only this room's own presence (`inside`) may hide the shared hint text —
+            // otherwise this always-running block stomps on the other rooms' hints
+            // (e.g. the lecture info point) every frame regardless of where the player is.
+            if (inside) {
+                const closetCenter = this.closetZone ? { x: this.closetZone.x + 35, y: this.closetZone.y + 60 } : null;
+                const dist = closetCenter
+                    ? Phaser.Math.Distance.Between(this.player.x, this.player.y, closetCenter.x, closetCenter.y)
+                    : Infinity;
+                const closeEnough = Boolean(closetCenter) && dist < 90;
 
-            if (closetCenter) {
-                const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, closetCenter.x, closetCenter.y);
-                const closeEnough = dist < 90;
-
+                this.pressEText.setVisible(closeEnough);
                 if (closeEnough) {
-                    this.pressEText.setVisible(true);
                     this.pressEText.setPosition(closetCenter.x - 40, closetCenter.y - 80);
-                } else {
-                    this.pressEText.setVisible(false);
                 }
-            } else {
-                this.pressEText.setVisible(false);
             }
         }
 
@@ -546,10 +654,18 @@ class MainScene extends Phaser.Scene {
 
                 if (inside) {
                     activeCenter = entry.center;
+
                     if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
-                        window.dispatchEvent(
-                            new CustomEvent('answer-popup-opened', { detail: { level: entry.key } })
-                        );
+
+                        if (!window.__lectureOpen) {
+                            window.dispatchEvent(new Event('lecture-required'));
+                        } else {
+                            window.dispatchEvent(
+                                new CustomEvent('answer-popup-opened', {
+                                    detail: { level: entry.key }
+                                })
+                            );
+                        }
                     }
                 }
             }

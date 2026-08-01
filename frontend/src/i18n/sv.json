@@ -11,7 +11,7 @@
     "steps": [
       "Kom ihåg BSL-nivån — den avgör allt. Om du behöver läsa om instruktionerna igen, besök INFO-desken i korridoren.",
       "Gå till föreläsningsrummet för att läsa mikrobes detaljer och dess BSL-nivå.",
-      "I föreläsningsrummet kan du också studera materialet för att lära dig om olika mikrober och BSL-klasser (1–4).",
+      "Tryck E vid den gröna ringen i föreläsningsrummet för att studera materialet och lära dig om olika mikrober och BSL-klasser (1–4).",
       "Gå till påklädningsrummet och öppna garderobsskåpet (tryck E).",
       "Sätt på den skyddsutrustning som nivån kräver (lab coat, mask, glasögon…).",
       "Gå till motsvarande BSL-rum (1–4).",
@@ -24,6 +24,10 @@
     ],
     "controls": "Kontroller: Piltangenter / klick för att röra sig · E eller klick för att interagera · Stäng-knapp för att stänga fönster"
   },
+  "lectureRequired": {
+  "title": "Besök föreläsningsrummet först",
+  "message": "Innan du hanterar en mikrob måste du först besöka föreläsningsrummet för att läsa om mikroben och ta reda på dess biosäkerhetsnivå (BSL)."
+},
   "lecturePanel": {
     "title": "Kursmaterial",
     "description": "Klicka på en länk nedan för att öppna föreläsningsmaterialet i en ny flik.",
@@ -35,10 +39,18 @@
       "link3": "Biosäkerhet – ScienceDirect"
     }
   },
+  "bslMaterial": {
+    "title": "BSL-spelets material (biosäkerhetsnivåer)",
+    "protectiveEquipment": "Skyddsutrustning:",
+    "exampleOrganisms": "Exempelorganismer:",
+    "tableHeaders": ["#", "Vanligt namn", "Vetenskapligt namn", "Typ", "Anmärkning"],
+    "sources": "Källor"
+  },
   "task": {
     "title": "Mikroben du kommer att hantera"
   },
   "closet": {
+    "title": "Garderob",
     "player": "Spelare",
     "equipmentLabel": "Utrustning"
   },
@@ -47,6 +59,8 @@
     "incorrect": "Inte riktigt",
     "correctFallback": "Det är rätt rum.",
     "incorrectFallback": "Det är inte rätt rum.",
+    "equipmentCorrect": "Din skyddsutrustning upfyller BSL-kraven",
+    "equipmentIncorrect": "Din skyddsutrustning upfyller inte BSL-kraven.",
     "chosenLevel": "Du valde {level}.",
     "belongs": "{name} tillhör BSL-{level}."
   },

@@ -182,24 +182,76 @@ function setupBslInteractables(scene) {
 }
 
 // Lecture-room decor: a transparent pixel-art furniture overlay (the room's floor comes
-// from the game). The back wall is solid (a real wall). The bookshelves are solid too,
+// from the game). The back wall is solid (a real wall).
 // but live in their OWN named group (`scene.lectureShelves`) rather than `walls`.
 function setupLectureRoom(scene, walls) {
     scene.add.image(0, 0, 'lecture_room')
         .setOrigin(0, 0)
         .setDisplaySize(480, 290)
-        .setDepth(-5); // above the floor (-10), below walls (0) and the player (10)
+        .setDepth(-5);
 
-    // Back wall: solid. The game's black wall reads as its rear; the plaster face is in the overlay.
+    // Back wall
     solidBox(scene, 0, 0, 480, 60, walls);
 
-    // Bookshelves — own named group so a future "shelves as buttons" feature can hook onto them.
-    scene.lectureShelves = [
-        namedSolid(scene, 8, 72, 76, 136, 'lecture-shelf-1'),     // left-upper
-        namedSolid(scene, 8, 184, 76, 248, 'lecture-shelf-2'),    // left-lower
-        namedSolid(scene, 404, 72, 472, 136, 'lecture-shelf-3'),  // right-upper
-        namedSolid(scene, 404, 184, 472, 248, 'lecture-shelf-4'), // right-lower
-    ];
+    // Front ledge under the display wall
+    solidBox(scene, 0, 60, 480, 110, walls);
+
+    // Left workstation
+    solidBox(scene, 40, 132, 214, 236, walls);
+
+    // Right workstation
+    solidBox(scene, 266, 132, 440, 236, walls);
+
+    // No bookshelf colliders anymore
+    scene.lectureShelves = [];
+}
+function setupExitArea(scene, walls) {
+    scene.add.image(480, 0, 'exit_area')
+        .setOrigin(0, 0)
+        .setDisplaySize(220, 290)
+        .setDepth(-5);
+
+    // back wall
+    solidBox(scene, 480, 0, 700, 60, walls);
+}
+
+// Info point in the lecture room: a green pulsing glow (same look as the corridor
+// info desk) that opens the lecture-materials panel on E, instead of it opening
+// automatically when the player enters the room. Placed past the right workstation
+// on open floor (y:236+), since the display wall (y:0-110) and both workstations
+// (x:40-214 and x:266-440, y:132-236) are solid.
+function setupLectureInfoPoint(scene) {
+    const gx = 300;
+    const gy = 240;
+    const radius = 35;
+
+    const glow = scene.add.graphics();
+    glow.fillStyle(0x0b6623, 0.8);
+    glow.fillCircle(gx, gy, radius);
+    glow.lineStyle(3, 0x0b6623);
+    glow.strokeCircle(gx, gy, radius);
+    glow.setDepth(5);
+    glow.setVisible(false);
+
+    const tween = scene.tweens.add({
+        targets: glow,
+        alpha: { from: 1.0, to: 0.3 },
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+    });
+    tween.pause();
+
+    scene.lectureGlow = glow;
+    scene.lectureGlowTween = tween;
+    scene.lecturePoint = { x: gx, y: gy };
+
+    scene.add
+        .zone(gx, gy, radius * 2.4, radius * 2.4)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+            window.dispatchEvent(new Event('lecture-materials-unlocked'));
+        });
 }
 
 // Invisible colliders over the dressing-room furniture, estimated from the room
@@ -292,18 +344,10 @@ export function createRooms(scene) {
     vWall(scene, 1110, 250, 470, [[250, 360]], walls);   // BSL4 airlock 1 <-> 2 (clean top-row opening)
     hWall(scene, 960, 1280, 470, [[970, 1040]], walls);  // BSL3 airlock <-> BSL 3 only
 
-    // ---- LABELS ---- (lecture room now shown via the pixel-art overlay, so no text label)
-    label(scene, 590, 145, 'Exit', 12);
-    label(scene, 350, 360, 'Corridor', 12);
-    label(scene, 350, 575, 'Dressing room');
+    // ---- LABELS ----
     label(scene, 830, 125, 'BSL 2', 16, true);
-    label(scene, 830, 360, 'Labs', 12);
     label(scene, 830, 595, 'BSL 1', 16, true);
     label(scene, 1120, 125, 'BSL 4', 16, true);
-    label(scene, 1035, 305, 'BSL4\nAIRLOCK 1', 9);
-    label(scene, 1195, 305, 'BSL4\nAIRLOCK 2', 9);
-    label(scene, 1035, 415, 'BSL3\nAIRLOCK', 9);
-    label(scene, 1195, 430, 'AIR SYSTEMS', 11, true);
     label(scene, 1120, 595, 'BSL 3', 16, true);
 
     // ---- ZONES (game logic) ----
@@ -316,12 +360,19 @@ export function createRooms(scene) {
         { key: 'BSL-3', x: 960, y: 470, width: 320, height: 250 },
         { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 },
     ];
+    scene.exitZone = {
+        x: 480,
+        y: 0,
+        width: 220,
+        height: 290,
+    };
 
     window.__gameData = {
         ...window.__gameData,
         lectureRoomZone: scene.lectureRoomZone,
         ppeRoomZone: scene.ppeRoomZone,
         bslRoomZones: scene.bslRoomZones,
+        exitZone: scene.exitZone,
     };
 
     // Draw the BSL-1 background image
@@ -376,8 +427,10 @@ export function createRooms(scene) {
     setupCloset(scene);
     setupBslInteractables(scene);
     setupLectureRoom(scene, walls);
+    setupLectureInfoPoint(scene);
     setupDressingRoomDeadzones(scene, walls);
     setupInfoDesk(scene, walls);
+    setupExitArea(scene, walls);
 
     return walls;
 }
