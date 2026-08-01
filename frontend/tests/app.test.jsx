@@ -17,28 +17,35 @@ jest.mock('../src/Game', () => () => (
   <div data-testid="game-component">Game Loaded</div>
 ))
 
-// Wraps the real ClosetPopup with extra test-only buttons that call
-// onEquipmentChange directly, since simulating a react-dnd drag-and-drop
-// equip in jsdom isn't supported by this repo's test setup.
-jest.mock('../src/components/ClosetPopup/ClosetPopup', () => {
-  const Real = jest.requireActual('../src/components/ClosetPopup/ClosetPopup').default
-  return function ClosetPopupWithTestHooks(props) {
-    return (
-      <>
-        <Real {...props} />
-        {props.open && (
-          <>
-            <button onClick={() => props.onEquipmentChange({ mask: true, lab_coat: false, glasses: false, sunglasses: false })}>
-              test-equip-mask
-            </button>
-            <button onClick={() => props.onEquipmentChange({ mask: false, lab_coat: false, glasses: false, sunglasses: false })}>
-              test-unequip-all
-            </button>
-          </>
-        )}
-      </>
-    )
+// A lightweight stand-in for ClosetPopup: simulating a real react-dnd
+// drag-and-drop equip in jsdom isn't supported by this repo's test setup, so
+// this exposes plain buttons that call the same onClose/onEquipmentChange
+// props the real component would call.
+jest.mock('../src/components/ClosetPopup/ClosetPopup', () => (props) => {
+  if (!props.open) {
+    return null
   }
+
+  return (
+    <div>
+      <p>Equipment</p>
+      <button onClick={props.onClose}>Close</button>
+      <button
+        onClick={() =>
+          props.onEquipmentChange({ mask: true, lab_coat: false, glasses: false, sunglasses: false })
+        }
+      >
+        test-equip-mask
+      </button>
+      <button
+        onClick={() =>
+          props.onEquipmentChange({ mask: false, lab_coat: false, glasses: false, sunglasses: false })
+        }
+      >
+        test-unequip-all
+      </button>
+    </div>
+  )
 })
 
 jest.mock('../game/main', () => jest.fn(() => ({ destroy: jest.fn() })))

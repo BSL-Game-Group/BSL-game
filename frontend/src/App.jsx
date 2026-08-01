@@ -91,11 +91,12 @@ function App() {
   const isCorrect =
     typeof correctLevel === 'number' && chosenLevel === correctLevel
 
-  const isFullyUndressed = Object.values(equipped).every((isEquipped) => !isEquipped)
+  const isUndressed = (equippedState) =>
+    Object.values(equippedState).every((isEquipped) => !isEquipped)
 
   const handleAnswerClose = () => {
     setAnswerOpen(false)
-    if (isFullyUndressed) {
+    if (isUndressed(equipped)) {
       EventBus.emit('request-new-microbe')
     } else {
       setAwaitingUndress(true)
@@ -103,12 +104,13 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    if (awaitingUndress && isFullyUndressed) {
+  const handleEquipmentChange = (newEquipped) => {
+    setEquipped(newEquipped)
+    if (awaitingUndress && isUndressed(newEquipped)) {
       setAwaitingUndress(false)
       EventBus.emit('request-new-microbe')
     }
-  }, [awaitingUndress, isFullyUndressed])
+  }
 
   return (
     <div
@@ -193,7 +195,7 @@ function App() {
             <ClosetPopup
               open={isPopupOpen}
               onClose={() => setPopupOpen(false)}
-              onEquipmentChange={setEquipped}
+              onEquipmentChange={handleEquipmentChange}
             />
 
             <SidebarPopup
