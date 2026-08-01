@@ -198,10 +198,10 @@ class MainScene extends Phaser.Scene {
             lab_coat: { scale: 0.05, offsetX: -1,  offsetY: 5 },
             mask:     { scale: 0.075, offsetX: -1,  offsetY: -20 },
             glasses:  { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
-            face_shield: { scale: 0.07, offsetX: -0.5, offsetY: -30 },
-            bsl3_respirator: { scale: 0.09, offsetX: -1, offsetY: -35 },
+            face_shield: { scale: 0.03, offsetX: -0.5, offsetY: -28 },
+            bsl3_respirator: { scale: 0.04, offsetX: -1, offsetY: -25 },
             sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
-            disposable_overall: { scale: 0.05, offsetX: -1,  offsetY: 5 }
+            disposable_overall: { scale: 0.065, offsetX: -0.95,  offsetY: 5 }
         };
 
         // 3. Create the Equipment Sprites using the configurations above
