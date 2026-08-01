@@ -346,6 +346,46 @@ describe('setupCloset (via createRooms)', () => {
   })
 })
 
+describe('setupUndressPoint (via createRooms)', () => {
+  test('creates a hidden glow at the dressing-room quick-undress spot', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.undressPoint).toEqual({ x: 400, y: 650 })
+    expect(scene.undressGlow.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.undressZone.setInteractive).toHaveBeenCalled()
+  })
+
+  test('clicking the quick-undress spot fires quick-undress when the player is inside', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('quick-undress', listener)
+    scene.playerInsideDressingRoom = true
+
+    scene.undressZone.handlers.pointerdown()
+
+    window.removeEventListener('quick-undress', listener)
+    expect(listener).toHaveBeenCalledTimes(1)
+  })
+
+  test('clicking the quick-undress spot does nothing when the player is outside', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('quick-undress', listener)
+    scene.playerInsideDressingRoom = false
+
+    scene.undressZone.handlers.pointerdown()
+
+    window.removeEventListener('quick-undress', listener)
+    expect(listener).not.toHaveBeenCalled()
+  })
+})
+
 describe('setupBslInteractables (via createRooms)', () => {
   test('creates one interactable entry per BSL room, starting outside', () => {
     const scene = makeFakeScene()

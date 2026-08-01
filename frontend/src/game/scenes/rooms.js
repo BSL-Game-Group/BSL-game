@@ -121,6 +121,44 @@ function setupCloset(scene) {
     });
 }
 
+// Quick-undress interactable inside the dressing room: a green glow, same look as
+// the other room interactables (closet, BSL rooms, info points). Clicking it resets
+// all worn PPE in one go. Placed toward the bottom-right of the walkable floor —
+// the literal corner is blocked by the decon-counter/shelves/glass-booth furniture.
+function setupUndressPoint(scene) {
+    const ux = 400;
+    const uy = 650;
+    const radius = 28;
+
+    scene.undressPoint = { x: ux, y: uy };
+
+    scene.undressGlow = scene.add.graphics();
+    scene.undressGlow.fillStyle(0x0b6623, 0.8);
+    scene.undressGlow.fillCircle(ux, uy, radius);
+    scene.undressGlow.lineStyle(3, 0x0b6623);
+    scene.undressGlow.strokeCircle(ux, uy, radius);
+    scene.undressGlow.setDepth(5);
+    scene.undressGlow.setVisible(false);
+
+    scene.undressGlowTween = scene.tweens.add({
+        targets: scene.undressGlow,
+        alpha: { from: 1.0, to: 0.3 },
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+    });
+    scene.undressGlowTween.pause();
+
+    scene.undressZone = scene.add
+        .zone(ux, uy, radius * 2.4, radius * 2.4)
+        .setInteractive({ useHandCursor: true });
+
+    scene.undressZone.on('pointerdown', () => {
+        if (!scene.playerInsideDressingRoom) {return;}
+        window.dispatchEvent(new Event('quick-undress'));
+    });
+}
+
 // Dark green glow interactable inside each BSL room. Placeholder for the real element
 // (image TBD with the team) — pressing E or clicking it opens the answer popup.
 // Position per room: BSL-1/2/4 top-left, BSL-3 top-centre.
@@ -426,6 +464,7 @@ export function createRooms(scene) {
 
     setupCloset(scene);
     setupBslInteractables(scene);
+    setupUndressPoint(scene);
     setupLectureRoom(scene, walls);
     setupLectureInfoPoint(scene);
     setupDressingRoomDeadzones(scene, walls);

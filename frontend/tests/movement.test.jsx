@@ -96,6 +96,15 @@ function createScene(overrides = {}) {
     setVisible: jest.fn(),
   }
 
+  scene.undressGlowTween = {
+    resume: jest.fn(),
+    pause: jest.fn(),
+  }
+
+  scene.undressGlow = {
+    setVisible: jest.fn(),
+  }
+
   scene.lectureRoomZone = {
     x: 0,
     y: 0,
@@ -356,6 +365,40 @@ describe('Closet behavior', () => {
     scene.update()
 
     expect(scene.closetGlowTween.pause).toHaveBeenCalled()
+  })
+
+  test('shows and resumes the quick-undress glow when entering the dressing room', () => {
+    const scene = createScene({
+      ppeRoomZone: { x: 0, y: 0, width: 200, height: 200 },
+    })
+
+    scene.player.x = 100
+    scene.player.y = 100
+
+    scene.update()
+
+    expect(scene.undressGlow.setVisible).toHaveBeenCalledWith(true)
+    expect(scene.undressGlowTween.resume).toHaveBeenCalled()
+  })
+
+  test('hides and pauses the quick-undress glow when leaving the dressing room', () => {
+    const scene = createScene({
+      ppeRoomZone: { x: 0, y: 0, width: 100, height: 100 },
+      playerInsideDressingRoom: true,
+    })
+
+    scene.player.x = 500
+    scene.player.y = 500
+
+    scene.closetImage = {
+      setVisible: jest.fn(),
+      disableInteractive: jest.fn(),
+    }
+
+    scene.update()
+
+    expect(scene.undressGlow.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.undressGlowTween.pause).toHaveBeenCalled()
   })
 })
 
