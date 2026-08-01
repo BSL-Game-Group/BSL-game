@@ -353,7 +353,7 @@ describe('setupUndressPoint (via createRooms)', () => {
 
     createRooms(scene)
 
-    expect(scene.undressPoint).toEqual({ x: 440, y: 650 })
+    expect(scene.undressPoint).toEqual({ x: 500, y: 650 })
     expect(scene.undressGlow.setVisible).toHaveBeenCalledWith(false)
     expect(scene.undressZone.setInteractive).toHaveBeenCalled()
   })

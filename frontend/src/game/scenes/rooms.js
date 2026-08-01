@@ -126,7 +126,7 @@ function setupCloset(scene) {
 // all worn PPE in one go. Placed toward the bottom-right of the walkable floor —
 // the literal corner is blocked by the decon-counter/shelves/glass-booth furniture.
 function setupUndressPoint(scene) {
-    const ux = 440;
+    const ux = 500;
     const uy = 650;
     const radius = 28;
 
