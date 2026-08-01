@@ -8,31 +8,44 @@ export default function Character({ equipped, onToggleEquip }) {
     drop: (item) => onToggleEquip(item.id, true) // True means we are equipping it
   }))
 
-  return (
-    <div ref={drop} style={{ position: 'relative', width: 250, height: 350 }}>
-      <img 
-        src="/assets/player/base.png" 
-        alt="base" 
-        style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
-      />
+  // Determine which player image to show based on the equipment
+  const getBaseImageSrc = () => {
 
-      {/* Dynamically render equipped items based on the configuration */}
-      {Object.values(EQUIPMENT_CONFIG).map((config) => {
-        if (!equipped[config.id]) {
-          return null;}
-        
-        return (
-          <DraggableItem
-            key={`equipped-${config.id}`}
-            id={config.id}
-            src={config.equippedSrc}
-            style={config.equippedStyle}
-            label={config.label}
-            isEquipped={true}
-            onToggleEquip={onToggleEquip}
-          />
-        )
-      })}
-    </div>
-  )
-}
+      if (equipped.pressurized_suit) {
+        return "/assets/player/head_only.png";
+      }
+
+      if (equipped.wow_helmet) {
+        return "/assets/player/no_hair.png"; 
+      }
+
+      return "/assets/player/base.png";
+    };
+
+  return (
+      <div ref={drop} style={{ position: 'relative', width: 250, height: 350 }}>
+        {/* Call the function to get the current image source */}
+        <img 
+          src={getBaseImageSrc()} 
+          alt="base" 
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+        />
+
+        {Object.values(EQUIPMENT_CONFIG).map((config) => {
+          if (!equipped[config.id]) {
+            return null;
+          }
+          
+          return (
+            <DraggableItem
+              key={`equipped-${config.id}`}
+              id={config.id}
+              src={config.equippedSrc}
+              style={config.equippedStyle}
+              isEquipped={true}
+            />
+          )
+        })}
+      </div>
+    )
+  }
