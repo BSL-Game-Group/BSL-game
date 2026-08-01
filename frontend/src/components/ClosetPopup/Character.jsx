@@ -42,7 +42,9 @@ export default function Character({ equipped, onToggleEquip }) {
               id={config.id}
               src={config.equippedSrc}
               style={config.equippedStyle}
+              label={config.label}
               isEquipped={true}
+              onToggleEquip={onToggleEquip}
             />
           )
         })}
