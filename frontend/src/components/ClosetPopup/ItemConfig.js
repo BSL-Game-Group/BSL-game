@@ -29,18 +29,37 @@ function buildEquipment(items) {
   return out;
 }
 
-// Add new equipment here — only `category` + `equippedStyle` are needed;
-// paths are derived from the key + category above.
+// Add new equipment here — only `category`, `label` + `equippedStyle` are
+// needed; paths are derived from the key + category above. `label` is the
+// item button's accessible name.
 const EQUIPMENT_CONFIG = buildEquipment({
   lab_coat: {
     category: 'body',
+    label: 'Lab coat',
     equippedStyle: {
       position: 'absolute', top: '45px', left: '55px', width: '130px', height: 'auto',
       transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
+  closable_lab_coat: {
+    category: 'body',
+    label: 'Closable lab coat',
+    equippedStyle: {
+      position: 'absolute', top: '95px', left: '55px', width: '130px', height: 'auto',
+      transform: 'scale(0.93) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+  pressurized_suit: {
+    category: 'body',
+    label: 'Pressurized suit',
+    equippedStyle: {
+      position: 'absolute', top: '0px', left: '60px', width: '130px', height: 'auto',
+      transform: 'scale(1.32) rotate(0deg) translateY(0px)', transformOrigin: 'top center',
+    }
+  },
   mask: {
     category: 'masks',
+    label: 'Mask',
     equippedStyle: {
       position: 'absolute', top: '49px', left: '79px', width: '70px', height: 'auto',
       transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
@@ -48,6 +67,7 @@ const EQUIPMENT_CONFIG = buildEquipment({
   },
   glasses: {
     category: 'eyewear',
+    label: 'Glasses',
     equippedStyle: {
       position: 'absolute', top: '35px', left: '75px', width: '70px', height: 'auto',
       transform: 'scale(1.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
@@ -55,12 +75,39 @@ const EQUIPMENT_CONFIG = buildEquipment({
   },
   sunglasses: {
     category: 'eyewear',
+    label: 'Sunglasses',
     equippedStyle: {
       position: 'absolute', top: '9px', left: '66px', width: '106px', height: 'auto',
       transform: 'perspective(360px) rotateY(20deg) rotate(-2deg) scale(1.1) translateY(5px)',
       transformOrigin: 'center center',
     }
-  }
+  },
+  wow_helmet: {
+    category: 'eyewear',
+    label: 'Fantasy helmet',
+    equippedStyle: {
+      position: 'absolute', top: '-5px', left: '62px', width: '106px', height: 'auto',
+      transform: 'perspective(360px) rotateY(20deg) rotate(0deg) scale(1.35) translateY(5px)',
+      transformOrigin: 'center center',
+    }
+  },
+  gloves: {
+    category: 'gloves',
+    label: 'Gloves',
+    equippedStyle: {
+      position: 'absolute', top: '169px', left: '89px', width: '59px', height: '35px',
+      transform: 'scale(2.25) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+  gloves_2: {
+    category: 'gloves',
+    label: 'Gloves 2',
+    equippedStyle: {
+      position: 'absolute', top: '178px', left: '91px', width: '60px', height: 'auto',
+      transform: 'scale(2.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+
 });
 
 // Pure equip rule: returns a new equipped map with `itemId` on. For a

@@ -18,3 +18,7 @@ frontend/test-results/
 # Coverage reports
 backend/coverage/
 frontend/coverage/
+
+# Editor / image-tool junk
+*~
+*-autosave.kra

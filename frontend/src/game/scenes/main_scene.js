@@ -78,6 +78,8 @@ class MainScene extends Phaser.Scene {
     preload() {
         // Player base
         this.load.image('player_base', 'assets/player/base.png');
+        this.load.image('head_only', 'assets/player/head_only.png');
+        this.load.image('no_hair', 'assets/player/no_hair.png');
 
         // Equipment
         this.load.image('lab_coat', 'assets/equipment/on_character/body/lab_coat_on.png');
@@ -87,6 +89,11 @@ class MainScene extends Phaser.Scene {
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
         this.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
+        this.load.image('gloves', 'assets/equipment/on_character/gloves/gloves_on.png');
+        this.load.image('gloves_2', 'assets/equipment/on_character/gloves/gloves_2_on.png');
+        this.load.image('closable_lab_coat', 'assets/equipment/on_character/body/closable_lab_coat_on.png');
+        this.load.image('pressurized_suit', 'assets/equipment/on_character/body/pressurized_suit_on.png');
+        this.load.image('wow_helmet', 'assets/equipment/on_character/eyewear/wow_helmet_on.png');
 
         // Rooms
         this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
@@ -196,7 +203,12 @@ class MainScene extends Phaser.Scene {
             lab_coat: { scale: 0.05, offsetX: -1,  offsetY: 5 },
             mask:     { scale: 0.075, offsetX: -1,  offsetY: -20 },
             glasses:  { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
-            sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 }
+            sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
+            gloves: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
+            gloves_2: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
+            closable_lab_coat: { scale: 0.33, offsetX: -1,  offsetY: 7 },
+            pressurized_suit: { scale: 0.085, offsetX: 0,  offsetY: 0 },
+            wow_helmet: { scale: 0.1, offsetX: -2,  offsetY: -31 }
         };
 
         // 3. Create the Equipment Sprites using the configurations above
@@ -216,6 +228,26 @@ class MainScene extends Phaser.Scene {
             sunglasses: this.add.sprite(700, 300, 'sunglasses')
                 .setScale(this.equipmentConfig.sunglasses.scale)
                 .setVisible(false)
+                .setDepth(13),
+            gloves: this.add.sprite(700, 300, 'gloves')
+                .setScale(this.equipmentConfig.gloves.scale)
+                .setVisible(false)
+                .setDepth(12),
+            gloves_2: this.add.sprite(700, 300, 'gloves_2')
+                .setScale(this.equipmentConfig.gloves_2.scale)
+                .setVisible(false)
+                .setDepth(13),
+            closable_lab_coat: this.add.sprite(700, 300, 'closable_lab_coat')
+                .setScale(this.equipmentConfig.closable_lab_coat.scale)
+                .setVisible(false)
+                .setDepth(11),
+            pressurized_suit: this.add.sprite(700, 300, 'pressurized_suit')
+                .setScale(this.equipmentConfig.pressurized_suit.scale)
+                .setVisible(false)
+                .setDepth(11),
+            wow_helmet: this.add.sprite(700, 300, 'wow_helmet')
+                .setScale(this.equipmentConfig.wow_helmet.scale)
+                .setVisible(false)
                 .setDepth(13)
         };
 
@@ -226,6 +258,20 @@ class MainScene extends Phaser.Scene {
             this.equipment.mask.setVisible(equipped.mask);
             this.equipment.glasses.setVisible(equipped.glasses);
             this.equipment.sunglasses.setVisible(equipped.sunglasses);
+            this.equipment.gloves.setVisible(equipped.gloves);
+            this.equipment.gloves_2.setVisible(equipped.gloves_2);
+            this.equipment.closable_lab_coat.setVisible(equipped.closable_lab_coat);
+            this.equipment.pressurized_suit.setVisible(equipped.pressurized_suit);
+            this.equipment.wow_helmet.setVisible(equipped.wow_helmet);
+
+            // Swap the player base texture based on pressurized suit state
+            if (equipped.pressurized_suit) {
+                this.player.setTexture('head_only');
+            } else if (equipped.wow_helmet) {
+                this.player.setTexture('no_hair');
+            } else {
+                this.player.setTexture('player_base');
+            }
         };
         window.addEventListener('equipment-changed', this.handleEquipmentChange);
 
@@ -233,7 +279,7 @@ class MainScene extends Phaser.Scene {
         this.events.on('shutdown', () => {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
         });
-
+        
         // NEW: Track if the React popup is open
         this.isPopupOpen = false;
 
@@ -411,6 +457,26 @@ class MainScene extends Phaser.Scene {
                 this.player.x + this.equipmentConfig.sunglasses.offsetX,
                 this.player.y + this.equipmentConfig.sunglasses.offsetY
             );
+            this.equipment.gloves.setPosition(
+                this.player.x + this.equipmentConfig.gloves.offsetX,
+                this.player.y + this.equipmentConfig.gloves.offsetY
+            );
+            this.equipment.gloves_2.setPosition(
+                this.player.x + this.equipmentConfig.gloves_2.offsetX,
+                this.player.y + this.equipmentConfig.gloves_2.offsetY
+            );
+            this.equipment.closable_lab_coat.setPosition(
+                this.player.x + this.equipmentConfig.closable_lab_coat.offsetX,
+                this.player.y + this.equipmentConfig.closable_lab_coat.offsetY
+            );
+            this.equipment.pressurized_suit.setPosition(
+                this.player.x + this.equipmentConfig.pressurized_suit.offsetX,
+                this.player.y + this.equipmentConfig.pressurized_suit.offsetY
+            );
+            this.equipment.wow_helmet.setPosition(
+                this.player.x + this.equipmentConfig.wow_helmet.offsetX,
+                this.player.y + this.equipmentConfig.wow_helmet.offsetY
+            );
         }
 
         // Lecture room: the microbe task panel shows as soon as the player walks in.
@@ -553,10 +619,18 @@ class MainScene extends Phaser.Scene {
 
                 if (inside) {
                     activeCenter = entry.center;
+
                     if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
-                        window.dispatchEvent(
-                            new CustomEvent('answer-popup-opened', { detail: { level: entry.key } })
-                        );
+
+                        if (!window.__lectureOpen) {
+                            window.dispatchEvent(new Event('lecture-required'));
+                        } else {
+                            window.dispatchEvent(
+                                new CustomEvent('answer-popup-opened', {
+                                    detail: { level: entry.key }
+                                })
+                            );
+                        }
                     }
                 }
             }

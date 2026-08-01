@@ -9,6 +9,7 @@ import InfoPopup from './components/InfoPopup/InfoPopup'
 import LanguageSelector from './components/LanguageSelector'
 import { EventBus } from './game/EventBus'
 import { useTranslation } from './i18n/context'
+import { evaluateEquipmentRules, getEquipmentRulesForBslLevel } from './utils/equipmentRules'
 
 function App() {
   const { t, language } = useTranslation()
@@ -22,11 +23,18 @@ function App() {
   const [answerLevel, setAnswerLevel] = useState('')
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
   const [infoOpen, setInfoOpen] = useState(false)
-  const [equipped, setEquipped] = useState({
+  const [lectureWarningOpen, setLectureWarningOpen] = useState(false);
+  const [PlayerEquipment, setPlayerEquipment] = useState({
     mask: false,
+    gloves: false,
+    closable_lab_coat: false,
+    disposable_overall: false,
+    respirator: false,
+    face_shield: false,
     lab_coat: false,
     glasses: false,
     sunglasses: false,
+    pressurized_suit: false,
   })
   const [awaitingUndress, setAwaitingUndress] = useState(false)
 
@@ -47,10 +55,23 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const handler = () => setMaterialsUnlocked(true)
-    window.addEventListener('lecture-materials-unlocked', handler)
-    return () => window.removeEventListener('lecture-materials-unlocked', handler)
-  }, [])
+      window.__lectureOpen = lectureOpen
+  }, [lectureOpen])
+
+  useEffect(() => {
+    const handler = () => setLectureWarningOpen(true);
+
+    window.addEventListener('lecture-required', handler);
+
+    return () =>
+      window.removeEventListener('lecture-required', handler);
+  }, []);
+
+  useEffect(() => {
+  const handleUnlock = () => setMaterialsUnlocked(true);
+  window.addEventListener('lecture-materials-unlocked', handleUnlock);
+  return () => window.removeEventListener('lecture-materials-unlocked', handleUnlock);
+}, []);
 
   useEffect(() => {
     const handleClosetClick = () => setPopupOpen(true)
@@ -88,15 +109,29 @@ function App() {
 
   const correctLevel = currentMicrobe?.bsl_level
   const chosenLevel = Number(String(answerLevel).replace('BSL-', ''))
-  const isCorrect =
+
+  const isLevelCorrect =
     typeof correctLevel === 'number' && chosenLevel === correctLevel
+
+  const equipmentRules = getEquipmentRulesForBslLevel(chosenLevel)
+
+  const chosenEquipment = Object.keys(PlayerEquipment).filter(
+    (item) => PlayerEquipment[item]
+  )
+
+  const isEquipmentCorrect = evaluateEquipmentRules(
+    equipmentRules,
+    chosenEquipment
+  )
+
+  const isCorrect = isLevelCorrect && isEquipmentCorrect
 
   const isUndressed = (equippedState) =>
     Object.values(equippedState).every((isEquipped) => !isEquipped)
 
   const handleAnswerClose = () => {
     setAnswerOpen(false)
-    if (isUndressed(equipped)) {
+    if (isUndressed(PlayerEquipment)) {
       EventBus.emit('request-new-microbe')
     } else {
       setAwaitingUndress(true)
@@ -104,9 +139,9 @@ function App() {
     }
   }
 
-  const handleEquipmentChange = (newEquipped) => {
-    setEquipped(newEquipped)
-    if (awaitingUndress && isUndressed(newEquipped)) {
+  const handleEquipmentChange = (newEquipment) => {
+    setPlayerEquipment(newEquipment)
+    if (awaitingUndress && isUndressed(newEquipment)) {
       setAwaitingUndress(false)
       EventBus.emit('request-new-microbe')
     }
@@ -202,6 +237,22 @@ function App() {
               open={isLecturePopupOpen}
               onClose={() => setLecturePopupOpen(false)}
             />
+            {lectureWarningOpen && (
+              <div className="popup-overlay">
+                <div className="popup-box popup-box--incorrect">
+                  <button
+                    className="popup-close-button"
+                    onClick={() => setLectureWarningOpen(false)}
+                  >
+                    {t('common.close')}
+                  </button>
+
+                  <h2>{t('lectureRequired.title')}</h2>
+
+                  <p>{t('lectureRequired.message')}</p>
+                </div>
+              </div>
+            )}
 
             <AnswerPopup
               open={answerOpen}
@@ -209,6 +260,9 @@ function App() {
               isCorrect={isCorrect}
               level={answerLevel}
               microbe={currentMicrobe}
+              isLevelCorrect={isLevelCorrect}
+              isEquipmentCorrect={isEquipmentCorrect}
+              equipment={PlayerEquipment}
             />
 
             <InfoPopup

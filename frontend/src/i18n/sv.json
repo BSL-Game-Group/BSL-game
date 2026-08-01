@@ -24,6 +24,10 @@
     ],
     "controls": "Kontroller: Piltangenter / klick för att röra sig · E eller klick för att interagera · Stäng-knapp för att stänga fönster"
   },
+  "lectureRequired": {
+  "title": "Besök föreläsningsrummet först",
+  "message": "Innan du hanterar en mikrob måste du först besöka föreläsningsrummet för att läsa om mikroben och ta reda på dess biosäkerhetsnivå (BSL)."
+},
   "lecturePanel": {
     "title": "Kursmaterial",
     "description": "Klicka på en länk nedan för att öppna föreläsningsmaterialet i en ny flik.",
@@ -47,6 +51,7 @@
     "undressRequired": "Gå till påklädningsrummet och ta av skyddsutrustningen innan du får nästa mikrob."
   },
   "closet": {
+    "title": "Garderob",
     "player": "Spelare",
     "equipmentLabel": "Utrustning",
     "quickUndress": "Klä av snabbt"
@@ -56,6 +61,8 @@
     "incorrect": "Inte riktigt",
     "correctFallback": "Det är rätt rum.",
     "incorrectFallback": "Det är inte rätt rum.",
+    "equipmentCorrect": "Din skyddsutrustning upfyller BSL-kraven",
+    "equipmentIncorrect": "Din skyddsutrustning upfyller inte BSL-kraven.",
     "chosenLevel": "Du valde {level}.",
     "belongs": "{name} tillhör BSL-{level}."
   },
