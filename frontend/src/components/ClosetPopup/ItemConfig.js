@@ -76,6 +76,7 @@ const EQUIPMENT_CONFIG = buildEquipment({
 
   face_shield: {
     category: 'eyewear',
+    label: 'Face shield',    
     equippedStyle: {
       position: 'absolute', top: '5px', left: '75px', width: '82px', height: 'auto',
       transform: 'scale(1.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
@@ -84,6 +85,7 @@ const EQUIPMENT_CONFIG = buildEquipment({
 
   bsl3_respirator: {
     category: 'masks',
+    label: 'BSL3 respirator',
     equippedStyle: {
       position: 'absolute', top: '6px', left: '80px', width: '70px', height: 'auto',
       transform: 'scale(2.0) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
@@ -100,6 +102,7 @@ const EQUIPMENT_CONFIG = buildEquipment({
   },
   disposable_overall: {
     category: 'body',
+    label: 'Disposable overall',
     equippedStyle: {
       position: 'absolute', top: '45px', left: '55px', width: '130px', height: 'auto',
       transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',

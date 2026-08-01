@@ -210,7 +210,6 @@ class MainScene extends Phaser.Scene {
             bsl3_respirator: { scale: 0.04, offsetX: -1, offsetY: -25 },
             sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
             disposable_overall: { scale: 0.065, offsetX: -0.95,  offsetY: 5 },
-            sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
             gloves: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
             gloves_2: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
             closable_lab_coat: { scale: 0.33, offsetX: -1,  offsetY: 7 },
