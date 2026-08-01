@@ -43,7 +43,8 @@
     "sources": "Källor"
   },
   "task": {
-    "title": "Mikroben du kommer att hantera"
+    "title": "Mikroben du kommer att hantera",
+    "undressRequired": "Gå till påklädningsrummet och ta av skyddsutrustningen innan du får nästa mikrob."
   },
   "closet": {
     "player": "Spelare",

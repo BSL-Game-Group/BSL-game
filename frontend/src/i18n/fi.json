@@ -43,7 +43,8 @@
     "sources": "Lähteet"
   },
   "task": {
-    "title": "Mikrobi jota tulet käsittelemään"
+    "title": "Mikrobi jota tulet käsittelemään",
+    "undressRequired": "Mene pukuhuoneeseen ja riisu suojavarusteet ennen seuraavaa mikrobia."
   },
   "closet": {
     "player": "Pelaaja",

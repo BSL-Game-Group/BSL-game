@@ -5,21 +5,30 @@ import { useTranslation } from '../i18n/context'
 const Task = () => {
     const { t, language } = useTranslation()
     const [microbe, setMicrobe] = useState(null)
+    const [undressRequired, setUndressRequired] = useState(false)
 
     useEffect(() => {
         const handleMicrobeUpdate = (microbe) => {
             setMicrobe({ ...microbe })
+            setUndressRequired(false)
         }
+        const handleUndressRequired = () => setUndressRequired(true)
 
         EventBus.on('current-microbe-updated', handleMicrobeUpdate)
+        EventBus.on('undress-required', handleUndressRequired)
 
         return () => {
             EventBus.off('current-microbe-updated', handleMicrobeUpdate)
+            EventBus.off('undress-required', handleUndressRequired)
         }
     }, [])
 
+    const undressMessage = undressRequired && (
+        <p className="task-undress-message">{t('task.undressRequired')}</p>
+    )
+
     if (!microbe) {
-        return null
+        return undressMessage
     }
 
     const localized = (field) => {
@@ -39,6 +48,8 @@ const Task = () => {
                 <li>{localized('type')}</li>
                 <li>{localized('lecture_text')}</li>
             </ul>
+
+            {undressMessage}
         </div>
     )
 }
