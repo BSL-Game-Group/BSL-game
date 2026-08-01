@@ -24,6 +24,10 @@
     ],
     "controls": "Ohjaimet: Nuolinäppäimet / klikkaus liikkumiseen · E tai klikkaus vuorovaikutukseen · Sulje-painike sulkee ikkunat"
   },
+  "lectureRequired": {
+    "title": "Käy ensin luentohuoneessa",
+    "message": "Ennen kuin voit käsitellä mikrobia, sinun täytyy ensin käydä luentohuoneessa lukemassa mikrobista ja selvittää sen bioturvallisuustaso (BSL)."
+  },
   "lecturePanel": {
     "title": "Luentomateriaali",
     "description": "Klikkaa alla olevaa linkkiä avataksesi luentomateriaalin uuteen välilehteen.",
@@ -84,6 +88,7 @@
   "phaser": {
     "pressEToOpen": "Paina E avataksesi",
     "openCloset": "Avaa kaappi",
-    "pressE": "Paina E"
+    "pressE": "Paina E",
+    "washUp": "Riisu ja peseydy"
   }
 }
