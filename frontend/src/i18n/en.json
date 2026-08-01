@@ -47,7 +47,8 @@
   },
   "closet": {
     "player": "Player",
-    "equipmentLabel": "Equipment"
+    "equipmentLabel": "Equipment",
+    "quickUndress": "Quick undress"
   },
   "answerPopup": {
     "correct": "Correct!",

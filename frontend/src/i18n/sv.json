@@ -47,7 +47,8 @@
   },
   "closet": {
     "player": "Spelare",
-    "equipmentLabel": "Utrustning"
+    "equipmentLabel": "Utrustning",
+    "quickUndress": "Klä av snabbt"
   },
   "answerPopup": {
     "correct": "Rätt!",

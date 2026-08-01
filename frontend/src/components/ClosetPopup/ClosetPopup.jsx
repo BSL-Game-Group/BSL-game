@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { DndProvider, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip } from './ItemConfig'
+import { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip, unequipAll } from './ItemConfig'
 import Character from './Character'
 import DraggableItem from './DragFunctionality'
 import { useTranslation } from '../../i18n/context'
@@ -75,6 +75,10 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
     )
   }
 
+  const handleQuickUndress = () => {
+    setEquipped(unequipAll())
+  }
+
   // Effect to handle external broadcasts
   useEffect(() => {
     // If you are using a pure React app, favor the onEquipmentChange prop.
@@ -108,6 +112,13 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <Character equipped={equipped} onToggleEquip={handleToggleEquip} />
               </div>
+              <button
+                onClick={handleQuickUndress}
+                className="quick-undress-button"
+                style={{ marginTop: '12px', cursor: 'pointer' }}
+              >
+                {t('closet.quickUndress')}
+              </button>
             </div>
 
             <InventoryPanel equipped={equipped} onToggleEquip={handleToggleEquip} />

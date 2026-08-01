@@ -47,7 +47,8 @@
   },
   "closet": {
     "player": "Pelaaja",
-    "equipmentLabel": "Varusteet"
+    "equipmentLabel": "Varusteet",
+    "quickUndress": "Riisu nopeasti"
   },
   "answerPopup": {
     "correct": "Oikein!",
