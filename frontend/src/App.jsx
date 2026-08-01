@@ -22,6 +22,13 @@ function App() {
   const [answerLevel, setAnswerLevel] = useState('')
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
   const [infoOpen, setInfoOpen] = useState(false)
+  const [equipped, setEquipped] = useState({
+    mask: false,
+    lab_coat: false,
+    glasses: false,
+    sunglasses: false,
+  })
+  const [awaitingUndress, setAwaitingUndress] = useState(false)
 
   useEffect(() => {
     fetch('/api/test')
@@ -84,10 +91,24 @@ function App() {
   const isCorrect =
     typeof correctLevel === 'number' && chosenLevel === correctLevel
 
+  const isFullyUndressed = Object.values(equipped).every((isEquipped) => !isEquipped)
+
   const handleAnswerClose = () => {
     setAnswerOpen(false)
-    EventBus.emit('request-new-microbe')
+    if (isFullyUndressed) {
+      EventBus.emit('request-new-microbe')
+    } else {
+      setAwaitingUndress(true)
+      EventBus.emit('undress-required')
+    }
   }
+
+  useEffect(() => {
+    if (awaitingUndress && isFullyUndressed) {
+      setAwaitingUndress(false)
+      EventBus.emit('request-new-microbe')
+    }
+  }, [awaitingUndress, isFullyUndressed])
 
   return (
     <div
@@ -172,6 +193,7 @@ function App() {
             <ClosetPopup
               open={isPopupOpen}
               onClose={() => setPopupOpen(false)}
+              onEquipmentChange={setEquipped}
             />
 
             <SidebarPopup
