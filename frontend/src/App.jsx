@@ -101,6 +101,7 @@ function App() {
       pressEToOpen: t('phaser.pressEToOpen'),
       openCloset: t('phaser.openCloset'),
       pressE: t('phaser.pressE'),
+      washUp: t('phaser.washUp'),
     }
 
     window.__translations = translations

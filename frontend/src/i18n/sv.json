@@ -91,6 +91,7 @@
   "phaser": {
     "pressEToOpen": "Tryck E för att öppna",
     "openCloset": "Öppna garderobsskåpet",
-    "pressE": "Tryck E"
+    "pressE": "Tryck E",
+    "washUp": "Klä av dig och tvätta dig"
   }
 }

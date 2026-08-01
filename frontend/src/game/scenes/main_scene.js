@@ -326,6 +326,14 @@ class MainScene extends Phaser.Scene {
             padding: { left: 6, right: 6, top: 3, bottom: 3 }
         }).setDepth(1000).setVisible(false);
 
+        // Hover hint over the quick-undress spot, reminding the player to wash up.
+        this.undressHint = this.add.text(0, 0, "", {
+            fontSize: "14px",
+            backgroundColor: "#222222",
+            color: "#ffffff",
+            padding: { left: 6, right: 6, top: 3, bottom: 3 }
+        }).setDepth(1000).setVisible(false);
+
         // Hint shown near a BSL room's blue glow while the player is inside it.
         this.bslHint = this.add.text(0, 0, "", {
             fontSize: "14px",
@@ -339,7 +347,8 @@ class MainScene extends Phaser.Scene {
         this.updateTextTranslations({
             pressEToOpen: window.__translations?.pressEToOpen ?? 'Press E to open',
             openCloset: window.__translations?.openCloset ?? 'Open Closet',
-            pressE: window.__translations?.pressE ?? 'Press E'
+            pressE: window.__translations?.pressE ?? 'Press E',
+            washUp: window.__translations?.washUp ?? 'Undress and wash up'
         })
         this.replaceCurrentMicrobeRandomly()
     }
@@ -360,6 +369,9 @@ class MainScene extends Phaser.Scene {
         }
         if (this.closetHint) {
             this.closetHint.setText(translations.openCloset)
+        }
+        if (this.undressHint) {
+            this.undressHint.setText(translations.washUp)
         }
         if (this.bslHint) {
             this.bslHint.setText(translations.pressE)
@@ -436,6 +448,9 @@ class MainScene extends Phaser.Scene {
         const pointer = this.input.activePointer;
         if (this.closetImage && this.closetHint.visible) {
             this.closetHint.setPosition(pointer.x + 15, pointer.y + 15);
+        }
+        if (this.undressZone && this.undressHint.visible) {
+            this.undressHint.setPosition(pointer.x + 15, pointer.y + 15);
         }
 
         // 3. EQUIPMENT GLUEING (Always running)

@@ -91,6 +91,7 @@
   "phaser": {
     "pressEToOpen": "Press E to open",
     "openCloset": "Open Closet",
-    "pressE": "Press E"
+    "pressE": "Press E",
+    "washUp": "Undress and wash up"
   }
 }

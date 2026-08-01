@@ -126,7 +126,7 @@ function setupCloset(scene) {
 // all worn PPE in one go. Placed toward the bottom-right of the walkable floor —
 // the literal corner is blocked by the decon-counter/shelves/glass-booth furniture.
 function setupUndressPoint(scene) {
-    const ux = 400;
+    const ux = 440;
     const uy = 650;
     const radius = 28;
 
@@ -153,6 +153,15 @@ function setupUndressPoint(scene) {
         .zone(ux, uy, radius * 2.4, radius * 2.4)
         .setInteractive({ useHandCursor: true });
 
+    // Same hover-hint pattern as the closet dresser: shows a "wash up" reminder
+    // while the player is near, so undressing here reads as decontaminating.
+    scene.undressZone.on('pointerover', () => {
+        if (!scene.playerInsideDressingRoom) {return;}
+        scene.undressHint.setVisible(true);
+    });
+    scene.undressZone.on('pointerout', () => {
+        scene.undressHint.setVisible(false);
+    });
     scene.undressZone.on('pointerdown', () => {
         if (!scene.playerInsideDressingRoom) {return;}
         window.dispatchEvent(new Event('quick-undress'));
