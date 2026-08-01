@@ -86,6 +86,7 @@ class MainScene extends Phaser.Scene {
         this.load.image('sunglasses', 'assets/equipment/on_character/eyewear/sunglasses_on.png');
         this.load.image('face_shield', 'assets/equipment/on_character/eyewear/face_shield_on.png');
         this.load.image('bsl3_respirator', 'assets/equipment/on_character/masks/bsl3_respirator_on.png');
+        this.load.image('disposable_overall', 'assets/equipment/on_character/body/disposable_overall_on.png');
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
         this.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
@@ -199,7 +200,8 @@ class MainScene extends Phaser.Scene {
             glasses:  { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
             face_shield: { scale: 0.07, offsetX: -0.5, offsetY: -30 },
             bsl3_respirator: { scale: 0.09, offsetX: -1, offsetY: -35 },
-            sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 }
+            sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
+            disposable_overall: { scale: 0.05, offsetX: -1,  offsetY: 5 }
         };
 
         // 3. Create the Equipment Sprites using the configurations above
@@ -227,7 +229,11 @@ class MainScene extends Phaser.Scene {
             sunglasses: this.add.sprite(700, 300, 'sunglasses')
                 .setScale(this.equipmentConfig.sunglasses.scale)
                 .setVisible(false)
-                .setDepth(16)
+                .setDepth(16),
+            disposable_overall: this.add.sprite(700, 300, 'disposable_overall')
+                .setScale(this.equipmentConfig.disposable_overall.scale)
+                .setVisible(false)
+                .setDepth(11)
         };
 
         // 4. Listen for React's CustomEvent
@@ -239,6 +245,7 @@ class MainScene extends Phaser.Scene {
             this.equipment.face_shield.setVisible(equipped.face_shield);
             this.equipment.bsl3_respirator.setVisible(equipped.bsl3_respirator);
             this.equipment.sunglasses.setVisible(equipped.sunglasses);
+            this.equipment.disposable_overall.setVisible(equipped.disposable_overall);
         };
         window.addEventListener('equipment-changed', this.handleEquipmentChange);
 
@@ -432,6 +439,10 @@ class MainScene extends Phaser.Scene {
             this.equipment.sunglasses.setPosition(
                 this.player.x + this.equipmentConfig.sunglasses.offsetX,
                 this.player.y + this.equipmentConfig.sunglasses.offsetY
+            );
+            this.equipment.disposable_overall.setPosition(
+                this.player.x + this.equipmentConfig.disposable_overall.offsetX,
+                this.player.y + this.equipmentConfig.disposable_overall.offsetY
             );
         }
 

@@ -76,7 +76,14 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transform: 'perspective(360px) rotateY(20deg) rotate(-2deg) scale(1.1) translateY(5px)',
       transformOrigin: 'center center',
     }
-  }
+  },
+  disposable_overall: {
+    category: 'body',
+    equippedStyle: {
+      position: 'absolute', top: '45px', left: '55px', width: '130px', height: 'auto',
+      transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
 });
 
 // Pure equip rule: returns a new equipped map with `itemId` on. For a
