@@ -137,4 +137,53 @@ describe('ClosetPopup component', () => {
 
     expect(screen.getByAltText('base')).toBeInTheDocument()
   })
+
+  // -----------------------------
+  // QUICK UNDRESS TESTS
+  // -----------------------------
+
+  test('renders a quick undress button', () => {
+    renderPopup(true)
+
+    expect(screen.getByRole('button', { name: /quick undress/i })).toBeInTheDocument()
+  })
+
+  test('clicking quick undress dispatches equipment-changed with everything unequipped', () => {
+    const spy = jest.spyOn(window, 'dispatchEvent')
+
+    renderPopup(true)
+
+    fireEvent.click(screen.getByRole('button', { name: /quick undress/i }))
+
+    const lastEquipmentChange = spy.mock.calls
+      .map((call) => call[0])
+      .filter((event) => event.type === 'equipment-changed')
+      .pop()
+
+    expect(lastEquipmentChange.detail).toEqual({
+      lab_coat: false,
+      mask: false,
+      glasses: false,
+      sunglasses: false,
+    })
+
+    spy.mockRestore()
+  })
+
+  test('clicking quick undress notifies onEquipmentChange with everything unequipped', () => {
+    const onEquipmentChange = jest.fn()
+
+    render(
+      <ClosetPopup open={true} onClose={jest.fn()} onEquipmentChange={onEquipmentChange} />
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /quick undress/i }))
+
+    expect(onEquipmentChange).toHaveBeenLastCalledWith({
+      lab_coat: false,
+      mask: false,
+      glasses: false,
+      sunglasses: false,
+    })
+  })
 })

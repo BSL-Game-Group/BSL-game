@@ -23,12 +23,17 @@ jest.mock('../src/game/EventBus', () => ({
 describe('Task', () => {
   let eventHandler
 
+  let undressHandler
+
   beforeEach(() => {
     jest.clearAllMocks()
 
     EventBus.on.mockImplementation((event, handler) => {
       if (event === 'current-microbe-updated') {
         eventHandler = handler
+      }
+      if (event === 'undress-required') {
+        undressHandler = handler
       }
     })
   })
@@ -154,5 +159,55 @@ describe('Task', () => {
     expect(screen.getByText('Yleinen suolistobakteeri')).toBeInTheDocument()
     expect(screen.getByText('Escherichia coli')).toBeInTheDocument()
     expect(screen.queryByText('E. coli')).not.toBeInTheDocument()
+  })
+
+  test('subscribes to undress-required on mount', () => {
+    render(<Task />)
+
+    expect(EventBus.on).toHaveBeenCalledWith(
+      'undress-required',
+      expect.any(Function)
+    )
+  })
+
+  test('shows the dressing room message when undress-required fires', () => {
+    render(<Task />)
+
+    act(() => {
+      undressHandler()
+    })
+
+    expect(screen.getByText(/go to the dressing room/i)).toBeInTheDocument()
+  })
+
+  test('clears the dressing room message once a new microbe arrives', () => {
+    render(<Task />)
+
+    act(() => {
+      undressHandler()
+    })
+    expect(screen.getByText(/go to the dressing room/i)).toBeInTheDocument()
+
+    act(() => {
+      eventHandler({
+        common_name: 'E. coli',
+        scientific_name: 'Escherichia coli',
+        type: 'Bacterium',
+        lecture_text: 'Common gut bacterium',
+      })
+    })
+
+    expect(screen.queryByText(/go to the dressing room/i)).not.toBeInTheDocument()
+  })
+
+  test('unsubscribes from undress-required on unmount', () => {
+    const { unmount } = render(<Task />)
+
+    unmount()
+
+    expect(EventBus.off).toHaveBeenCalledWith(
+      'undress-required',
+      undressHandler
+    )
   })
 })

@@ -13,6 +13,9 @@ const translationValue = {
       'howToPlay.controls': 'Controls: Arrow keys / click to move',
 
       'task.title': 'The microbe you will handle',
+      'task.undressRequired': 'Go to the dressing room and remove your protective equipment before you get the next microbe.',
+
+      'closet.quickUndress': 'Quick undress',
 
       'answerPopup.correct': 'Correct!',
       'answerPopup.incorrect': 'Not quite',
