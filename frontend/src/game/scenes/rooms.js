@@ -339,7 +339,7 @@ export function createRooms(scene) {
     vWall(scene, 960, 0, 720, [[250, 470]], walls);
 
     // ---- AIRLOCK BLOCK (rows 110px tall for easier passage) ----
-    hWall(scene, 960, 1280, 250, [[1140, 1230]], walls); // BSL 4 <-> BSL4 airlock 2 only
+    hWall(scene, 960, 1280, 250, [[1170, 1230]], walls); // BSL 4 <-> BSL4 airlock 2 only
     hWall(scene, 960, 1280, 360, [], walls);             // row divider (solid)
     vWall(scene, 1110, 250, 470, [[250, 360]], walls);   // BSL4 airlock 1 <-> 2 (clean top-row opening)
     hWall(scene, 960, 1280, 470, [[970, 1040]], walls);  // BSL3 airlock <-> BSL 3 only

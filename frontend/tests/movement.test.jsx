@@ -25,6 +25,14 @@ jest.mock('phaser', () => ({
       emit = jest.fn()
       once = jest.fn()
     }
+  },
+  Physics: {
+    Arcade: {
+      Sprite: class MockSprite {},
+      Image: class MockImage {},
+      StaticGroup: class MockStaticGroup {},
+      Group: class MockGroup {}
+    }
   }
 }))
 
@@ -47,6 +55,15 @@ function createScene(overrides = {}) {
     setVelocityY: jest.fn(),
   }
 
+  scene.player.body = {
+    embedded: false,
+    touching: { none: true, up: false, down: false, left: false, right: false },
+    wasTouching: { none: true, up: false, down: false, left: false, right: false },
+    velocity: { x: 0, y: 0 },
+    setVelocityX: jest.fn(),
+    setVelocityY: jest.fn(),
+  };
+
   scene.cursors = {
     left: { isDown: false },
     right: { isDown: false },
@@ -64,6 +81,7 @@ function createScene(overrides = {}) {
 
   scene.physics = {
     moveToObject: jest.fn(),
+    overlap: jest.fn().mockReturnValue(false)
   }
 
   scene.playArea = {
@@ -74,6 +92,10 @@ function createScene(overrides = {}) {
     setVisible: jest.fn(),
     setPosition: jest.fn(),
   }
+
+  scene.doorHint = {
+    setVisible: jest.fn(),
+  };
 
   // UI SAFETY MOCKS
   scene.closetHint = {

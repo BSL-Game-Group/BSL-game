@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { createRooms } from './rooms';
 import microbeService from '../../services/microbes'
 import { EventBus } from '../EventBus'
+import DoorGroup from '../groups/DoorGroup.js';
 
 export function playerIsInsideZone(player, zone) {
     return (
@@ -105,6 +106,9 @@ class MainScene extends Phaser.Scene {
         this.load.image('dressing_room', 'assets/rooms/dressing-room.png');
         this.load.image('info_desk', 'assets/rooms/info-desk.png');
         this.load.image('exit_area', 'assets/rooms/exit_area.png');
+
+        this.load.image('door_front', 'assets/doors/door_front.png');
+        this.load.image('door_top', 'assets/doors/door_top.png');
     }
 
     createWoodFloor() {
@@ -197,6 +201,8 @@ class MainScene extends Phaser.Scene {
         this.player.body.setOffset(23, 6);
         this.player.setDepth(10);
 
+        this.doors = this.initializeDoors(this.player);
+        
         // 2. CONFIGURATION: Tweaking values for size and placement relative to player center
         // Adjust these numbers until your equipment aligns perfectly!
         this.equipmentConfig = {
@@ -364,6 +370,9 @@ class MainScene extends Phaser.Scene {
         if (this.bslHint) {
             this.bslHint.setText(translations.pressE)
         }
+        if (this.doorHint) {
+            this.doorHint.setText(translations.pressE)
+        }
     }
 
     async replaceCurrentMicrobeRandomly() {
@@ -378,6 +387,12 @@ class MainScene extends Phaser.Scene {
     update() {
         this.player.setVelocityX(0);
         this.player.setVelocityY(0);
+
+        if (this.player.body.embedded || (this.player.body.touching.none && this.player.body.wasTouching.none)) {
+            if (!this.physics.overlap(this.player, this.doors)) {
+                this.doorHint.setVisible(false);
+            }
+        }
 
         // Change BSL-1 image depth depending on player position
         if (this.bsl1Image) {
@@ -648,6 +663,62 @@ class MainScene extends Phaser.Scene {
                     this.bslHint.setVisible(false);
                 }
             }
+        }
+    }
+
+    initializeDoors(player) {
+        const doors = new DoorGroup(this);
+        let config = {
+            triggerZoneY: 260,
+            bodyXOffset: 75,
+            bodyYOffset: 105,
+            bodyHeight: 9
+        }
+        const door1 = doors.addDoor(1200, 280, 'door_front', config).setScale(0.25);
+        config = {
+            triggerZoneY: 490,
+            bodyXOffset: 75,
+            bodyYOffset: 95,
+            bodyHeight: 9
+        }
+        const door2 = doors.addDoor(1005, 515, 'door_front', config).setScale(0.25);
+        this.physics.add.collider(player, doors.solidSprites);
+
+        config = {
+            triggerZoneWidth: 40,
+            triggerZoneHeight: 40,
+            bodyWidth: 9
+        }
+        const door3 = doors.addDoor(1110, 305, 'door_top', config).setScale(0.5);
+        const door4 = doors.addDoor(965, 305, 'door_top', config).setScale(0.5);
+        const door5 = doors.addDoor(965, 415, 'door_top', config).setScale(0.5);
+
+        door1.addAirlockDoorPair(door3);
+        door3.addAirlockDoorPair(door1);
+
+        door3.addAirlockDoorPair(door4);
+        door4.addAirlockDoorPair(door3);
+
+        door2.addAirlockDoorPair(door5);
+        door5.addAirlockDoorPair(door2);
+
+        this.doorHint = this.add.text(0, 0, "", {
+            fontSize: "14px",
+            backgroundColor: "#000",
+            color: "#fff",
+            padding: { x: 6, y: 3 }
+        }).setDepth(1000).setVisible(false);
+
+        this.physics.add.overlap(player, doors, this.handleDoorInteraction, null, this)
+        return doors;
+    }
+
+    handleDoorInteraction(player, zone) {
+        const door = zone.parentDoor;
+        this.doorHint.setVisible(true);
+        this.doorHint.setPosition(door.x, door.y);
+        if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+            door.tryToChangeDoorState();
         }
     }
 }
