@@ -23,12 +23,12 @@ const Task = () => {
         }
     }, [])
 
-    const undressMessage = undressRequired && (
-        <p className="task-undress-message">{t('task.undressRequired')}</p>
-    )
+    if (undressRequired) {
+        return <p className="task-undress-message">{t('task.undressRequired')}</p>
+    }
 
     if (!microbe) {
-        return undressMessage
+        return null
     }
 
     const localized = (field) => {
@@ -48,8 +48,6 @@ const Task = () => {
                 <li>{localized('type')}</li>
                 <li>{localized('lecture_text')}</li>
             </ul>
-
-            {undressMessage}
         </div>
     )
 }

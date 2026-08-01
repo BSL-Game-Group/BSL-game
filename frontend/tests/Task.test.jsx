@@ -180,6 +180,27 @@ describe('Task', () => {
     expect(screen.getByText(/go to the dressing room/i)).toBeInTheDocument()
   })
 
+  test('replaces the handled microbe with the dressing room message when undress-required fires', () => {
+    render(<Task />)
+
+    act(() => {
+      eventHandler({
+        common_name: 'E. coli',
+        scientific_name: 'Escherichia coli',
+        type: 'Bacterium',
+        lecture_text: 'Common gut bacterium',
+      })
+    })
+    expect(screen.getByText('E. coli')).toBeInTheDocument()
+
+    act(() => {
+      undressHandler()
+    })
+
+    expect(screen.getByText(/go to the dressing room/i)).toBeInTheDocument()
+    expect(screen.queryByText('E. coli')).not.toBeInTheDocument()
+  })
+
   test('clears the dressing room message once a new microbe arrives', () => {
     render(<Task />)
 
