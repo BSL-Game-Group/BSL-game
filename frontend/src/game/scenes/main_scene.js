@@ -78,6 +78,8 @@ class MainScene extends Phaser.Scene {
     preload() {
         // Player base
         this.load.image('player_base', 'assets/player/base.png');
+        this.load.image('head_only', 'assets/player/head_only.png');
+        this.load.image('no_hair', 'assets/player/no_hair.png');
 
         // Equipment
         this.load.image('lab_coat', 'assets/equipment/on_character/body/lab_coat_on.png');
@@ -90,6 +92,8 @@ class MainScene extends Phaser.Scene {
         this.load.image('gloves', 'assets/equipment/on_character/gloves/gloves_on.png');
         this.load.image('gloves_2', 'assets/equipment/on_character/gloves/gloves_2_on.png');
         this.load.image('closable_lab_coat', 'assets/equipment/on_character/body/closable_lab_coat_on.png');
+        this.load.image('pressurized_suit', 'assets/equipment/on_character/body/pressurized_suit_on.png');
+        this.load.image('wow_helmet', 'assets/equipment/on_character/eyewear/wow_helmet_on.png');
 
         // Rooms
         this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
@@ -206,7 +210,9 @@ class MainScene extends Phaser.Scene {
             sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
             gloves: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
             gloves_2: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
-            closable_lab_coat: { scale: 0.33, offsetX: -1,  offsetY: 7 }
+            closable_lab_coat: { scale: 0.33, offsetX: -1,  offsetY: 7 },
+            pressurized_suit: { scale: 0.085, offsetX: 0,  offsetY: 0 },
+            wow_helmet: { scale: 0.1, offsetX: -2,  offsetY: -31 }
         };
 
         // 3. Create the Equipment Sprites using the configurations above
@@ -238,7 +244,15 @@ class MainScene extends Phaser.Scene {
             closable_lab_coat: this.add.sprite(700, 300, 'closable_lab_coat')
                 .setScale(this.equipmentConfig.closable_lab_coat.scale)
                 .setVisible(false)
-                .setDepth(11)
+                .setDepth(11),
+            pressurized_suit: this.add.sprite(700, 300, 'pressurized_suit')
+                .setScale(this.equipmentConfig.pressurized_suit.scale)
+                .setVisible(false)
+                .setDepth(11),
+            wow_helmet: this.add.sprite(700, 300, 'wow_helmet')
+                .setScale(this.equipmentConfig.wow_helmet.scale)
+                .setVisible(false)
+                .setDepth(13)
         };
 
         // 4. Listen for React's CustomEvent
@@ -251,6 +265,17 @@ class MainScene extends Phaser.Scene {
             this.equipment.gloves.setVisible(equipped.gloves);
             this.equipment.gloves_2.setVisible(equipped.gloves_2);
             this.equipment.closable_lab_coat.setVisible(equipped.closable_lab_coat);
+            this.equipment.pressurized_suit.setVisible(equipped.pressurized_suit);
+            this.equipment.wow_helmet.setVisible(equipped.wow_helmet);
+
+            // Swap the player base texture based on pressurized suit state
+            if (equipped.pressurized_suit) {
+                this.player.setTexture('head_only');
+            } else if (equipped.wow_helmet) {
+                this.player.setTexture('no_hair');
+            } else {
+                this.player.setTexture('player_base');
+            }
         };
         window.addEventListener('equipment-changed', this.handleEquipmentChange);
 
@@ -454,6 +479,14 @@ class MainScene extends Phaser.Scene {
             this.equipment.closable_lab_coat.setPosition(
                 this.player.x + this.equipmentConfig.closable_lab_coat.offsetX,
                 this.player.y + this.equipmentConfig.closable_lab_coat.offsetY
+            );
+            this.equipment.pressurized_suit.setPosition(
+                this.player.x + this.equipmentConfig.pressurized_suit.offsetX,
+                this.player.y + this.equipmentConfig.pressurized_suit.offsetY
+            );
+            this.equipment.wow_helmet.setPosition(
+                this.player.x + this.equipmentConfig.wow_helmet.offsetX,
+                this.player.y + this.equipmentConfig.wow_helmet.offsetY
             );
         }
 

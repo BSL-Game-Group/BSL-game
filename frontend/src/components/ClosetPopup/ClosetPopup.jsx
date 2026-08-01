@@ -61,9 +61,18 @@ function InventoryPanel({ equipped, onToggleEquip }) {
 function ClosetPopup({ open, onClose, onEquipmentChange }) {
   const { t } = useTranslation()
   const [equipped, setEquipped] = useState({
-    mask: false, gloves: false, gloves_2: false, closable_lab_coat: false,
-    disposable_overall: false, respirator: false, face_shield: false,
-    lab_coat: false, glasses: false, sunglasses: false, pressurized_suit: false,
+    mask: false,
+    gloves: false,
+    gloves_2: false,
+    closable_lab_coat: false,
+    disposable_overall: false,
+    respirator: false,
+    face_shield: false,
+    lab_coat: false,
+    glasses: false,
+    wow_helmet: false,
+    sunglasses: false,
+    pressurized_suit: false,
   })
   const dialogRef = useRef(null)
 
