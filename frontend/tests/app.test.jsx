@@ -17,6 +17,30 @@ jest.mock('../src/Game', () => () => (
   <div data-testid="game-component">Game Loaded</div>
 ))
 
+// Wraps the real ClosetPopup with extra test-only buttons that call
+// onEquipmentChange directly, since simulating a react-dnd drag-and-drop
+// equip in jsdom isn't supported by this repo's test setup.
+jest.mock('../src/components/ClosetPopup/ClosetPopup', () => {
+  const Real = jest.requireActual('../src/components/ClosetPopup/ClosetPopup').default
+  return function ClosetPopupWithTestHooks(props) {
+    return (
+      <>
+        <Real {...props} />
+        {props.open && (
+          <>
+            <button onClick={() => props.onEquipmentChange({ mask: true, lab_coat: false, glasses: false, sunglasses: false })}>
+              test-equip-mask
+            </button>
+            <button onClick={() => props.onEquipmentChange({ mask: false, lab_coat: false, glasses: false, sunglasses: false })}>
+              test-unequip-all
+            </button>
+          </>
+        )}
+      </>
+    )
+  }
+})
+
 jest.mock('../game/main', () => jest.fn(() => ({ destroy: jest.fn() })))
 
 jest.mock('../src/services/bslMaterial', () => ({
@@ -275,4 +299,64 @@ test('info popup opens on info-popup-opened event and shows the steps', () => {
     screen.getByRole('heading', { name: /how to play/i })
   ).toBeInTheDocument()
   expect(screen.getByText(/remember the bsl level/i)).toBeInTheDocument()
+})
+
+// -----------------------------
+// UNDRESS-BEFORE-NEXT-MICROBE TESTS
+// -----------------------------
+describe('PPE removal gate', () => {
+  function equipMaskAndCloseCloset() {
+    fireEvent.click(screen.getByText('test-equip-mask'))
+    // Close the closet popup so a single "Close" button (the answer popup's)
+    // remains in the DOM for the rest of the test.
+    fireEvent.click(screen.getAllByRole('button', { name: /close/i })[0])
+  }
+
+  function unequipAll() {
+    act(() => {
+      window.dispatchEvent(new Event('closet-popup-opened'))
+    })
+    fireEvent.click(screen.getByText('test-unequip-all'))
+  }
+
+  test('closing the answer popup requests a new microbe immediately when no PPE is equipped', () => {
+    openAnswerPopup('BSL-2')
+
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+    expect(EventBus.emit).toHaveBeenCalledWith('request-new-microbe')
+  })
+
+  test('closing the answer popup while PPE is equipped asks the player to undress instead', () => {
+    openAnswerPopup('BSL-2')
+
+    act(() => {
+      window.dispatchEvent(new Event('closet-popup-opened'))
+    })
+    equipMaskAndCloseCloset()
+
+    EventBus.emit.mockClear()
+
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+    expect(EventBus.emit).toHaveBeenCalledWith('undress-required')
+    expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
+  })
+
+  test('requests a new microbe once the player undresses', () => {
+    openAnswerPopup('BSL-2')
+
+    act(() => {
+      window.dispatchEvent(new Event('closet-popup-opened'))
+    })
+    equipMaskAndCloseCloset()
+
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+    EventBus.emit.mockClear()
+
+    unequipAll()
+
+    expect(EventBus.emit).toHaveBeenCalledWith('request-new-microbe')
+  })
 })
