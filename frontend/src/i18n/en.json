@@ -24,6 +24,10 @@
     ],
     "controls": "Controls: Arrow keys / click to move · E or click to interact · Close button to close windows"
   },
+  "lectureRequired": {
+  "title": "Visit the lecture room first",
+  "message": "Before handling a microbe, you must first visit the lecture room to read about the microbe and learn its Biosafety Level (BSL)."
+},
   "lecturePanel": {
     "title": "Lecture Materials",
     "description": "Click a link below to open the lecture material in a new tab.",
@@ -46,6 +50,7 @@
     "title": "The microbe you will handle"
   },
   "closet": {
+    "title": "Closet",
     "player": "Player",
     "equipmentLabel": "Equipment"
   },

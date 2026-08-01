@@ -24,6 +24,8 @@ const translationValue = {
       'answerPopup.equipmentCorrect': 'Your protective equipment matched the required setup.',
       'answerPopup.equipmentIncorrect': 'Your protective equipment did not fully match the required setup.',
 
+      'closet.title': 'Closet',
+
       'common.close': 'Close',
     }
 

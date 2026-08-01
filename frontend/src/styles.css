@@ -365,3 +365,19 @@ body {
   background: #0b6623;
   color: #fff;
 }
+
+/* ---------- Clothing item buttons (click + keyboard equip) ---------- */
+.equipment-item {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: grab;
+  display: block;
+  font: inherit;
+  color: inherit;
+}
+.equipment-item:focus-visible {
+  outline: 3px solid #0b6623;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
