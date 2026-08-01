@@ -319,21 +319,20 @@ describe('ClosetPopup component', () => {
   })
 
   // -----------------------------
-  // QUICK UNDRESS TESTS
+  // QUICK UNDRESS (dressing-room "quick-undress" event) TESTS
   // -----------------------------
+  // The interactable that triggers this lives in the Phaser dressing room, not
+  // in this popup, so ClosetPopup only needs to react to the window event.
 
-  test('renders a quick undress button', () => {
-    renderPopup(true)
-
-    expect(screen.getByRole('button', { name: /quick undress/i })).toBeInTheDocument()
-  })
-
-  test('clicking quick undress dispatches equipment-changed with everything unequipped', () => {
+  test('resets all equipment when the quick-undress event fires while open', () => {
     const spy = jest.spyOn(window, 'dispatchEvent')
 
     renderPopup(true)
+    spy.mockClear()
 
-    fireEvent.click(screen.getByRole('button', { name: /quick undress/i }))
+    act(() => {
+      window.dispatchEvent(new Event('quick-undress'))
+    })
 
     const lastEquipmentChange = spy.mock.calls
       .map((call) => call[0])
@@ -345,14 +344,17 @@ describe('ClosetPopup component', () => {
     spy.mockRestore()
   })
 
-  test('clicking quick undress notifies onEquipmentChange with everything unequipped', () => {
+  test('resets all equipment when the quick-undress event fires while closed', () => {
     const onEquipmentChange = jest.fn()
 
     render(
-      <ClosetPopup open={true} onClose={jest.fn()} onEquipmentChange={onEquipmentChange} />
+      <ClosetPopup open={false} onClose={jest.fn()} onEquipmentChange={onEquipmentChange} />
     )
+    onEquipmentChange.mockClear()
 
-    fireEvent.click(screen.getByRole('button', { name: /quick undress/i }))
+    act(() => {
+      window.dispatchEvent(new Event('quick-undress'))
+    })
 
     expect(onEquipmentChange).toHaveBeenLastCalledWith(unequipAll())
   })

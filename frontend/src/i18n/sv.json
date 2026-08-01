@@ -53,8 +53,7 @@
   "closet": {
     "title": "Garderob",
     "player": "Spelare",
-    "equipmentLabel": "Utrustning",
-    "quickUndress": "Klä av snabbt"
+    "equipmentLabel": "Utrustning"
   },
   "answerPopup": {
     "correct": "Rätt!",

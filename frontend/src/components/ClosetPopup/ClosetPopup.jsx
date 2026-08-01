@@ -89,9 +89,13 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
     pendingFocusRef.current = itemId
   }
 
-  const handleQuickUndress = () => {
-    setEquipped(unequipAll())
-  }
+  // The quick-undress interactable lives in the dressing room (Phaser), not in
+  // this popup, so it must work whether or not the popup is currently open.
+  useEffect(() => {
+    const handleQuickUndress = () => setEquipped(unequipAll())
+    window.addEventListener('quick-undress', handleQuickUndress)
+    return () => window.removeEventListener('quick-undress', handleQuickUndress)
+  }, [])
 
   // Effect to handle external broadcasts
   useEffect(() => {
@@ -199,13 +203,6 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <Character equipped={equipped} onToggleEquip={handleToggleEquip} />
               </div>
-              <button
-                onClick={handleQuickUndress}
-                className="quick-undress-button"
-                style={{ marginTop: '12px', cursor: 'pointer' }}
-              >
-                {t('closet.quickUndress')}
-              </button>
             </div>
 
             <InventoryPanel equipped={equipped} onToggleEquip={handleToggleEquip} />

@@ -53,8 +53,7 @@
   "closet": {
     "title": "Closet",
     "player": "Player",
-    "equipmentLabel": "Equipment",
-    "quickUndress": "Quick undress"
+    "equipmentLabel": "Equipment"
   },
   "answerPopup": {
     "correct": "Correct!",
