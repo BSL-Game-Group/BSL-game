@@ -28,6 +28,10 @@
     "title": "Käy ensin luentohuoneessa",
     "message": "Ennen mikrobin käsittelyä sinun täytyy käydä luentohuoneessa lukemassa mikrobista ja oppimassa sen bioturvallisuustaso (BSL)."
   },
+  "airlockWashRequired": {
+    "title": "HUOMIO",
+    "message": "Kun poistut BSL4-laboratoriosta, sanitoi itsesi aina sulkutilan pesupisteellä ennen kuin jatkat eteenpäin."
+  },
   "lecturePanel": {
     "title": "Luentomateriaali",
     "description": "Klikkaa alla olevaa linkkiä avataksesi luentomateriaalin uuteen välilehteen.",
@@ -92,6 +96,7 @@
     "pressEToOpen": "Paina E avataksesi",
     "openCloset": "Avaa kaappi",
     "pressE": "Paina E",
-    "washUp": "Paina R tai klikkaa peseytyäksesi"
+    "washUp": "Paina R tai klikkaa peseytyäksesi",
+    "airlockWash": "Paina R tai klikkaa desinfioidaksesi"
   }
 }
