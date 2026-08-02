@@ -101,8 +101,8 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'masks',
     label: 'BSL3 respirator',
     equippedStyle: {
-      position: 'absolute', top: '6px', left: '80px', width: '70px', height: 'auto',
-      transform: 'scale(2.0) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '19px', left: '73px', width: '70px', height: 'auto',
+      transform: 'scale(2.7) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   sunglasses: {
@@ -119,7 +119,7 @@ const EQUIPMENT_CONFIG = buildEquipment({
     label: 'Disposable overall',
     equippedStyle: {
       position: 'absolute', top: '-20px', left: '53px', width: '130px', height: 'auto',
-      transform: 'scale(2) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+      transform: 'scale(3.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
 
@@ -127,8 +127,8 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'eyewear',
     label: 'Face shield',    
     equippedStyle: {
-      position: 'absolute', top: '5px', left: '75px', width: '82px', height: 'auto',
-      transform: 'scale(1.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '19px', left: '70px', width: '82px', height: 'auto',
+      transform: 'scale(1.9) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   
