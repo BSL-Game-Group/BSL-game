@@ -393,6 +393,7 @@ class MainScene extends Phaser.Scene {
                 this.doorHint.setVisible(false);
             }
         }
+        this.physics.overlap(this.player, this.doors, this.handleDoorInteraction, null, this);
 
         // Change BSL-1 image depth depending on player position
         if (this.bsl1Image) {
@@ -709,7 +710,6 @@ class MainScene extends Phaser.Scene {
             padding: { x: 6, y: 3 }
         }).setDepth(1000).setVisible(false);
 
-        this.physics.add.overlap(player, doors, this.handleDoorInteraction, null, this)
         return doors;
     }
 
