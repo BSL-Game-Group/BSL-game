@@ -76,20 +76,25 @@ function label(scene, cx, cy, text, size = 14, bold = false, depth = 21) {
         .setDepth(depth);
 }
 
-// Closet interactable inside the dressing room: a green glow marks the spot and an
-// invisible sprite is the click target (the dresser art now lives in the room image).
+// Closet interactable inside the dressing room: the green glow circle IS the element
+// (the dresser art now lives in the room image), and clicking anywhere on it opens the
+// closet. The click target is an invisible zone matching the circle — same pattern as
+// the BSL glows below. It must be a zone, not a hidden sprite: Phaser only hit-tests
+// objects that would render (InputManager#inputCandidate), so a sprite kept invisible
+// receives no pointer events at all.
 function setupCloset(scene) {
-    const dresserX = 90;
-    const dresserY = 500;
+    const closetX = 90;
+    const closetY = 500;
+    const radius = 55;
 
-    scene.closetZone = { x: dresserX - 35, y: dresserY - 60, width: 80, height: 80 };
+    scene.closetZone = { x: closetX - 35, y: closetY - 60, width: 80, height: 80 };
     window.__gameData = { ...window.__gameData, closetZone: scene.closetZone };
 
     scene.closetGlow = scene.add.graphics();
     scene.closetGlow.fillStyle(0x0b6623, 0.8);
-    scene.closetGlow.fillCircle(dresserX, dresserY, 55);
+    scene.closetGlow.fillCircle(closetX, closetY, radius);
     scene.closetGlow.lineStyle(3, 0x0b6623);
-    scene.closetGlow.strokeCircle(dresserX, dresserY, 55);
+    scene.closetGlow.strokeCircle(closetX, closetY, radius);
     scene.closetGlow.setVisible(false);
 
     scene.closetGlowTween = scene.tweens.add({
@@ -101,21 +106,20 @@ function setupCloset(scene) {
     });
     scene.closetGlowTween.pause();
 
-    scene.closetImage = scene.add
-        .image(dresserX, dresserY, 'dresser')
-        .setOrigin(0.5)
-        .setScale(1.5)
-        .setVisible(false)
+    // Stays interactive for the whole scene — the handlers gate on the player being
+    // in the room, so nothing needs to toggle this target on room entry/exit.
+    scene.closetHit = scene.add
+        .zone(closetX, closetY, radius * 2, radius * 2)
         .setInteractive({ useHandCursor: true });
 
-    scene.closetImage.on('pointerover', () => {
+    scene.closetHit.on('pointerover', () => {
         if (!scene.playerInsideDressingRoom) {return;}
         scene.closetHint.setVisible(true);
     });
-    scene.closetImage.on('pointerout', () => {
+    scene.closetHit.on('pointerout', () => {
         scene.closetHint.setVisible(false);
     });
-    scene.closetImage.on('pointerdown', () => {
+    scene.closetHit.on('pointerdown', () => {
         if (!scene.playerInsideDressingRoom) {return;}
         window.dispatchEvent(new Event('closet-popup-opened'));
     });
@@ -339,7 +343,7 @@ export function createRooms(scene) {
     vWall(scene, 960, 0, 720, [[250, 470]], walls);
 
     // ---- AIRLOCK BLOCK (rows 110px tall for easier passage) ----
-    hWall(scene, 960, 1280, 250, [[1140, 1230]], walls); // BSL 4 <-> BSL4 airlock 2 only
+    hWall(scene, 960, 1280, 250, [[1170, 1230]], walls); // BSL 4 <-> BSL4 airlock 2 only
     hWall(scene, 960, 1280, 360, [], walls);             // row divider (solid)
     vWall(scene, 1110, 250, 470, [[250, 360]], walls);   // BSL4 airlock 1 <-> 2 (clean top-row opening)
     hWall(scene, 960, 1280, 470, [[970, 1040]], walls);  // BSL3 airlock <-> BSL 3 only

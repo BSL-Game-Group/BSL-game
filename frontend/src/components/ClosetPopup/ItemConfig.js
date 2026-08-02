@@ -72,6 +72,14 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transform: 'scale(0.93) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
+  pressurized_suit: {
+    category: 'body',
+    label: 'Pressurized suit',
+    equippedStyle: {
+      position: 'absolute', top: '0px', left: '60px', width: '130px', height: 'auto',
+      transform: 'scale(1.32) rotate(0deg) translateY(0px)', transformOrigin: 'top center',
+    }
+  },
   mask: {
     category: 'masks',
     label: 'Mask',
@@ -94,6 +102,15 @@ const EQUIPMENT_CONFIG = buildEquipment({
     equippedStyle: {
       position: 'absolute', top: '29px', left: '68px', width: '106px', height: 'auto',
       transform: 'perspective(360px) rotateY(20deg) rotate(1deg) scale(1.6) translateY(5px)',
+      transformOrigin: 'center center',
+    }
+  },
+  wow_helmet: {
+    category: 'eyewear',
+    label: 'Fantasy helmet',
+    equippedStyle: {
+      position: 'absolute', top: '-5px', left: '62px', width: '106px', height: 'auto',
+      transform: 'perspective(360px) rotateY(20deg) rotate(0deg) scale(1.35) translateY(5px)',
       transformOrigin: 'center center',
     }
   },

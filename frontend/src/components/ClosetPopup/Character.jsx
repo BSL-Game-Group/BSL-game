@@ -8,6 +8,20 @@ export default function Character({ equipped, onToggleEquip }) {
     drop: (item) => onToggleEquip(item.id, true) // True means we are equipping it
   }))
 
+  // Determine which player image to show based on the equipment
+  const getBaseImageSrc = () => {
+
+      if (equipped.pressurized_suit) {
+        return "/assets/player/head_only.png";
+      }
+
+      if (equipped.wow_helmet) {
+        return "/assets/player/no_hair.png"; 
+      }
+
+      return "/assets/player/base.png";
+    };
+
   return (
     <div className="pt-2" ref={drop} style={{
       position: 'relative',
@@ -18,29 +32,29 @@ export default function Character({ equipped, onToggleEquip }) {
       justifyContent: 'center'
     }}>
       <img 
-        src="/assets/player/base.png"
+        src={getBaseImageSrc()} 
         alt="base"
         className="img-fluid"
         style={{ height: '100%', width: '100%', objectFit: 'contain' }}
       />
 
-      {/* Dynamically render equipped items based on the configuration */}
-      {Object.values(EQUIPMENT_CONFIG).map((config) => {
-        if (!equipped[config.id]) {
-          return null;}
-        
-        return (
-          <DraggableItem
-            key={`equipped-${config.id}`}
-            id={config.id}
-            src={config.equippedSrc}
-            style={config.equippedStyle}
-            label={config.label}
-            isEquipped={true}
-            onToggleEquip={onToggleEquip}
-          />
-        )
-      })}
-    </div>
-  )
-}
+        {Object.values(EQUIPMENT_CONFIG).map((config) => {
+          if (!equipped[config.id]) {
+            return null;
+          }
+          
+          return (
+            <DraggableItem
+              key={`equipped-${config.id}`}
+              id={config.id}
+              src={config.equippedSrc}
+              style={config.equippedStyle}
+              label={config.label}
+              isEquipped={true}
+              onToggleEquip={onToggleEquip}
+            />
+          )
+        })}
+      </div>
+    )
+  }

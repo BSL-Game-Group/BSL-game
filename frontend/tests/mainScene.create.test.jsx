@@ -17,6 +17,14 @@ jest.mock('phaser', () => ({
       emit = jest.fn()
       once = jest.fn()
     }
+  },
+  Physics: {
+    Arcade: {
+      Sprite: class MockSprite {},
+      Image: class MockImage {},
+      StaticGroup: class MockStaticGroup {},
+      Group: class MockGroup {}
+    }
   }
 }))
 
@@ -132,6 +140,8 @@ function createScene() {
   scene.events = {
     on: jest.fn(),
   }
+
+  scene.initializeDoors = jest.fn()
 
   return scene
 }

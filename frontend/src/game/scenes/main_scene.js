@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { createRooms } from './rooms';
 import microbeService from '../../services/microbes'
 import { EventBus } from '../EventBus'
+import DoorGroup from '../groups/DoorGroup.js';
 
 export function playerIsInsideZone(player, zone) {
     return (
@@ -78,6 +79,8 @@ class MainScene extends Phaser.Scene {
     preload() {
         // Player base
         this.load.image('player_base', 'assets/player/base.png');
+        this.load.image('head_only', 'assets/player/head_only.png');
+        this.load.image('no_hair', 'assets/player/no_hair.png');
 
         // Equipment
         this.load.image('lab_coat', 'assets/equipment/on_character/body/lab_coat_on.png');
@@ -90,6 +93,8 @@ class MainScene extends Phaser.Scene {
         this.load.image('gloves', 'assets/equipment/on_character/gloves/gloves_on.png');
         this.load.image('gloves_2', 'assets/equipment/on_character/gloves/gloves_2_on.png');
         this.load.image('closable_lab_coat', 'assets/equipment/on_character/body/closable_lab_coat_on.png');
+        this.load.image('pressurized_suit', 'assets/equipment/on_character/body/pressurized_suit_on.png');
+        this.load.image('wow_helmet', 'assets/equipment/on_character/eyewear/wow_helmet_on.png');
 
         // Rooms
         this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
@@ -101,6 +106,9 @@ class MainScene extends Phaser.Scene {
         this.load.image('dressing_room', 'assets/rooms/dressing-room.png');
         this.load.image('info_desk', 'assets/rooms/info-desk.png');
         this.load.image('exit_area', 'assets/rooms/exit_area.png');
+
+        this.load.image('door_front', 'assets/doors/door_front.png');
+        this.load.image('door_top', 'assets/doors/door_top.png');
     }
 
     createWoodFloor() {
@@ -197,6 +205,8 @@ class MainScene extends Phaser.Scene {
         this.player.body.setOffset(23, 6);
         this.player.setDepth(10);
 
+        this.doors = this.initializeDoors(this.player);
+        
         // 2. CONFIGURATION: Tweaking values for size and placement relative to player center
         // Adjust these numbers until your equipment aligns perfectly!
         this.equipmentConfig = {
@@ -206,7 +216,9 @@ class MainScene extends Phaser.Scene {
             sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
             gloves: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
             gloves_2: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
-            closable_lab_coat: { scale: 0.33, offsetX: -1,  offsetY: 7 }
+            closable_lab_coat: { scale: 0.33, offsetX: -1,  offsetY: 7 },
+            pressurized_suit: { scale: 0.085, offsetX: 0,  offsetY: 0 },
+            wow_helmet: { scale: 0.1, offsetX: -2,  offsetY: -31 }
         };
 
         // 3. Create the Equipment Sprites using the configurations above
@@ -238,7 +250,15 @@ class MainScene extends Phaser.Scene {
             closable_lab_coat: this.add.sprite(700, 300, 'closable_lab_coat')
                 .setScale(this.equipmentConfig.closable_lab_coat.scale)
                 .setVisible(false)
-                .setDepth(11)
+                .setDepth(11),
+            pressurized_suit: this.add.sprite(700, 300, 'pressurized_suit')
+                .setScale(this.equipmentConfig.pressurized_suit.scale)
+                .setVisible(false)
+                .setDepth(11),
+            wow_helmet: this.add.sprite(700, 300, 'wow_helmet')
+                .setScale(this.equipmentConfig.wow_helmet.scale)
+                .setVisible(false)
+                .setDepth(13)
         };
 
         // 4. Listen for React's CustomEvent
@@ -251,6 +271,17 @@ class MainScene extends Phaser.Scene {
             this.equipment.gloves.setVisible(equipped.gloves);
             this.equipment.gloves_2.setVisible(equipped.gloves_2);
             this.equipment.closable_lab_coat.setVisible(equipped.closable_lab_coat);
+            this.equipment.pressurized_suit.setVisible(equipped.pressurized_suit);
+            this.equipment.wow_helmet.setVisible(equipped.wow_helmet);
+
+            // Swap the player base texture based on pressurized suit state
+            if (equipped.pressurized_suit) {
+                this.player.setTexture('head_only');
+            } else if (equipped.wow_helmet) {
+                this.player.setTexture('no_hair');
+            } else {
+                this.player.setTexture('player_base');
+            }
         };
         window.addEventListener('equipment-changed', this.handleEquipmentChange);
 
@@ -350,6 +381,9 @@ class MainScene extends Phaser.Scene {
         if (this.bslHint) {
             this.bslHint.setText(translations.pressE)
         }
+        if (this.doorHint) {
+            this.doorHint.setText(translations.pressE)
+        }
     }
 
     async replaceCurrentMicrobeRandomly() {
@@ -364,6 +398,13 @@ class MainScene extends Phaser.Scene {
     update() {
         this.player.setVelocityX(0);
         this.player.setVelocityY(0);
+
+        if (this.player.body.embedded || (this.player.body.touching.none && this.player.body.wasTouching.none)) {
+            if (!this.physics.overlap(this.player, this.doors)) {
+                this.doorHint.setVisible(false);
+            }
+        }
+        this.physics.overlap(this.player, this.doors, this.handleDoorInteraction, null, this);
 
         // Change BSL-1 image depth depending on player position
         if (this.bsl1Image) {
@@ -420,7 +461,7 @@ class MainScene extends Phaser.Scene {
 
         // 2. UI HINTS (Always running)
         const pointer = this.input.activePointer;
-        if (this.closetImage && this.closetHint.visible) {
+        if (this.closetHint && this.closetHint.visible) {
             this.closetHint.setPosition(pointer.x + 15, pointer.y + 15);
         }
 
@@ -454,6 +495,14 @@ class MainScene extends Phaser.Scene {
             this.equipment.closable_lab_coat.setPosition(
                 this.player.x + this.equipmentConfig.closable_lab_coat.offsetX,
                 this.player.y + this.equipmentConfig.closable_lab_coat.offsetY
+            );
+            this.equipment.pressurized_suit.setPosition(
+                this.player.x + this.equipmentConfig.pressurized_suit.offsetX,
+                this.player.y + this.equipmentConfig.pressurized_suit.offsetY
+            );
+            this.equipment.wow_helmet.setPosition(
+                this.player.x + this.equipmentConfig.wow_helmet.offsetX,
+                this.player.y + this.equipmentConfig.wow_helmet.offsetY
             );
         }
 
@@ -511,12 +560,11 @@ class MainScene extends Phaser.Scene {
         if (this.ppeRoomZone) {
             const inside = playerIsInsideZone(this.player, this.ppeRoomZone);
 
+            // Only the glow is toggled here. The click target (closetHit) stays
+            // interactive and renderable for the whole scene — Phaser skips input on
+            // anything that would not render, so hiding it here left the circle
+            // permanently unclickable. Its handlers check playerInsideDressingRoom.
             if (inside && !this.playerInsideDressingRoom) {
-                if (this.closetImage) {
-                    // The dresser sprite stays hidden — the green glow is the
-                    // visible element; the sprite is only the invisible click target.
-                    this.closetImage.setInteractive({useHandCursor: true});
-                }
                 if (this.closetGlow) {
                     this.closetGlow.setVisible(true);
                     if (this.closetGlowTween) {
@@ -525,10 +573,6 @@ class MainScene extends Phaser.Scene {
                 }
                 this.playerInsideDressingRoom = true;
             } else if (!inside && this.playerInsideDressingRoom) {
-                if (this.closetImage) {
-                    this.closetImage.setVisible(false);
-                    this.closetImage.disableInteractive();
-                }
                 if (this.closetGlow) {
                     this.closetGlow.setVisible(false);
                     if (this.closetGlowTween) {
@@ -626,6 +670,61 @@ class MainScene extends Phaser.Scene {
                     this.bslHint.setVisible(false);
                 }
             }
+        }
+    }
+
+    initializeDoors(player) {
+        const doors = new DoorGroup(this);
+        let config = {
+            triggerZoneY: 260,
+            bodyXOffset: 75,
+            bodyYOffset: 105,
+            bodyHeight: 9
+        }
+        const door1 = doors.addDoor(1200, 280, 'door_front', config).setScale(0.25);
+        config = {
+            triggerZoneY: 490,
+            bodyXOffset: 75,
+            bodyYOffset: 95,
+            bodyHeight: 9
+        }
+        const door2 = doors.addDoor(1005, 515, 'door_front', config).setScale(0.25);
+        this.physics.add.collider(player, doors.solidSprites);
+
+        config = {
+            triggerZoneWidth: 40,
+            triggerZoneHeight: 40,
+            bodyWidth: 9
+        }
+        const door3 = doors.addDoor(1110, 305, 'door_top', config).setScale(0.5);
+        const door4 = doors.addDoor(965, 305, 'door_top', config).setScale(0.5);
+        const door5 = doors.addDoor(965, 415, 'door_top', config).setScale(0.5);
+
+        door1.addAirlockDoorPair(door3);
+        door3.addAirlockDoorPair(door1);
+
+        door3.addAirlockDoorPair(door4);
+        door4.addAirlockDoorPair(door3);
+
+        door2.addAirlockDoorPair(door5);
+        door5.addAirlockDoorPair(door2);
+
+        this.doorHint = this.add.text(0, 0, "", {
+            fontSize: "14px",
+            backgroundColor: "#000",
+            color: "#fff",
+            padding: { x: 6, y: 3 }
+        }).setDepth(1000).setVisible(false);
+
+        return doors;
+    }
+
+    handleDoorInteraction(player, zone) {
+        const door = zone.parentDoor;
+        this.doorHint.setVisible(true);
+        this.doorHint.setPosition(door.x, door.y);
+        if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+            door.tryToChangeDoorState();
         }
     }
 }
