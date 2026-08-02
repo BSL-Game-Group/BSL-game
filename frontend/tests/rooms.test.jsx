@@ -437,6 +437,47 @@ describe('setupUndressPoint (via createRooms)', () => {
   })
 })
 
+describe('setupAirlockWashPoint (via createRooms)', () => {
+  test('creates a hidden glow in the bottom-right corner of airlock2', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.airlockWashPoint).toEqual({ x: 1250, y: 335 })
+    expect(scene.airlock2Zone).toEqual({ x: 1110, y: 250, width: 170, height: 110 })
+    expect(scene.airlockWashGlow.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.airlockWashZone.setInteractive).toHaveBeenCalled()
+  })
+
+  test('clicking it while inside airlock2 fires airlock-decon', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('airlock-decon', listener)
+    scene.playerInsideAirlock2 = true
+
+    scene.airlockWashZone.handlers.pointerdown()
+
+    window.removeEventListener('airlock-decon', listener)
+    expect(listener).toHaveBeenCalledTimes(1)
+  })
+
+  test('clicking it does nothing when the player is not inside airlock2', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('airlock-decon', listener)
+    scene.playerInsideAirlock2 = false
+
+    scene.airlockWashZone.handlers.pointerdown()
+
+    window.removeEventListener('airlock-decon', listener)
+    expect(listener).not.toHaveBeenCalled()
+  })
+})
+
 describe('setupBslInteractables (via createRooms)', () => {
   test('creates one interactable entry per BSL room, starting outside', () => {
     const scene = makeFakeScene()

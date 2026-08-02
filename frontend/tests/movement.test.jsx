@@ -95,6 +95,7 @@ function createScene(overrides = {}) {
 
   scene.doorHint = {
     setVisible: jest.fn(),
+    setPosition: jest.fn(),
   };
 
   // UI SAFETY MOCKS
@@ -125,6 +126,20 @@ function createScene(overrides = {}) {
 
   scene.undressGlow = {
     setVisible: jest.fn(),
+  }
+
+  scene.airlockWashGlowTween = {
+    resume: jest.fn(),
+    pause: jest.fn(),
+  }
+
+  scene.airlockWashGlow = {
+    setVisible: jest.fn(),
+  }
+
+  scene.airlockWashHint = {
+    setVisible: jest.fn(),
+    setPosition: jest.fn(),
   }
 
   scene.undressHint = {
@@ -305,6 +320,156 @@ test('pressing R outside the dressing room does not trigger quick-undress', () =
   )
 
   dispatchSpy.mockRestore()
+})
+
+// =====================================================
+// AIRLOCK DECON DOOR (E integrates decontamination)
+// =====================================================
+describe('handleDoorInteraction', () => {
+  function makeDoorZone() {
+    const door = {
+      x: 1110,
+      y: 305,
+      tryToChangeDoorState: jest.fn(() => true),
+    }
+    return { zone: { parentDoor: door }, door }
+  }
+
+  test('pressing E toggles the door and does not reset any PPE', () => {
+    const scene = createScene()
+    const { zone, door } = makeDoorZone()
+
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+    scene.handleDoorInteraction(scene.player, zone)
+
+    expect(door.tryToChangeDoorState).toHaveBeenCalledTimes(1)
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'airlock-decon' })
+    )
+
+    dispatchSpy.mockRestore()
+  })
+
+  test('does not toggle the door when E was not just pressed', () => {
+    const scene = createScene()
+    const { zone, door } = makeDoorZone()
+
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(false)
+
+    scene.handleDoorInteraction(scene.player, zone)
+
+    expect(door.tryToChangeDoorState).not.toHaveBeenCalled()
+  })
+})
+
+describe('Airlock2 wash-up point behavior', () => {
+  const airlock2Zone = { x: 1110, y: 250, width: 170, height: 110 }
+
+  test('shows the wash glow and fires a reminder as soon as the player enters airlock2', () => {
+    const scene = createScene({ airlock2Zone })
+    scene.player.x = 1150
+    scene.player.y = 300
+
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+    scene.update()
+
+    expect(scene.airlockWashGlow.setVisible).toHaveBeenCalledWith(true)
+    expect(scene.airlockWashGlowTween.resume).toHaveBeenCalled()
+    expect(scene.playerInsideAirlock2).toBe(true)
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'airlock-wash-reminder' })
+    )
+
+    dispatchSpy.mockRestore()
+  })
+
+  test('does not re-fire the reminder while the player stays inside airlock2', () => {
+    const scene = createScene({ airlock2Zone, playerInsideAirlock2: true })
+    scene.player.x = 1150
+    scene.player.y = 300
+
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+    scene.update()
+
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'airlock-wash-reminder' })
+    )
+
+    dispatchSpy.mockRestore()
+  })
+
+  test('hides the wash glow when leaving airlock2', () => {
+    const scene = createScene({ airlock2Zone, playerInsideAirlock2: true })
+    scene.player.x = 500
+    scene.player.y = 500 // outside airlock2
+
+    scene.update()
+
+    expect(scene.airlockWashGlow.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.airlockWashGlowTween.pause).toHaveBeenCalled()
+    expect(scene.playerInsideAirlock2).toBe(false)
+  })
+
+  test('pressing R washes up from anywhere in airlock2', () => {
+    const scene = createScene({ airlock2Zone })
+    scene.player.x = 1150
+    scene.player.y = 300
+
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+    scene.update()
+
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'airlock-decon' })
+    )
+
+    dispatchSpy.mockRestore()
+  })
+
+  test('pressing R outside airlock2 does not wash up', () => {
+    const scene = createScene({ airlock2Zone })
+    scene.player.x = 500
+    scene.player.y = 500
+
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+    scene.update()
+
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'airlock-decon' })
+    )
+
+    dispatchSpy.mockRestore()
+  })
+
+  test('shows the decon hint below the glow when close to the wash point', () => {
+    const airlockWashPoint = { x: 1250, y: 335 }
+    const scene = createScene({ airlock2Zone, airlockWashPoint })
+    scene.player.x = 1250
+    scene.player.y = 335
+
+    scene.update()
+
+    expect(scene.airlockWashHint.setVisible).toHaveBeenCalledWith(true)
+    expect(scene.airlockWashHint.setPosition).toHaveBeenCalledWith(930, 365)
+  })
+
+  test('hides the decon hint when far from the wash point', () => {
+    const airlockWashPoint = { x: 1250, y: 335 }
+    const scene = createScene({ airlock2Zone, airlockWashPoint })
+    scene.player.x = 1120
+    scene.player.y = 260
+
+    scene.update()
+
+    expect(scene.airlockWashHint.setVisible).toHaveBeenCalledWith(false)
+  })
 })
 
 // =====================================================

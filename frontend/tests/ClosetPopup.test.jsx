@@ -353,4 +353,25 @@ describe('ClosetPopup component', () => {
 
     expect(onEquipmentChange).toHaveBeenLastCalledWith(unequipAll())
   })
+
+  // -----------------------------
+  // AIRLOCK DECON ("airlock-decon" event) TESTS
+  // -----------------------------
+  // The BSL4 airlock decon point resets worn PPE too, but on its own event —
+  // separate from quick-undress so it doesn't satisfy App's dressing-room gate.
+
+  test('resets all equipment when the airlock-decon event fires', () => {
+    const onEquipmentChange = jest.fn()
+
+    render(
+      <ClosetPopup open={false} onClose={jest.fn()} onEquipmentChange={onEquipmentChange} />
+    )
+    onEquipmentChange.mockClear()
+
+    act(() => {
+      window.dispatchEvent(new Event('airlock-decon'))
+    })
+
+    expect(onEquipmentChange).toHaveBeenLastCalledWith(unequipAll())
+  })
 })

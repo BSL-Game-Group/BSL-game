@@ -166,6 +166,45 @@ function setupUndressPoint(scene) {
     });
 }
 
+// Wash-up point in airlock2's bottom-right corner. Same look/click as the
+// dressing room's quick-undress spot and resets PPE the same way. App.jsx's
+// dressing-room gate doesn't listen for this event, so it still doesn't
+// replace the real checkout — it's just a reminder/decon step on the way out
+// of BSL4 (main_scene fires it as soon as the player arrives in airlock2).
+function setupAirlockWashPoint(scene) {
+    const wx = 1250;
+    const wy = 335;
+    const radius = 16;
+
+    scene.airlockWashPoint = { x: wx, y: wy };
+
+    scene.airlockWashGlow = scene.add.graphics();
+    scene.airlockWashGlow.fillStyle(0x0b6623, 0.8);
+    scene.airlockWashGlow.fillCircle(wx, wy, radius);
+    scene.airlockWashGlow.lineStyle(3, 0x0b6623);
+    scene.airlockWashGlow.strokeCircle(wx, wy, radius);
+    scene.airlockWashGlow.setDepth(5);
+    scene.airlockWashGlow.setVisible(false);
+
+    scene.airlockWashGlowTween = scene.tweens.add({
+        targets: scene.airlockWashGlow,
+        alpha: { from: 1.0, to: 0.3 },
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+    });
+    scene.airlockWashGlowTween.pause();
+
+    scene.airlockWashZone = scene.add
+        .zone(wx, wy, radius * 2.4, radius * 2.4)
+        .setInteractive({ useHandCursor: true });
+
+    scene.airlockWashZone.on('pointerdown', () => {
+        if (!scene.playerInsideAirlock2) {return;}
+        window.dispatchEvent(new Event('airlock-decon'));
+    });
+}
+
 // Dark green glow interactable inside each BSL room. Placeholder for the real element
 // (image TBD with the team) — pressing E or clicking it opens the answer popup.
 // Position per room: BSL-1/2/4 top-left, BSL-3 top-centre.
@@ -409,6 +448,9 @@ export function createRooms(scene) {
         { key: 'BSL-3', x: 960, y: 470, width: 320, height: 250 },
         { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 },
     ];
+    // Airlock2's reachable cell (row1 only — its row2 cell has no doors in or
+    // out). Player enter/exit is tracked the same way as the dressing room.
+    scene.airlock2Zone = { x: 1110, y: 250, width: 170, height: 110 };
     scene.exitZone = {
         x: 480,
         y: 0,
@@ -476,6 +518,7 @@ export function createRooms(scene) {
     setupCloset(scene);
     setupBslInteractables(scene);
     setupUndressPoint(scene);
+    setupAirlockWashPoint(scene);
     setupLectureRoom(scene, walls);
     setupLectureInfoPoint(scene);
     setupDressingRoomDeadzones(scene, walls);

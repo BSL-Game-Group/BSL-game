@@ -94,6 +94,15 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
     return () => window.removeEventListener('quick-undress', handleQuickUndress)
   }, [])
 
+  // The BSL4 airlock decon point resets worn PPE too, but on its own event —
+  // unlike quick-undress, it must NOT satisfy App's "go wash up at the
+  // dressing room" requirement, so it's kept separate from quick-undress.
+  useEffect(() => {
+    const handleAirlockDecon = () => setEquipped(unequipAll())
+    window.addEventListener('airlock-decon', handleAirlockDecon)
+    return () => window.removeEventListener('airlock-decon', handleAirlockDecon)
+  }, [])
+
   // Effect to handle external broadcasts
   useEffect(() => {
     if (onEquipmentChange) {onEquipmentChange(equipped);}
