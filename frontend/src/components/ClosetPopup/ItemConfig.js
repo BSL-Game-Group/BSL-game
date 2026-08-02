@@ -76,8 +76,8 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'body',
     label: 'Pressurized suit',
     equippedStyle: {
-      position: 'absolute', top: '0px', left: '60px', width: '130px', height: 'auto',
-      transform: 'scale(1.32) rotate(0deg) translateY(0px)', transformOrigin: 'top center',
+      position: 'absolute', top: '5px', left: '60px', width: '130px', height: 'auto',
+      transform: 'scale(1.9) rotate(0deg) translateY(0px)', transformOrigin: 'top center',
     }
   },
   mask: {
@@ -109,8 +109,8 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'eyewear',
     label: 'Fantasy helmet',
     equippedStyle: {
-      position: 'absolute', top: '-5px', left: '62px', width: '106px', height: 'auto',
-      transform: 'perspective(360px) rotateY(20deg) rotate(0deg) scale(1.35) translateY(5px)',
+      position: 'absolute', top: '20px', left: '57px', width: '106px', height: 'auto',
+      transform: 'perspective(360px) rotateY(20deg) rotate(0deg) scale(1.95) translateY(5px)',
       transformOrigin: 'center center',
     }
   },
