@@ -17,6 +17,7 @@ jest.mock('../src/game/EventBus', () => ({
   EventBus: {
     on: jest.fn(),
     off: jest.fn(),
+    emit: jest.fn(),
   },
 }))
 

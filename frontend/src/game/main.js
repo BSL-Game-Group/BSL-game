@@ -21,6 +21,8 @@ const config = {
     scale: {
         mode: Scale.FIT,
         autoCenter: Scale.CENTER_BOTH,
+        width: 1280,
+        height: 720
     },
     render: {
         antialias: true,

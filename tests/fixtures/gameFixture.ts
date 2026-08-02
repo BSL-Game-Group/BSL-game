@@ -25,7 +25,7 @@ class Game {
   }
 
   get closetPopup() {
-    return this.page.getByText(/equipment/i);
+    return this.page.getByRole('heading', { level: 2, name: /closet/i });
   }
 
   get closeButton() {
