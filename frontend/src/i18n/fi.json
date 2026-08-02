@@ -48,7 +48,7 @@
   },
   "task": {
     "title": "Mikrobi jota tulet käsittelemään",
-    "undressRequired": "Mene pukuhuoneeseen ja riisu suojavarusteet ennen seuraavaa mikrobia."
+    "undressRequired": "Mene pukuhuoneeseen ja peseydy ennen seuraavaa mikrobia."
   },
   "closet": {
     "title": "Pukukaappi",
@@ -92,6 +92,6 @@
     "pressEToOpen": "Paina E avataksesi",
     "openCloset": "Avaa kaappi",
     "pressE": "Paina E",
-    "washUp": "Riisu ja peseydy"
+    "washUp": "Paina R tai klikkaa peseytyäksesi"
   }
 }
