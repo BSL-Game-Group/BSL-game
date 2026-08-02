@@ -127,26 +127,29 @@ function App() {
 
   const isCorrect = isLevelCorrect && isEquipmentCorrect
 
-  const isUndressed = (equippedState) =>
-    Object.values(equippedState).every((isEquipped) => !isEquipped)
-
+  // Handling a microbe always requires a trip to the dressing room's wash-up
+  // spot afterward — whether or not any PPE was actually worn — before the
+  // next microbe is handed out.
   const handleAnswerClose = () => {
     setAnswerOpen(false)
-    if (isUndressed(PlayerEquipment)) {
-      EventBus.emit('request-new-microbe')
-    } else {
-      setAwaitingUndress(true)
-      EventBus.emit('undress-required')
-    }
+    setAwaitingUndress(true)
+    EventBus.emit('undress-required')
   }
 
   const handleEquipmentChange = (newEquipment) => {
     setPlayerEquipment(newEquipment)
-    if (awaitingUndress && isUndressed(newEquipment)) {
-      setAwaitingUndress(false)
-      EventBus.emit('request-new-microbe')
-    }
   }
+
+  useEffect(() => {
+    const handleWashUp = () => {
+      if (awaitingUndress) {
+        setAwaitingUndress(false)
+        EventBus.emit('request-new-microbe')
+      }
+    }
+    window.addEventListener('quick-undress', handleWashUp)
+    return () => window.removeEventListener('quick-undress', handleWashUp)
+  }, [awaitingUndress])
 
   return (
     <div

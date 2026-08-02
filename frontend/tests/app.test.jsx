@@ -312,35 +312,31 @@ test('info popup opens on info-popup-opened event and shows the steps', () => {
 // UNDRESS-BEFORE-NEXT-MICROBE TESTS
 // -----------------------------
 describe('PPE removal gate', () => {
-  function equipMaskAndCloseCloset() {
-    fireEvent.click(screen.getByText('test-equip-mask'))
-    // Close the closet popup so a single "Close" button (the answer popup's)
-    // remains in the DOM for the rest of the test.
-    fireEvent.click(screen.getAllByRole('button', { name: /close/i })[0])
-  }
-
-  function unequipAll() {
+  // The dressing room's wash-up spot (click or press R) dispatches this window
+  // event — same one ClosetPopup listens to for resetting worn PPE.
+  function washUp() {
     act(() => {
-      window.dispatchEvent(new Event('closet-popup-opened'))
+      window.dispatchEvent(new Event('quick-undress'))
     })
-    fireEvent.click(screen.getByText('test-unequip-all'))
   }
 
-  test('closing the answer popup requests a new microbe immediately when no PPE is equipped', () => {
+  test('closing the answer popup always asks the player to wash up, even with no PPE equipped', () => {
     openAnswerPopup('BSL-2')
 
     fireEvent.click(screen.getByRole('button', { name: /close/i }))
 
-    expect(EventBus.emit).toHaveBeenCalledWith('request-new-microbe')
+    expect(EventBus.emit).toHaveBeenCalledWith('undress-required')
+    expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
   })
 
-  test('closing the answer popup while PPE is equipped asks the player to undress instead', () => {
+  test('closing the answer popup while PPE is equipped also asks the player to wash up', () => {
     openAnswerPopup('BSL-2')
 
     act(() => {
       window.dispatchEvent(new Event('closet-popup-opened'))
     })
-    equipMaskAndCloseCloset()
+    fireEvent.click(screen.getByText('test-equip-mask'))
+    fireEvent.click(screen.getAllByRole('button', { name: /close/i })[0])
 
     EventBus.emit.mockClear()
 
@@ -350,20 +346,23 @@ describe('PPE removal gate', () => {
     expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
   })
 
-  test('requests a new microbe once the player undresses', () => {
+  test('requests a new microbe once the player washes up, regardless of PPE state', () => {
     openAnswerPopup('BSL-2')
 
-    act(() => {
-      window.dispatchEvent(new Event('closet-popup-opened'))
-    })
-    equipMaskAndCloseCloset()
-
     fireEvent.click(screen.getByRole('button', { name: /close/i }))
-
     EventBus.emit.mockClear()
 
-    unequipAll()
+    washUp()
 
     expect(EventBus.emit).toHaveBeenCalledWith('request-new-microbe')
+  })
+
+  test('washing up when no microbe has been handled yet does nothing', () => {
+    startGame()
+    EventBus.emit.mockClear()
+
+    washUp()
+
+    expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
   })
 })
