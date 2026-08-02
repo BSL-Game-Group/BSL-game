@@ -96,6 +96,21 @@ describe('ClosetPopup component', () => {
     expect(screen.getByText(/eyewear/i)).toBeInTheDocument()
   })
 
+  test('includes face shield and respirator in the equipment state broadcast', () => {
+    const spy = jest.spyOn(window, 'dispatchEvent')
+
+    renderPopup(true)
+
+    const equipmentEvent = spy.mock.calls.find(([event]) => event?.type === 'equipment-changed')?.[0]
+
+    expect(equipmentEvent?.detail).toMatchObject({
+      face_shield: false,
+      bsl3_respirator: false,
+    })
+
+    spy.mockRestore()
+  })
+
   // -----------------------------
   // UI TESTS
   // -----------------------------

@@ -87,6 +87,9 @@ class MainScene extends Phaser.Scene {
         this.load.image('mask', 'assets/equipment/on_character/masks/mask_on.png');
         this.load.image('glasses', 'assets/equipment/on_character/eyewear/glasses_on.png');
         this.load.image('sunglasses', 'assets/equipment/on_character/eyewear/sunglasses_on.png');
+        this.load.image('face_shield', 'assets/equipment/on_character/eyewear/face_shield_on.png');
+        this.load.image('bsl3_respirator', 'assets/equipment/on_character/masks/bsl3_respirator_on.png');
+        this.load.image('disposable_overall', 'assets/equipment/on_character/body/disposable_overall_on.png');
         this.load.image('dresser', 'assets/dresser.png');
         this.load.image('wood', 'assets/tiles/birchwood.png');
         this.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
@@ -213,7 +216,10 @@ class MainScene extends Phaser.Scene {
             lab_coat: { scale: 0.05, offsetX: -1,  offsetY: 5 },
             mask:     { scale: 0.075, offsetX: -1,  offsetY: -20 },
             glasses:  { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
+            face_shield: { scale: 0.03, offsetX: -0.5, offsetY: -28 },
+            bsl3_respirator: { scale: 0.04, offsetX: -1, offsetY: -25 },
             sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
+            disposable_overall: { scale: 0.065, offsetX: -0.95,  offsetY: 5 },
             gloves: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
             gloves_2: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
             closable_lab_coat: { scale: 0.33, offsetX: -1,  offsetY: 7 },
@@ -235,8 +241,20 @@ class MainScene extends Phaser.Scene {
                 .setScale(this.equipmentConfig.glasses.scale)
                 .setVisible(false)
                 .setDepth(13),
+            face_shield: this.add.sprite(700, 300, 'face_shield')
+                .setScale(this.equipmentConfig.face_shield.scale)
+                .setVisible(false)
+                .setDepth(14),
+            bsl3_respirator: this.add.sprite(700, 300, 'bsl3_respirator')
+                .setScale(this.equipmentConfig.bsl3_respirator.scale)
+                .setVisible(false)
+                .setDepth(15),
             sunglasses: this.add.sprite(700, 300, 'sunglasses')
                 .setScale(this.equipmentConfig.sunglasses.scale)
+                .setVisible(false)
+                .setDepth(16),
+            disposable_overall: this.add.sprite(700, 300, 'disposable_overall')
+                .setScale(this.equipmentConfig.disposable_overall.scale)
                 .setVisible(false)
                 .setDepth(13),
             gloves: this.add.sprite(700, 300, 'gloves')
@@ -267,15 +285,18 @@ class MainScene extends Phaser.Scene {
             this.equipment.lab_coat.setVisible(equipped.lab_coat);
             this.equipment.mask.setVisible(equipped.mask);
             this.equipment.glasses.setVisible(equipped.glasses);
+            this.equipment.face_shield.setVisible(equipped.face_shield);
+            this.equipment.bsl3_respirator.setVisible(equipped.bsl3_respirator);
             this.equipment.sunglasses.setVisible(equipped.sunglasses);
+            this.equipment.disposable_overall.setVisible(equipped.disposable_overall);
             this.equipment.gloves.setVisible(equipped.gloves);
             this.equipment.gloves_2.setVisible(equipped.gloves_2);
             this.equipment.closable_lab_coat.setVisible(equipped.closable_lab_coat);
             this.equipment.pressurized_suit.setVisible(equipped.pressurized_suit);
             this.equipment.wow_helmet.setVisible(equipped.wow_helmet);
 
-            // Swap the player base texture based on pressurized suit state
-            if (equipped.pressurized_suit) {
+            // Swap the player base texture based on pressurized suit or disposable overall state
+            if (equipped.pressurized_suit || equipped.disposable_overall) {
                 this.player.setTexture('head_only');
             } else if (equipped.wow_helmet) {
                 this.player.setTexture('no_hair');
@@ -480,9 +501,21 @@ class MainScene extends Phaser.Scene {
                 this.player.x + this.equipmentConfig.glasses.offsetX,
                 this.player.y + this.equipmentConfig.glasses.offsetY
             );
+            this.equipment.face_shield.setPosition(
+                this.player.x + this.equipmentConfig.face_shield.offsetX, 
+                this.player.y + this.equipmentConfig.face_shield.offsetY
+            );
+            this.equipment.bsl3_respirator.setPosition(
+                this.player.x + this.equipmentConfig.bsl3_respirator.offsetX, 
+                this.player.y + this.equipmentConfig.bsl3_respirator.offsetY
+            );
             this.equipment.sunglasses.setPosition(
                 this.player.x + this.equipmentConfig.sunglasses.offsetX,
                 this.player.y + this.equipmentConfig.sunglasses.offsetY
+            );
+            this.equipment.disposable_overall.setPosition(
+                this.player.x + this.equipmentConfig.disposable_overall.offsetX,
+                this.player.y + this.equipmentConfig.disposable_overall.offsetY
             );
             this.equipment.gloves.setPosition(
                 this.player.x + this.equipmentConfig.gloves.offsetX,

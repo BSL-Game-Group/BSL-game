@@ -96,6 +96,15 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transform: 'scale(1.7) rotate(-1.5deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
+
+  bsl3_respirator: {
+    category: 'masks',
+    label: 'BSL3 respirator',
+    equippedStyle: {
+      position: 'absolute', top: '6px', left: '80px', width: '70px', height: 'auto',
+      transform: 'scale(2.0) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
   sunglasses: {
     category: 'eyewear',
     label: 'Sunglasses',
@@ -105,6 +114,24 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transformOrigin: 'center center',
     }
   },
+  disposable_overall: {
+    category: 'body',
+    label: 'Disposable overall',
+    equippedStyle: {
+      position: 'absolute', top: '-20px', left: '53px', width: '130px', height: 'auto',
+      transform: 'scale(2) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+
+  face_shield: {
+    category: 'eyewear',
+    label: 'Face shield',    
+    equippedStyle: {
+      position: 'absolute', top: '5px', left: '75px', width: '82px', height: 'auto',
+      transform: 'scale(1.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+  
   wow_helmet: {
     category: 'eyewear',
     label: 'Fantasy helmet',

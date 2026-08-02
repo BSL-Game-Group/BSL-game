@@ -10,8 +10,7 @@ export default function Character({ equipped, onToggleEquip }) {
 
   // Determine which player image to show based on the equipment
   const getBaseImageSrc = () => {
-
-      if (equipped.pressurized_suit) {
+      if (equipped.pressurized_suit || equipped.disposable_overall) {
         return "/assets/player/head_only.png";
       }
 
