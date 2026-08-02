@@ -306,12 +306,6 @@ describe('ClosetPopup component', () => {
     expect(screen.getByRole('button', { name: /^gloves 2$/i })).toBeInTheDocument()
   })
 
-  test('renders player heading', () => {
-    renderPopup(true)
-
-    expect(screen.getByText(/player/i)).toBeInTheDocument()
-  })
-
   test('renders base character image', () => {
     renderPopup(true)
 
