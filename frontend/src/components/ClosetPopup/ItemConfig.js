@@ -74,15 +74,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
     }
   },
 
-  face_shield: {
-    category: 'eyewear',
-    label: 'Face shield',    
-    equippedStyle: {
-      position: 'absolute', top: '5px', left: '75px', width: '82px', height: 'auto',
-      transform: 'scale(1.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
-    }
-  },
-
   bsl3_respirator: {
     category: 'masks',
     label: 'BSL3 respirator',
@@ -108,6 +99,16 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transform: 'scale(2) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
+
+  face_shield: {
+    category: 'eyewear',
+    label: 'Face shield',    
+    equippedStyle: {
+      position: 'absolute', top: '5px', left: '75px', width: '82px', height: 'auto',
+      transform: 'scale(1.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+  
   wow_helmet: {
     category: 'eyewear',
     label: 'Fantasy helmet',
