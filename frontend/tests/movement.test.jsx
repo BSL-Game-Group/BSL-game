@@ -127,6 +127,11 @@ function createScene(overrides = {}) {
     setVisible: jest.fn(),
   }
 
+  scene.undressHint = {
+    setVisible: jest.fn(),
+    setPosition: jest.fn(),
+  }
+
   scene.lectureRoomZone = {
     x: 0,
     y: 0,
@@ -256,6 +261,52 @@ test('pressing E triggers closet popup event when inside dressing room', () => {
   dispatchSpy.mockRestore()
 })
 
+test('pressing R triggers quick-undress from anywhere in the dressing room', () => {
+  const scene = createScene({
+    ppeRoomZone: { x: 0, y: 0, width: 280, height: 250 },
+  })
+
+  scene.player.x = 50
+  scene.player.y = 50
+
+  Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+
+  const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+  scene.update()
+
+  expect(dispatchSpy).toHaveBeenCalledWith(
+    expect.objectContaining({
+      type: 'quick-undress',
+    })
+  )
+
+  dispatchSpy.mockRestore()
+})
+
+test('pressing R outside the dressing room does not trigger quick-undress', () => {
+  const scene = createScene({
+    ppeRoomZone: { x: 0, y: 0, width: 100, height: 100 },
+  })
+
+  scene.player.x = 500
+  scene.player.y = 500
+
+  Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+
+  const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+  scene.update()
+
+  expect(dispatchSpy).not.toHaveBeenCalledWith(
+    expect.objectContaining({
+      type: 'quick-undress',
+    })
+  )
+
+  dispatchSpy.mockRestore()
+})
+
 // =====================================================
 // STATE LOGIC
 // =====================================================
@@ -359,6 +410,35 @@ describe('Closet behavior', () => {
 
     expect(scene.pressEText.setVisible).toHaveBeenCalledWith(true)
     expect(scene.pressEText.setPosition).toHaveBeenCalledWith(50, 20)
+  })
+
+  test('shows the wash-up hint when close enough to the quick-undress spot', () => {
+    const scene = createScene({
+      ppeRoomZone: { x: 0, y: 0, width: 1000, height: 1000 },
+      undressPoint: { x: 620, y: 650 },
+    })
+
+    scene.player.x = 620
+    scene.player.y = 650
+
+    scene.update()
+
+    expect(scene.undressHint.setVisible).toHaveBeenCalledWith(true)
+    expect(scene.undressHint.setPosition).toHaveBeenCalledWith(560, 560)
+  })
+
+  test('hides the wash-up hint when far from the quick-undress spot', () => {
+    const scene = createScene({
+      ppeRoomZone: { x: 0, y: 0, width: 1000, height: 1000 },
+      undressPoint: { x: 620, y: 650 },
+    })
+
+    scene.player.x = 10
+    scene.player.y = 10
+
+    scene.update()
+
+    expect(scene.undressHint.setVisible).toHaveBeenCalledWith(false)
   })
 
   test('resumes closet glow animation when entering dressing room', () => {

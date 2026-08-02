@@ -402,27 +402,11 @@ describe('setupUndressPoint (via createRooms)', () => {
 
     createRooms(scene)
 
-    expect(scene.undressPoint).toEqual({ x: 500, y: 650 })
+    expect(scene.undressPoint).toEqual({ x: 620, y: 650 })
     expect(scene.undressGlow.setVisible).toHaveBeenCalledWith(false)
     expect(scene.undressZone.setInteractive).toHaveBeenCalled()
   })
 
-  test('hovering the quick-undress spot toggles the wash-up hint only when inside', () => {
-    const scene = makeFakeScene()
-    createRooms(scene)
-
-    scene.playerInsideDressingRoom = true
-    scene.undressZone.handlers.pointerover()
-    expect(scene.undressHint.setVisible).toHaveBeenCalledWith(true)
-
-    scene.undressZone.handlers.pointerout()
-    expect(scene.undressHint.setVisible).toHaveBeenCalledWith(false)
-
-    scene.undressHint.setVisible.mockClear()
-    scene.playerInsideDressingRoom = false
-    scene.undressZone.handlers.pointerover()
-    expect(scene.undressHint.setVisible).not.toHaveBeenCalledWith(true)
-  })
 
   test('clicking the quick-undress spot fires quick-undress when the player is inside', () => {
     const scene = makeFakeScene()

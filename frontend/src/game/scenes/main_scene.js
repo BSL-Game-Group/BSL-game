@@ -311,6 +311,7 @@ class MainScene extends Phaser.Scene {
         // Setup inputs, text and colliders
         this.cursors = this.input.keyboard.createCursorKeys();
         this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+        this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         
         this.pressEText = this.add.text(0, 0, "", {
             fontSize: "14px",
@@ -332,7 +333,7 @@ class MainScene extends Phaser.Scene {
             padding: { left: 6, right: 6, top: 3, bottom: 3 }
         }).setDepth(1000).setVisible(false);
 
-        // Hover hint over the quick-undress spot, reminding the player to wash up.
+        // Proximity hint over the quick-undress spot, reminding the player to wash up.
         this.undressHint = this.add.text(0, 0, "", {
             fontSize: "14px",
             backgroundColor: "#222222",
@@ -464,9 +465,6 @@ class MainScene extends Phaser.Scene {
         const pointer = this.input.activePointer;
         if (this.closetHint && this.closetHint.visible) {
             this.closetHint.setPosition(pointer.x + 15, pointer.y + 15);
-        }
-        if (this.undressZone && this.undressHint.visible) {
-            this.undressHint.setPosition(pointer.x + 15, pointer.y + 15);
         }
 
         // 3. EQUIPMENT GLUEING (Always running)
@@ -602,6 +600,12 @@ class MainScene extends Phaser.Scene {
                 window.dispatchEvent(new Event('closet-popup-opened'));
             }
 
+            // R washes up / quick-undresses from anywhere in the dressing room —
+            // same reach as the closet's E, no need to stand exactly on the glow.
+            if (inside && Phaser.Input.Keyboard.JustDown(this.keyR)) {
+                window.dispatchEvent(new Event('quick-undress'));
+            }
+
             // Only this room's own presence (`inside`) may hide the shared hint text —
             // otherwise this always-running block stomps on the other rooms' hints
             // (e.g. the lecture info point) every frame regardless of where the player is.
@@ -615,6 +619,21 @@ class MainScene extends Phaser.Scene {
                 this.pressEText.setVisible(closeEnough);
                 if (closeEnough) {
                     this.pressEText.setPosition(closetCenter.x - 40, closetCenter.y - 80);
+                }
+            }
+
+            // Same proximity-hint pattern for the wash-up spot, but on its own text
+            // object (undressHint) so it doesn't fight the closet's pressEText when
+            // both interactables are visible in the same room.
+            if (inside && this.undressHint && this.undressPoint) {
+                const dist = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y, this.undressPoint.x, this.undressPoint.y
+                );
+                const closeEnough = dist < 110;
+
+                this.undressHint.setVisible(closeEnough);
+                if (closeEnough) {
+                    this.undressHint.setPosition(this.undressPoint.x - 60, this.undressPoint.y - 90);
                 }
             }
         }
