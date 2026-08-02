@@ -12,13 +12,26 @@ function makeFakeScene() {
     const o = {
       args,
       handlers: {},
+      // Phaser state the input system reads (see pointerHits below).
+      visible: true,
+      interactive: false,
       setOrigin: jest.fn(() => o),
       setScale: jest.fn(() => o),
       setDisplaySize: jest.fn(() => o),
-      setVisible: jest.fn(() => o),
+      setVisible: jest.fn((v) => {
+        o.visible = v
+        return o
+      }),
       setDepth: jest.fn(() => o),
       setAlpha: jest.fn(() => o),
-      setInteractive: jest.fn(() => o),
+      setInteractive: jest.fn(() => {
+        o.interactive = true
+        return o
+      }),
+      disableInteractive: jest.fn(() => {
+        o.interactive = false
+        return o
+      }),
       fillStyle: jest.fn(() => o),
       fillCircle: jest.fn(() => o),
       lineStyle: jest.fn(() => o),
@@ -49,6 +62,18 @@ function makeFakeScene() {
   }
   scene.__created = created
   return scene
+}
+
+// Mirrors Phaser's own hit-test gate (InputManager#inputCandidate): a Game Object
+// only receives pointer events when its input is enabled AND it would render.
+// A permanently hidden object is therefore never clickable, however large its
+// bounds are — which is why the click target must be a zone, not a hidden sprite.
+function pointerHits(target, x, y) {
+  if (!target || !target.interactive || !target.visible) {
+    return false
+  }
+  const { x: cx, y: cy, w, h } = target.args
+  return Math.abs(x - cx) <= w / 2 && Math.abs(y - cy) <= h / 2
 }
 
 describe('createRooms', () => {
@@ -281,7 +306,10 @@ describe('createRooms — lecture room', () => {
 })
 
 describe('setupCloset (via createRooms)', () => {
-  test('creates the closet zone, a hidden glow and an interactive dresser', () => {
+  // The green glow circle: centre (90, 500), radius 55.
+  const CIRCLE = { x: 90, y: 500, radius: 55 }
+
+  test('creates the closet zone, a hidden glow and a hit-testable click target', () => {
     const scene = makeFakeScene()
 
     createRooms(scene)
@@ -289,16 +317,37 @@ describe('setupCloset (via createRooms)', () => {
     expect(scene.closetZone).toEqual({ x: 55, y: 440, width: 80, height: 80 })
     expect(window.__gameData.closetZone).toEqual(scene.closetZone)
 
-    // The dresser sprite sits in the top-left corner and stays hidden (only a click
-    // target); the green glow is the visible element.
-    expect(scene.add.image).toHaveBeenCalledWith(90, 500, 'dresser')
-    expect(scene.closetImage.setVisible).toHaveBeenCalledWith(false)
-    expect(scene.closetImage.setInteractive).toHaveBeenCalled()
+    // The click target is an invisible zone covering the glow circle — NOT a hidden
+    // sprite, which Phaser would never hit-test.
+    expect(scene.add.zone).toHaveBeenCalledWith(
+      CIRCLE.x, CIRCLE.y, CIRCLE.radius * 2, CIRCLE.radius * 2
+    )
+    expect(scene.closetHit.interactive).toBe(true)
+    expect(scene.closetHit.visible).toBe(true)
     // The glow is created hidden until the player is near.
     expect(scene.closetGlow.setVisible).toHaveBeenCalledWith(false)
   })
 
-  test('clicking the dresser opens the closet popup when the player is inside', () => {
+  test('the click target covers the whole glow circle', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    // Centre plus each edge of the circle. The bottom edge is the telling one: it
+    // falls outside the old 40x60-at-1.5-scale dresser sprite bounds (y 455..545).
+    const onCircle = [
+      { x: CIRCLE.x, y: CIRCLE.y, where: 'centre' },
+      { x: CIRCLE.x, y: CIRCLE.y + 48, where: 'bottom edge' },
+      { x: CIRCLE.x, y: CIRCLE.y - 48, where: 'top edge' },
+      { x: CIRCLE.x - 48, y: CIRCLE.y, where: 'left edge' },
+      { x: CIRCLE.x + 48, y: CIRCLE.y, where: 'right edge' },
+    ]
+
+    for (const point of onCircle) {
+      expect(pointerHits(scene.closetHit, point.x, point.y)).toBe(true)
+    }
+  })
+
+  test('clicking the circle opens the closet popup when the player is inside', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
@@ -306,13 +355,13 @@ describe('setupCloset (via createRooms)', () => {
     window.addEventListener('closet-popup-opened', listener)
     scene.playerInsideDressingRoom = true
 
-    scene.closetImage.handlers.pointerdown()
+    scene.closetHit.handlers.pointerdown()
 
     window.removeEventListener('closet-popup-opened', listener)
     expect(listener).toHaveBeenCalledTimes(1)
   })
 
-  test('clicking the dresser does nothing when the player is outside', () => {
+  test('clicking the circle does nothing when the player is outside', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
@@ -320,28 +369,28 @@ describe('setupCloset (via createRooms)', () => {
     window.addEventListener('closet-popup-opened', listener)
     scene.playerInsideDressingRoom = false
 
-    scene.closetImage.handlers.pointerdown()
+    scene.closetHit.handlers.pointerdown()
 
     window.removeEventListener('closet-popup-opened', listener)
     expect(listener).not.toHaveBeenCalled()
   })
 
-  test('hovering the dresser toggles the hint only when inside', () => {
+  test('hovering the circle toggles the hint only when inside', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
     // Inside: hover shows the hint, then pointerout hides it.
     scene.playerInsideDressingRoom = true
-    scene.closetImage.handlers.pointerover()
+    scene.closetHit.handlers.pointerover()
     expect(scene.closetHint.setVisible).toHaveBeenCalledWith(true)
 
-    scene.closetImage.handlers.pointerout()
+    scene.closetHit.handlers.pointerout()
     expect(scene.closetHint.setVisible).toHaveBeenCalledWith(false)
 
     // Outside: hover does not show the hint.
     scene.closetHint.setVisible.mockClear()
     scene.playerInsideDressingRoom = false
-    scene.closetImage.handlers.pointerover()
+    scene.closetHit.handlers.pointerover()
     expect(scene.closetHint.setVisible).not.toHaveBeenCalledWith(true)
   })
 })
@@ -384,8 +433,12 @@ describe('setupBslInteractables (via createRooms)', () => {
     const listener = (e) => levels.push(e.detail.level)
     window.addEventListener('answer-popup-opened', listener)
 
-    // Hit zones are created in the same order as bslGlows: BSL-1, BSL-2, BSL-3, BSL-4.
-    const bsl2Zone = scene.__created.zones[1]
+    // Each BSL hit zone sits on its glow's centre (matched by position rather than
+    // creation order, which other interactables' zones also share).
+    const bsl2Center = scene.bslGlows[1].center
+    const bsl2Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl2Center.x && z.args.y === bsl2Center.y
+    )
 
     // Outside the room → clicking does nothing.
     scene.bslGlows[1].playerInside = false
