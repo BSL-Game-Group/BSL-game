@@ -18,10 +18,33 @@ const CHARACTER_ROOT = '/assets/equipment/on_character';
 // Injects id + derived inventorySrc/equippedSrc into each item definition.
 function buildEquipment(items) {
   const out = {};
+  
+  // Base dimensions of your character image
+  const BASE_W = 250;
+  const BASE_H = 350;
+
+  // Helper function to convert px to % dynamically
+  const pxToPercent = (val, base) => {
+    if (typeof val === 'string' && val.endsWith('px')) {
+      return `${(parseFloat(val) / base) * 100}%`;
+    }
+    return val;
+  };
+
   for (const [id, item] of Object.entries(items)) {
+    // Clone the style object so we can safely mutate it
+    const style = { ...item.equippedStyle };
+    
+    // Convert fixed pixel coordinates/sizes to percentages
+    style.top = pxToPercent(style.top, BASE_H);
+    style.left = pxToPercent(style.left, BASE_W);
+    style.width = pxToPercent(style.width, BASE_W);
+    style.height = pxToPercent(style.height, BASE_H);
+
     out[id] = {
       ...item,
       id,
+      equippedStyle: style, // Overwrite with responsive styles
       inventorySrc: `${INVENTORY_ROOT}/${item.category}/${id}.png`,
       equippedSrc: `${CHARACTER_ROOT}/${item.category}/${id}_on.png`,
     };
@@ -37,8 +60,8 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'body',
     label: 'Lab coat',
     equippedStyle: {
-      position: 'absolute', top: '45px', left: '55px', width: '130px', height: 'auto',
-      transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '45px', left: '52px', width: '130px', height: 'auto',
+      transform: 'scale(1.63) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   closable_lab_coat: {
@@ -53,24 +76,24 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'masks',
     label: 'Mask',
     equippedStyle: {
-      position: 'absolute', top: '49px', left: '79px', width: '70px', height: 'auto',
-      transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '53px', left: '73px', width: '70px', height: 'auto',
+      transform: 'scale(1.6) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   glasses: {
     category: 'eyewear',
     label: 'Glasses',
     equippedStyle: {
-      position: 'absolute', top: '35px', left: '75px', width: '70px', height: 'auto',
-      transform: 'scale(1.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '37px', left: '71px', width: '70px', height: 'auto',
+      transform: 'scale(1.7) rotate(-1.5deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   sunglasses: {
     category: 'eyewear',
     label: 'Sunglasses',
     equippedStyle: {
-      position: 'absolute', top: '9px', left: '66px', width: '106px', height: 'auto',
-      transform: 'perspective(360px) rotateY(20deg) rotate(-2deg) scale(1.1) translateY(5px)',
+      position: 'absolute', top: '29px', left: '68px', width: '106px', height: 'auto',
+      transform: 'perspective(360px) rotateY(20deg) rotate(1deg) scale(1.6) translateY(5px)',
       transformOrigin: 'center center',
     }
   },
@@ -78,16 +101,16 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'gloves',
     label: 'Gloves',
     equippedStyle: {
-      position: 'absolute', top: '169px', left: '89px', width: '59px', height: '35px',
-      transform: 'scale(2.25) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '160px', left: '84px', width: '59px', height: '35px',
+      transform: 'scale(3.3) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   gloves_2: {
     category: 'gloves',
     label: 'Gloves 2',
     equippedStyle: {
-      position: 'absolute', top: '178px', left: '91px', width: '60px', height: 'auto',
-      transform: 'scale(2.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '189px', left: '87px', width: '60px', height: 'auto',
+      transform: 'scale(3.5) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
 

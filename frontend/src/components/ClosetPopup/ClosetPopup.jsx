@@ -178,7 +178,6 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
           <div className="row flex-grow-1 overflow-hidden">
             {/* Player Side */}
             <div className="col-4 border-end h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden">
-              <h3>{t('closet.player')}</h3>
               <Character equipped={equipped} onToggleEquip={handleToggleEquip} />
             </div>
 
