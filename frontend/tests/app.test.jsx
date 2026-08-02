@@ -28,6 +28,7 @@ jest.mock('../src/components/ClosetPopup/ClosetPopup', () => (props) => {
 
   return (
     <div>
+      <h2>Closet</h2>
       <p>Equipment</p>
       <button onClick={props.onClose}>Close</button>
       <button
@@ -236,7 +237,7 @@ test('clicking the show button opens the lecture materials popup', async () => {
 test('closet popup opens when event is triggered', () => {
   openCloset()
 
-  expect(screen.getByText(/equipment/i)).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /closet/i })).toBeInTheDocument()
 })
 
 test('closet popup does NOT appear without event', () => {

@@ -77,6 +77,10 @@ function fakeText() {
 
 function createScene() {
   const scene = new MainScene()
+  scene.scale = {
+    width: 1280,
+    height: 720
+  };
 
   scene.physics = {
     world: {

@@ -16,16 +16,16 @@ describe('LanguageSelector', () => {
   test('renders all three language buttons', () => {
     renderWithLanguage('en')
 
-    expect(screen.getByRole('button', { name: /english/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /svenska/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /suomi/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /EN/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /SV/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /FI/i })).toBeInTheDocument()
   })
 
   test('clicking Svenska calls setLanguage with sv', () => {
     const setLanguage = jest.fn()
     renderWithLanguage('en', setLanguage)
 
-    fireEvent.click(screen.getByRole('button', { name: /svenska/i }))
+    fireEvent.click(screen.getByRole('button', { name: /SV/i }))
 
     expect(setLanguage).toHaveBeenCalledWith('sv')
   })
@@ -34,7 +34,7 @@ describe('LanguageSelector', () => {
     const setLanguage = jest.fn()
     renderWithLanguage('en', setLanguage)
 
-    fireEvent.click(screen.getByRole('button', { name: /suomi/i }))
+    fireEvent.click(screen.getByRole('button', { name: /FI/i }))
 
     expect(setLanguage).toHaveBeenCalledWith('fi')
   })
@@ -43,7 +43,7 @@ describe('LanguageSelector', () => {
     const setLanguage = jest.fn()
     renderWithLanguage('fi', setLanguage)
 
-    fireEvent.click(screen.getByRole('button', { name: /english/i }))
+    fireEvent.click(screen.getByRole('button', { name: /EN/i }))
 
     expect(setLanguage).toHaveBeenCalledWith('en')
   })

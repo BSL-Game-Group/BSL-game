@@ -180,8 +180,12 @@ class MainScene extends Phaser.Scene {
 
     create() {
         const walls = createRooms(this);
-        this.physics.world.setBounds(0, 0, 1280, 720);
-        this.playArea = new Phaser.Geom.Rectangle(0, 0, 1280, 720);
+        const gameWidth = this.scale.width;
+        const gameHeight = this.scale.height;
+
+        this.physics.world.setBounds(0, 0, gameWidth, gameHeight);
+        this.playArea = new Phaser.Geom.Rectangle(0, 0, gameWidth, gameHeight);
+
         this.createWoodFloor();
         this.createLabFloor();
 
@@ -363,9 +367,16 @@ class MainScene extends Phaser.Scene {
     // Wire EventBus listeners the scene owns. React (App) asks for a fresh
     // microbe after each answer; the scene stays the single source of truth.
     registerEventBusListeners() {
-        this.handleNewMicrobeRequest = () => this.replaceCurrentMicrobeRandomly()
-        EventBus.on('request-new-microbe', this.handleNewMicrobeRequest)
-        
+        this.handleNewMicrobeRequest = () => {
+            if (this.currentMicrobe) {
+                EventBus.emit('current-microbe-updated', this.currentMicrobe)
+            }
+        }
+        EventBus.on('request-new-microbe', this.replaceCurrentMicrobeRandomly)
+
+        // Add this listener:
+        EventBus.on('request-current-microbe', this.handleNewMicrobeRequest)
+
         this.handleTranslationsUpdate = (translations) => this.updateTextTranslations(translations)
         EventBus.on('translations-updated', this.handleTranslationsUpdate)
     }

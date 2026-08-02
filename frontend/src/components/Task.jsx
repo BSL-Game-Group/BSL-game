@@ -17,6 +17,8 @@ const Task = () => {
         EventBus.on('current-microbe-updated', handleMicrobeUpdate)
         EventBus.on('undress-required', handleUndressRequired)
 
+        EventBus.emit('request-current-microbe')
+
         return () => {
             EventBus.off('current-microbe-updated', handleMicrobeUpdate)
             EventBus.off('undress-required', handleUndressRequired)
@@ -28,10 +30,10 @@ const Task = () => {
     }
 
     if (!microbe) {
-        return null
-    }
+      return null}
 
     const localized = (field) => {
+        if (!microbe) {return '';} // Add safety check
         if (language === 'sv' || language === 'fi') {
             return microbe[`${field}_${language}`]
         }
@@ -39,15 +41,19 @@ const Task = () => {
     }
 
     return (
-        <div>
+        <div className="p-0.8 bg-dark text-light rounded">
             <h2>{t('task.title')}</h2>
 
-            <ul>
-                <li>{localized('common_name')}</li>
-                <li>{microbe.scientific_name}</li>
-                <li>{localized('type')}</li>
-                <li>{localized('lecture_text')}</li>
-            </ul>
+            {!microbe ? (
+                <p>Loading task...</p> // This ensures the box is visible immediately
+            ) : (
+                <ul>
+                    <li>{localized('common_name')}</li>
+                    <li>{microbe.scientific_name}</li>
+                    <li>{localized('type')}</li>
+                    <li>{localized('lecture_text')}</li>
+                </ul>
+            )}
         </div>
     )
 }

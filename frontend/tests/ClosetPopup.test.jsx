@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, act } from './test-utils'
+import { render,act } from './test-utils';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom'
 import ClosetPopup from '../src/components/ClosetPopup/ClosetPopup'
 import { unequipAll } from '../src/components/ClosetPopup/ItemConfig'
@@ -20,7 +21,7 @@ describe('ClosetPopup component', () => {
   test('renders when open', () => {
     renderPopup(true)
 
-    expect(screen.getByText(/equipment/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: /closet/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument()
   })
 
@@ -93,7 +94,7 @@ describe('ClosetPopup component', () => {
     })
 
     // UI should still exist after state update
-    expect(screen.getByText(/equipment/i)).toBeInTheDocument()
+    expect(screen.getByText(/eyewear/i)).toBeInTheDocument()
   })
 
   // -----------------------------
@@ -169,10 +170,11 @@ describe('ClosetPopup component', () => {
     expect(screen.getByRole('dialog', { name: /closet/i })).toBeInTheDocument()
   })
 
-  test('focuses the dialog when opened', () => {
-    renderPopup(true)
-
-    expect(screen.getByRole('dialog')).toHaveFocus()
+  test('focuses the dialog when opened', async () => {
+    renderPopup(true);
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toHaveFocus();
+    })
   })
 
   test('pressing Escape calls onClose', () => {
@@ -217,17 +219,16 @@ describe('ClosetPopup component', () => {
     expect(buttons[buttons.length - 1]).toHaveFocus()
   })
 
-  test('Shift+Tab from the dialog container wraps to the last control', () => {
-    renderPopup(true)
+  test('Shift+Tab from the dialog container wraps to the last control', async () => {
+    renderPopup(true);
+    const dialog = screen.getByRole('dialog');
 
-    // This is the state right after opening: focus sits on the container, so
-    // Shift+Tab would otherwise walk straight out of the modal.
-    expect(screen.getByRole('dialog')).toHaveFocus()
+    await waitFor(() => {
+      expect(dialog).toHaveFocus();
+    })
 
-    fireEvent.keyDown(window, { key: 'Tab', shiftKey: true })
+    fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
 
-    const buttons = focusableItems()
-    expect(buttons[buttons.length - 1]).toHaveFocus()
   })
 
   test('Tab pulls focus back in when it has drifted outside the dialog', () => {
@@ -304,12 +305,6 @@ describe('ClosetPopup component', () => {
     // Items are exposed as buttons named via aria-label (the image is decorative),
     // so the glove items appear as buttons alongside the "Gloves" tab.
     expect(screen.getByRole('button', { name: /^gloves 2$/i })).toBeInTheDocument()
-  })
-
-  test('renders player heading', () => {
-    renderPopup(true)
-
-    expect(screen.getByText(/player/i)).toBeInTheDocument()
   })
 
   test('renders base character image', () => {

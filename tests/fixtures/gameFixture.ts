@@ -11,11 +11,18 @@ class Game {
     });
 
     await this.page.goto(FRONTEND_BASE);
+    await this.page.waitForLoadState('networkidle');
     await this.page.getByRole('button', { name: /start game/i }).click();
+    await this.page.waitForLoadState('networkidle');
+  }
+  
+  async openAnswerPopup() {
+    await this.page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('answer-popup-opened', { detail: { level: 'BSL-2' } }));
+    });
   }
 
   // --- UI getters (centralized selectors) ---
-
   get canvas() {
     return this.page.locator('#game-container canvas');
   }
@@ -25,11 +32,15 @@ class Game {
   }
 
   get closetPopup() {
-    return this.page.getByText(/equipment/i);
+    return this.page.getByRole('heading', { level: 2, name: /closet/i });
   }
 
   get closeButton() {
     return this.page.getByRole('button', { name: /close/i });
+  }
+  
+  get answerPopup() {
+    return this.page.locator('.popup-overlay').first();
   }
 
   // --- high-level actions ---

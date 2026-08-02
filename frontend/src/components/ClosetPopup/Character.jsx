@@ -23,13 +23,20 @@ export default function Character({ equipped, onToggleEquip }) {
     };
 
   return (
-      <div ref={drop} style={{ position: 'relative', width: 250, height: 350 }}>
-        {/* Call the function to get the current image source */}
-        <img 
-          src={getBaseImageSrc()} 
-          alt="base" 
-          style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
-        />
+    <div className="pt-2" ref={drop} style={{
+      position: 'relative',
+      width: '100%',
+      maxHeight: '100%',
+      aspectRatio: '250 / 350',
+      display: 'flex',
+      justifyContent: 'center'
+    }}>
+      <img 
+        src={getBaseImageSrc()} 
+        alt="base"
+        className="img-fluid"
+        style={{ height: '100%', width: '100%', objectFit: 'contain' }}
+      />
 
         {Object.values(EQUIPMENT_CONFIG).map((config) => {
           if (!equipped[config.id]) {
