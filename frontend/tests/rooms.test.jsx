@@ -523,7 +523,12 @@ describe('setupBslInteractables (via createRooms)', () => {
     window.addEventListener('answer-popup-opened', answerListener)
     window.addEventListener('lecture-required', requiredListener)
 
-    const bsl2Zone = scene.__created.zones[1]
+    // Matched by position rather than creation order, which other interactables'
+    // zones also share (see the sibling test above).
+    const bsl2Center = scene.bslGlows[1].center
+    const bsl2Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl2Center.x && z.args.y === bsl2Center.y
+    )
     scene.bslGlows[1].playerInside = true
     bsl2Zone.handlers.pointerdown()
 
