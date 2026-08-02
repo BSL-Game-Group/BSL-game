@@ -26,7 +26,7 @@
   },
   "lectureRequired": {
     "title": "Käy ensin luentohuoneessa",
-    "message": "Ennen kuin voit käsitellä mikrobia, sinun täytyy ensin käydä luentohuoneessa lukemassa mikrobista ja selvittää sen bioturvallisuustaso (BSL)."
+    "message": "Ennen mikrobin käsittelyä sinun täytyy käydä luentohuoneessa lukemassa mikrobista ja oppimassa sen bioturvallisuustaso (BSL)."
   },
   "lecturePanel": {
     "title": "Luentomateriaali",
@@ -51,6 +51,7 @@
     "undressRequired": "Mene pukuhuoneeseen ja riisu suojavarusteet ennen seuraavaa mikrobia."
   },
   "closet": {
+    "title": "Pukukaappi",
     "player": "Pelaaja",
     "equipmentLabel": "Varusteet"
   },
@@ -59,6 +60,8 @@
     "incorrect": "Ei aivan",
     "correctFallback": "Se on oikea huone.",
     "incorrectFallback": "Se ei ole oikea huone.",
+    "equipmentCorrect": "Suojavarustuksesi vastasi vaadittua varustusta.",
+    "equipmentIncorrect": "Suojavarustuksesi ei vastannut täysin vaadittua varustusta.",
     "chosenLevel": "Valitsit {level}.",
     "belongs": "{name} kuuluu tasolle BSL-{level}."
   },
