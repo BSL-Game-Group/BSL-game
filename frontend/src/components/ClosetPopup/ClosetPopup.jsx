@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { DndProvider, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip } from './ItemConfig'
+import { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip, unequipAll } from './ItemConfig'
 import Character from './Character'
 import DraggableItem from './DragFunctionality'
 import { useTranslation } from '../../i18n/context'
@@ -86,6 +86,23 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
     )
     pendingFocusRef.current = itemId
   }
+
+  // The quick-undress interactable lives in the dressing room (Phaser), not in
+  // this popup, so it must work whether or not the popup is currently open.
+  useEffect(() => {
+    const handleQuickUndress = () => setEquipped(unequipAll())
+    window.addEventListener('quick-undress', handleQuickUndress)
+    return () => window.removeEventListener('quick-undress', handleQuickUndress)
+  }, [])
+
+  // The BSL4 airlock decon point resets worn PPE too, but on its own event —
+  // unlike quick-undress, it must NOT satisfy App's "go wash up at the
+  // dressing room" requirement, so it's kept separate from quick-undress.
+  useEffect(() => {
+    const handleAirlockDecon = () => setEquipped(unequipAll())
+    window.addEventListener('airlock-decon', handleAirlockDecon)
+    return () => window.removeEventListener('airlock-decon', handleAirlockDecon)
+  }, [])
 
   // Effect to handle external broadcasts
   useEffect(() => {

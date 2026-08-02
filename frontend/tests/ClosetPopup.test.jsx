@@ -2,6 +2,7 @@ import { render,act } from './test-utils';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom'
 import ClosetPopup from '../src/components/ClosetPopup/ClosetPopup'
+import { unequipAll } from '../src/components/ClosetPopup/ItemConfig'
 
 // -----------------------------
 // HELPERS
@@ -325,5 +326,67 @@ describe('ClosetPopup component', () => {
     renderPopup(true)
 
     expect(screen.getByAltText('base')).toBeInTheDocument()
+  })
+
+  // -----------------------------
+  // QUICK UNDRESS (dressing-room "quick-undress" event) TESTS
+  // -----------------------------
+  // The interactable that triggers this lives in the Phaser dressing room, not
+  // in this popup, so ClosetPopup only needs to react to the window event.
+
+  test('resets all equipment when the quick-undress event fires while open', () => {
+    const spy = jest.spyOn(window, 'dispatchEvent')
+
+    renderPopup(true)
+    spy.mockClear()
+
+    act(() => {
+      window.dispatchEvent(new Event('quick-undress'))
+    })
+
+    const lastEquipmentChange = spy.mock.calls
+      .map((call) => call[0])
+      .filter((event) => event.type === 'equipment-changed')
+      .pop()
+
+    expect(lastEquipmentChange.detail).toEqual(unequipAll())
+
+    spy.mockRestore()
+  })
+
+  test('resets all equipment when the quick-undress event fires while closed', () => {
+    const onEquipmentChange = jest.fn()
+
+    render(
+      <ClosetPopup open={false} onClose={jest.fn()} onEquipmentChange={onEquipmentChange} />
+    )
+    onEquipmentChange.mockClear()
+
+    act(() => {
+      window.dispatchEvent(new Event('quick-undress'))
+    })
+
+    expect(onEquipmentChange).toHaveBeenLastCalledWith(unequipAll())
+  })
+
+  // -----------------------------
+  // AIRLOCK DECON ("airlock-decon" event) TESTS
+  // -----------------------------
+  // The BSL4 airlock decon point resets worn PPE too, but on its own event —
+  // separate from quick-undress so it doesn't satisfy App's dressing-room gate.
+
+  test('resets all equipment when the airlock-decon event fires', () => {
+    const onEquipmentChange = jest.fn()
+
+    render(
+      <ClosetPopup open={false} onClose={jest.fn()} onEquipmentChange={onEquipmentChange} />
+    )
+    onEquipmentChange.mockClear()
+
+    act(() => {
+      window.dispatchEvent(new Event('airlock-decon'))
+    })
+
+    expect(onEquipmentChange).toHaveBeenLastCalledWith(unequipAll())
   })
 })

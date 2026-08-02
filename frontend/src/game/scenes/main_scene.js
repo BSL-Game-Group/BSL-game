@@ -336,6 +336,7 @@ class MainScene extends Phaser.Scene {
         // Setup inputs, text and colliders
         this.cursors = this.input.keyboard.createCursorKeys();
         this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+        this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         
         this.pressEText = this.add.text(0, 0, "", {
             fontSize: "14px",
@@ -350,7 +351,24 @@ class MainScene extends Phaser.Scene {
         this.playerInsideLectureRoom = false;
         this.playerInsideExitRoom = false;
         this.playerInsideDressingRoom = false;
+        this.playerInsideAirlock2 = false;
         this.closetHint = this.add.text(0, 0, "", {
+            fontSize: "14px",
+            backgroundColor: "#222222",
+            color: "#ffffff",
+            padding: { left: 6, right: 6, top: 3, bottom: 3 }
+        }).setDepth(1000).setVisible(false);
+
+        // Proximity hint over the quick-undress spot, reminding the player to wash up.
+        this.undressHint = this.add.text(0, 0, "", {
+            fontSize: "14px",
+            backgroundColor: "#222222",
+            color: "#ffffff",
+            padding: { left: 6, right: 6, top: 3, bottom: 3 }
+        }).setDepth(1000).setVisible(false);
+
+        // Proximity hint under the airlock2 decon spot.
+        this.airlockWashHint = this.add.text(0, 0, "", {
             fontSize: "14px",
             backgroundColor: "#222222",
             color: "#ffffff",
@@ -370,7 +388,9 @@ class MainScene extends Phaser.Scene {
         this.updateTextTranslations({
             pressEToOpen: window.__translations?.pressEToOpen ?? 'Press E to open',
             openCloset: window.__translations?.openCloset ?? 'Open Closet',
-            pressE: window.__translations?.pressE ?? 'Press E'
+            pressE: window.__translations?.pressE ?? 'Press E',
+            washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
+            airlockWash: window.__translations?.airlockWash ?? 'Press R or click to decontaminate'
         })
         this.replaceCurrentMicrobeRandomly()
     }
@@ -398,6 +418,12 @@ class MainScene extends Phaser.Scene {
         }
         if (this.closetHint) {
             this.closetHint.setText(translations.openCloset)
+        }
+        if (this.undressHint) {
+            this.undressHint.setText(translations.washUp)
+        }
+        if (this.airlockWashHint) {
+            this.airlockWashHint.setText(translations.airlockWash)
         }
         if (this.bslHint) {
             this.bslHint.setText(translations.pressE)
@@ -604,6 +630,12 @@ class MainScene extends Phaser.Scene {
                         this.closetGlowTween.resume();
                     }
                 }
+                if (this.undressGlow) {
+                    this.undressGlow.setVisible(true);
+                    if (this.undressGlowTween) {
+                        this.undressGlowTween.resume();
+                    }
+                }
                 this.playerInsideDressingRoom = true;
             } else if (!inside && this.playerInsideDressingRoom) {
                 if (this.closetGlow) {
@@ -612,11 +644,23 @@ class MainScene extends Phaser.Scene {
                         this.closetGlowTween.pause();
                     }
                 }
+                if (this.undressGlow) {
+                    this.undressGlow.setVisible(false);
+                    if (this.undressGlowTween) {
+                        this.undressGlowTween.pause();
+                    }
+                }
                 this.playerInsideDressingRoom = false;
             }
 
             if (inside && Phaser.Input.Keyboard.JustDown(this.keyE)) {
                 window.dispatchEvent(new Event('closet-popup-opened'));
+            }
+
+            // R washes up / quick-undresses from anywhere in the dressing room —
+            // same reach as the closet's E, no need to stand exactly on the glow.
+            if (inside && Phaser.Input.Keyboard.JustDown(this.keyR)) {
+                window.dispatchEvent(new Event('quick-undress'));
             }
 
             // Only this room's own presence (`inside`) may hide the shared hint text —
@@ -632,6 +676,68 @@ class MainScene extends Phaser.Scene {
                 this.pressEText.setVisible(closeEnough);
                 if (closeEnough) {
                     this.pressEText.setPosition(closetCenter.x - 40, closetCenter.y - 80);
+                }
+            }
+
+            // Same proximity-hint pattern for the wash-up spot, but on its own text
+            // object (undressHint) so it doesn't fight the closet's pressEText when
+            // both interactables are visible in the same room.
+            if (inside && this.undressHint && this.undressPoint) {
+                const dist = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y, this.undressPoint.x, this.undressPoint.y
+                );
+                const closeEnough = dist < 110;
+
+                this.undressHint.setVisible(closeEnough);
+                if (closeEnough) {
+                    this.undressHint.setPosition(this.undressPoint.x - 60, this.undressPoint.y - 90);
+                }
+            }
+        }
+
+        // Airlock2 wash-up point: same enter/exit tracking as the dressing room's
+        // closet. The reminder fires as soon as the player arrives — a nudge to
+        // use the green decon spot before heading further out — not a scolding
+        // after the fact.
+        if (this.airlock2Zone) {
+            const inside = playerIsInsideZone(this.player, this.airlock2Zone);
+
+            if (inside && !this.playerInsideAirlock2) {
+                if (this.airlockWashGlow) {
+                    this.airlockWashGlow.setVisible(true);
+                    if (this.airlockWashGlowTween) {
+                        this.airlockWashGlowTween.resume();
+                    }
+                }
+                this.playerInsideAirlock2 = true;
+                window.dispatchEvent(new Event('airlock-wash-reminder'));
+            } else if (!inside && this.playerInsideAirlock2) {
+                if (this.airlockWashGlow) {
+                    this.airlockWashGlow.setVisible(false);
+                    if (this.airlockWashGlowTween) {
+                        this.airlockWashGlowTween.pause();
+                    }
+                }
+                this.playerInsideAirlock2 = false;
+            }
+
+            // R washes up from anywhere in airlock2, same reach as the dressing
+            // room's R — no need to stand exactly on the glow.
+            if (inside && Phaser.Input.Keyboard.JustDown(this.keyR)) {
+                window.dispatchEvent(new Event('airlock-decon'));
+            }
+
+            // Proximity hint, positioned BELOW the glow (unlike the dressing
+            // room's, which sits above its point).
+            if (inside && this.airlockWashHint && this.airlockWashPoint) {
+                const dist = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y, this.airlockWashPoint.x, this.airlockWashPoint.y
+                );
+                const closeEnough = dist < 90;
+
+                this.airlockWashHint.setVisible(closeEnough);
+                if (closeEnough) {
+                    this.airlockWashHint.setPosition(this.airlockWashPoint.x - 320, this.airlockWashPoint.y + 30);
                 }
             }
         }

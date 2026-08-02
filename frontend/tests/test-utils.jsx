@@ -13,6 +13,8 @@ const translationValue = {
       'howToPlay.controls': 'Controls: Arrow keys / click to move',
 
       'task.title': 'The microbe you will handle',
+      'task.undressRequired': 'Go to the dressing room and wash up before you get the next microbe.',
+
 
       'answerPopup.correct': 'Correct!',
       'answerPopup.incorrect': 'Not quite',
@@ -25,6 +27,9 @@ const translationValue = {
       'answerPopup.equipmentIncorrect': 'Your protective equipment did not fully match the required setup.',
 
       'closet.title': 'Closet',
+
+      'airlockWashRequired.title': 'ATTENTION',
+      'airlockWashRequired.message': 'Always sanitize yourself at the airlock decon spot whenever you leave the BSL4 laboratory.',
 
       'common.close': 'Close',
     }

@@ -59,6 +59,7 @@ function makeFakeScene() {
     tweens: { add: jest.fn(() => ({ pause: jest.fn(), resume: jest.fn() })) },
     // Set by main_scene in the real game; rooms.js only reads it on hover.
     closetHint: { setVisible: jest.fn() },
+    undressHint: { setVisible: jest.fn() },
   }
   scene.__created = created
   return scene
@@ -395,6 +396,88 @@ describe('setupCloset (via createRooms)', () => {
   })
 })
 
+describe('setupUndressPoint (via createRooms)', () => {
+  test('creates a hidden glow at the dressing-room quick-undress spot', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.undressPoint).toEqual({ x: 620, y: 650 })
+    expect(scene.undressGlow.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.undressZone.setInteractive).toHaveBeenCalled()
+  })
+
+
+  test('clicking the quick-undress spot fires quick-undress when the player is inside', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('quick-undress', listener)
+    scene.playerInsideDressingRoom = true
+
+    scene.undressZone.handlers.pointerdown()
+
+    window.removeEventListener('quick-undress', listener)
+    expect(listener).toHaveBeenCalledTimes(1)
+  })
+
+  test('clicking the quick-undress spot does nothing when the player is outside', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('quick-undress', listener)
+    scene.playerInsideDressingRoom = false
+
+    scene.undressZone.handlers.pointerdown()
+
+    window.removeEventListener('quick-undress', listener)
+    expect(listener).not.toHaveBeenCalled()
+  })
+})
+
+describe('setupAirlockWashPoint (via createRooms)', () => {
+  test('creates a hidden glow in the bottom-right corner of airlock2', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.airlockWashPoint).toEqual({ x: 1250, y: 335 })
+    expect(scene.airlock2Zone).toEqual({ x: 1110, y: 250, width: 170, height: 110 })
+    expect(scene.airlockWashGlow.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.airlockWashZone.setInteractive).toHaveBeenCalled()
+  })
+
+  test('clicking it while inside airlock2 fires airlock-decon', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('airlock-decon', listener)
+    scene.playerInsideAirlock2 = true
+
+    scene.airlockWashZone.handlers.pointerdown()
+
+    window.removeEventListener('airlock-decon', listener)
+    expect(listener).toHaveBeenCalledTimes(1)
+  })
+
+  test('clicking it does nothing when the player is not inside airlock2', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('airlock-decon', listener)
+    scene.playerInsideAirlock2 = false
+
+    scene.airlockWashZone.handlers.pointerdown()
+
+    window.removeEventListener('airlock-decon', listener)
+    expect(listener).not.toHaveBeenCalled()
+  })
+})
+
 describe('setupBslInteractables (via createRooms)', () => {
   test('creates one interactable entry per BSL room, starting outside', () => {
     const scene = makeFakeScene()
@@ -428,6 +511,7 @@ describe('setupBslInteractables (via createRooms)', () => {
   test('clicking a BSL glow opens the answer popup for that room, only when inside', () => {
     const scene = makeFakeScene()
     createRooms(scene)
+    window.__lectureOpen = true
 
     const levels = []
     const listener = (e) => levels.push(e.detail.level)
@@ -451,6 +535,33 @@ describe('setupBslInteractables (via createRooms)', () => {
 
     window.removeEventListener('answer-popup-opened', listener)
     expect(levels).toEqual(['BSL-2'])
+    delete window.__lectureOpen
+  })
+
+  test('clicking a BSL glow asks the player to visit the lecture room first when it has not been unlocked yet', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    window.__lectureOpen = false
+
+    const answerListener = jest.fn()
+    const requiredListener = jest.fn()
+    window.addEventListener('answer-popup-opened', answerListener)
+    window.addEventListener('lecture-required', requiredListener)
+
+    // Matched by position rather than creation order, which other interactables'
+    // zones also share (see the sibling test above).
+    const bsl2Center = scene.bslGlows[1].center
+    const bsl2Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl2Center.x && z.args.y === bsl2Center.y
+    )
+    scene.bslGlows[1].playerInside = true
+    bsl2Zone.handlers.pointerdown()
+
+    window.removeEventListener('answer-popup-opened', answerListener)
+    window.removeEventListener('lecture-required', requiredListener)
+    expect(answerListener).not.toHaveBeenCalled()
+    expect(requiredListener).toHaveBeenCalledTimes(1)
+    delete window.__lectureOpen
   })
 
   describe('createRooms — exit area', () => {

@@ -5,20 +5,29 @@ import { useTranslation } from '../i18n/context'
 const Task = () => {
     const { t, language } = useTranslation()
     const [microbe, setMicrobe] = useState(null)
+    const [undressRequired, setUndressRequired] = useState(false)
 
     useEffect(() => {
         const handleMicrobeUpdate = (microbe) => {
             setMicrobe({ ...microbe })
+            setUndressRequired(false)
         }
+        const handleUndressRequired = () => setUndressRequired(true)
 
         EventBus.on('current-microbe-updated', handleMicrobeUpdate)
+        EventBus.on('undress-required', handleUndressRequired)
 
         EventBus.emit('request-current-microbe')
 
         return () => {
             EventBus.off('current-microbe-updated', handleMicrobeUpdate)
+            EventBus.off('undress-required', handleUndressRequired)
         }
     }, [])
+
+    if (undressRequired) {
+        return <p className="task-undress-message">{t('task.undressRequired')}</p>
+    }
 
     if (!microbe) {
       return null}

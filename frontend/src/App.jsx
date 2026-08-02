@@ -25,6 +25,7 @@ function App() {
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
   const [infoOpen, setInfoOpen] = useState(false)
   const [lectureWarningOpen, setLectureWarningOpen] = useState(false);
+  const [airlockWashWarningOpen, setAirlockWashWarningOpen] = useState(false);
   const [PlayerEquipment, setPlayerEquipment] = useState({
     mask: false,
     gloves: false,
@@ -37,6 +38,7 @@ function App() {
     sunglasses: false,
     pressurized_suit: false,
   })
+  const [awaitingUndress, setAwaitingUndress] = useState(false)
 
   // --- HOOKS (Preserved from original) ---
   useEffect(() => { fetch('/api/test') }, [])
@@ -56,6 +58,19 @@ function App() {
     window.addEventListener('lecture-required', handler);
     return () => window.removeEventListener('lecture-required', handler);
   }, []);
+
+  // Soft reminder only — shown as soon as the player steps into airlock2
+  // (coming out of BSL4), nudging them to decon before continuing. It doesn't
+  // block movement or gate anything.
+  useEffect(() => {
+    const handler = () => setAirlockWashWarningOpen(true);
+
+    window.addEventListener('airlock-wash-reminder', handler);
+
+    return () =>
+      window.removeEventListener('airlock-wash-reminder', handler);
+  }, []);
+
   useEffect(() => {
     const handleUnlock = () => setMaterialsUnlocked(true);
     window.addEventListener('lecture-materials-unlocked', handleUnlock);
@@ -84,6 +99,8 @@ function App() {
       pressEToOpen: t('phaser.pressEToOpen'),
       openCloset: t('phaser.openCloset'),
       pressE: t('phaser.pressE'),
+      washUp: t('phaser.washUp'),
+      airlockWash: t('phaser.airlockWash'),
     }
     window.__translations = translations
     EventBus.emit('translations-updated', translations)
@@ -98,10 +115,25 @@ function App() {
   const isEquipmentCorrect = evaluateEquipmentRules(equipmentRules, chosenEquipment)
   const isCorrect = isLevelCorrect && isEquipmentCorrect
 
+  // Handling a microbe always requires a trip to the dressing room's wash-up
+  // spot afterward — whether or not any PPE was actually worn — before the
+  // next microbe is handed out.
   const handleAnswerClose = () => {
     setAnswerOpen(false)
-    EventBus.emit('request-new-microbe')
+    setAwaitingUndress(true)
+    EventBus.emit('undress-required')
   }
+
+  useEffect(() => {
+    const handleWashUp = () => {
+      if (awaitingUndress) {
+        setAwaitingUndress(false)
+        EventBus.emit('request-new-microbe')
+      }
+    }
+    window.addEventListener('quick-undress', handleWashUp)
+    return () => window.removeEventListener('quick-undress', handleWashUp)
+  }, [awaitingUndress])
 
   return (
     <Container fluid className="h-100">
@@ -189,6 +221,17 @@ function App() {
             </button>
             <h2>{t('lectureRequired.title')}</h2>
             <p>{t('lectureRequired.message')}</p>
+          </div>
+        </div>
+      )}
+      {airlockWashWarningOpen && (
+        <div className="popup-overlay">
+          <div className="popup-box popup-box--incorrect">
+            <button className="popup-close-button" onClick={() => setAirlockWashWarningOpen(false)}>
+              {t('common.close')}
+            </button>
+            <h2>{t('airlockWashRequired.title')}</h2>
+            <p>{t('airlockWashRequired.message')}</p>
           </div>
         </div>
       )}

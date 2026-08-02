@@ -17,6 +17,38 @@ jest.mock('../src/Game', () => () => (
   <div data-testid="game-component">Game Loaded</div>
 ))
 
+// A lightweight stand-in for ClosetPopup: simulating a real react-dnd
+// drag-and-drop equip in jsdom isn't supported by this repo's test setup, so
+// this exposes plain buttons that call the same onClose/onEquipmentChange
+// props the real component would call.
+jest.mock('../src/components/ClosetPopup/ClosetPopup', () => (props) => {
+  if (!props.open) {
+    return null
+  }
+
+  return (
+    <div>
+      <h2>Closet</h2>
+      <p>Equipment</p>
+      <button onClick={props.onClose}>Close</button>
+      <button
+        onClick={() =>
+          props.onEquipmentChange({ mask: true, lab_coat: false, glasses: false, sunglasses: false })
+        }
+      >
+        test-equip-mask
+      </button>
+      <button
+        onClick={() =>
+          props.onEquipmentChange({ mask: false, lab_coat: false, glasses: false, sunglasses: false })
+        }
+      >
+        test-unequip-all
+      </button>
+    </div>
+  )
+})
+
 jest.mock('../game/main', () => jest.fn(() => ({ destroy: jest.fn() })))
 
 jest.mock('../src/services/bslMaterial', () => ({
@@ -275,4 +307,102 @@ test('info popup opens on info-popup-opened event and shows the steps', () => {
     screen.getByRole('heading', { name: /how to play/i })
   ).toBeInTheDocument()
   expect(screen.getByText(/remember the bsl level/i)).toBeInTheDocument()
+})
+
+// -----------------------------
+// AIRLOCK2 WASH REMINDER (soft, non-blocking) TESTS
+// -----------------------------
+test('shows a soft reminder when entering airlock2', () => {
+  startGame()
+
+  act(() => {
+    window.dispatchEvent(new Event('airlock-wash-reminder'))
+  })
+
+  expect(screen.getByRole('heading', { name: /attention/i })).toBeInTheDocument()
+})
+
+test('the airlock wash reminder does NOT gate the next microbe', () => {
+  openAnswerPopup('BSL-2')
+
+  fireEvent.click(screen.getByRole('button', { name: /close/i }))
+  EventBus.emit.mockClear()
+
+  act(() => {
+    window.dispatchEvent(new Event('airlock-wash-reminder'))
+  })
+
+  expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
+})
+
+// -----------------------------
+// UNDRESS-BEFORE-NEXT-MICROBE TESTS
+// -----------------------------
+describe('PPE removal gate', () => {
+  // The dressing room's wash-up spot (click or press R) dispatches this window
+  // event — same one ClosetPopup listens to for resetting worn PPE.
+  function washUp() {
+    act(() => {
+      window.dispatchEvent(new Event('quick-undress'))
+    })
+  }
+
+  test('closing the answer popup always asks the player to wash up, even with no PPE equipped', () => {
+    openAnswerPopup('BSL-2')
+
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+    expect(EventBus.emit).toHaveBeenCalledWith('undress-required')
+    expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
+  })
+
+  test('closing the answer popup while PPE is equipped also asks the player to wash up', () => {
+    openAnswerPopup('BSL-2')
+
+    act(() => {
+      window.dispatchEvent(new Event('closet-popup-opened'))
+    })
+    fireEvent.click(screen.getByText('test-equip-mask'))
+    fireEvent.click(screen.getAllByRole('button', { name: /close/i })[0])
+
+    EventBus.emit.mockClear()
+
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+    expect(EventBus.emit).toHaveBeenCalledWith('undress-required')
+    expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
+  })
+
+  test('requests a new microbe once the player washes up, regardless of PPE state', () => {
+    openAnswerPopup('BSL-2')
+
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+    EventBus.emit.mockClear()
+
+    washUp()
+
+    expect(EventBus.emit).toHaveBeenCalledWith('request-new-microbe')
+  })
+
+  test('washing up when no microbe has been handled yet does nothing', () => {
+    startGame()
+    EventBus.emit.mockClear()
+
+    washUp()
+
+    expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
+  })
+
+  test('the BSL4 airlock decon point does NOT satisfy the wash-up requirement', () => {
+    openAnswerPopup('BSL-2')
+
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+    EventBus.emit.mockClear()
+
+    act(() => {
+      window.dispatchEvent(new Event('airlock-decon'))
+    })
+
+    expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
+  })
 })
