@@ -27,7 +27,7 @@ export default class Door extends Phaser.Physics.Arcade.Sprite {
     }
 
     tryToChangeDoorState() {
-        if (this.airlockDoorPairs.some((pair) => pair.isOpen)) {
+        if (!this.openable()) {
             return false;
         }
         this.isOpen = !this.isOpen;
@@ -38,5 +38,9 @@ export default class Door extends Phaser.Physics.Arcade.Sprite {
 
     addAirlockDoorPair(pair) {
         this.airlockDoorPairs.push(pair);
+    }
+
+    openable() {
+        return !this.airlockDoorPairs.some((pair) => pair.isOpen);
     }
 }
