@@ -265,8 +265,8 @@ describe('createRooms — lecture room', () => {
     // Left workstation
     expect(scene.add.rectangle).toHaveBeenCalledWith(127, 184, 174, 104)
 
-    // Right workstation
-    expect(scene.add.rectangle).toHaveBeenCalledWith(353, 184, 174, 104)
+    // Right workstation collider was removed — no longer created
+    expect(scene.add.rectangle).not.toHaveBeenCalledWith(353, 184, 174, 104)
   })
 
   test('does not expose bookshelf colliders anymore', () => {

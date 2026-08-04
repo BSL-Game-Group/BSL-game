@@ -287,8 +287,8 @@ function setupLectureRoom(scene, walls) {
     // Left workstation
     solidBox(scene, 40, 132, 214, 236, walls);
 
-    // Right workstation
-    solidBox(scene, 266, 132, 440, 236, walls);
+    // New collider: x 200-290, y:77.5-146.25.
+    solidBox(scene, 200, 77.5, 290, 146.25, walls);
 
     // No bookshelf colliders anymore
     scene.lectureShelves = [];
