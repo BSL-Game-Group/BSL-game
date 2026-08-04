@@ -409,10 +409,13 @@ export function createRooms(scene) {
     vSeg(scene, 1280 - T / 2, 0, 720, walls);    // right
 
     // ---- LEFT SIDE ----
-    // Lecture | Exit divider (no door)
-    vWall(scene, 480, 0, 290, [], walls);
-    // Lecture/Exit bottom = Corridor top (doors to both)
-    hWall(scene, 0, 700, 290, [[180, 270], [540, 630]], walls);
+    // Lecture | Exit divider — door here now, so the exit room is reached from
+    // the lecture room instead of straight down from the corridor. Door sits
+    // right at the bottom edge of the divider (y:290 = corridor line).
+    vWall(scene, 480, 0, 290, [[200, 290]], walls);
+    // Lecture bottom = Corridor top (door). Exit room's old down-facing door
+    // to the corridor is now closed — it's only reachable via the lecture room.
+    hWall(scene, 0, 700, 290, [[220, 310]], walls);
     // Corridor bottom = Dressing room top (one narrower door)
     hWall(scene, 0, 700, 430, [[315, 375]], walls);
 
