@@ -45,6 +45,14 @@ class Game {
 
   // --- high-level actions ---
 
+  // One-shot, not addInitScript: an init script would re-run on reload and wipe
+  // the very snapshot the persistence tests are checking.
+  async clearSavedGame() {
+    await this.page.evaluate(() => {
+      window.localStorage.removeItem('bsl-game.saved-state.v1');
+    });
+  }
+
   async openCloset() {
     await this.page.evaluate(() => {
       window.dispatchEvent(new Event('closet-popup-opened'));

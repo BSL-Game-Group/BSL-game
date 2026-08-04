@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { render,act } from './test-utils';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom'
@@ -7,8 +8,17 @@ import { unequipAll } from '../src/components/ClosetPopup/ItemConfig'
 // -----------------------------
 // HELPERS
 // -----------------------------
-function renderPopup(open = true, onClose = jest.fn()) {
-  return render(<ClosetPopup open={open} onClose={onClose} />)
+// ClosetPopup is controlled now, so the test owns the state the real App owns.
+function Harness({ open, onClose, initialEquipped }) {
+  const [equipped, setEquipped] = useState(initialEquipped ?? unequipAll())
+
+  return (
+    <ClosetPopup open={open} onClose={onClose} equipped={equipped} setEquipped={setEquipped} />
+  )
+}
+
+function renderPopup(open = true, onClose = jest.fn(), initialEquipped = undefined) {
+  return render(<Harness open={open} onClose={onClose} initialEquipped={initialEquipped} />)
 }
 
 describe('ClosetPopup component', () => {
@@ -57,7 +67,7 @@ describe('ClosetPopup component', () => {
 
     const { rerender } = renderPopup(true)
 
-    rerender(<ClosetPopup open={false} onClose={jest.fn()} />)
+    rerender(<Harness open={false} onClose={jest.fn()} />)
 
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'popup-closed' })
@@ -66,51 +76,8 @@ describe('ClosetPopup component', () => {
     spy.mockRestore()
   })
 
-  test('dispatches equipment-changed event on mount', () => {
-    const spy = jest.spyOn(window, 'dispatchEvent')
-
-    renderPopup(true)
-
-    expect(spy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'equipment-changed' })
-    )
-
-    spy.mockRestore()
-  })
-
-  test('handles equipment-changed event update', () => {
-    renderPopup(true)
-
-    act(() => {
-      window.dispatchEvent(
-        new CustomEvent('equipment-changed', {
-          detail: {
-            mask: true,
-            lab_coat: true,
-            glasses: false,
-          },
-        })
-      )
-    })
-
-    // UI should still exist after state update
-    expect(screen.getByText(/eyewear/i)).toBeInTheDocument()
-  })
-
-  test('includes face shield and respirator in the equipment state broadcast', () => {
-    const spy = jest.spyOn(window, 'dispatchEvent')
-
-    renderPopup(true)
-
-    const equipmentEvent = spy.mock.calls.find(([event]) => event?.type === 'equipment-changed')?.[0]
-
-    expect(equipmentEvent?.detail).toMatchObject({
-      face_shield: false,
-      bsl3_respirator: false,
-    })
-
-    spy.mockRestore()
-  })
+  // The equipment-changed broadcast moved to App, which owns the worn-PPE state
+  // now. Its tests live in app.test.jsx.
 
   // -----------------------------
   // UI TESTS
@@ -329,64 +296,9 @@ describe('ClosetPopup component', () => {
   })
 
   // -----------------------------
-  // QUICK UNDRESS (dressing-room "quick-undress" event) TESTS
+  // QUICK UNDRESS / AIRLOCK DECON
   // -----------------------------
-  // The interactable that triggers this lives in the Phaser dressing room, not
-  // in this popup, so ClosetPopup only needs to react to the window event.
-
-  test('resets all equipment when the quick-undress event fires while open', () => {
-    const spy = jest.spyOn(window, 'dispatchEvent')
-
-    renderPopup(true)
-    spy.mockClear()
-
-    act(() => {
-      window.dispatchEvent(new Event('quick-undress'))
-    })
-
-    const lastEquipmentChange = spy.mock.calls
-      .map((call) => call[0])
-      .filter((event) => event.type === 'equipment-changed')
-      .pop()
-
-    expect(lastEquipmentChange.detail).toEqual(unequipAll())
-
-    spy.mockRestore()
-  })
-
-  test('resets all equipment when the quick-undress event fires while closed', () => {
-    const onEquipmentChange = jest.fn()
-
-    render(
-      <ClosetPopup open={false} onClose={jest.fn()} onEquipmentChange={onEquipmentChange} />
-    )
-    onEquipmentChange.mockClear()
-
-    act(() => {
-      window.dispatchEvent(new Event('quick-undress'))
-    })
-
-    expect(onEquipmentChange).toHaveBeenLastCalledWith(unequipAll())
-  })
-
-  // -----------------------------
-  // AIRLOCK DECON ("airlock-decon" event) TESTS
-  // -----------------------------
-  // The BSL4 airlock decon point resets worn PPE too, but on its own event —
-  // separate from quick-undress so it doesn't satisfy App's dressing-room gate.
-
-  test('resets all equipment when the airlock-decon event fires', () => {
-    const onEquipmentChange = jest.fn()
-
-    render(
-      <ClosetPopup open={false} onClose={jest.fn()} onEquipmentChange={onEquipmentChange} />
-    )
-    onEquipmentChange.mockClear()
-
-    act(() => {
-      window.dispatchEvent(new Event('airlock-decon'))
-    })
-
-    expect(onEquipmentChange).toHaveBeenLastCalledWith(unequipAll())
-  })
+  // Both events strip worn PPE, and both are now handled by App, which owns that
+  // state — including while this popup is closed. Their tests live in
+  // app.test.jsx.
 })

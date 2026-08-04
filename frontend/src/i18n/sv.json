@@ -4,7 +4,8 @@
   },
   "startScreen": {
     "subtitle": "Hantera mikrober på ett säkert sätt — välj rätt skyddsutrustning och rätt laboratorium.",
-    "startButton": "Starta spelet"
+    "startButton": "Starta spelet",
+    "quitButton": "Avsluta spelet (rensa tillstånd)"
   },
   "howToPlay": {
     "title": "Hur man spelar",

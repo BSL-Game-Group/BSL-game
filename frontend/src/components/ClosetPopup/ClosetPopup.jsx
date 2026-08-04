@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { DndProvider, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip, unequipAll } from './ItemConfig'
+import { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip } from './ItemConfig'
 import Character from './Character'
 import DraggableItem from './DragFunctionality'
 import { useTranslation } from '../../i18n/context'
@@ -58,23 +58,8 @@ function InventoryPanel({ equipped, onToggleEquip }) {
   )
 }
 
-function ClosetPopup({ open, onClose, onEquipmentChange }) {
+function ClosetPopup({ open, onClose, equipped, setEquipped }) {
   const { t } = useTranslation()
-  const [equipped, setEquipped] = useState({
-    mask: false,
-    gloves: false,
-    gloves_2: false,
-    closable_lab_coat: false,
-    disposable_overall: false,
-    respirator: false,
-    face_shield: false,
-    lab_coat: false,
-    glasses: false,
-    bsl3_respirator: false,
-    wow_helmet: false,
-    sunglasses: false,
-    pressurized_suit: false,
-  })
   const dialogRef = useRef(null)
 
   const pendingFocusRef = useRef(null)
@@ -87,28 +72,9 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
     pendingFocusRef.current = itemId
   }
 
-  // The quick-undress interactable lives in the dressing room (Phaser), not in
-  // this popup, so it must work whether or not the popup is currently open.
-  useEffect(() => {
-    const handleQuickUndress = () => setEquipped(unequipAll())
-    window.addEventListener('quick-undress', handleQuickUndress)
-    return () => window.removeEventListener('quick-undress', handleQuickUndress)
-  }, [])
-
-  // The BSL4 airlock decon point resets worn PPE too, but on its own event —
-  // unlike quick-undress, it must NOT satisfy App's "go wash up at the
-  // dressing room" requirement, so it's kept separate from quick-undress.
-  useEffect(() => {
-    const handleAirlockDecon = () => setEquipped(unequipAll())
-    window.addEventListener('airlock-decon', handleAirlockDecon)
-    return () => window.removeEventListener('airlock-decon', handleAirlockDecon)
-  }, [])
-
-  // Effect to handle external broadcasts
-  useEffect(() => {
-    if (onEquipmentChange) {onEquipmentChange(equipped);}
-    window.dispatchEvent(new CustomEvent('equipment-changed', { detail: equipped }));
-  }, [equipped, onEquipmentChange]);
+  // Stripping PPE (the dressing-room wash-up and the BSL4 airlock decon) and
+  // broadcasting the worn kit both live in App now: it owns this state, and both
+  // must keep working while this popup is closed.
 
   useEffect(() => {
     window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'));

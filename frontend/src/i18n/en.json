@@ -4,7 +4,8 @@
   },
   "startScreen": {
     "subtitle": "Handle microbes safely — choose the right protective gear and the right laboratory.",
-    "startButton": "Start Game"
+    "startButton": "Start Game",
+    "quitButton": "Quit game (reset state)"
   },
   "howToPlay": {
     "title": "How to play",

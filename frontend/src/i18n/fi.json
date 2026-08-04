@@ -4,7 +4,8 @@
   },
   "startScreen": {
     "subtitle": "Käsittele mikrobeja turvallisesti — valitse oikea suojavarustus ja oikea laboratorio.",
-    "startButton": "Aloita peli"
+    "startButton": "Aloita peli",
+    "quitButton": "Lopeta peli (tyhjennä tila)"
   },
   "howToPlay": {
     "title": "Näin pelaat",

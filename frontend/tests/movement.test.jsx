@@ -1,5 +1,6 @@
 import MainScene, { playerIsInsideZone } from '../src/game/scenes/main_scene'
 import Phaser from 'phaser'
+import { SAVED_GAME_KEY, clearSavedGame } from '../src/state/savedGame'
 
 // -----------------------------
 // MOCKS
@@ -46,7 +47,10 @@ jest.mock('../src/game/scenes/rooms', () => ({
 function createScene(overrides = {}) {
   const scene = new MainScene()
 
+  // Both keys exist in the real scene (create() registers them). They carry the
+  // modifier flags Phaser copies off the keydown event; unmodified by default.
   scene.keyE = { isDown: true }
+  scene.keyR = { isDown: true }
 
   scene.player = {
     x: 640,
@@ -824,5 +828,173 @@ describe('Info point', () => {
     scene.player.y = 600
     scene.update()
     expect(scene.infoGlow.setVisible).toHaveBeenLastCalledWith(false)
+  })
+})
+
+// =====================================================
+// POSITION PERSISTENCE
+// =====================================================
+describe('position persistence', () => {
+  beforeEach(() => {
+    clearSavedGame()
+    localStorage.clear()
+  })
+
+  test('update saves the player position', () => {
+    const scene = createScene()
+    scene.player.x = 900
+    scene.player.y = 400
+
+    scene.update()
+
+    const saved = JSON.parse(localStorage.getItem(SAVED_GAME_KEY))
+    expect(saved.player).toEqual({ x: 900, y: 400 })
+  })
+})
+
+// =====================================================
+// PRESENCE FLAGS AFTER A RELOAD
+// =====================================================
+describe('presence flags after a reload', () => {
+  const airlock2Zone = { x: 1110, y: 250, width: 170, height: 110 }
+  const bslZone = { key: 'BSL-1', x: 700, y: 470, width: 260, height: 250 }
+
+  function fakeGlowEntry(zone) {
+    return {
+      key: zone.key,
+      zone,
+      center: { x: zone.x + 30, y: zone.y + 30 },
+      glow: { setVisible: jest.fn() },
+      tween: { resume: jest.fn(), pause: jest.fn() },
+      playerInside: false,
+    }
+  }
+
+  test('seeds the airlock2 flag so the wash reminder is not re-fired on reload', () => {
+    const scene = createScene({ airlock2Zone })
+    scene.player.x = 1150
+    scene.player.y = 300
+
+    scene.seedPresenceFlags()
+
+    expect(scene.playerInsideAirlock2).toBe(true)
+
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    scene.update()
+
+    expect(spy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'airlock-wash-reminder' })
+    )
+
+    spy.mockRestore()
+  })
+
+  test('seeds a BSL room flag so no duplicate room entry is recorded on reload', () => {
+    const entry = fakeGlowEntry(bslZone)
+    const scene = createScene({ bslGlows: [entry] })
+    scene.player.x = 800
+    scene.player.y = 600
+    scene.notifyRoomEntry = jest.fn()
+
+    scene.seedPresenceFlags()
+
+    expect(entry.playerInside).toBe(true)
+
+    scene.update()
+
+    expect(scene.notifyRoomEntry).not.toHaveBeenCalled()
+  })
+
+  test('a room the player is not standing in still records an entry when they walk in', () => {
+    const entry = fakeGlowEntry(bslZone)
+    const scene = createScene({ bslGlows: [entry] })
+    scene.player.x = 100
+    scene.player.y = 100
+    scene.notifyRoomEntry = jest.fn()
+
+    scene.seedPresenceFlags()
+    expect(entry.playerInside).toBe(false)
+
+    scene.player.x = 800
+    scene.player.y = 600
+    scene.update()
+
+    expect(scene.notifyRoomEntry).toHaveBeenCalledWith('BSL-1')
+  })
+
+  test('seeds the dressing room flag and shows its glows', () => {
+    const ppeRoomZone = { x: 0, y: 430, width: 700, height: 290 }
+    const scene = createScene({ ppeRoomZone })
+    scene.player.x = 300
+    scene.player.y = 600
+
+    scene.seedPresenceFlags()
+
+    expect(scene.playerInsideDressingRoom).toBe(true)
+    expect(scene.closetGlow.setVisible).toHaveBeenCalledWith(true)
+    expect(scene.closetGlowTween.resume).toHaveBeenCalled()
+  })
+})
+
+// =====================================================
+// BROWSER SHORTCUTS MUST NOT COUNT AS IN-GAME KEYPRESSES
+// =====================================================
+// Cmd+R / Ctrl+R reloads the page. Phaser sees the bare "R" keydown, so without
+// a modifier guard the reload shortcut also triggered the dressing-room wash-up:
+// it stripped all worn PPE and, while awaiting undress, handed out a new microbe.
+describe('modified keypresses are ignored', () => {
+  const dressingRoom = { x: 0, y: 0, width: 280, height: 250 }
+
+  function sceneInDressingRoom(keyOverrides) {
+    const scene = createScene({ ppeRoomZone: dressingRoom })
+    scene.player.x = 50
+    scene.player.y = 50
+    scene.keyR = { ...scene.keyR, ...keyOverrides }
+    scene.keyE = { ...scene.keyE, ...keyOverrides }
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+    return scene
+  }
+
+  test.each([
+    ['Ctrl (Windows/Linux reload)', { ctrlKey: true }],
+    ['Cmd (macOS reload)', { metaKey: true }],
+    ['Alt', { altKey: true }],
+  ])('R held with %s does not trigger quick-undress', (_label, modifier) => {
+    const scene = sceneInDressingRoom(modifier)
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+    scene.update()
+
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'quick-undress' })
+    )
+
+    dispatchSpy.mockRestore()
+  })
+
+  test('R with no modifier still triggers quick-undress', () => {
+    const scene = sceneInDressingRoom({})
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+    scene.update()
+
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'quick-undress' })
+    )
+
+    dispatchSpy.mockRestore()
+  })
+
+  test('E held with Cmd does not open the closet', () => {
+    const scene = sceneInDressingRoom({ metaKey: true })
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+    scene.update()
+
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'closet-popup-opened' })
+    )
+
+    dispatchSpy.mockRestore()
   })
 })

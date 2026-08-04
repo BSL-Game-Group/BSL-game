@@ -3,6 +3,7 @@ import { createRooms } from './rooms';
 import microbeService from '../../services/microbes'
 import { EventBus } from '../EventBus'
 import DoorGroup from '../groups/DoorGroup.js';
+import { loadSavedGame, patchSavedGame, savePlayerPosition } from '../../state/savedGame';
 
 export function playerIsInsideZone(player, zone) {
     return (
@@ -182,6 +183,11 @@ class MainScene extends Phaser.Scene {
     }
 
     create() {
+        // Phaser's create() runs after async asset preload, long after React's
+        // first effects — so anything React broadcast on mount is already gone.
+        // The scene reads the saved game itself instead of waiting to be told.
+        this.savedGame = loadSavedGame();
+
         const walls = createRooms(this);
         const gameWidth = this.scale.width;
         const gameHeight = this.scale.height;
@@ -192,13 +198,21 @@ class MainScene extends Phaser.Scene {
         this.createWoodFloor();
         this.createLabFloor();
 
-        // Initialize session ID if not already present
+        // Initialize session ID if not already present. Reusing the restored one
+        // keeps a single play session from being split across unrelated ids in
+        // room_entries.
         if (!window.__gameData?.sessionId) {
-            window.__gameData = { ...window.__gameData, sessionId: this.generateSessionId() };
+            const sessionId = this.savedGame?.sessionId ?? this.generateSessionId();
+            window.__gameData = { ...window.__gameData, sessionId };
+            patchSavedGame({ sessionId });
         }
 
-        // 1. Create the Base Player (start in the corridor hub)
-        this.player = this.physics.add.sprite(590, 150, 'player_base');
+        // 1. Create the Base Player (restored position, else the corridor hub)
+        this.player = this.physics.add.sprite(
+            this.savedGame?.player.x ?? 590,
+            this.savedGame?.player.y ?? 150,
+            'player_base'
+        );
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.4);
         // Narrow but full-height collision body: narrow so the character moves
@@ -306,13 +320,21 @@ class MainScene extends Phaser.Scene {
         };
         window.addEventListener('equipment-changed', this.handleEquipmentChange);
 
+        // Put the restored kit back on the character through the same handler, so
+        // sprite visibility and the base-texture swap have one code path.
+        if (this.savedGame) {
+            this.handleEquipmentChange({ detail: this.savedGame.equipped });
+        }
+
         // Clean up event listener if the scene ever restarts/destroys
         this.events.on('shutdown', () => {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
         });
         
-        // NEW: Track if the React popup is open
-        this.isPopupOpen = false;
+        // Track if the React popup is open. On a restore the popup-opened event
+        // fired long before this scene existed, so the saved state is the only
+        // way to know movement should still be locked.
+        this.isPopupOpen = this.savedGame?.popups.closet ?? false;
 
         this.handlePopupOpen = () => { this.isPopupOpen = true; };
         this.handlePopupClosed = () => { this.isPopupOpen = false; };
@@ -392,7 +414,16 @@ class MainScene extends Phaser.Scene {
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
             airlockWash: window.__translations?.airlockWash ?? 'Press R or click to decontaminate'
         })
-        this.replaceCurrentMicrobeRandomly()
+        // Keep the task the player was already working on; only roll a new one
+        // when there is nothing to restore.
+        if (this.savedGame?.microbe) {
+            this.currentMicrobe = this.savedGame.microbe
+            EventBus.emit('current-microbe-updated', this.currentMicrobe)
+        } else {
+            this.replaceCurrentMicrobeRandomly()
+        }
+
+        this.seedPresenceFlags();
     }
 
     // Wire EventBus listeners the scene owns. React (App) asks for a fresh
@@ -605,7 +636,7 @@ class MainScene extends Phaser.Scene {
                     // Below the glow (it sits near the top of the room, so a hint
                     // above it would clip off-screen — same fix as the top BSL rooms).
                     this.pressEText.setPosition(this.lecturePoint.x - 40, this.lecturePoint.y + 45);
-                    if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                    if (this.justPressed(this.keyE)) {
                         window.dispatchEvent(new Event('lecture-materials-unlocked'));
                     }
                 } else {
@@ -653,13 +684,13 @@ class MainScene extends Phaser.Scene {
                 this.playerInsideDressingRoom = false;
             }
 
-            if (inside && Phaser.Input.Keyboard.JustDown(this.keyE)) {
+            if (inside && this.justPressed(this.keyE)) {
                 window.dispatchEvent(new Event('closet-popup-opened'));
             }
 
             // R washes up / quick-undresses from anywhere in the dressing room —
             // same reach as the closet's E, no need to stand exactly on the glow.
-            if (inside && Phaser.Input.Keyboard.JustDown(this.keyR)) {
+            if (inside && this.justPressed(this.keyR)) {
                 window.dispatchEvent(new Event('quick-undress'));
             }
 
@@ -723,7 +754,7 @@ class MainScene extends Phaser.Scene {
 
             // R washes up from anywhere in airlock2, same reach as the dressing
             // room's R — no need to stand exactly on the glow.
-            if (inside && Phaser.Input.Keyboard.JustDown(this.keyR)) {
+            if (inside && this.justPressed(this.keyR)) {
                 window.dispatchEvent(new Event('airlock-decon'));
             }
 
@@ -753,7 +784,7 @@ class MainScene extends Phaser.Scene {
             if (inCorridor) {
                 this.pressEText.setVisible(true);
                 this.pressEText.setPosition(this.infoPoint.x - 40, this.infoPoint.y - 45);
-                if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                if (this.justPressed(this.keyE)) {
                     window.dispatchEvent(new Event('info-popup-opened'));
                 }
             }
@@ -781,7 +812,7 @@ class MainScene extends Phaser.Scene {
                 if (inside) {
                     activeCenter = entry.center;
 
-                    if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                    if (this.justPressed(this.keyE)) {
 
                         if (!window.__lectureOpen) {
                             window.dispatchEvent(new Event('lecture-required'));
@@ -807,6 +838,66 @@ class MainScene extends Phaser.Scene {
                     this.bslHint.setPosition(activeCenter.x - 28, hintY);
                 } else {
                     this.bslHint.setVisible(false);
+                }
+            }
+        }
+
+        // Throttled inside savePlayerPosition, and a no-op when the player has
+        // not actually moved, so an idle tab can still go stale and expire.
+        savePlayerPosition(this.player.x, this.player.y);
+    }
+
+    // Browser and OS shortcuts share our single-letter keys — Cmd+R / Ctrl+R
+    // reloads the page — and Phaser reports the bare letter regardless of the
+    // modifiers held with it. Without this guard, reloading with Cmd+R counted as
+    // the dressing room's "R = wash up": it stripped all worn PPE, and while the
+    // player still owed a wash-up it also handed out a fresh microbe. Shift is
+    // allowed through: it is not part of any shortcut we collide with.
+    justPressed(key) {
+        if (!key || !Phaser.Input.Keyboard.JustDown(key)) {
+            return false;
+        }
+
+        return !key.ctrlKey && !key.metaKey && !key.altKey;
+    }
+
+    // After restoring a saved position, the scene must already know which rooms
+    // the player is standing in. Otherwise update()'s first frame reads every
+    // room as a fresh entry: airlock2 re-fires its wash reminder, and a BSL room
+    // POSTs a duplicate room_entries row for a room the player never left.
+    seedPresenceFlags() {
+        if (this.lectureRoomZone) {
+            this.playerInsideLectureRoom = playerIsInsideZone(this.player, this.lectureRoomZone);
+        }
+
+        if (this.exitZone) {
+            this.playerInsideExitRoom = playerIsInsideZone(this.player, this.exitZone);
+        }
+
+        if (this.ppeRoomZone) {
+            this.playerInsideDressingRoom = playerIsInsideZone(this.player, this.ppeRoomZone);
+            if (this.playerInsideDressingRoom) {
+                this.closetGlow?.setVisible(true);
+                this.closetGlowTween?.resume();
+                this.undressGlow?.setVisible(true);
+                this.undressGlowTween?.resume();
+            }
+        }
+
+        if (this.airlock2Zone) {
+            this.playerInsideAirlock2 = playerIsInsideZone(this.player, this.airlock2Zone);
+            if (this.playerInsideAirlock2) {
+                this.airlockWashGlow?.setVisible(true);
+                this.airlockWashGlowTween?.resume();
+            }
+        }
+
+        if (this.bslGlows) {
+            for (const entry of this.bslGlows) {
+                entry.playerInside = playerIsInsideZone(this.player, entry.zone);
+                if (entry.playerInside) {
+                    entry.glow.setVisible(true);
+                    entry.tween.resume();
                 }
             }
         }
@@ -862,7 +953,7 @@ class MainScene extends Phaser.Scene {
         const door = zone.parentDoor;
         this.doorHint.setVisible(true);
         this.doorHint.setPosition(door.x, door.y);
-        if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+        if (this.justPressed(this.keyE)) {
             door.tryToChangeDoorState();
         }
     }

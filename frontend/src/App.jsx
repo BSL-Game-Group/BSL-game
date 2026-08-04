@@ -11,34 +11,41 @@ import LanguageSelector from './components/LanguageSelector'
 import { EventBus } from './game/EventBus'
 import { useTranslation } from './i18n/context'
 import { evaluateEquipmentRules, getEquipmentRulesForBslLevel } from './utils/equipmentRules'
+import { unequipAll } from './components/ClosetPopup/ItemConfig'
+import { loadSavedGame, patchSavedGame, flushSavedGame, clearSavedGame } from './state/savedGame'
 
 function App() {
   const { t, language } = useTranslation()
 
-  const [gameStarted, setGameStarted] = useState(false)
-  const [lectureOpen, setLectureOpen] = useState(false)
-  const [isPopupOpen, setPopupOpen] = useState(false)
-  const [isLecturePopupOpen, setLecturePopupOpen] = useState(false)
-  const [materialsUnlocked, setMaterialsUnlocked] = useState(false)
-  const [answerOpen, setAnswerOpen] = useState(false)
-  const [answerLevel, setAnswerLevel] = useState('')
-  const [currentMicrobe, setCurrentMicrobe] = useState(null)
-  const [infoOpen, setInfoOpen] = useState(false)
-  const [lectureWarningOpen, setLectureWarningOpen] = useState(false);
-  const [airlockWashWarningOpen, setAirlockWashWarningOpen] = useState(false);
-  const [PlayerEquipment, setPlayerEquipment] = useState({
-    mask: false,
-    gloves: false,
-    closable_lab_coat: false,
-    disposable_overall: false,
-    respirator: false,
-    face_shield: false,
-    lab_coat: false,
-    glasses: false,
-    sunglasses: false,
-    pressurized_suit: false,
-  })
-  const [awaitingUndress, setAwaitingUndress] = useState(false)
+  // Read once, before first paint: a valid snapshot means the game was already
+  // started, so the start screen must never appear for a returning player.
+  const [restored] = useState(() => loadSavedGame())
+
+  const [gameStarted, setGameStarted] = useState(restored !== null)
+  const [lectureOpen, setLectureOpen] = useState(restored?.progress.lectureVisited ?? false)
+  const [isPopupOpen, setPopupOpen] = useState(restored?.popups.closet ?? false)
+  const [isLecturePopupOpen, setLecturePopupOpen] = useState(
+    restored?.popups.lectureMaterials ?? false
+  )
+  const [materialsUnlocked, setMaterialsUnlocked] = useState(
+    restored?.progress.materialsUnlocked ?? false
+  )
+  const [answerOpen, setAnswerOpen] = useState(restored?.popups.answer ?? false)
+  const [answerLevel, setAnswerLevel] = useState(restored?.popups.answerLevel ?? '')
+  const [currentMicrobe, setCurrentMicrobe] = useState(restored?.microbe ?? null)
+  const [infoOpen, setInfoOpen] = useState(restored?.popups.info ?? false)
+  const [lectureWarningOpen, setLectureWarningOpen] = useState(
+    restored?.popups.lectureWarning ?? false
+  );
+  const [airlockWashWarningOpen, setAirlockWashWarningOpen] = useState(
+    restored?.popups.airlockWarning ?? false
+  );
+  // The single owner of worn PPE. Its shape comes from EQUIPMENT_CONFIG rather
+  // than a hand-written literal, so it cannot drift from the real item list.
+  const [equipped, setEquipped] = useState(restored?.equipped ?? unequipAll())
+  const [awaitingUndress, setAwaitingUndress] = useState(
+    restored?.progress.awaitingUndress ?? false
+  )
 
   // --- HOOKS (Preserved from original) ---
   useEffect(() => { fetch('/api/test') }, [])
@@ -81,6 +88,29 @@ function App() {
     window.addEventListener('closet-popup-opened', handleClosetClick)
     return () => window.removeEventListener('closet-popup-opened', handleClosetClick)
   }, [])
+
+  // App owns the worn-PPE state, so it is also what tells Phaser to redraw the
+  // character.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('equipment-changed', { detail: equipped }))
+  }, [equipped])
+
+  // The quick-undress interactable lives in the dressing room (Phaser), so this
+  // must work whether or not the closet is currently open.
+  useEffect(() => {
+    const handler = () => setEquipped(unequipAll())
+    window.addEventListener('quick-undress', handler)
+    return () => window.removeEventListener('quick-undress', handler)
+  }, [])
+
+  // The BSL4 airlock decon point resets worn PPE too, but on its own event —
+  // unlike quick-undress, it must NOT satisfy App's "go wash up at the
+  // dressing room" requirement, so it's kept separate from quick-undress.
+  useEffect(() => {
+    const handler = () => setEquipped(unequipAll())
+    window.addEventListener('airlock-decon', handler)
+    return () => window.removeEventListener('airlock-decon', handler)
+  }, [])
   useEffect(() => {
     const handleInfoOpen = () => setInfoOpen(true)
     window.addEventListener('info-popup-opened', handleInfoOpen)
@@ -106,12 +136,81 @@ function App() {
     EventBus.emit('translations-updated', translations)
   }, [language, t])
 
+  // One writer for all of App's persisted state. Gated on gameStarted: a valid
+  // snapshot means "started", so writing one while a first-time visitor sits on
+  // the start screen would make the start screen unreachable forever.
+  useEffect(() => {
+    if (!gameStarted) {
+      return
+    }
+    patchSavedGame({
+      equipped,
+      microbe: currentMicrobe,
+      progress: {
+        lectureVisited: lectureOpen,
+        materialsUnlocked,
+        awaitingUndress,
+      },
+      popups: {
+        closet: isPopupOpen,
+        lectureMaterials: isLecturePopupOpen,
+        info: infoOpen,
+        answer: answerOpen,
+        answerLevel,
+        lectureWarning: lectureWarningOpen,
+        airlockWarning: airlockWashWarningOpen,
+      },
+    })
+  }, [
+    gameStarted,
+    equipped,
+    currentMicrobe,
+    lectureOpen,
+    materialsUnlocked,
+    awaitingUndress,
+    isPopupOpen,
+    isLecturePopupOpen,
+    infoOpen,
+    answerOpen,
+    answerLevel,
+    lectureWarningOpen,
+    airlockWashWarningOpen,
+  ])
+
+  // The scene's position writes are throttled, so make sure a pending one lands
+  // before the page goes away.
+  useEffect(() => {
+    const flush = () => flushSavedGame()
+    window.addEventListener('pagehide', flush)
+    return () => window.removeEventListener('pagehide', flush)
+  }, [])
+
+  // TEMPORARY (for testing the saved-game work): throw away the snapshot and put
+  // every piece of state back to its start-screen value. Dropping gameStarted
+  // unmounts the Phaser game, so restarting builds a fresh scene.
+  const handleQuitGame = () => {
+    clearSavedGame()
+    setGameStarted(false)
+    setLectureOpen(false)
+    setPopupOpen(false)
+    setLecturePopupOpen(false)
+    setMaterialsUnlocked(false)
+    setAnswerOpen(false)
+    setAnswerLevel('')
+    setCurrentMicrobe(null)
+    setInfoOpen(false)
+    setLectureWarningOpen(false)
+    setAirlockWashWarningOpen(false)
+    setEquipped(unequipAll())
+    setAwaitingUndress(false)
+  }
+
   // --- LOGIC ---
   const correctLevel = currentMicrobe?.bsl_level
   const chosenLevel = Number(String(answerLevel).replace('BSL-', ''))
   const isLevelCorrect = typeof correctLevel === 'number' && chosenLevel === correctLevel
   const equipmentRules = getEquipmentRulesForBslLevel(chosenLevel)
-  const chosenEquipment = Object.keys(PlayerEquipment).filter((item) => PlayerEquipment[item])
+  const chosenEquipment = Object.keys(equipped).filter((item) => equipped[item])
   const isEquipmentCorrect = evaluateEquipmentRules(equipmentRules, chosenEquipment)
   const isCorrect = isLevelCorrect && isEquipmentCorrect
 
@@ -141,6 +240,15 @@ function App() {
       <Col xs={3}>
       <h1 className="app-title">{t('app.title')}</h1>
       <LanguageSelector />
+      {/* TEMPORARY testing control for the saved-game work. */}
+      {gameStarted && (
+        <button
+          className="btn btn-sm btn-outline-danger mt-2"
+          onClick={handleQuitGame}
+        >
+          {t('startScreen.quitButton')}
+        </button>
+      )}
                   {/* SIDEBAR */}
           {lectureOpen && (
             <Col lg={3} md={4} xs={12} className="mb-3 w-100">
@@ -192,7 +300,8 @@ function App() {
       <ClosetPopup
         open={isPopupOpen}
         onClose={() => setPopupOpen(false)}
-        onEquipmentChange={setPlayerEquipment}
+        equipped={equipped}
+        setEquipped={setEquipped}
       />
       <SidebarPopup
         open={isLecturePopupOpen}
@@ -210,7 +319,7 @@ function App() {
         microbe={currentMicrobe}
         isLevelCorrect={isLevelCorrect}
         isEquipmentCorrect={isEquipmentCorrect}
-        equipment={PlayerEquipment}
+        equipment={equipped}
       />
 
       {lectureWarningOpen && (
