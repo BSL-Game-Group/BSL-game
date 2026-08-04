@@ -83,6 +83,7 @@
   "phaser": {
     "pressEToOpen": "Paina E avataksesi",
     "openCloset": "Avaa kaappi",
-    "pressE": "Paina E"
+    "pressE": "Paina E",
+    "closeTheDoorBehindYouFirst": "Sulje takanasi oleva ovi ensin."
   }
 }

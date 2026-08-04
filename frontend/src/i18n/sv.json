@@ -90,6 +90,7 @@
   "phaser": {
     "pressEToOpen": "Tryck E för att öppna",
     "openCloset": "Öppna garderobsskåpet",
-    "pressE": "Tryck E"
+    "pressE": "Tryck E",
+    "closeTheDoorBehindYouFirst": "Stäng dörren bakom dig först."
   }
 }

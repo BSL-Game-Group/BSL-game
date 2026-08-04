@@ -100,6 +100,7 @@ function App() {
       pressEToOpen: t('phaser.pressEToOpen'),
       openCloset: t('phaser.openCloset'),
       pressE: t('phaser.pressE'),
+      closeTheDoorBehindYouFirst: t('phaser.closeTheDoorBehindYouFirst')
     }
 
     window.__translations = translations

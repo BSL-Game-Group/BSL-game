@@ -314,6 +314,13 @@ class MainScene extends Phaser.Scene {
             color: "#fff",
             padding: { x: 6, y: 3 }
         }).setDepth(1000).setVisible(false);
+
+        this.notification = this.add.text(0, 0, "", {
+            fontSize: "14px",
+            backgroundColor: "#000",
+            color: "#e40e0e",
+            padding: { x: 6, y: 3 }
+        }).setDepth(1000).setVisible(false);
         
         this.currentMicrobe = null;
         this.registerEventBusListeners();
@@ -684,7 +691,11 @@ class MainScene extends Phaser.Scene {
         const door = zone.parentDoor;
         this.showDoorHint(door);
         if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
-            door.tryToChangeDoorState();
+            const doorOpened = door.tryToChangeDoorState();
+            if (!doorOpened) {
+                const notificationText = window.__translations?.closeTheDoorBehindYouFirst ?? 'Close the door behind you first.';
+                this.notify(Math.min(door.x, 1000), door.y - 30, notificationText);
+            }
         }
     }
 
@@ -696,6 +707,13 @@ class MainScene extends Phaser.Scene {
         }
         this.doorHint.setVisible(true);
         this.doorHint.setPosition(door.x, door.y);
+    }
+
+    notify(x, y, text) {
+        this.notification.setVisible(true).setText(text).setPosition(x, y);
+        this.time.delayedCall(3000, () => {
+            this.notification.setVisible(false)
+        }, [], this)
     }
 }
 
