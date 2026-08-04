@@ -682,11 +682,15 @@ class MainScene extends Phaser.Scene {
 
     handleDoorInteraction(player, zone) {
         const door = zone.parentDoor;
-        this.doorHint.setVisible(true);
-        this.doorHint.setPosition(door.x, door.y);
+        this.showDoorHint(door);
         if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
             door.tryToChangeDoorState();
         }
+    }
+
+    showDoorHint(door) {
+        this.doorHint.setVisible(true);
+        this.doorHint.setPosition(door.x, door.y);
     }
 }
 
