@@ -278,6 +278,10 @@ function setupLectureRoom(scene, walls) {
         .setDisplaySize(480, 290)
         .setDepth(-5);
 
+    // Thicker visible wall across the room's top edge (24px, vs. the default
+    // 6px outer boundary elsewhere on the map).
+    walls.push(wallRect(scene, 0, 0, 480, 24));
+
     // Back wall
     solidBox(scene, 0, 0, 480, 60, walls);
 
