@@ -439,11 +439,6 @@ export function createRooms(scene) {
     vWall(scene, 1110, 250, 470, [[250, 360]], walls);   // BSL4 airlock 1 <-> 2 (clean top-row opening)
     hWall(scene, 960, 1280, 470, [[970, 1040]], walls);  // BSL3 airlock <-> BSL 3 only
 
-    // ---- LABELS ----
-    label(scene, 830, 125, 'BSL 2', 16, true, 1);
-    label(scene, 830, 595, 'BSL 1', 16, true, 1);
-    label(scene, 1120, 125, 'BSL 4', 16, true, 1);
-    label(scene, 1120, 595, 'BSL 3', 16, true, 1);
 
     // ---- ZONES (game logic) ----
     scene.lectureRoomZone = { x: 0, y: 0, width: 480, height: 290 };

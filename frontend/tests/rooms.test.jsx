@@ -154,25 +154,13 @@ describe('createRooms', () => {
     expect(window.__gameData.bslRoomZones).toEqual(scene.bslRoomZones)
   })
 
-  test('draws the room labels, centred', () => {
+  test('does not draw the BSL room labels', () => {
     const scene = makeFakeScene()
 
     createRooms(scene)
 
     const labelTexts = scene.__created.texts.map((t) => t.args.text)
-    expect(labelTexts).toEqual(
-      expect.arrayContaining([
-        'BSL 1',
-        'BSL 2',
-      ])
-    )
-    // The lecture room is now shown via the pixel-art overlay, so it no longer
-    // has a text label.
-    expect(labelTexts).not.toContain('Lecture room')
-    // Every label is centred on its coordinate.
-    scene.__created.texts.forEach((t) =>
-      expect(t.setOrigin).toHaveBeenCalledWith(0.5)
-    )
+    expect(labelTexts).toEqual([])
   })
 })
 
