@@ -96,7 +96,14 @@
     "pressEToOpen": "Paina E avataksesi",
     "openCloset": "Avaa kaappi",
     "pressE": "Paina E",
+    "exitPrompt": "Paina E poistutuaksesi",
     "washUp": "Paina R tai klikkaa peseytyäksesi",
     "airlockWash": "Paina R tai klikkaa desinfioidaksesi"
+  },
+  "exitConfirm": {
+    "title": "Poistu",
+    "message": "Haluatko poistua pelistä ja palata aloitusnäkymään?",
+    "yes": "KYLLÄ",
+    "no": "EI"
   }
 }

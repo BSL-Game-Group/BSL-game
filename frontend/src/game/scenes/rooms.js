@@ -303,6 +303,41 @@ function setupExitArea(scene, walls) {
     solidBox(scene, 480, 0, 700, 60, walls);
 }
 
+function setupExitButton(scene) {
+    const gx = 575;
+    const gy = 180;
+    const radius = 28;
+
+    const glow = scene.add.graphics();
+    glow.fillStyle(0x0b6623, 0.8);
+    glow.fillCircle(gx, gy, radius);
+    glow.lineStyle(3, 0x0b6623);
+    glow.strokeCircle(gx, gy, radius);
+    glow.setDepth(5);
+    glow.setVisible(false);
+
+    const tween = scene.tweens.add({
+        targets: glow,
+        alpha: { from: 1.0, to: 0.3 },
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+    });
+    tween.pause();
+
+    scene.exitGlow = glow;
+    scene.exitGlowTween = tween;
+    scene.exitButtonPoint = { x: gx, y: gy };
+
+    scene.add
+        .zone(gx, gy, radius * 2.4, radius * 2.4)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+            if (!scene.playerInsideExitRoom) { return; }
+            window.dispatchEvent(new Event('exit-popup-opened'));
+        });
+}
+
 // Info point in the lecture room: a green pulsing glow (same look as the corridor
 // info desk) that opens the lecture-materials panel on E, instead of it opening
 // automatically when the player enters the room. Placed past the right workstation
@@ -524,6 +559,7 @@ export function createRooms(scene) {
     setupDressingRoomDeadzones(scene, walls);
     setupInfoDesk(scene, walls);
     setupExitArea(scene, walls);
+    setupExitButton(scene);
 
     return walls;
 }

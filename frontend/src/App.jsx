@@ -12,6 +12,19 @@ import { EventBus } from './game/EventBus'
 import { useTranslation } from './i18n/context'
 import { evaluateEquipmentRules, getEquipmentRulesForBslLevel } from './utils/equipmentRules'
 
+const initialEquipment = {
+  mask: false,
+  gloves: false,
+  closable_lab_coat: false,
+  disposable_overall: false,
+  respirator: false,
+  face_shield: false,
+  lab_coat: false,
+  glasses: false,
+  sunglasses: false,
+  pressurized_suit: false,
+}
+
 function App() {
   const { t, language } = useTranslation()
 
@@ -24,20 +37,10 @@ function App() {
   const [answerLevel, setAnswerLevel] = useState('')
   const [currentMicrobe, setCurrentMicrobe] = useState(null)
   const [infoOpen, setInfoOpen] = useState(false)
+  const [exitConfirmOpen, setExitConfirmOpen] = useState(false)
   const [lectureWarningOpen, setLectureWarningOpen] = useState(false);
   const [airlockWashWarningOpen, setAirlockWashWarningOpen] = useState(false);
-  const [PlayerEquipment, setPlayerEquipment] = useState({
-    mask: false,
-    gloves: false,
-    closable_lab_coat: false,
-    disposable_overall: false,
-    respirator: false,
-    face_shield: false,
-    lab_coat: false,
-    glasses: false,
-    sunglasses: false,
-    pressurized_suit: false,
-  })
+  const [PlayerEquipment, setPlayerEquipment] = useState(initialEquipment)
   const [awaitingUndress, setAwaitingUndress] = useState(false)
 
   // --- HOOKS (Preserved from original) ---
@@ -95,10 +98,19 @@ function App() {
     return () => window.removeEventListener('answer-popup-opened', handleAnswerOpen)
   }, [])
   useEffect(() => {
+    const handleExitOpen = () => {
+      setExitConfirmOpen(true)
+      window.dispatchEvent(new Event('popup-opened'))
+    }
+    window.addEventListener('exit-popup-opened', handleExitOpen)
+    return () => window.removeEventListener('exit-popup-opened', handleExitOpen)
+  }, [])
+  useEffect(() => {
     const translations = {
       pressEToOpen: t('phaser.pressEToOpen'),
       openCloset: t('phaser.openCloset'),
       pressE: t('phaser.pressE'),
+      exitPrompt: t('phaser.exitPrompt'),
       washUp: t('phaser.washUp'),
       airlockWash: t('phaser.airlockWash'),
     }
@@ -122,6 +134,26 @@ function App() {
     setAnswerOpen(false)
     setAwaitingUndress(true)
     EventBus.emit('undress-required')
+  }
+
+  const handleExitCancel = () => {
+    setExitConfirmOpen(false)
+    window.dispatchEvent(new Event('popup-closed'))
+  }
+
+  const handleExitConfirm = () => {
+    handleExitCancel()
+    setGameStarted(false)
+    setLectureOpen(false)
+    setLecturePopupOpen(false)
+    setPopupOpen(false)
+    setInfoOpen(false)
+    setAnswerOpen(false)
+    setAnswerLevel('')
+    setCurrentMicrobe(null)
+    setLectureWarningOpen(false)
+    setAirlockWashWarningOpen(false)
+    setPlayerEquipment(initialEquipment)
   }
 
   useEffect(() => {
@@ -232,6 +264,22 @@ function App() {
             </button>
             <h2>{t('airlockWashRequired.title')}</h2>
             <p>{t('airlockWashRequired.message')}</p>
+          </div>
+        </div>
+      )}
+      {exitConfirmOpen && (
+        <div className="popup-overlay" role="dialog" aria-modal="true" aria-labelledby="exit-confirm-title">
+          <div className="popup-box popup-box--incorrect">
+            <h2 id="exit-confirm-title">{t('exitConfirm.title')}</h2>
+            <p>{t('exitConfirm.message')}</p>
+            <div className="d-flex gap-2 mt-3">
+              <button className="btn btn-outline-secondary" onClick={handleExitCancel}>
+                {t('exitConfirm.no')}
+              </button>
+              <button className="btn btn-danger" onClick={handleExitConfirm}>
+                {t('exitConfirm.yes')}
+              </button>
+            </div>
           </div>
         </div>
       )}

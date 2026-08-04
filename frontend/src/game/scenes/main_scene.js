@@ -344,6 +344,7 @@ class MainScene extends Phaser.Scene {
             color: "#fff",
             padding: { x: 6, y: 3 }
         }).setDepth(1000).setVisible(false);
+        this.exitPromptText = 'Press E to exit';
 
         this.physics.add.collider(this.player, walls);
 
@@ -427,6 +428,9 @@ class MainScene extends Phaser.Scene {
         }
         if (this.bslHint) {
             this.bslHint.setText(translations.pressE)
+        }
+        if (translations.exitPrompt) {
+            this.exitPromptText = translations.exitPrompt
         }
         if (this.doorHint) {
             this.doorHint.setText(translations.pressE)
@@ -607,6 +611,34 @@ class MainScene extends Phaser.Scene {
                     this.pressEText.setPosition(this.lecturePoint.x - 40, this.lecturePoint.y + 45);
                     if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
                         window.dispatchEvent(new Event('lecture-materials-unlocked'));
+                    }
+                } else {
+                    this.pressEText.setVisible(false);
+                }
+            } else {
+                this.pressEText.setVisible(false);
+            }
+        }
+
+        if (this.exitGlow && this.exitZone && this.exitButtonPoint) {
+            const inside = playerIsInsideZone(this.player, this.exitZone);
+            this.exitGlow.setVisible(inside);
+            if (this.exitGlowTween) {
+                if (inside) { this.exitGlowTween.resume(); } else { this.exitGlowTween.pause(); }
+            }
+
+            if (inside) {
+                const dist = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y, this.exitButtonPoint.x, this.exitButtonPoint.y
+                );
+                const closeEnough = dist < 95;
+
+                if (closeEnough) {
+                    this.pressEText.setVisible(true);
+                    this.pressEText.setText(this.exitPromptText || 'Press E to exit');
+                    this.pressEText.setPosition(this.exitButtonPoint.x - 50, this.exitButtonPoint.y - 45);
+                    if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                        window.dispatchEvent(new Event('exit-popup-opened'));
                     }
                 } else {
                     this.pressEText.setVisible(false);
