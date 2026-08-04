@@ -689,6 +689,11 @@ class MainScene extends Phaser.Scene {
     }
 
     showDoorHint(door) {
+        if (door.isOpenable()) {
+            this.doorHint.setAlpha(1);
+        } else {
+            this.doorHint.setAlpha(0.5);
+        }
         this.doorHint.setVisible(true);
         this.doorHint.setPosition(door.x, door.y);
     }
