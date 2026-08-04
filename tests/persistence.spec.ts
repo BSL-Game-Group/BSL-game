@@ -6,6 +6,7 @@ const SAVED_GAME_KEY = 'bsl-game.saved-state.v1';
 test.describe('reloading the page', () => {
   test('resumes the game instead of returning to the start screen', async ({ game, page }) => {
     await game.start();
+    await game.waitForSceneReady();
 
     await page.reload();
     await page.waitForLoadState('networkidle');
@@ -20,6 +21,7 @@ test.describe('reloading the page', () => {
     // The closet opens on the Eyewear tab, so switch to Body to reach the coat.
     await page.getByRole('button', { name: 'Body' }).click();
     await page.getByRole('button', { name: 'Lab coat', exact: true }).click();
+    await game.waitForSceneReady();
 
     await page.reload();
     await page.waitForLoadState('networkidle');
@@ -38,6 +40,7 @@ test.describe('reloading the page', () => {
       window.dispatchEvent(new Event('lecture-room-entered'));
     });
     await expect(game.lecturePanel).toBeVisible();
+    await game.waitForSceneReady();
 
     await page.reload();
     await page.waitForLoadState('networkidle');
