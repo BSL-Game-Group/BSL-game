@@ -191,7 +191,7 @@ test('create creates player sprite', () => {
   scene.create()
 
   expect(scene.physics.add.sprite)
-    .toHaveBeenCalledWith(590, 210, 'player_base')
+    .toHaveBeenCalledWith(590, 150, 'player_base')
 })
 
 test('create shrinks the player collision body', () => {
