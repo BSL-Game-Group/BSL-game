@@ -14,13 +14,13 @@ test('game starts without crashing', async ({ game }) => {
 
 test('lecture room shows UI panel', async ({ game }) => {
   await game.start();
+  await game.waitForSceneReady();
   await game.page.waitForLoadState('networkidle');
 
   // simulate entering lecture room
   await game.page.evaluate(() => {
     window.dispatchEvent(new Event('lecture-room-entered'));
   });
-
   await expect(game.lecturePanel).toBeVisible();
 });
 
