@@ -154,13 +154,23 @@ describe('createRooms', () => {
     expect(window.__gameData.bslRoomZones).toEqual(scene.bslRoomZones)
   })
 
-  test('does not draw the BSL room labels', () => {
+  test('draws the BSL room labels, centred', () => {
     const scene = makeFakeScene()
 
     createRooms(scene)
 
     const labelTexts = scene.__created.texts.map((t) => t.args.text)
-    expect(labelTexts).toEqual([])
+    expect(labelTexts).toEqual(
+      expect.arrayContaining([
+        'BSL 1',
+        'BSL 2',
+        'BSL 3',
+        'BSL 4',
+      ])
+    )
+    scene.__created.texts.forEach((t) =>
+      expect(t.setOrigin).toHaveBeenCalledWith(0.5)
+    )
   })
 })
 
