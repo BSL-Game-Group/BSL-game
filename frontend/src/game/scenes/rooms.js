@@ -278,6 +278,10 @@ function setupLectureRoom(scene, walls) {
         .setDisplaySize(480, 290)
         .setDepth(-5);
 
+    // Thicker visible wall across the room's top edge (24px, vs. the default
+    // 6px outer boundary elsewhere on the map).
+    walls.push(wallRect(scene, 0, 0, 480, 24));
+
     // Back wall
     solidBox(scene, 0, 0, 480, 60, walls);
 
@@ -287,8 +291,8 @@ function setupLectureRoom(scene, walls) {
     // Left workstation
     solidBox(scene, 40, 132, 214, 236, walls);
 
-    // Right workstation
-    solidBox(scene, 266, 132, 440, 236, walls);
+    // New collider: x 200-290, y:77.5-146.25.
+    solidBox(scene, 200, 77.5, 290, 146.25, walls);
 
     // No bookshelf colliders anymore
     scene.lectureShelves = [];
@@ -305,11 +309,11 @@ function setupExitArea(scene, walls) {
 
 // Info point in the lecture room: a green pulsing glow (same look as the corridor
 // info desk) that opens the lecture-materials panel on E, instead of it opening
-// automatically when the player enters the room. Placed past the right workstation
-// on open floor (y:236+), since the display wall (y:0-110) and both workstations
-// (x:40-214 and x:266-440, y:132-236) are solid.
+// automatically when the player enters the room. Mirrored to the left workstation
+// side, on open floor (y:236+), since the display wall (y:0-110) and both
+// workstations (x:40-214 and x:266-440, y:132-236) are solid.
 function setupLectureInfoPoint(scene) {
-    const gx = 300;
+    const gx = 180;
     const gy = 240;
     const radius = 35;
 
@@ -409,10 +413,13 @@ export function createRooms(scene) {
     vSeg(scene, 1280 - T / 2, 0, 720, walls);    // right
 
     // ---- LEFT SIDE ----
-    // Lecture | Exit divider (no door)
-    vWall(scene, 480, 0, 290, [], walls);
-    // Lecture/Exit bottom = Corridor top (doors to both)
-    hWall(scene, 0, 700, 290, [[180, 270], [540, 630]], walls);
+    // Lecture | Exit divider — door here now, so the exit room is reached from
+    // the lecture room instead of straight down from the corridor. Door sits
+    // right at the bottom edge of the divider (y:290 = corridor line).
+    vWall(scene, 480, 0, 290, [[200, 290]], walls);
+    // Lecture bottom = Corridor top (door). Exit room's old down-facing door
+    // to the corridor is now closed — it's only reachable via the lecture room.
+    hWall(scene, 0, 700, 290, [[220, 310]], walls);
     // Corridor bottom = Dressing room top (one narrower door)
     hWall(scene, 0, 700, 430, [[315, 375]], walls);
 
@@ -433,10 +440,15 @@ export function createRooms(scene) {
     hWall(scene, 960, 1280, 470, [[970, 1040]], walls);  // BSL3 airlock <-> BSL 3 only
 
     // ---- LABELS ----
-    label(scene, 830, 125, 'BSL 2', 16, true);
-    label(scene, 830, 595, 'BSL 1', 16, true);
-    label(scene, 1120, 125, 'BSL 4', 16, true);
-    label(scene, 1120, 595, 'BSL 3', 16, true);
+    // BSL 2/4 (top rooms) sit below the player (depth 1). BSL 1/3 (bottom rooms)
+    // have a front-wall image that occludes the player at depth 20 while
+    // approaching from above (see bsl1Image/bsl3Image in main_scene.js) — their
+    // labels need to sit above that occluding image (depth 21) or they'd be
+    // hidden until the player walks down into the room.
+    label(scene, 830, 125, 'BSL 2', 16, true, 1);
+    label(scene, 830, 595, 'BSL 1', 16, true, 21);
+    label(scene, 1120, 125, 'BSL 4', 16, true, 1);
+    label(scene, 1120, 595, 'BSL 3', 16, true, 21);
 
     // ---- ZONES (game logic) ----
     scene.lectureRoomZone = { x: 0, y: 0, width: 480, height: 290 };
