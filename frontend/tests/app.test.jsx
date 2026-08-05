@@ -123,6 +123,13 @@ function openCloset() {
   })
 }
 
+function openExitPrompt() {
+  startGame()
+  act(() => {
+    window.dispatchEvent(new Event('exit-popup-opened'))
+  })
+}
+
 function openAnswerPopup(level = 'BSL-2') {
   startGame()
   act(() => {
@@ -260,6 +267,19 @@ test('closet popup closes when close button is clicked', () => {
   fireEvent.click(screen.getByRole('button', { name: /close/i }))
 
   expect(screen.queryByText(/equipment/i)).not.toBeInTheDocument()
+})
+
+test('exit confirmation popup opens and returns to the start screen when confirmed', () => {
+  openExitPrompt()
+
+  expect(screen.getByRole('heading', { name: /exit/i })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /yes/i })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /no/i })).toBeInTheDocument()
+
+  fireEvent.click(screen.getByRole('button', { name: /yes/i }))
+
+  expect(screen.queryByTestId('game-component')).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /start game/i })).toBeInTheDocument()
 })
 
 // -----------------------------

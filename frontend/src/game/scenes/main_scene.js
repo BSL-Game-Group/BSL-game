@@ -366,6 +366,7 @@ class MainScene extends Phaser.Scene {
             color: "#fff",
             padding: { x: 6, y: 3 }
         }).setDepth(1000).setVisible(false);
+        this.exitPromptText = 'Press E to exit';
 
         this.physics.add.collider(this.player, walls);
 
@@ -459,8 +460,53 @@ class MainScene extends Phaser.Scene {
         if (this.bslHint) {
             this.bslHint.setText(translations.pressE)
         }
+        if (translations.exitPrompt) {
+            this.exitPromptText = translations.exitPrompt
+        }
         if (this.doorHint) {
             this.doorHint.setText(translations.pressE)
+        }
+    }
+
+    //Exit interaction
+    updateExitInteraction() {
+        if (!this.exitGlow || !this.exitZone || !this.exitButtonPoint) {
+            return;
+        }
+
+        const inside = playerIsInsideZone(this.player, this.exitZone);
+        this.exitGlow.setVisible(inside);
+
+        if (this.exitGlowTween) {
+            if (inside) {
+                this.exitGlowTween.resume();
+            } else {
+                this.exitGlowTween.pause();
+            }
+        }
+
+        if (!inside) {
+            this.pressEText?.setVisible(false);
+            return;
+        }
+
+        const dist = Phaser.Math.Distance.Between(
+            this.player.x,
+            this.player.y,
+            this.exitButtonPoint.x,
+            this.exitButtonPoint.y
+        );
+        const closeEnough = dist < 95;
+
+        if (closeEnough) {
+            this.pressEText?.setVisible(true);
+            this.pressEText?.setText(this.exitPromptText || 'Press E to exit');
+            this.pressEText?.setPosition(this.exitButtonPoint.x - 50, this.exitButtonPoint.y - 45);
+            if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+                window.dispatchEvent(new Event('exit-popup-opened'));
+            }
+        } else {
+            this.pressEText?.setVisible(false);
         }
     }
 
@@ -646,6 +692,8 @@ class MainScene extends Phaser.Scene {
                 this.pressEText.setVisible(false);
             }
         }
+
+        this.updateExitInteraction();
 
         if (this.ppeRoomZone) {
             const inside = playerIsInsideZone(this.player, this.ppeRoomZone);

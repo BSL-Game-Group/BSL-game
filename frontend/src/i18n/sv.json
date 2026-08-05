@@ -97,7 +97,14 @@
     "pressEToOpen": "Tryck E för att öppna",
     "openCloset": "Öppna garderobsskåpet",
     "pressE": "Tryck E",
+    "exitPrompt": "Tryck E för att lämna",
     "washUp": "Tryck R eller klicka för att tvätta dig",
     "airlockWash": "Tryck R eller klicka för att dekontaminera"
+  },
+  "exitConfirm": {
+    "title": "Avsluta",
+    "message": "Vill du lämna spelet och gå tillbaka till startsidan?",
+    "yes": "JA",
+    "no": "NEJ"
   }
 }
