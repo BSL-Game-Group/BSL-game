@@ -4,7 +4,8 @@
   },
   "startScreen": {
     "subtitle": "Hantera mikrober på ett säkert sätt — välj rätt skyddsutrustning och rätt laboratorium.",
-    "startButton": "Starta spelet"
+    "startButton": "Starta spelet",
+    "quitButton": "Avsluta spelet (rensa tillstånd)"
   },
   "howToPlay": {
     "title": "Hur man spelar",
@@ -96,7 +97,14 @@
     "pressEToOpen": "Tryck E för att öppna",
     "openCloset": "Öppna garderobsskåpet",
     "pressE": "Tryck E",
+    "exitPrompt": "Tryck E för att lämna",
     "washUp": "Tryck R eller klicka för att tvätta dig",
     "airlockWash": "Tryck R eller klicka för att dekontaminera"
+  },
+  "exitConfirm": {
+    "title": "Avsluta",
+    "message": "Vill du lämna spelet och gå tillbaka till startsidan?",
+    "yes": "JA",
+    "no": "NEJ"
   }
 }

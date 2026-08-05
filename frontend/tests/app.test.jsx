@@ -3,6 +3,20 @@ import '@testing-library/jest-dom'
 import App from '../src/App'
 import { TranslationProvider } from '../src/i18n'
 import { EventBus } from '../src/game/EventBus'
+import { unequipAll } from '../src/components/ClosetPopup/ItemConfig'
+import {
+  SAVED_GAME_KEY,
+  defaultSnapshot,
+  loadSavedGame,
+  clearSavedGame,
+} from '../src/state/savedGame'
+
+// jsdom keeps localStorage between tests in a file, so without this a test that
+// saves a game would leave the next one already started.
+beforeEach(() => {
+  clearSavedGame()
+  localStorage.clear()
+})
 
 // -----------------------------
 // MOCKS (keep at top)
@@ -19,8 +33,8 @@ jest.mock('../src/Game', () => () => (
 
 // A lightweight stand-in for ClosetPopup: simulating a real react-dnd
 // drag-and-drop equip in jsdom isn't supported by this repo's test setup, so
-// this exposes plain buttons that call the same onClose/onEquipmentChange
-// props the real component would call.
+// this exposes plain buttons that call the same onClose/setEquipped props the
+// real component would call.
 jest.mock('../src/components/ClosetPopup/ClosetPopup', () => (props) => {
   if (!props.open) {
     return null
@@ -31,18 +45,10 @@ jest.mock('../src/components/ClosetPopup/ClosetPopup', () => (props) => {
       <h2>Closet</h2>
       <p>Equipment</p>
       <button onClick={props.onClose}>Close</button>
-      <button
-        onClick={() =>
-          props.onEquipmentChange({ mask: true, lab_coat: false, glasses: false, sunglasses: false })
-        }
-      >
+      <button onClick={() => props.setEquipped((prev) => ({ ...prev, mask: true }))}>
         test-equip-mask
       </button>
-      <button
-        onClick={() =>
-          props.onEquipmentChange({ mask: false, lab_coat: false, glasses: false, sunglasses: false })
-        }
-      >
+      <button onClick={() => props.setEquipped((prev) => ({ ...prev, mask: false }))}>
         test-unequip-all
       </button>
     </div>
@@ -114,6 +120,13 @@ function openCloset() {
   startGame()
   act(() => {
     window.dispatchEvent(new Event('closet-popup-opened'))
+  })
+}
+
+function openExitPrompt() {
+  startGame()
+  act(() => {
+    window.dispatchEvent(new Event('exit-popup-opened'))
   })
 }
 
@@ -254,6 +267,19 @@ test('closet popup closes when close button is clicked', () => {
   fireEvent.click(screen.getByRole('button', { name: /close/i }))
 
   expect(screen.queryByText(/equipment/i)).not.toBeInTheDocument()
+})
+
+test('exit confirmation popup opens and returns to the start screen when confirmed', () => {
+  openExitPrompt()
+
+  expect(screen.getByRole('heading', { name: /exit/i })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /yes/i })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /no/i })).toBeInTheDocument()
+
+  fireEvent.click(screen.getByRole('button', { name: /yes/i }))
+
+  expect(screen.queryByTestId('game-component')).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /start game/i })).toBeInTheDocument()
 })
 
 // -----------------------------
@@ -404,5 +430,207 @@ describe('PPE removal gate', () => {
     })
 
     expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
+  })
+})
+
+// -----------------------------
+// WORN PPE (moved here from ClosetPopup.test.jsx — App owns this state now)
+// -----------------------------
+describe('worn PPE is owned by App', () => {
+  function lastEquipmentBroadcast(spy) {
+    return spy.mock.calls
+      .map(([event]) => event)
+      .filter((event) => event?.type === 'equipment-changed')
+      .pop()
+  }
+
+  test('broadcasts the full equipment map on mount, including every category', () => {
+    const spy = jest.spyOn(window, 'dispatchEvent')
+
+    renderApp()
+
+    const broadcast = lastEquipmentBroadcast(spy)
+
+    expect(broadcast.detail).toEqual(unequipAll())
+    expect(broadcast.detail).toHaveProperty('face_shield')
+    expect(broadcast.detail).toHaveProperty('bsl3_respirator')
+    expect(broadcast.detail).not.toHaveProperty('respirator')
+
+    spy.mockRestore()
+  })
+
+  test('broadcasts the change when an item is equipped', () => {
+    openCloset()
+
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    fireEvent.click(screen.getByText('test-equip-mask'))
+
+    expect(lastEquipmentBroadcast(spy).detail.mask).toBe(true)
+
+    spy.mockRestore()
+  })
+
+  test('the quick-undress event strips all PPE', () => {
+    openCloset()
+    fireEvent.click(screen.getByText('test-equip-mask'))
+
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    act(() => {
+      window.dispatchEvent(new Event('quick-undress'))
+    })
+
+    expect(lastEquipmentBroadcast(spy).detail).toEqual(unequipAll())
+
+    spy.mockRestore()
+  })
+
+  test('the airlock-decon event strips all PPE', () => {
+    openCloset()
+    fireEvent.click(screen.getByText('test-equip-mask'))
+
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    act(() => {
+      window.dispatchEvent(new Event('airlock-decon'))
+    })
+
+    expect(lastEquipmentBroadcast(spy).detail).toEqual(unequipAll())
+
+    spy.mockRestore()
+  })
+
+  test('stripping PPE works while the closet is closed', () => {
+    openCloset()
+    fireEvent.click(screen.getByText('test-equip-mask'))
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    act(() => {
+      window.dispatchEvent(new Event('quick-undress'))
+    })
+
+    expect(lastEquipmentBroadcast(spy).detail).toEqual(unequipAll())
+
+    spy.mockRestore()
+  })
+})
+
+// -----------------------------
+// SAVED GAME (refresh resilience)
+// -----------------------------
+// Writes a snapshot straight to storage the way a previous session would have.
+function seedSavedGame(overrides = {}) {
+  const snapshot = {
+    ...defaultSnapshot(),
+    savedAt: Date.now(),
+    sessionId: 'session_restored',
+    ...overrides,
+  }
+  localStorage.setItem(SAVED_GAME_KEY, JSON.stringify(snapshot))
+  return snapshot
+}
+
+describe('restoring a saved game', () => {
+  test('a valid snapshot skips the start screen entirely', () => {
+    seedSavedGame()
+
+    renderApp()
+
+    expect(screen.queryByRole('button', { name: /start game/i })).not.toBeInTheDocument()
+    expect(screen.getByTestId('game-component')).toBeInTheDocument()
+  })
+
+  test('an expired snapshot falls back to the start screen', () => {
+    seedSavedGame({ savedAt: Date.now() - 3 * 60 * 60 * 1000 })
+
+    renderApp()
+
+    expect(screen.getByRole('button', { name: /start game/i })).toBeInTheDocument()
+  })
+
+  test('restores the lecture panel and unlocked materials', () => {
+    seedSavedGame({
+      progress: { lectureVisited: true, materialsUnlocked: true, awaitingUndress: false },
+    })
+
+    renderApp()
+
+    expect(screen.getByTestId('lecture-panel')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /lecture materials/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /show/i })).toBeInTheDocument()
+  })
+
+  test('reopens the closet popup that was open before the reload', () => {
+    seedSavedGame({ popups: { ...defaultSnapshot().popups, closet: true } })
+
+    renderApp()
+
+    expect(screen.getByRole('heading', { name: /closet/i })).toBeInTheDocument()
+  })
+
+  test('restores worn PPE', () => {
+    seedSavedGame({ equipped: { ...defaultSnapshot().equipped, mask: true } })
+
+    const spy = jest.spyOn(window, 'dispatchEvent')
+
+    renderApp()
+
+    const broadcast = spy.mock.calls
+      .map(([event]) => event)
+      .filter((event) => event?.type === 'equipment-changed')
+      .pop()
+
+    expect(broadcast.detail.mask).toBe(true)
+
+    spy.mockRestore()
+  })
+
+  test('restores the answer popup with its verdict recomputed from saved state', () => {
+    seedSavedGame({
+      microbe: testMicrobe,
+      popups: { ...defaultSnapshot().popups, answer: true, answerLevel: 'BSL-1' },
+    })
+
+    renderApp()
+
+    // BSL-1 matches the microbe, but no PPE was restored, so the verdict has to
+    // come out "Not quite" — recomputed, never read from the snapshot.
+    expect(screen.getByText(/not quite/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/your protective equipment did not fully match the required setup/i)
+    ).toBeInTheDocument()
+  })
+})
+
+describe('saving state', () => {
+  test('sitting on the start screen writes nothing', () => {
+    renderApp()
+
+    expect(localStorage.getItem(SAVED_GAME_KEY)).toBeNull()
+  })
+
+  test('starting the game writes a snapshot', () => {
+    startGame()
+
+    expect(loadSavedGame()).not.toBeNull()
+  })
+
+  test('progress changes are persisted', () => {
+    unlockLectureMaterials()
+
+    expect(loadSavedGame().progress.materialsUnlocked).toBe(true)
+  })
+
+  test('an open popup is persisted', () => {
+    openCloset()
+
+    expect(loadSavedGame().popups.closet).toBe(true)
+  })
+
+  test('worn PPE is persisted', () => {
+    openCloset()
+
+    fireEvent.click(screen.getByText('test-equip-mask'))
+
+    expect(loadSavedGame().equipped.mask).toBe(true)
   })
 })
