@@ -440,10 +440,15 @@ export function createRooms(scene) {
     hWall(scene, 960, 1280, 470, [[970, 1040]], walls);  // BSL3 airlock <-> BSL 3 only
 
     // ---- LABELS ----
+    // BSL 2/4 (top rooms) sit below the player (depth 1). BSL 1/3 (bottom rooms)
+    // have a front-wall image that occludes the player at depth 20 while
+    // approaching from above (see bsl1Image/bsl3Image in main_scene.js) — their
+    // labels need to sit above that occluding image (depth 21) or they'd be
+    // hidden until the player walks down into the room.
     label(scene, 830, 125, 'BSL 2', 16, true, 1);
-    label(scene, 830, 595, 'BSL 1', 16, true, 1);
+    label(scene, 830, 595, 'BSL 1', 16, true, 21);
     label(scene, 1120, 125, 'BSL 4', 16, true, 1);
-    label(scene, 1120, 595, 'BSL 3', 16, true, 1);
+    label(scene, 1120, 595, 'BSL 3', 16, true, 21);
 
     // ---- ZONES (game logic) ----
     scene.lectureRoomZone = { x: 0, y: 0, width: 480, height: 290 };
