@@ -154,7 +154,7 @@ describe('createRooms', () => {
     expect(window.__gameData.bslRoomZones).toEqual(scene.bslRoomZones)
   })
 
-  test('draws the room labels, centred', () => {
+  test('draws the BSL room labels, centred', () => {
     const scene = makeFakeScene()
 
     createRooms(scene)
@@ -164,12 +164,10 @@ describe('createRooms', () => {
       expect.arrayContaining([
         'BSL 1',
         'BSL 2',
+        'BSL 3',
+        'BSL 4',
       ])
     )
-    // The lecture room is now shown via the pixel-art overlay, so it no longer
-    // has a text label.
-    expect(labelTexts).not.toContain('Lecture room')
-    // Every label is centred on its coordinate.
     scene.__created.texts.forEach((t) =>
       expect(t.setOrigin).toHaveBeenCalledWith(0.5)
     )
@@ -265,8 +263,8 @@ describe('createRooms — lecture room', () => {
     // Left workstation
     expect(scene.add.rectangle).toHaveBeenCalledWith(127, 184, 174, 104)
 
-    // Right workstation
-    expect(scene.add.rectangle).toHaveBeenCalledWith(353, 184, 174, 104)
+    // Right workstation collider was removed — no longer created
+    expect(scene.add.rectangle).not.toHaveBeenCalledWith(353, 184, 174, 104)
   })
 
   test('does not expose bookshelf colliders anymore', () => {
@@ -281,12 +279,12 @@ describe('createRooms — lecture room', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
-    expect(scene.lecturePoint).toEqual({ x: 300, y: 240 })
+    expect(scene.lecturePoint).toEqual({ x: 180, y: 240 })
     expect(scene.lectureGlow).toBeDefined()
     expect(scene.lectureGlowTween).toBeDefined()
 
     const glow = scene.__created.graphics.find((g) => g === scene.lectureGlow)
-    expect(glow.fillCircle).toHaveBeenCalledWith(300, 240, 35)
+    expect(glow.fillCircle).toHaveBeenCalledWith(180, 240, 35)
   })
 
   test('clicking the info point unlocks the lecture materials', () => {
@@ -297,7 +295,7 @@ describe('createRooms — lecture room', () => {
     window.addEventListener('lecture-materials-unlocked', handler)
 
     const lectureZone = scene.__created.zones.find(
-      (z) => z.args.x === 300 && z.args.y === 240
+      (z) => z.args.x === 180 && z.args.y === 240
     )
     lectureZone.handlers.pointerdown()
 

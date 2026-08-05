@@ -176,13 +176,13 @@ test('create sets world bounds', () => {
     .toHaveBeenCalledWith(0, 0, 1280, 720)
 })
 
-test('create tiles the labs side with the lab floor', () => {
+test('create tiles the whole map with the stone floor', () => {
   const scene = createScene()
 
   scene.create()
 
   expect(scene.add.tileSprite)
-    .toHaveBeenCalledWith(700, 0, 580, 720, 'labs_floor')
+    .toHaveBeenCalledWith(0, 0, 1280, 720, 'labs_floor')
 })
 
 test('create creates player sprite', () => {
@@ -191,7 +191,7 @@ test('create creates player sprite', () => {
   scene.create()
 
   expect(scene.physics.add.sprite)
-    .toHaveBeenCalledWith(590, 150, 'player_base')
+    .toHaveBeenCalledWith(590, 210, 'player_base')
 })
 
 test('create shrinks the player collision body', () => {

@@ -163,15 +163,14 @@ class MainScene extends Phaser.Scene {
         layer.setDepth(-10);
     }
 
-    // Clinical tile floor for the labs side — everything right of the x:700 divider
-    // (BSL rooms 1-4, the Labs room, the airlocks and the air system). The left,
-    // human side (lecture/corridor/dressing/exit) keeps the wood floor.
+    // Stone tile floor covering the whole map (both the labs side and the
+    // human side), laid on top of the wood floor at depth -9.
     createLabFloor() {
-        const startX = 700;
-        const width = 1280 - startX;
+        const startX = 0;
+        const width = 1280;
         const height = 720;
-        // Source tiles are ~442px; show them near 110px so the pattern reads at play scale.
-        const tileScale = 110 / 442;
+        // Source tiles are ~442px; show them near 440px so the pattern reads bigger (zoomed in).
+        const tileScale = 440 / 442;
 
         const floor = this.add
             .tileSprite(startX, 0, width, height, 'labs_floor')
