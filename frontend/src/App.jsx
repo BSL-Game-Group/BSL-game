@@ -212,7 +212,7 @@ function App() {
   // TEMPORARY (for testing the saved-game work): throw away the snapshot and put
   // every piece of state back to its start-screen value. Dropping gameStarted
   // unmounts the Phaser game, so restarting builds a fresh scene.
-  const handleQuitGame = () => {
+  const resetGameState = () => {
     clearSavedGame()
     setGameStarted(false)
     setLectureOpen(false)
@@ -227,6 +227,8 @@ function App() {
     setAirlockWashWarningOpen(false)
     setEquipped(unequipAll())
     setAwaitingUndress(false)
+    setExitConfirmOpen(false)
+    window.dispatchEvent(new Event('popup-closed'))
   }
 
   // --- LOGIC ---
@@ -253,18 +255,7 @@ function App() {
   }
 
   const handleExitConfirm = () => {
-    handleExitCancel()
-    setGameStarted(false)
-    setLectureOpen(false)
-    setLecturePopupOpen(false)
-    setPopupOpen(false)
-    setInfoOpen(false)
-    setAnswerOpen(false)
-    setAnswerLevel('')
-    setCurrentMicrobe(null)
-    setLectureWarningOpen(false)
-    setAirlockWashWarningOpen(false)
-    setPlayerEquipment(initialEquipment)
+    resetGameState()
   }
 
   useEffect(() => {
@@ -284,15 +275,6 @@ function App() {
       <Col xs={3}>
       <h1 className="app-title">{t('app.title')}</h1>
       <LanguageSelector />
-      {/* TEMPORARY testing control for the saved-game work. */}
-      {gameStarted && (
-        <button
-          className="btn btn-sm btn-outline-danger mt-2"
-          onClick={handleQuitGame}
-        >
-          {t('startScreen.quitButton')}
-        </button>
-      )}
                   {/* SIDEBAR */}
           {lectureOpen && (
             <Col lg={3} md={4} xs={12} className="mb-3 w-100">
