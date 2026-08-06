@@ -64,6 +64,10 @@ function App() {
   // the player stuck mid-confirmation or mid-suiting-up.
   const [bsl4ConfirmOpen, setBsl4ConfirmOpen] = useState(false)
   const [bsl4SuitOpen, setBsl4SuitOpen] = useState(false)
+  const [bsl4NotReadyOpen, setBsl4NotReadyOpen] = useState(false)
+  const [ventilationConnected, setVentilationConnected] = useState(
+    restored?.progress.ventilationConnected ?? false
+  )
 
 
   // --- HOOKS (Preserved from original) ---
@@ -124,11 +128,42 @@ function App() {
 
   // The BSL4 airlock decon point resets worn PPE too, but on its own event —
   // unlike quick-undress, it must NOT satisfy App's "go wash up at the
-  // dressing room" requirement, so it's kept separate from quick-undress.
+  // dressing room" requirement, so it's kept separate from quick-undress. It
+  // also unplugs the ventilation hookup, mirroring taking the suit off.
   useEffect(() => {
-    const handler = () => setEquipped(unequipAll())
+    const handler = () => {
+      setEquipped(unequipAll())
+      setVentilationConnected(false)
+    }
     window.addEventListener('airlock-decon', handler)
     return () => window.removeEventListener('airlock-decon', handler)
+  }, [])
+
+  // Connecting requires the pressurized suit already worn; pressing the spot
+  // again always disconnects. Depends on `equipped` so the handler always
+  // sees the current suit state.
+  useEffect(() => {
+    const handler = () => {
+      setVentilationConnected((connected) => {
+        if (connected) {
+          return false
+        }
+        return Boolean(equipped.pressurized_suit)
+      })
+    }
+    window.addEventListener('ventilation-toggle-requested', handler)
+    return () => window.removeEventListener('ventilation-toggle-requested', handler)
+  }, [equipped])
+
+  // BSL4 needs the suit, gloves and a live ventilation hookup before the
+  // microbe can be handled — Phaser reads this global the same way it already
+  // reads window.__lectureOpen.
+  const bsl4Ready = Boolean(equipped.pressurized_suit) && Boolean(equipped.gloves) && ventilationConnected
+  useEffect(() => { window.__bsl4Ready = bsl4Ready }, [bsl4Ready])
+  useEffect(() => {
+    const handler = () => setBsl4NotReadyOpen(true)
+    window.addEventListener('bsl4-not-ready', handler)
+    return () => window.removeEventListener('bsl4-not-ready', handler)
   }, [])
   useEffect(() => {
     const handleInfoOpen = () => setInfoOpen(true)
@@ -187,6 +222,7 @@ function App() {
         lectureVisited: lectureOpen,
         materialsUnlocked,
         awaitingUndress,
+        ventilationConnected,
       },
       popups: {
         closet: isPopupOpen,
@@ -205,6 +241,7 @@ function App() {
     lectureOpen,
     materialsUnlocked,
     awaitingUndress,
+    ventilationConnected,
     isPopupOpen,
     isLecturePopupOpen,
     infoOpen,
@@ -240,9 +277,11 @@ function App() {
     setAirlockWashWarningOpen(false)
     setEquipped(unequipAll())
     setAwaitingUndress(false)
+    setVentilationConnected(false)
     setExitConfirmOpen(false)
     setBsl4ConfirmOpen(false)
     setBsl4SuitOpen(false)
+    setBsl4NotReadyOpen(false)
     window.dispatchEvent(new Event('popup-closed'))
   }
 
@@ -403,6 +442,17 @@ function App() {
             </button>
             <h2>{t('airlockWashRequired.title')}</h2>
             <p>{t('airlockWashRequired.message')}</p>
+          </div>
+        </div>
+      )}
+      {bsl4NotReadyOpen && (
+        <div className="popup-overlay">
+          <div className="popup-box popup-box--incorrect">
+            <button className="popup-close-button" onClick={() => setBsl4NotReadyOpen(false)}>
+              {t('common.close')}
+            </button>
+            <h2>{t('bsl4NotReady.title')}</h2>
+            <p>{t('bsl4NotReady.message')}</p>
           </div>
         </div>
       )}

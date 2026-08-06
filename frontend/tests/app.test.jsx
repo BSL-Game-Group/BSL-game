@@ -481,6 +481,76 @@ describe('BSL4 entry confirmation', () => {
 })
 
 // -----------------------------
+// BSL4 VENTILATION & READINESS
+// -----------------------------
+describe('BSL4 ventilation hookup', () => {
+  function toggleVentilation() {
+    act(() => {
+      window.dispatchEvent(new Event('ventilation-toggle-requested'))
+    })
+  }
+
+  test('connecting does nothing while the suit is not worn', () => {
+    startGame()
+
+    toggleVentilation()
+
+    expect(window.__bsl4Ready).toBe(false)
+  })
+
+  test('connecting succeeds once the suit and gloves are worn, making bsl4Ready true', () => {
+    seedSavedGame({ equipped: { ...unequipAll(), pressurized_suit: true, gloves: true } })
+    renderApp()
+
+    toggleVentilation()
+
+    expect(window.__bsl4Ready).toBe(true)
+  })
+
+  test('pressing the spot again disconnects', () => {
+    seedSavedGame({ equipped: { ...unequipAll(), pressurized_suit: true, gloves: true } })
+    renderApp()
+
+    toggleVentilation()
+    expect(window.__bsl4Ready).toBe(true)
+
+    toggleVentilation()
+    expect(window.__bsl4Ready).toBe(false)
+  })
+
+  test('the BSL4 airlock decon point also unplugs the ventilation', () => {
+    seedSavedGame({
+      equipped: { ...unequipAll(), pressurized_suit: true, gloves: true },
+      progress: { ...defaultSnapshot().progress, ventilationConnected: true },
+    })
+    renderApp()
+
+    expect(window.__bsl4Ready).toBe(true)
+
+    act(() => {
+      window.dispatchEvent(new Event('airlock-decon'))
+    })
+
+    expect(window.__bsl4Ready).toBe(false)
+    expect(loadSavedGame().progress.ventilationConnected).toBe(false)
+  })
+
+  test('bsl4-not-ready shows a closable warning popup', () => {
+    startGame()
+
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-not-ready'))
+    })
+
+    expect(screen.getByText(/not ready for bsl4/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+    expect(screen.queryByText(/not ready for bsl4/i)).not.toBeInTheDocument()
+  })
+})
+
+// -----------------------------
 // WORN PPE (moved here from ClosetPopup.test.jsx — App owns this state now)
 // -----------------------------
 describe('worn PPE is owned by App', () => {
