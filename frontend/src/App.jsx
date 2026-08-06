@@ -60,6 +60,10 @@ function App() {
     restored?.progress.awaitingUndress ?? false
   )
   const [exitConfirmOpen, setExitConfirmOpen] = useState(false)
+  // Neither is persisted, same as exitConfirmOpen — a reload should not leave
+  // the player stuck mid-confirmation or mid-suiting-up.
+  const [bsl4ConfirmOpen, setBsl4ConfirmOpen] = useState(false)
+  const [bsl4SuitOpen, setBsl4SuitOpen] = useState(false)
 
 
   // --- HOOKS (Preserved from original) ---
@@ -148,6 +152,15 @@ function App() {
     return () => window.removeEventListener('exit-popup-opened', handleExitOpen)
   }, [])
   useEffect(() => {
+    const handleBsl4EntryConfirm = () => {
+      setBsl4ConfirmOpen(true)
+      window.dispatchEvent(new Event('popup-opened'))
+    }
+    window.addEventListener('bsl4-entry-confirm-opened', handleBsl4EntryConfirm)
+    return () =>
+      window.removeEventListener('bsl4-entry-confirm-opened', handleBsl4EntryConfirm)
+  }, [])
+  useEffect(() => {
     const translations = {
       pressEToOpen: t('phaser.pressEToOpen'),
       openCloset: t('phaser.openCloset'),
@@ -228,6 +241,8 @@ function App() {
     setEquipped(unequipAll())
     setAwaitingUndress(false)
     setExitConfirmOpen(false)
+    setBsl4ConfirmOpen(false)
+    setBsl4SuitOpen(false)
     window.dispatchEvent(new Event('popup-closed'))
   }
 
@@ -256,6 +271,18 @@ function App() {
 
   const handleExitConfirm = () => {
     resetGameState()
+  }
+
+  const handleBsl4ConfirmNo = () => {
+    setBsl4ConfirmOpen(false)
+    window.dispatchEvent(new Event('popup-closed'))
+  }
+
+  // Movement stays locked straight through into the suiting station — no
+  // popup-closed in between, since a modal is about to take over again.
+  const handleBsl4ConfirmYes = () => {
+    setBsl4ConfirmOpen(false)
+    setBsl4SuitOpen(true)
   }
 
   useEffect(() => {
@@ -330,6 +357,14 @@ function App() {
         setEquipped={setEquipped}
         itemFilter={(id) => id !== 'pressurized_suit'}
       />
+      <ClosetPopup
+        open={bsl4SuitOpen}
+        onClose={() => setBsl4SuitOpen(false)}
+        equipped={equipped}
+        setEquipped={setEquipped}
+        itemFilter={(id) => id === 'pressurized_suit' || id === 'gloves'}
+        title={t('bsl4Suit.title')}
+      />
       <SidebarPopup
         open={isLecturePopupOpen}
         onClose={() => setLecturePopupOpen(false)}
@@ -368,6 +403,22 @@ function App() {
             </button>
             <h2>{t('airlockWashRequired.title')}</h2>
             <p>{t('airlockWashRequired.message')}</p>
+          </div>
+        </div>
+      )}
+      {bsl4ConfirmOpen && (
+        <div className="popup-overlay" role="dialog" aria-modal="true" aria-labelledby="bsl4-entry-confirm-title">
+          <div className="popup-box popup-box--incorrect">
+            <h2 id="bsl4-entry-confirm-title">{t('bsl4EntryConfirm.title')}</h2>
+            <p>{t('bsl4EntryConfirm.message')}</p>
+            <div className="d-flex gap-2 mt-3">
+              <button className="btn btn-outline-secondary" onClick={handleBsl4ConfirmNo}>
+                {t('bsl4EntryConfirm.no')}
+              </button>
+              <button className="btn btn-danger" onClick={handleBsl4ConfirmYes}>
+                {t('bsl4EntryConfirm.yes')}
+              </button>
+            </div>
           </div>
         </div>
       )}
