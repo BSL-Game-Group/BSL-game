@@ -850,6 +850,13 @@ class MainScene extends Phaser.Scene {
                     entry.tween.resume();
                     entry.playerInside = true;
                     this.notifyRoomEntry(entry.key);
+                    // BSL4 is stricter than the other rooms: every time the player
+                    // steps in, ask for confirmation before they can suit up and
+                    // work — the suit itself can only be put on in here (see
+                    // App.jsx's bsl4-entry-confirm-opened handler).
+                    if (entry.key === 'BSL-4') {
+                        window.dispatchEvent(new Event('bsl4-entry-confirm-opened'));
+                    }
                 } else if (!inside && entry.playerInside) {
                     entry.glow.setVisible(false);
                     entry.tween.pause();
