@@ -328,6 +328,7 @@ function App() {
         onClose={() => setPopupOpen(false)}
         equipped={equipped}
         setEquipped={setEquipped}
+        itemFilter={(id) => id !== 'pressurized_suit'}
       />
       <SidebarPopup
         open={isLecturePopupOpen}
