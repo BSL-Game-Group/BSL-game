@@ -138,6 +138,19 @@ function App() {
     }
   }, [])
 
+  // The suit cannot exist outside BSL-4 — Phaser fires this the instant the
+  // player's position leaves the room while still suited (normally prevented
+  // by the door, but this is the hard guarantee regardless of how they got out).
+  useEffect(() => {
+    const handler = () => {
+      setEquipped((prev) => ({ ...prev, pressurized_suit: false }))
+      setVentilationConnected(false)
+      setBsl4GearOpen(false)
+    }
+    window.addEventListener('bsl4-suit-forced-off', handler)
+    return () => window.removeEventListener('bsl4-suit-forced-off', handler)
+  }, [])
+
   // Connecting requires the pressurized suit already worn; pressing the spot
   // again always disconnects. Depends on `equipped` so the handler always
   // sees the current suit state.

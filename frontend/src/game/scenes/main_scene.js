@@ -808,6 +808,12 @@ class MainScene extends Phaser.Scene {
                     entry.playerInside = false;
                     if (entry.key === 'BSL-4') {
                         this.bsl4Occupied = false;
+                        // The suit cannot exist outside BSL-4, no matter how the
+                        // player got out (the door normally blocks this, but this
+                        // is the hard guarantee — e.g. a door left open earlier).
+                        if (window.__bsl4Suited) {
+                            window.dispatchEvent(new Event('bsl4-suit-forced-off'));
+                        }
                     }
                 }
 
