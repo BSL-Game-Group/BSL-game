@@ -102,6 +102,8 @@ class MainScene extends Phaser.Scene {
         this.load.image('dressing_room', 'assets/rooms/dressing-room.png');
         this.load.image('info_desk', 'assets/rooms/info-desk.png');
         this.load.image('exit_area', 'assets/rooms/exit_area.png');
+        this.load.image('airlock_room_(empty)', 'assets/rooms/airlock_room_(empty).png');
+        this.load.image('airlock_room_with_shower', 'assets/rooms/airlock_room_with_shower.png');
 
         this.load.image('door_front', 'assets/doors/door_front.png');
         this.load.image('door_top', 'assets/doors/door_top.png');

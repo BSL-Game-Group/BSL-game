@@ -416,6 +416,10 @@ export function createRooms(scene) {
         .setDisplaySize(airCell.width, airCell.height)
         .setDepth(-5);
 
+    drawRoom(scene, 'airlock_room_with_shower', 1107, 250, 170, 110);
+    drawRoom(scene, 'airlock_room_(empty)', 965, 250, 145, 110);
+    drawRoom(scene, 'airlock_room_(empty)', 965, 360, 145, 110);
+
     // Draw the dressing-room background, filling its zone wall-to-wall. Kept as a
     // named ref so main_scene can depth-switch it at the door (like the BSL rooms).
     const dressing = scene.ppeRoomZone;
@@ -433,4 +437,11 @@ export function createRooms(scene) {
     setupExitArea(scene, walls);
 
     return walls;
+}
+
+function drawRoom(scene, picture, x, y, width, height) {
+    scene.add.image(x, y, picture)
+        .setOrigin(0, 0)
+        .setDisplaySize(width, height)
+        .setDepth(-5);
 }
