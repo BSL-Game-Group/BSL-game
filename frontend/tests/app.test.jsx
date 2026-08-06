@@ -547,6 +547,26 @@ describe('BSL4 ventilation hookup', () => {
     expect(EventBus.emit).toHaveBeenCalledWith('request-new-microbe')
   })
 
+  test('bsl4-suit-forced-off strips the suit, unplugs ventilation, and closes the gear popup', () => {
+    seedSavedGame({
+      equipped: { ...unequipAll(), pressurized_suit: true, gloves: true },
+      progress: { ...defaultSnapshot().progress, ventilationConnected: true },
+    })
+    renderApp()
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-undress-required'))
+    })
+    expect(screen.getByText(/decontaminate before leaving/i)).toBeInTheDocument()
+
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-suit-forced-off'))
+    })
+
+    expect(window.__bsl4Ready).toBe(false)
+    expect(loadSavedGame().progress.ventilationConnected).toBe(false)
+    expect(screen.queryByText(/decontaminate before leaving/i)).not.toBeInTheDocument()
+  })
+
   test('bsl4-not-ready shows a closable warning popup', () => {
     startGame()
 

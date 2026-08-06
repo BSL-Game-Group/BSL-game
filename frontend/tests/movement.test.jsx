@@ -912,6 +912,48 @@ describe('presence flags after a reload', () => {
     delete window.__bsl4Suited
   })
 
+  test('walking out of BSL-4 still suited forces the suit off', () => {
+    const bsl4Zone = { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 }
+    const entry = fakeGlowEntry(bsl4Zone)
+    const scene = createScene({ bslGlows: [entry] })
+    scene.player.x = 1000
+    scene.player.y = 100
+    scene.notifyRoomEntry = jest.fn()
+    scene.seedPresenceFlags()
+    window.__bsl4Suited = true
+
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    scene.player.x = 100
+    scene.player.y = 100
+    scene.update()
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'bsl4-suit-forced-off' })
+    )
+    expect(scene.bsl4Occupied).toBe(false)
+    spy.mockRestore()
+    delete window.__bsl4Suited
+  })
+
+  test('walking out of BSL-4 unsuited does not force anything off', () => {
+    const bsl4Zone = { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 }
+    const entry = fakeGlowEntry(bsl4Zone)
+    const scene = createScene({ bslGlows: [entry] })
+    scene.player.x = 1000
+    scene.player.y = 100
+    scene.notifyRoomEntry = jest.fn()
+    scene.seedPresenceFlags()
+
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    scene.player.x = 100
+    scene.player.y = 100
+    scene.update()
+
+    expect(spy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'bsl4-suit-forced-off' })
+    )
+    spy.mockRestore()
+  })
 
   test('seeds the dressing room flag and shows its glows', () => {
     const ppeRoomZone = { x: 0, y: 430, width: 700, height: 290 }
