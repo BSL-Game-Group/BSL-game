@@ -110,10 +110,14 @@
     "message": "Pue paineistettu puku, kytke se ulkoiseen ilmastointiin ja sulje sulkutilan ovi ennen kuin käsittelet mikrobia täällä."
   },
   "bsl4SuitRequired": {
-    "title": "BSL4 vaatii puvun",
-    "message": "Sinun täytyy pukea paineistettu puku ja kytkeä se ulkoiseen ilmastointiin ennen kuin voit mennä sisään.",
+    "title": "Olet BSL4:ssä",
+    "message": "Pue paineistettu puku ja kytke se ulkoiseen ilmastointiin — sinulla täytyy olla puku päällä koko ajan kun olet täällä.",
     "suitUpButton": "Pue puku",
     "connectVentilationButton": "Kytke ilmastointi"
+  },
+  "bslDoorRequired": {
+    "title": "Sulje sulkutilan ovi ensin",
+    "message": "Sulje ilmatiivis ovi ennen kuin käsittelet mikrobia täällä."
   },
   "bsl4UndressRequired": {
     "title": "Peseydy ennen poistumista",

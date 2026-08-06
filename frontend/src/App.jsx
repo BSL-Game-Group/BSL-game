@@ -63,6 +63,7 @@ function App() {
   const [bsl4NotReadyOpen, setBsl4NotReadyOpen] = useState(false)
   const [bsl4SuitRequiredOpen, setBsl4SuitRequiredOpen] = useState(false)
   const [bsl4UndressRequiredOpen, setBsl4UndressRequiredOpen] = useState(false)
+  const [bslDoorRequiredOpen, setBslDoorRequiredOpen] = useState(false)
   const [ventilationConnected, setVentilationConnected] = useState(
     restored?.progress.ventilationConnected ?? false
   )
@@ -174,6 +175,13 @@ function App() {
     window.addEventListener('bsl4-not-ready', handler)
     return () => window.removeEventListener('bsl4-not-ready', handler)
   }, [])
+  // BSL3's airlock door must be closed too before handling a microbe there —
+  // same idea as BSL4's door check, just without any suit/ventilation of its own.
+  useEffect(() => {
+    const handler = () => setBslDoorRequiredOpen(true)
+    window.addEventListener('bsl-door-required', handler)
+    return () => window.removeEventListener('bsl-door-required', handler)
+  }, [])
   useEffect(() => {
     const handleInfoOpen = () => setInfoOpen(true)
     window.addEventListener('info-popup-opened', handleInfoOpen)
@@ -279,6 +287,7 @@ function App() {
     setBsl4NotReadyOpen(false)
     setBsl4SuitRequiredOpen(false)
     setBsl4UndressRequiredOpen(false)
+    setBslDoorRequiredOpen(false)
     window.dispatchEvent(new Event('popup-closed'))
   }
 
@@ -311,11 +320,11 @@ function App() {
 
   // The suit station is opened by the door prompts, put on/off there, and
   // closed with the plain Close button — no confirm step of its own. Closing
-  // it with the suit still on means the player just geared up (the BSL4 door
-  // will now open for them on the next E-press); closing it with the suit off
-  // means they just stripped it — that IS the wash-up step, so it satisfies
-  // the same "go wash up before the next microbe" gate quick-undress does,
-  // and unplugs the ventilation the same way taking the suit off would.
+  // it with the suit still on means the player just geared up. Closing it
+  // with the suit off means they stripped it and unplugs the ventilation —
+  // but unlike the other levels' wash-up spot, this does NOT hand out the
+  // next microbe: BSL4 still requires a separate trip to the dressing room's
+  // wash-up point afterward, same as everyone else.
   const handleBsl4SuitClose = () => {
     setBsl4SuitOpen(false)
     if (equipped.pressurized_suit) {
@@ -323,10 +332,6 @@ function App() {
     }
     setVentilationConnected(false)
     setBsl4UndressRequiredOpen(false)
-    if (awaitingUndress) {
-      setAwaitingUndress(false)
-      EventBus.emit('request-new-microbe')
-    }
   }
 
   const handleConnectVentilation = () => {
@@ -452,6 +457,17 @@ function App() {
             </button>
             <h2>{t('bsl4NotReady.title')}</h2>
             <p>{t('bsl4NotReady.message')}</p>
+          </div>
+        </div>
+      )}
+      {bslDoorRequiredOpen && (
+        <div className="popup-overlay">
+          <div className="popup-box popup-box--incorrect">
+            <button className="popup-close-button" onClick={() => setBslDoorRequiredOpen(false)}>
+              {t('common.close')}
+            </button>
+            <h2>{t('bslDoorRequired.title')}</h2>
+            <p>{t('bslDoorRequired.message')}</p>
           </div>
         </div>
       )}

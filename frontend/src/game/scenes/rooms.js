@@ -225,6 +225,10 @@ function setupBslInteractables(scene) {
                 window.dispatchEvent(new Event('bsl4-not-ready'));
                 return;
             }
+            if (entry.key === 'BSL-3' && scene.bsl3Door?.isOpen) {
+                window.dispatchEvent(new Event('bsl-door-required'));
+                return;
+            }
             window.dispatchEvent(
                 new CustomEvent('answer-popup-opened', { detail: { level: entry.key } })
             );

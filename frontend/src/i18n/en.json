@@ -110,10 +110,14 @@
     "message": "Put on the pressurized suit, connect it to the external ventilation, and close the airlock door before handling a microbe in here."
   },
   "bsl4SuitRequired": {
-    "title": "BSL4 requires a suit",
-    "message": "You need to put on the pressurized suit and connect it to the external ventilation before you can go in.",
+    "title": "You're in BSL4",
+    "message": "Put on the pressurized suit and connect it to the external ventilation — you must be fully suited up the entire time you're in here.",
     "suitUpButton": "Suit up",
     "connectVentilationButton": "Connect ventilation"
+  },
+  "bslDoorRequired": {
+    "title": "Close the airlock door first",
+    "message": "Close the airtight door before handling a microbe in here."
   },
   "bsl4UndressRequired": {
     "title": "Decontaminate before leaving",

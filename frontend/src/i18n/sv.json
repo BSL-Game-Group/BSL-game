@@ -110,10 +110,14 @@
     "message": "Ta på dig den trycksatta dräkten, koppla den till den externa ventilationen och stäng slussdörren innan du hanterar en mikrob här inne."
   },
   "bsl4SuitRequired": {
-    "title": "BSL4 kräver en dräkt",
-    "message": "Du behöver ta på dig den trycksatta dräkten och koppla den till den externa ventilationen innan du kan gå in.",
+    "title": "Du är i BSL4",
+    "message": "Ta på dig den trycksatta dräkten och koppla den till den externa ventilationen — du måste ha dräkten på hela tiden du är här inne.",
     "suitUpButton": "Ta på dräkten",
     "connectVentilationButton": "Koppla ventilationen"
+  },
+  "bslDoorRequired": {
+    "title": "Stäng slussdörren först",
+    "message": "Stäng den lufttäta dörren innan du hanterar en mikrob här inne."
   },
   "bsl4UndressRequired": {
     "title": "Dekontaminera innan du lämnar",

@@ -796,6 +796,11 @@ class MainScene extends Phaser.Scene {
                     this.notifyRoomEntry(entry.key);
                     if (entry.key === 'BSL-4') {
                         this.bsl4Occupied = true;
+                        // Stepping into BSL-4 itself is the suiting-up trigger
+                        // now — the door lets anyone through, suited or not.
+                        if (!window.__bsl4Suited) {
+                            window.dispatchEvent(new Event('bsl4-suit-required'));
+                        }
                     }
                 } else if (!inside && entry.playerInside) {
                     entry.glow.setVisible(false);
@@ -815,6 +820,8 @@ class MainScene extends Phaser.Scene {
                             window.dispatchEvent(new Event('lecture-required'));
                         } else if (entry.key === 'BSL-4' && (!window.__bsl4Ready || this.bsl4Door?.isOpen)) {
                             window.dispatchEvent(new Event('bsl4-not-ready'));
+                        } else if (entry.key === 'BSL-3' && this.bsl3Door?.isOpen) {
+                            window.dispatchEvent(new Event('bsl-door-required'));
                         } else {
                             window.dispatchEvent(
                                 new CustomEvent('answer-popup-opened', {
@@ -916,6 +923,9 @@ class MainScene extends Phaser.Scene {
             bodyHeight: 9
         }
         const door2 = doors.addDoor(1005, 515, 'door_front', config).setScale(0.25);
+        // The BSL3 airlock <-> BSL-3 room door: must be closed before the
+        // player can handle a microbe in there (see the bslGlows E-press gate).
+        this.bsl3Door = door2;
         this.physics.add.collider(player, doors.solidSprites);
 
         config = {
@@ -962,24 +972,19 @@ class MainScene extends Phaser.Scene {
         door.tryToChangeDoorState();
     }
 
-    // The BSL4 door replaces the airlock2 hotspots entirely: it's the one
-    // place the suit/ventilation state is asked about. Closing an open door is
-    // always allowed (sealing the airlock after entering, or behind you on the
-    // way out); opening a closed one is gated on direction — entering needs
-    // the full kit, leaving needs it stripped first.
+    // Entering is unrestricted now — the suiting-up prompt fires once the
+    // player actually steps into BSL-4 (see the bslGlows loop), not at the
+    // door. Leaving is the only gated direction: closing an open door is
+    // always allowed, but opening a closed one while still suited means
+    // stripping the suit first.
     handleBsl4DoorPress(door) {
         if (door.isOpen) {
             door.tryToChangeDoorState();
             return;
         }
 
-        if (this.bsl4Occupied) {
-            if (window.__bsl4Suited) {
-                window.dispatchEvent(new Event('bsl4-undress-required'));
-                return;
-            }
-        } else if (!window.__bsl4Ready) {
-            window.dispatchEvent(new Event('bsl4-suit-required'));
+        if (this.bsl4Occupied && window.__bsl4Suited) {
+            window.dispatchEvent(new Event('bsl4-undress-required'));
             return;
         }
 
