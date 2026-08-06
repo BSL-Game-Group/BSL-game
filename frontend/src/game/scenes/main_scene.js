@@ -5,6 +5,7 @@ import { EventBus } from '../EventBus'
 import DoorGroup from '../groups/DoorGroup.js';
 import { loadSavedGame, patchSavedGame, savePlayerPosition } from '../../state/savedGame';
 import { loadAssets } from '../assets/loadAssets.js';
+import EquipmentManager from "../player/EquipmentManager";
 
 export function playerIsInsideZone(player, zone) {
     return (
@@ -189,107 +190,17 @@ class MainScene extends Phaser.Scene {
         this.player.setDepth(10);
 
         this.doors = this.initializeDoors(this.player);
+
+        this.equipmentManager = new EquipmentManager(this, this.player);
         
-        // 2. CONFIGURATION: Tweaking values for size and placement relative to player center
-        // Adjust these numbers until your equipment aligns perfectly!
-        this.equipmentConfig = {
-            lab_coat: { scale: 0.05, offsetX: -1,  offsetY: 5 },
-            mask:     { scale: 0.075, offsetX: -1,  offsetY: -20 },
-            glasses:  { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
-            face_shield: { scale: 0.03, offsetX: -0.5, offsetY: -28 },
-            bsl3_respirator: { scale: 0.04, offsetX: -1, offsetY: -25 },
-            sunglasses: { scale: 0.07, offsetX: -0.85,  offsetY: -27.5 },
-            disposable_overall: { scale: 0.065, offsetX: -0.95,  offsetY: 5 },
-            gloves: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
-            gloves_2: { scale: 0.085, offsetX: -1.5, offsetY: 14 },
-            closable_lab_coat: { scale: 0.33, offsetX: -1,  offsetY: 7 },
-            pressurized_suit: { scale: 0.085, offsetX: 0,  offsetY: 0 },
-            wow_helmet: { scale: 0.1, offsetX: -2,  offsetY: -31 }
-        };
-
-        // 3. Create the Equipment Sprites using the configurations above
-        this.equipment = {
-            lab_coat: this.add.sprite(700, 300, 'lab_coat')
-                .setScale(this.equipmentConfig.lab_coat.scale)
-                .setVisible(false)
-                .setDepth(11),
-            mask: this.add.sprite(700, 300, 'mask')
-                .setScale(this.equipmentConfig.mask.scale)
-                .setVisible(false)
-                .setDepth(12),
-            glasses: this.add.sprite(700, 300, 'glasses')
-                .setScale(this.equipmentConfig.glasses.scale)
-                .setVisible(false)
-                .setDepth(13),
-            face_shield: this.add.sprite(700, 300, 'face_shield')
-                .setScale(this.equipmentConfig.face_shield.scale)
-                .setVisible(false)
-                .setDepth(14),
-            bsl3_respirator: this.add.sprite(700, 300, 'bsl3_respirator')
-                .setScale(this.equipmentConfig.bsl3_respirator.scale)
-                .setVisible(false)
-                .setDepth(15),
-            sunglasses: this.add.sprite(700, 300, 'sunglasses')
-                .setScale(this.equipmentConfig.sunglasses.scale)
-                .setVisible(false)
-                .setDepth(16),
-            disposable_overall: this.add.sprite(700, 300, 'disposable_overall')
-                .setScale(this.equipmentConfig.disposable_overall.scale)
-                .setVisible(false)
-                .setDepth(13),
-            gloves: this.add.sprite(700, 300, 'gloves')
-                .setScale(this.equipmentConfig.gloves.scale)
-                .setVisible(false)
-                .setDepth(12),
-            gloves_2: this.add.sprite(700, 300, 'gloves_2')
-                .setScale(this.equipmentConfig.gloves_2.scale)
-                .setVisible(false)
-                .setDepth(13),
-            closable_lab_coat: this.add.sprite(700, 300, 'closable_lab_coat')
-                .setScale(this.equipmentConfig.closable_lab_coat.scale)
-                .setVisible(false)
-                .setDepth(11),
-            pressurized_suit: this.add.sprite(700, 300, 'pressurized_suit')
-                .setScale(this.equipmentConfig.pressurized_suit.scale)
-                .setVisible(false)
-                .setDepth(11),
-            wow_helmet: this.add.sprite(700, 300, 'wow_helmet')
-                .setScale(this.equipmentConfig.wow_helmet.scale)
-                .setVisible(false)
-                .setDepth(13)
-        };
-
-        // 4. Listen for React's CustomEvent
         this.handleEquipmentChange = (e) => {
-            const equipped = e.detail; 
-            this.equipment.lab_coat.setVisible(equipped.lab_coat);
-            this.equipment.mask.setVisible(equipped.mask);
-            this.equipment.glasses.setVisible(equipped.glasses);
-            this.equipment.face_shield.setVisible(equipped.face_shield);
-            this.equipment.bsl3_respirator.setVisible(equipped.bsl3_respirator);
-            this.equipment.sunglasses.setVisible(equipped.sunglasses);
-            this.equipment.disposable_overall.setVisible(equipped.disposable_overall);
-            this.equipment.gloves.setVisible(equipped.gloves);
-            this.equipment.gloves_2.setVisible(equipped.gloves_2);
-            this.equipment.closable_lab_coat.setVisible(equipped.closable_lab_coat);
-            this.equipment.pressurized_suit.setVisible(equipped.pressurized_suit);
-            this.equipment.wow_helmet.setVisible(equipped.wow_helmet);
-
-            // Swap the player base texture based on pressurized suit or disposable overall state
-            if (equipped.pressurized_suit || equipped.disposable_overall) {
-                this.player.setTexture('head_only');
-            } else if (equipped.wow_helmet) {
-                this.player.setTexture('no_hair');
-            } else {
-                this.player.setTexture('player_base');
-            }
+            this.equipmentManager.setEquipment(e.detail);
         };
+
         window.addEventListener('equipment-changed', this.handleEquipmentChange);
 
-        // Put the restored kit back on the character through the same handler, so
-        // sprite visibility and the base-texture swap have one code path.
         if (this.savedGame) {
-            this.handleEquipmentChange({ detail: this.savedGame.equipped });
+            this.equipmentManager.setEquipment(this.savedGame.equipped);
         }
 
         // Clean up event listener if the scene ever restarts/destroys
@@ -555,58 +466,7 @@ class MainScene extends Phaser.Scene {
             this.closetHint.setPosition(pointer.x + 15, pointer.y + 15);
         }
 
-        // 3. EQUIPMENT GLUEING (Always running)
-        // Keep this right here, outside the movement lock!
-        if (this.equipment) {
-            this.equipment.lab_coat.setPosition(
-                this.player.x + this.equipmentConfig.lab_coat.offsetX, 
-                this.player.y + this.equipmentConfig.lab_coat.offsetY
-            );
-            this.equipment.mask.setPosition(
-                this.player.x + this.equipmentConfig.mask.offsetX, 
-                this.player.y + this.equipmentConfig.mask.offsetY
-            );
-            this.equipment.glasses.setPosition(
-                this.player.x + this.equipmentConfig.glasses.offsetX,
-                this.player.y + this.equipmentConfig.glasses.offsetY
-            );
-            this.equipment.face_shield.setPosition(
-                this.player.x + this.equipmentConfig.face_shield.offsetX, 
-                this.player.y + this.equipmentConfig.face_shield.offsetY
-            );
-            this.equipment.bsl3_respirator.setPosition(
-                this.player.x + this.equipmentConfig.bsl3_respirator.offsetX, 
-                this.player.y + this.equipmentConfig.bsl3_respirator.offsetY
-            );
-            this.equipment.sunglasses.setPosition(
-                this.player.x + this.equipmentConfig.sunglasses.offsetX,
-                this.player.y + this.equipmentConfig.sunglasses.offsetY
-            );
-            this.equipment.disposable_overall.setPosition(
-                this.player.x + this.equipmentConfig.disposable_overall.offsetX,
-                this.player.y + this.equipmentConfig.disposable_overall.offsetY
-            );
-            this.equipment.gloves.setPosition(
-                this.player.x + this.equipmentConfig.gloves.offsetX,
-                this.player.y + this.equipmentConfig.gloves.offsetY
-            );
-            this.equipment.gloves_2.setPosition(
-                this.player.x + this.equipmentConfig.gloves_2.offsetX,
-                this.player.y + this.equipmentConfig.gloves_2.offsetY
-            );
-            this.equipment.closable_lab_coat.setPosition(
-                this.player.x + this.equipmentConfig.closable_lab_coat.offsetX,
-                this.player.y + this.equipmentConfig.closable_lab_coat.offsetY
-            );
-            this.equipment.pressurized_suit.setPosition(
-                this.player.x + this.equipmentConfig.pressurized_suit.offsetX,
-                this.player.y + this.equipmentConfig.pressurized_suit.offsetY
-            );
-            this.equipment.wow_helmet.setPosition(
-                this.player.x + this.equipmentConfig.wow_helmet.offsetX,
-                this.player.y + this.equipmentConfig.wow_helmet.offsetY
-            );
-        }
+        this.equipmentManager.updatePositions();
 
         // Lecture room: the microbe task panel shows as soon as the player walks in.
         // The lecture-materials section only unlocks once they walk up to the info
