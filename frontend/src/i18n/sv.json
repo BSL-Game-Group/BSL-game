@@ -29,10 +29,6 @@
   "title": "Besök föreläsningsrummet först",
   "message": "Innan du hanterar en mikrob måste du först besöka föreläsningsrummet för att läsa om mikroben och ta reda på dess biosäkerhetsnivå (BSL)."
 },
-  "airlockWashRequired": {
-    "title": "OBS",
-    "message": "Sanera dig alltid vid slussens dekontamineringsplats när du lämnar BSL4-laboratoriet."
-  },
   "lecturePanel": {
     "title": "Kursmaterial",
     "description": "Klicka på en länk nedan för att öppna föreläsningsmaterialet i en ny flik.",
@@ -99,7 +95,8 @@
     "pressE": "Tryck E",
     "exitPrompt": "Tryck E för att lämna",
     "washUp": "Tryck R eller klicka för att tvätta dig",
-    "airlockWash": "Tryck R eller klicka för att dekontaminera"
+    "bsl4Suit": "Tryck R eller klicka för att hantera BSL4-dräkten",
+    "ventilation": "Tryck E eller klicka för att koppla/koppla ur ventilationen"
   },
   "exitConfirm": {
     "title": "Avsluta",

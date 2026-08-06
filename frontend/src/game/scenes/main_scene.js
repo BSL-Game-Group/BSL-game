@@ -341,11 +341,24 @@ class MainScene extends Phaser.Scene {
         window.addEventListener('popup-opened', this.handlePopupOpen);
         window.addEventListener('popup-closed', this.handlePopupClosed);
 
+        // Opens the BSL4 <-> airlock2 door for the player once they've finished
+        // suiting up, so they don't also have to press E on the door itself.
+        // Guarded on isOpen: tryToChangeDoorState() is a toggle, and this event
+        // can fire again (e.g. re-opening the suit station to check) without
+        // the player having left through the door yet.
+        this.handleBsl4SuitEquipped = () => {
+            if (this.bsl4Door && !this.bsl4Door.isOpen) {
+                this.bsl4Door.tryToChangeDoorState();
+            }
+        };
+        window.addEventListener('bsl4-suit-equipped', this.handleBsl4SuitEquipped);
+
         // Clean up event listeners if the scene ever restarts/destroys
         this.events.on('shutdown', () => {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
             window.removeEventListener('popup-opened', this.handlePopupOpen);
             window.removeEventListener('popup-closed', this.handlePopupClosed);
+            window.removeEventListener('bsl4-suit-equipped', this.handleBsl4SuitEquipped);
             if (this.handleNewMicrobeRequest) {
                 EventBus.off('request-new-microbe', this.handleNewMicrobeRequest);
             }
@@ -389,8 +402,8 @@ class MainScene extends Phaser.Scene {
             padding: { left: 6, right: 6, top: 3, bottom: 3 }
         }).setDepth(1000).setVisible(false);
 
-        // Proximity hint under the airlock2 decon spot.
-        this.airlockWashHint = this.add.text(0, 0, "", {
+        // Proximity hint over the BSL4 suit station.
+        this.bsl4SuitHint = this.add.text(0, 0, "", {
             fontSize: "14px",
             backgroundColor: "#222222",
             color: "#ffffff",
@@ -420,7 +433,7 @@ class MainScene extends Phaser.Scene {
             openCloset: window.__translations?.openCloset ?? 'Open Closet',
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
-            airlockWash: window.__translations?.airlockWash ?? 'Press R or click to decontaminate',
+            bsl4Suit: window.__translations?.bsl4Suit ?? 'Press R or click to manage the BSL4 suit',
             ventilation: window.__translations?.ventilation ?? 'Press E or click to connect/disconnect ventilation'
         })
         // Keep the task the player was already working on; only roll a new one
@@ -462,8 +475,8 @@ class MainScene extends Phaser.Scene {
         if (this.undressHint) {
             this.undressHint.setText(translations.washUp)
         }
-        if (this.airlockWashHint) {
-            this.airlockWashHint.setText(translations.airlockWash)
+        if (this.bsl4SuitHint) {
+            this.bsl4SuitHint.setText(translations.bsl4Suit)
         }
         if (this.ventilationHint) {
             this.ventilationHint.setText(translations.ventilation)
@@ -785,18 +798,19 @@ class MainScene extends Phaser.Scene {
             }
         }
 
-        // Airlock2 wash-up point: same enter/exit tracking as the dressing room's
-        // closet. The reminder fires as soon as the player arrives — a nudge to
-        // use the green decon spot before heading further out — not a scolding
-        // after the fact.
+        // Airlock2 is BSL4's anteroom: this is where the suit goes on before
+        // going in, and comes back off on the way out. Entering here unsuited
+        // asks whether the player wants to suit up (bsl4-entry-confirm-opened);
+        // already suited (e.g. coming back out of BSL4), it stays quiet — the
+        // suit station glow is always available for managing the suit either way.
         if (this.airlock2Zone) {
             const inside = playerIsInsideZone(this.player, this.airlock2Zone);
 
             if (inside && !this.playerInsideAirlock2) {
-                if (this.airlockWashGlow) {
-                    this.airlockWashGlow.setVisible(true);
-                    if (this.airlockWashGlowTween) {
-                        this.airlockWashGlowTween.resume();
+                if (this.bsl4SuitGlow) {
+                    this.bsl4SuitGlow.setVisible(true);
+                    if (this.bsl4SuitGlowTween) {
+                        this.bsl4SuitGlowTween.resume();
                     }
                 }
                 if (this.ventilationGlow) {
@@ -806,12 +820,14 @@ class MainScene extends Phaser.Scene {
                     }
                 }
                 this.playerInsideAirlock2 = true;
-                window.dispatchEvent(new Event('airlock-wash-reminder'));
+                if (!window.__bsl4Suited) {
+                    window.dispatchEvent(new Event('bsl4-entry-confirm-opened'));
+                }
             } else if (!inside && this.playerInsideAirlock2) {
-                if (this.airlockWashGlow) {
-                    this.airlockWashGlow.setVisible(false);
-                    if (this.airlockWashGlowTween) {
-                        this.airlockWashGlowTween.pause();
+                if (this.bsl4SuitGlow) {
+                    this.bsl4SuitGlow.setVisible(false);
+                    if (this.bsl4SuitGlowTween) {
+                        this.bsl4SuitGlowTween.pause();
                     }
                 }
                 if (this.ventilationGlow) {
@@ -823,10 +839,10 @@ class MainScene extends Phaser.Scene {
                 this.playerInsideAirlock2 = false;
             }
 
-            // R washes up from anywhere in airlock2, same reach as the dressing
-            // room's R — no need to stand exactly on the glow.
+            // R opens the BSL4 suit station from anywhere in airlock2, same
+            // reach as the dressing room's R.
             if (inside && this.justPressed(this.keyR)) {
-                window.dispatchEvent(new Event('airlock-decon'));
+                window.dispatchEvent(new Event('bsl4-suit-popup-opened'));
             }
 
             // E toggles the ventilation hookup from anywhere in airlock2, same
@@ -837,15 +853,15 @@ class MainScene extends Phaser.Scene {
 
             // Proximity hint, positioned BELOW the glow (unlike the dressing
             // room's, which sits above its point).
-            if (inside && this.airlockWashHint && this.airlockWashPoint) {
+            if (inside && this.bsl4SuitHint && this.bsl4SuitPoint) {
                 const dist = Phaser.Math.Distance.Between(
-                    this.player.x, this.player.y, this.airlockWashPoint.x, this.airlockWashPoint.y
+                    this.player.x, this.player.y, this.bsl4SuitPoint.x, this.bsl4SuitPoint.y
                 );
                 const closeEnough = dist < 90;
 
-                this.airlockWashHint.setVisible(closeEnough);
+                this.bsl4SuitHint.setVisible(closeEnough);
                 if (closeEnough) {
-                    this.airlockWashHint.setPosition(this.airlockWashPoint.x - 320, this.airlockWashPoint.y + 30);
+                    this.bsl4SuitHint.setPosition(this.bsl4SuitPoint.x - 320, this.bsl4SuitPoint.y + 30);
                 }
             }
 
@@ -892,13 +908,6 @@ class MainScene extends Phaser.Scene {
                     entry.tween.resume();
                     entry.playerInside = true;
                     this.notifyRoomEntry(entry.key);
-                    // BSL4 is stricter than the other rooms: every time the player
-                    // steps in, ask for confirmation before they can suit up and
-                    // work — the suit itself can only be put on in here (see
-                    // App.jsx's bsl4-entry-confirm-opened handler).
-                    if (entry.key === 'BSL-4') {
-                        window.dispatchEvent(new Event('bsl4-entry-confirm-opened'));
-                    }
                 } else if (!inside && entry.playerInside) {
                     entry.glow.setVisible(false);
                     entry.tween.pause();
@@ -961,8 +970,8 @@ class MainScene extends Phaser.Scene {
 
     // After restoring a saved position, the scene must already know which rooms
     // the player is standing in. Otherwise update()'s first frame reads every
-    // room as a fresh entry: airlock2 re-fires its wash reminder, and a BSL room
-    // POSTs a duplicate room_entries row for a room the player never left.
+    // room as a fresh entry: airlock2 re-asks the suiting-up confirmation, and a
+    // BSL room POSTs a duplicate room_entries row for a room the player never left.
     seedPresenceFlags() {
         if (this.lectureRoomZone) {
             this.playerInsideLectureRoom = playerIsInsideZone(this.player, this.lectureRoomZone);
@@ -985,8 +994,8 @@ class MainScene extends Phaser.Scene {
         if (this.airlock2Zone) {
             this.playerInsideAirlock2 = playerIsInsideZone(this.player, this.airlock2Zone);
             if (this.playerInsideAirlock2) {
-                this.airlockWashGlow?.setVisible(true);
-                this.airlockWashGlowTween?.resume();
+                this.bsl4SuitGlow?.setVisible(true);
+                this.bsl4SuitGlowTween?.resume();
                 this.ventilationGlow?.setVisible(true);
                 this.ventilationGlowTween?.resume();
             }
@@ -1012,6 +1021,9 @@ class MainScene extends Phaser.Scene {
             bodyHeight: 9
         }
         const door1 = doors.addDoor(1200, 280, 'door_front', config).setScale(0.25);
+        // The BSL4 <-> airlock2 door: opened automatically once the player
+        // finishes suiting up (see the bsl4-suit-equipped listener in create()).
+        this.bsl4Door = door1;
         config = {
             triggerZoneY: 490,
             bodyXOffset: 75,

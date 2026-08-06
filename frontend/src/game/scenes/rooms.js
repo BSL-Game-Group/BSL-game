@@ -166,42 +166,42 @@ function setupUndressPoint(scene) {
     });
 }
 
-// Wash-up point in airlock2's bottom-right corner. Same look/click as the
-// dressing room's quick-undress spot and resets PPE the same way. App.jsx's
-// dressing-room gate doesn't listen for this event, so it still doesn't
-// replace the real checkout — it's just a reminder/decon step on the way out
-// of BSL4 (main_scene fires it as soon as the player arrives in airlock2).
-function setupAirlockWashPoint(scene) {
-    const wx = 1250;
-    const wy = 335;
+// BSL4 suit station point in airlock2's bottom-right corner. The single spot
+// where the suit goes on AND comes off: opens the same suit-only closet the
+// entry confirmation opens (see App.jsx's bsl4-suit-popup-opened handler),
+// so it also works when the player already declined the confirmation, or is
+// on the way back out and needs to strip the suit.
+function setupBsl4SuitPoint(scene) {
+    const sx = 1250;
+    const sy = 335;
     const radius = 16;
 
-    scene.airlockWashPoint = { x: wx, y: wy };
+    scene.bsl4SuitPoint = { x: sx, y: sy };
 
-    scene.airlockWashGlow = scene.add.graphics();
-    scene.airlockWashGlow.fillStyle(0x0b6623, 0.8);
-    scene.airlockWashGlow.fillCircle(wx, wy, radius);
-    scene.airlockWashGlow.lineStyle(3, 0x0b6623);
-    scene.airlockWashGlow.strokeCircle(wx, wy, radius);
-    scene.airlockWashGlow.setDepth(5);
-    scene.airlockWashGlow.setVisible(false);
+    scene.bsl4SuitGlow = scene.add.graphics();
+    scene.bsl4SuitGlow.fillStyle(0x0b6623, 0.8);
+    scene.bsl4SuitGlow.fillCircle(sx, sy, radius);
+    scene.bsl4SuitGlow.lineStyle(3, 0x0b6623);
+    scene.bsl4SuitGlow.strokeCircle(sx, sy, radius);
+    scene.bsl4SuitGlow.setDepth(5);
+    scene.bsl4SuitGlow.setVisible(false);
 
-    scene.airlockWashGlowTween = scene.tweens.add({
-        targets: scene.airlockWashGlow,
+    scene.bsl4SuitGlowTween = scene.tweens.add({
+        targets: scene.bsl4SuitGlow,
         alpha: { from: 1.0, to: 0.3 },
         duration: 1000,
         yoyo: true,
         repeat: -1,
     });
-    scene.airlockWashGlowTween.pause();
+    scene.bsl4SuitGlowTween.pause();
 
-    scene.airlockWashZone = scene.add
-        .zone(wx, wy, radius * 2.4, radius * 2.4)
+    scene.bsl4SuitZone = scene.add
+        .zone(sx, sy, radius * 2.4, radius * 2.4)
         .setInteractive({ useHandCursor: true });
 
-    scene.airlockWashZone.on('pointerdown', () => {
+    scene.bsl4SuitZone.on('pointerdown', () => {
         if (!scene.playerInsideAirlock2) {return;}
-        window.dispatchEvent(new Event('airlock-decon'));
+        window.dispatchEvent(new Event('bsl4-suit-popup-opened'));
     });
 }
 
@@ -608,7 +608,7 @@ export function createRooms(scene) {
     setupCloset(scene);
     setupBslInteractables(scene);
     setupUndressPoint(scene);
-    setupAirlockWashPoint(scene);
+    setupBsl4SuitPoint(scene);
     setupVentilationPoint(scene);
     setupLectureRoom(scene, walls);
     setupLectureInfoPoint(scene);

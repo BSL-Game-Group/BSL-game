@@ -29,10 +29,6 @@
   "title": "Visit the lecture room first",
   "message": "Before handling a microbe, you must first visit the lecture room to read about the microbe and learn its Biosafety Level (BSL)."
 },
-  "airlockWashRequired": {
-    "title": "ATTENTION",
-    "message": "Always sanitize yourself at the airlock decon spot whenever you leave the BSL4 laboratory."
-  },
   "lecturePanel": {
     "title": "Lecture Materials",
     "description": "Click a link below to open the lecture material in a new tab.",
@@ -99,7 +95,8 @@
     "pressE": "Press E",
     "exitPrompt": "Press E to exit",
     "washUp": "Press R or click to wash up",
-    "airlockWash": "Press R or click to decontaminate"
+    "bsl4Suit": "Press R or click to manage the BSL4 suit",
+    "ventilation": "Press E or click to connect/disconnect ventilation"
   },
   "exitConfirm": {
     "title": "Exit",

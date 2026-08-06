@@ -39,7 +39,6 @@ export function defaultSnapshot() {
       answer: false,
       answerLevel: '',
       lectureWarning: false,
-      airlockWarning: false,
     },
   }
 }
@@ -155,7 +154,6 @@ function validate(raw, now) {
       answer: raw.popups?.answer === true,
       answerLevel: typeof raw.popups?.answerLevel === 'string' ? raw.popups.answerLevel : '',
       lectureWarning: raw.popups?.lectureWarning === true,
-      airlockWarning: raw.popups?.airlockWarning === true,
     },
   }
 }

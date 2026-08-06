@@ -50,9 +50,6 @@ function App() {
   const [lectureWarningOpen, setLectureWarningOpen] = useState(
     restored?.popups.lectureWarning ?? false
   );
-  const [airlockWashWarningOpen, setAirlockWashWarningOpen] = useState(
-    restored?.popups.airlockWarning ?? false
-  );
   // The single owner of worn PPE. Its shape comes from EQUIPMENT_CONFIG rather
   // than a hand-written literal, so it cannot drift from the real item list.
   const [equipped, setEquipped] = useState(restored?.equipped ?? unequipAll())
@@ -89,18 +86,6 @@ function App() {
     return () => window.removeEventListener('lecture-required', handler);
   }, []);
 
-  // Soft reminder only — shown as soon as the player steps into airlock2
-  // (coming out of BSL4), nudging them to decon before continuing. It doesn't
-  // block movement or gate anything.
-  useEffect(() => {
-    const handler = () => setAirlockWashWarningOpen(true);
-
-    window.addEventListener('airlock-wash-reminder', handler);
-
-    return () =>
-      window.removeEventListener('airlock-wash-reminder', handler);
-  }, []);
-
   useEffect(() => {
     const handleUnlock = () => setMaterialsUnlocked(true);
     window.addEventListener('lecture-materials-unlocked', handleUnlock);
@@ -126,18 +111,20 @@ function App() {
     return () => window.removeEventListener('quick-undress', handler)
   }, [])
 
-  // The BSL4 airlock decon point resets worn PPE too, but on its own event —
-  // unlike quick-undress, it must NOT satisfy App's "go wash up at the
-  // dressing room" requirement, so it's kept separate from quick-undress. It
-  // also unplugs the ventilation hookup, mirroring taking the suit off.
+  // The BSL4 suit station, opened either from the entry confirmation or
+  // directly from its airlock2 hotspot (works whether the player is suiting
+  // up or coming back to strip the suit — see handleBsl4SuitClose).
   useEffect(() => {
-    const handler = () => {
-      setEquipped(unequipAll())
-      setVentilationConnected(false)
-    }
-    window.addEventListener('airlock-decon', handler)
-    return () => window.removeEventListener('airlock-decon', handler)
+    const handler = () => setBsl4SuitOpen(true)
+    window.addEventListener('bsl4-suit-popup-opened', handler)
+    return () => window.removeEventListener('bsl4-suit-popup-opened', handler)
   }, [])
+
+  // Phaser reads this to decide whether re-entering airlock2 should ask the
+  // player to suit up again (already suited players are on their way out).
+  useEffect(() => {
+    window.__bsl4Suited = Boolean(equipped.pressurized_suit)
+  }, [equipped.pressurized_suit])
 
   // Connecting requires the pressurized suit already worn; pressing the spot
   // again always disconnects. Depends on `equipped` so the handler always
@@ -202,7 +189,8 @@ function App() {
       pressE: t('phaser.pressE'),
       exitPrompt: t('phaser.exitPrompt'),
       washUp: t('phaser.washUp'),
-      airlockWash: t('phaser.airlockWash'),
+      bsl4Suit: t('phaser.bsl4Suit'),
+      ventilation: t('phaser.ventilation'),
     }
     window.__translations = translations
     EventBus.emit('translations-updated', translations)
@@ -231,7 +219,6 @@ function App() {
         answer: answerOpen,
         answerLevel,
         lectureWarning: lectureWarningOpen,
-        airlockWarning: airlockWashWarningOpen,
       },
     })
   }, [
@@ -248,7 +235,6 @@ function App() {
     answerOpen,
     answerLevel,
     lectureWarningOpen,
-    airlockWashWarningOpen,
   ])
 
   // The scene's position writes are throttled, so make sure a pending one lands
@@ -274,7 +260,6 @@ function App() {
     setCurrentMicrobe(null)
     setInfoOpen(false)
     setLectureWarningOpen(false)
-    setAirlockWashWarningOpen(false)
     setEquipped(unequipAll())
     setAwaitingUndress(false)
     setVentilationConnected(false)
@@ -322,6 +307,25 @@ function App() {
   const handleBsl4ConfirmYes = () => {
     setBsl4ConfirmOpen(false)
     setBsl4SuitOpen(true)
+  }
+
+  // The BSL4 suit station doubles as both the suiting-up point and the decon
+  // point: closing it with the suit still on means the player just geared up
+  // (so the airlock door opens for them); closing it with the suit off means
+  // they just stripped it — that IS the wash-up step, so it satisfies the
+  // same "go wash up before the next microbe" gate quick-undress does, and
+  // unplugs the ventilation the same way taking the suit off would.
+  const handleBsl4SuitClose = () => {
+    setBsl4SuitOpen(false)
+    if (equipped.pressurized_suit) {
+      window.dispatchEvent(new Event('bsl4-suit-equipped'))
+      return
+    }
+    setVentilationConnected(false)
+    if (awaitingUndress) {
+      setAwaitingUndress(false)
+      EventBus.emit('request-new-microbe')
+    }
   }
 
   useEffect(() => {
@@ -398,7 +402,7 @@ function App() {
       />
       <ClosetPopup
         open={bsl4SuitOpen}
-        onClose={() => setBsl4SuitOpen(false)}
+        onClose={handleBsl4SuitClose}
         equipped={equipped}
         setEquipped={setEquipped}
         itemFilter={(id) => id === 'pressurized_suit' || id === 'gloves'}
@@ -431,17 +435,6 @@ function App() {
             </button>
             <h2>{t('lectureRequired.title')}</h2>
             <p>{t('lectureRequired.message')}</p>
-          </div>
-        </div>
-      )}
-      {airlockWashWarningOpen && (
-        <div className="popup-overlay">
-          <div className="popup-box popup-box--incorrect">
-            <button className="popup-close-button" onClick={() => setAirlockWashWarningOpen(false)}>
-              {t('common.close')}
-            </button>
-            <h2>{t('airlockWashRequired.title')}</h2>
-            <p>{t('airlockWashRequired.message')}</p>
           </div>
         </div>
       )}
