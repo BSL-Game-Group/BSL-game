@@ -8,7 +8,7 @@ import { useTranslation } from '../../i18n/context'
 
 const CATEGORIES = Object.values(CATEGORY_CONFIG).sort((a, b) => a.order - b.order)
 
-function InventoryPanel({ equipped, onToggleEquip }) {
+function InventoryPanel({ equipped, onToggleEquip, itemFilter }) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState(CATEGORIES[0].id)
 
@@ -17,7 +17,9 @@ function InventoryPanel({ equipped, onToggleEquip }) {
     drop: (item) => onToggleEquip(item.id, false)
   }))
 
-  const itemsInTab = Object.values(EQUIPMENT_CONFIG).filter((c) => c.category === activeTab)
+  const itemsInTab = Object.values(EQUIPMENT_CONFIG)
+    .filter((c) => c.category === activeTab)
+    .filter((c) => itemFilter(c.id))
   const available = itemsInTab.filter((c) => !equipped[c.id])
 
   return (
@@ -58,7 +60,10 @@ function InventoryPanel({ equipped, onToggleEquip }) {
   )
 }
 
-function ClosetPopup({ open, onClose, equipped, setEquipped }) {
+// `itemFilter` restricts which items an instance of the closet offers — e.g. the
+// dressing room excludes the BSL4 pressurized suit (it can only be put on inside
+// BSL4's own suiting station). Defaults to offering every item.
+function ClosetPopup({ open, onClose, equipped, setEquipped, itemFilter = () => true }) {
   const { t } = useTranslation()
   const dialogRef = useRef(null)
 
@@ -179,6 +184,7 @@ function ClosetPopup({ open, onClose, equipped, setEquipped }) {
               <InventoryPanel
                 equipped={equipped}
                 onToggleEquip={handleToggleEquip}
+                itemFilter={itemFilter}
               />
             </div>
           </div>
