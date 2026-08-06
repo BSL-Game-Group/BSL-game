@@ -398,8 +398,8 @@ describe('PPE removal gate', () => {
 // -----------------------------
 // BSL4 ENTRY CONFIRMATION
 // -----------------------------
-describe('BSL4 door prompts', () => {
-  test('bsl4-suit-required shows a prompt with a Suit up button, and no ventilation button yet', () => {
+describe('BSL4 gear popup', () => {
+  test('bsl4-suit-required shows the "put it on" prompt with suit/gloves buttons, no ventilation button yet', () => {
     startGame()
 
     act(() => {
@@ -407,19 +407,23 @@ describe('BSL4 door prompts', () => {
     })
 
     expect(screen.getByText(/you're in bsl4/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /suit up/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^put on suit$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^put on gloves$/i })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /connect ventilation/i })).not.toBeInTheDocument()
   })
 
-  test('the Suit up button opens the BSL4 suiting station', () => {
+  test('clicking Put on suit / Put on gloves equips them directly, no separate closet', () => {
     startGame()
     act(() => {
       window.dispatchEvent(new Event('bsl4-suit-required'))
     })
 
-    fireEvent.click(screen.getByRole('button', { name: /suit up/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^put on suit$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^put on gloves$/i }))
 
-    expect(screen.getByText('Equipment')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^take off suit$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^take off gloves$/i })).toBeInTheDocument()
+    expect(screen.queryByText('Equipment')).not.toBeInTheDocument()
   })
 
   test('once suited, a Connect ventilation button appears in the same prompt', () => {
@@ -430,23 +434,23 @@ describe('BSL4 door prompts', () => {
       window.dispatchEvent(new Event('bsl4-suit-required'))
     })
 
-    expect(screen.getByRole('button', { name: /connect ventilation/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^connect ventilation$/i })).toBeInTheDocument()
   })
 
-  test('clicking Connect ventilation makes bsl4Ready true and closes the prompt', () => {
+  test('clicking Connect ventilation makes bsl4Ready true', () => {
     seedSavedGame({ equipped: { ...unequipAll(), pressurized_suit: true, gloves: true } })
     renderApp()
     act(() => {
       window.dispatchEvent(new Event('bsl4-suit-required'))
     })
 
-    fireEvent.click(screen.getByRole('button', { name: /connect ventilation/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^connect ventilation$/i }))
 
     expect(window.__bsl4Ready).toBe(true)
-    expect(screen.queryByText(/you're in bsl4/i)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^disconnect ventilation$/i })).toBeInTheDocument()
   })
 
-  test('bsl4-undress-required shows a prompt with a Manage suit button', () => {
+  test('bsl4-undress-required shows the "take it off" prompt when already suited', () => {
     seedSavedGame({ equipped: { ...unequipAll(), pressurized_suit: true, gloves: true } })
     renderApp()
 
@@ -456,9 +460,25 @@ describe('BSL4 door prompts', () => {
 
     expect(screen.getByText(/decontaminate before leaving/i)).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: /manage suit/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^take off suit$/i }))
 
-    expect(screen.getByText('Equipment')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^put on suit$/i })).toBeInTheDocument()
+  })
+
+  test('taking off the suit also unplugs the ventilation', () => {
+    seedSavedGame({
+      equipped: { ...unequipAll(), pressurized_suit: true, gloves: true },
+      progress: { ...defaultSnapshot().progress, ventilationConnected: true },
+    })
+    renderApp()
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-undress-required'))
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /^take off suit$/i }))
+
+    expect(window.__bsl4Ready).toBe(false)
+    expect(loadSavedGame().progress.ventilationConnected).toBe(false)
   })
 })
 
@@ -500,25 +520,9 @@ describe('BSL4 ventilation hookup', () => {
     expect(window.__bsl4Ready).toBe(false)
   })
 
-  test('closing the BSL4 suit station with the suit still on leaves ventilation connected', () => {
+  test('taking off the suit unplugs ventilation but does NOT satisfy the wash-up gate — only the dressing room does', () => {
     seedSavedGame({
       equipped: { ...unequipAll(), pressurized_suit: true, gloves: true },
-      progress: { ...defaultSnapshot().progress, ventilationConnected: true },
-    })
-    renderApp()
-
-    act(() => {
-      window.dispatchEvent(new Event('bsl4-suit-popup-opened'))
-    })
-    fireEvent.click(screen.getByRole('button', { name: /close/i }))
-
-    expect(window.__bsl4Ready).toBe(true)
-    expect(loadSavedGame().progress.ventilationConnected).toBe(true)
-  })
-
-  test('closing the BSL4 suit station with the suit off unplugs ventilation but does NOT satisfy the wash-up gate', () => {
-    seedSavedGame({
-      equipped: { ...unequipAll(), pressurized_suit: false, gloves: true },
       progress: {
         ...defaultSnapshot().progress,
         ventilationConnected: true,
@@ -528,10 +532,10 @@ describe('BSL4 ventilation hookup', () => {
     renderApp()
 
     act(() => {
-      window.dispatchEvent(new Event('bsl4-suit-popup-opened'))
+      window.dispatchEvent(new Event('bsl4-undress-required'))
     })
     EventBus.emit.mockClear()
-    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^take off suit$/i }))
 
     expect(window.__bsl4Ready).toBe(false)
     expect(loadSavedGame().progress.ventilationConnected).toBe(false)
