@@ -132,16 +132,16 @@ function createScene(overrides = {}) {
     setVisible: jest.fn(),
   }
 
-  scene.airlockWashGlowTween = {
+  scene.bsl4SuitGlowTween = {
     resume: jest.fn(),
     pause: jest.fn(),
   }
 
-  scene.airlockWashGlow = {
+  scene.bsl4SuitGlow = {
     setVisible: jest.fn(),
   }
 
-  scene.airlockWashHint = {
+  scene.bsl4SuitHint = {
     setVisible: jest.fn(),
     setPosition: jest.fn(),
   }
@@ -339,7 +339,7 @@ describe('handleDoorInteraction', () => {
     return { zone: { parentDoor: door }, door }
   }
 
-  test('pressing E toggles the door and does not reset any PPE', () => {
+  test('pressing E toggles the door and does not open the BSL4 suit station', () => {
     const scene = createScene()
     const { zone, door } = makeDoorZone()
 
@@ -350,7 +350,7 @@ describe('handleDoorInteraction', () => {
 
     expect(door.tryToChangeDoorState).toHaveBeenCalledTimes(1)
     expect(dispatchSpy).not.toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'airlock-decon' })
+      expect.objectContaining({ type: 'bsl4-suit-popup-opened' })
     )
 
     dispatchSpy.mockRestore()
@@ -368,10 +368,10 @@ describe('handleDoorInteraction', () => {
   })
 })
 
-describe('Airlock2 wash-up point behavior', () => {
+describe('Airlock2 BSL4 suit station behavior', () => {
   const airlock2Zone = { x: 1110, y: 250, width: 170, height: 110 }
 
-  test('shows the wash glow and fires a reminder as soon as the player enters airlock2', () => {
+  test('shows the suit glow and asks to suit up as soon as an unsuited player enters airlock2', () => {
     const scene = createScene({ airlock2Zone })
     scene.player.x = 1150
     scene.player.y = 300
@@ -380,17 +380,35 @@ describe('Airlock2 wash-up point behavior', () => {
 
     scene.update()
 
-    expect(scene.airlockWashGlow.setVisible).toHaveBeenCalledWith(true)
-    expect(scene.airlockWashGlowTween.resume).toHaveBeenCalled()
+    expect(scene.bsl4SuitGlow.setVisible).toHaveBeenCalledWith(true)
+    expect(scene.bsl4SuitGlowTween.resume).toHaveBeenCalled()
     expect(scene.playerInsideAirlock2).toBe(true)
     expect(dispatchSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'airlock-wash-reminder' })
+      expect.objectContaining({ type: 'bsl4-entry-confirm-opened' })
     )
 
     dispatchSpy.mockRestore()
   })
 
-  test('does not re-fire the reminder while the player stays inside airlock2', () => {
+  test('does not ask to suit up when the player is already suited', () => {
+    const scene = createScene({ airlock2Zone })
+    scene.player.x = 1150
+    scene.player.y = 300
+    window.__bsl4Suited = true
+
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+    scene.update()
+
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'bsl4-entry-confirm-opened' })
+    )
+
+    dispatchSpy.mockRestore()
+    delete window.__bsl4Suited
+  })
+
+  test('does not re-fire the confirmation while the player stays inside airlock2', () => {
     const scene = createScene({ airlock2Zone, playerInsideAirlock2: true })
     scene.player.x = 1150
     scene.player.y = 300
@@ -400,25 +418,25 @@ describe('Airlock2 wash-up point behavior', () => {
     scene.update()
 
     expect(dispatchSpy).not.toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'airlock-wash-reminder' })
+      expect.objectContaining({ type: 'bsl4-entry-confirm-opened' })
     )
 
     dispatchSpy.mockRestore()
   })
 
-  test('hides the wash glow when leaving airlock2', () => {
+  test('hides the suit glow when leaving airlock2', () => {
     const scene = createScene({ airlock2Zone, playerInsideAirlock2: true })
     scene.player.x = 500
     scene.player.y = 500 // outside airlock2
 
     scene.update()
 
-    expect(scene.airlockWashGlow.setVisible).toHaveBeenCalledWith(false)
-    expect(scene.airlockWashGlowTween.pause).toHaveBeenCalled()
+    expect(scene.bsl4SuitGlow.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.bsl4SuitGlowTween.pause).toHaveBeenCalled()
     expect(scene.playerInsideAirlock2).toBe(false)
   })
 
-  test('pressing R washes up from anywhere in airlock2', () => {
+  test('pressing R opens the BSL4 suit station from anywhere in airlock2', () => {
     const scene = createScene({ airlock2Zone })
     scene.player.x = 1150
     scene.player.y = 300
@@ -429,13 +447,13 @@ describe('Airlock2 wash-up point behavior', () => {
     scene.update()
 
     expect(dispatchSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'airlock-decon' })
+      expect.objectContaining({ type: 'bsl4-suit-popup-opened' })
     )
 
     dispatchSpy.mockRestore()
   })
 
-  test('pressing R outside airlock2 does not wash up', () => {
+  test('pressing R outside airlock2 does not open the suit station', () => {
     const scene = createScene({ airlock2Zone })
     scene.player.x = 500
     scene.player.y = 500
@@ -446,33 +464,33 @@ describe('Airlock2 wash-up point behavior', () => {
     scene.update()
 
     expect(dispatchSpy).not.toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'airlock-decon' })
+      expect.objectContaining({ type: 'bsl4-suit-popup-opened' })
     )
 
     dispatchSpy.mockRestore()
   })
 
-  test('shows the decon hint below the glow when close to the wash point', () => {
-    const airlockWashPoint = { x: 1250, y: 335 }
-    const scene = createScene({ airlock2Zone, airlockWashPoint })
+  test('shows the suit station hint below the glow when close to the point', () => {
+    const bsl4SuitPoint = { x: 1250, y: 335 }
+    const scene = createScene({ airlock2Zone, bsl4SuitPoint })
     scene.player.x = 1250
     scene.player.y = 335
 
     scene.update()
 
-    expect(scene.airlockWashHint.setVisible).toHaveBeenCalledWith(true)
-    expect(scene.airlockWashHint.setPosition).toHaveBeenCalledWith(930, 365)
+    expect(scene.bsl4SuitHint.setVisible).toHaveBeenCalledWith(true)
+    expect(scene.bsl4SuitHint.setPosition).toHaveBeenCalledWith(930, 365)
   })
 
-  test('hides the decon hint when far from the wash point', () => {
-    const airlockWashPoint = { x: 1250, y: 335 }
-    const scene = createScene({ airlock2Zone, airlockWashPoint })
+  test('hides the suit station hint when far from the point', () => {
+    const bsl4SuitPoint = { x: 1250, y: 335 }
+    const scene = createScene({ airlock2Zone, bsl4SuitPoint })
     scene.player.x = 1120
     scene.player.y = 260
 
     scene.update()
 
-    expect(scene.airlockWashHint.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.bsl4SuitHint.setVisible).toHaveBeenCalledWith(false)
   })
 })
 
@@ -870,7 +888,7 @@ describe('presence flags after a reload', () => {
     }
   }
 
-  test('seeds the airlock2 flag so the wash reminder is not re-fired on reload', () => {
+  test('seeds the airlock2 flag so the suit-up confirmation is not re-fired on reload', () => {
     const scene = createScene({ airlock2Zone })
     scene.player.x = 1150
     scene.player.y = 300
@@ -883,7 +901,7 @@ describe('presence flags after a reload', () => {
     scene.update()
 
     expect(spy).not.toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'airlock-wash-reminder' })
+      expect.objectContaining({ type: 'bsl4-entry-confirm-opened' })
     )
 
     spy.mockRestore()
@@ -922,70 +940,9 @@ describe('presence flags after a reload', () => {
     expect(scene.notifyRoomEntry).toHaveBeenCalledWith('BSL-1')
   })
 
-  test('walking into BSL-4 dispatches the entry confirmation event', () => {
-    const bsl4Zone = { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 }
-    const entry = fakeGlowEntry(bsl4Zone)
-    const scene = createScene({ bslGlows: [entry] })
-    scene.player.x = 100
-    scene.player.y = 100
-    scene.notifyRoomEntry = jest.fn()
-    scene.seedPresenceFlags()
+  // The BSL4 entry confirmation now fires on airlock2 entry, not BSL-4 zone
+  // entry — see "Airlock2 BSL4 suit station behavior" above.
 
-    const spy = jest.spyOn(window, 'dispatchEvent')
-    scene.player.x = 1000
-    scene.player.y = 100
-    scene.update()
-
-    expect(spy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'bsl4-entry-confirm-opened' })
-    )
-    spy.mockRestore()
-  })
-
-  test('walking into a non-BSL4 room does not dispatch the BSL4 entry confirmation', () => {
-    const entry = fakeGlowEntry(bslZone)
-    const scene = createScene({ bslGlows: [entry] })
-    scene.player.x = 100
-    scene.player.y = 100
-    scene.notifyRoomEntry = jest.fn()
-    scene.seedPresenceFlags()
-
-    const spy = jest.spyOn(window, 'dispatchEvent')
-    scene.player.x = 800
-    scene.player.y = 600
-    scene.update()
-
-    expect(spy).not.toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'bsl4-entry-confirm-opened' })
-    )
-    spy.mockRestore()
-  })
-
-  test('re-entering BSL-4 after leaving asks for confirmation again', () => {
-    const bsl4Zone = { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 }
-    const entry = fakeGlowEntry(bsl4Zone)
-    const scene = createScene({ bslGlows: [entry] })
-    scene.player.x = 1000
-    scene.player.y = 100
-    scene.notifyRoomEntry = jest.fn()
-    scene.seedPresenceFlags()
-
-    // Leave the room.
-    scene.player.x = 100
-    scene.player.y = 100
-    scene.update()
-
-    const spy = jest.spyOn(window, 'dispatchEvent')
-    // Walk back in.
-    scene.player.x = 1000
-    scene.player.y = 100
-    scene.update()
-
-    expect(spy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'bsl4-entry-confirm-opened' })
-    )
-    spy.mockRestore()
-  })
 
   test('seeds the dressing room flag and shows its glows', () => {
     const ppeRoomZone = { x: 0, y: 430, width: 700, height: 290 }

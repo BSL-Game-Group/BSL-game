@@ -336,32 +336,6 @@ test('info popup opens on info-popup-opened event and shows the steps', () => {
 })
 
 // -----------------------------
-// AIRLOCK2 WASH REMINDER (soft, non-blocking) TESTS
-// -----------------------------
-test('shows a soft reminder when entering airlock2', () => {
-  startGame()
-
-  act(() => {
-    window.dispatchEvent(new Event('airlock-wash-reminder'))
-  })
-
-  expect(screen.getByRole('heading', { name: /attention/i })).toBeInTheDocument()
-})
-
-test('the airlock wash reminder does NOT gate the next microbe', () => {
-  openAnswerPopup('BSL-2')
-
-  fireEvent.click(screen.getByRole('button', { name: /close/i }))
-  EventBus.emit.mockClear()
-
-  act(() => {
-    window.dispatchEvent(new Event('airlock-wash-reminder'))
-  })
-
-  expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
-})
-
-// -----------------------------
 // UNDRESS-BEFORE-NEXT-MICROBE TESTS
 // -----------------------------
 describe('PPE removal gate', () => {
@@ -419,18 +393,6 @@ describe('PPE removal gate', () => {
     expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
   })
 
-  test('the BSL4 airlock decon point does NOT satisfy the wash-up requirement', () => {
-    openAnswerPopup('BSL-2')
-
-    fireEvent.click(screen.getByRole('button', { name: /close/i }))
-    EventBus.emit.mockClear()
-
-    act(() => {
-      window.dispatchEvent(new Event('airlock-decon'))
-    })
-
-    expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
-  })
 })
 
 // -----------------------------
@@ -518,21 +480,46 @@ describe('BSL4 ventilation hookup', () => {
     expect(window.__bsl4Ready).toBe(false)
   })
 
-  test('the BSL4 airlock decon point also unplugs the ventilation', () => {
+  test('closing the BSL4 suit station with the suit still on dispatches bsl4-suit-equipped and leaves ventilation connected', () => {
     seedSavedGame({
       equipped: { ...unequipAll(), pressurized_suit: true, gloves: true },
       progress: { ...defaultSnapshot().progress, ventilationConnected: true },
     })
     renderApp()
 
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-suit-popup-opened'))
+    })
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'bsl4-suit-equipped' })
+    )
     expect(window.__bsl4Ready).toBe(true)
+    spy.mockRestore()
+  })
+
+  test('closing the BSL4 suit station with the suit off unplugs ventilation and satisfies the wash-up gate', () => {
+    seedSavedGame({
+      equipped: { ...unequipAll(), pressurized_suit: false, gloves: true },
+      progress: {
+        ...defaultSnapshot().progress,
+        ventilationConnected: true,
+        awaitingUndress: true,
+      },
+    })
+    renderApp()
 
     act(() => {
-      window.dispatchEvent(new Event('airlock-decon'))
+      window.dispatchEvent(new Event('bsl4-suit-popup-opened'))
     })
+    EventBus.emit.mockClear()
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
 
     expect(window.__bsl4Ready).toBe(false)
     expect(loadSavedGame().progress.ventilationConnected).toBe(false)
+    expect(EventBus.emit).toHaveBeenCalledWith('request-new-microbe')
   })
 
   test('bsl4-not-ready shows a closable warning popup', () => {
@@ -594,20 +581,6 @@ describe('worn PPE is owned by App', () => {
     const spy = jest.spyOn(window, 'dispatchEvent')
     act(() => {
       window.dispatchEvent(new Event('quick-undress'))
-    })
-
-    expect(lastEquipmentBroadcast(spy).detail).toEqual(unequipAll())
-
-    spy.mockRestore()
-  })
-
-  test('the airlock-decon event strips all PPE', () => {
-    openCloset()
-    fireEvent.click(screen.getByText('test-equip-mask'))
-
-    const spy = jest.spyOn(window, 'dispatchEvent')
-    act(() => {
-      window.dispatchEvent(new Event('airlock-decon'))
     })
 
     expect(lastEquipmentBroadcast(spy).detail).toEqual(unequipAll())

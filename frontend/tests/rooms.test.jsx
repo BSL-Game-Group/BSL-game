@@ -435,29 +435,29 @@ describe('setupUndressPoint (via createRooms)', () => {
   })
 })
 
-describe('setupAirlockWashPoint (via createRooms)', () => {
+describe('setupBsl4SuitPoint (via createRooms)', () => {
   test('creates a hidden glow in the bottom-right corner of airlock2', () => {
     const scene = makeFakeScene()
 
     createRooms(scene)
 
-    expect(scene.airlockWashPoint).toEqual({ x: 1250, y: 335 })
+    expect(scene.bsl4SuitPoint).toEqual({ x: 1250, y: 335 })
     expect(scene.airlock2Zone).toEqual({ x: 1110, y: 250, width: 170, height: 110 })
-    expect(scene.airlockWashGlow.setVisible).toHaveBeenCalledWith(false)
-    expect(scene.airlockWashZone.setInteractive).toHaveBeenCalled()
+    expect(scene.bsl4SuitGlow.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.bsl4SuitZone.setInteractive).toHaveBeenCalled()
   })
 
-  test('clicking it while inside airlock2 fires airlock-decon', () => {
+  test('clicking it while inside airlock2 fires bsl4-suit-popup-opened', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
     const listener = jest.fn()
-    window.addEventListener('airlock-decon', listener)
+    window.addEventListener('bsl4-suit-popup-opened', listener)
     scene.playerInsideAirlock2 = true
 
-    scene.airlockWashZone.handlers.pointerdown()
+    scene.bsl4SuitZone.handlers.pointerdown()
 
-    window.removeEventListener('airlock-decon', listener)
+    window.removeEventListener('bsl4-suit-popup-opened', listener)
     expect(listener).toHaveBeenCalledTimes(1)
   })
 
@@ -466,12 +466,12 @@ describe('setupAirlockWashPoint (via createRooms)', () => {
     createRooms(scene)
 
     const listener = jest.fn()
-    window.addEventListener('airlock-decon', listener)
+    window.addEventListener('bsl4-suit-popup-opened', listener)
     scene.playerInsideAirlock2 = false
 
-    scene.airlockWashZone.handlers.pointerdown()
+    scene.bsl4SuitZone.handlers.pointerdown()
 
-    window.removeEventListener('airlock-decon', listener)
+    window.removeEventListener('bsl4-suit-popup-opened', listener)
     expect(listener).not.toHaveBeenCalled()
   })
 })
