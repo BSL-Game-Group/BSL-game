@@ -275,11 +275,6 @@ test('create registers window event listeners', () => {
     expect.any(Function)
   )
 
-  expect(spy).toHaveBeenCalledWith(
-    'bsl4-suit-equipped',
-    expect.any(Function)
-  )
-
   spy.mockRestore()
 })
 
@@ -292,31 +287,6 @@ test('create registers shutdown handler', () => {
     'shutdown',
     expect.any(Function)
   )
-})
-
-// -----------------------------
-// BSL4 SUIT-EQUIPPED -> AUTO-OPEN DOOR
-// -----------------------------
-describe('bsl4-suit-equipped', () => {
-  test('opens the BSL4 door when it is closed', () => {
-    const scene = createScene()
-    scene.create()
-    scene.bsl4Door = { isOpen: false, tryToChangeDoorState: jest.fn() }
-
-    window.dispatchEvent(new Event('bsl4-suit-equipped'))
-
-    expect(scene.bsl4Door.tryToChangeDoorState).toHaveBeenCalledTimes(1)
-  })
-
-  test('does nothing when the door is already open', () => {
-    const scene = createScene()
-    scene.create()
-    scene.bsl4Door = { isOpen: true, tryToChangeDoorState: jest.fn() }
-
-    window.dispatchEvent(new Event('bsl4-suit-equipped'))
-
-    expect(scene.bsl4Door.tryToChangeDoorState).not.toHaveBeenCalled()
-  })
 })
 
 // -----------------------------

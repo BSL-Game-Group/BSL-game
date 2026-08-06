@@ -398,46 +398,66 @@ describe('PPE removal gate', () => {
 // -----------------------------
 // BSL4 ENTRY CONFIRMATION
 // -----------------------------
-describe('BSL4 entry confirmation', () => {
-  function enterBsl4() {
+describe('BSL4 door prompts', () => {
+  test('bsl4-suit-required shows a prompt with a Suit up button, and no ventilation button yet', () => {
+    startGame()
+
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-suit-required'))
+    })
+
+    expect(screen.getByText(/bsl4 requires a suit/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /suit up/i })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /connect ventilation/i })).not.toBeInTheDocument()
+  })
+
+  test('the Suit up button opens the BSL4 suiting station', () => {
     startGame()
     act(() => {
-      window.dispatchEvent(new Event('bsl4-entry-confirm-opened'))
+      window.dispatchEvent(new Event('bsl4-suit-required'))
     })
-  }
 
-  test('shows a Yes/No confirmation dialog on BSL4 entry', () => {
-    enterBsl4()
+    fireEvent.click(screen.getByRole('button', { name: /suit up/i }))
 
-    expect(screen.getByRole('dialog', { name: /enter bsl4/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^yes$/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^no$/i })).toBeInTheDocument()
+    expect(screen.getByText('Equipment')).toBeInTheDocument()
   })
 
-  test('locks movement while the confirmation is open', () => {
-    const spy = jest.spyOn(window, 'dispatchEvent')
+  test('once suited, a Connect ventilation button appears in the same prompt', () => {
+    seedSavedGame({ equipped: { ...unequipAll(), pressurized_suit: true, gloves: true } })
+    renderApp()
 
-    enterBsl4()
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-suit-required'))
+    })
 
-    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: 'popup-opened' }))
-    spy.mockRestore()
+    expect(screen.getByRole('button', { name: /connect ventilation/i })).toBeInTheDocument()
   })
 
-  test('answering No closes the dialog and does not open the suiting station', () => {
-    enterBsl4()
+  test('clicking Connect ventilation makes bsl4Ready true and closes the prompt', () => {
+    seedSavedGame({ equipped: { ...unequipAll(), pressurized_suit: true, gloves: true } })
+    renderApp()
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-suit-required'))
+    })
 
-    fireEvent.click(screen.getByRole('button', { name: /^no$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /connect ventilation/i }))
 
-    expect(screen.queryByRole('dialog', { name: /enter bsl4/i })).not.toBeInTheDocument()
-    expect(screen.queryByText('Equipment')).not.toBeInTheDocument()
+    expect(window.__bsl4Ready).toBe(true)
+    expect(screen.queryByText(/bsl4 requires a suit/i)).not.toBeInTheDocument()
   })
 
-  test('answering Yes closes the dialog and opens the BSL4 suiting station', () => {
-    enterBsl4()
+  test('bsl4-undress-required shows a prompt with a Manage suit button', () => {
+    seedSavedGame({ equipped: { ...unequipAll(), pressurized_suit: true, gloves: true } })
+    renderApp()
 
-    fireEvent.click(screen.getByRole('button', { name: /^yes$/i }))
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-undress-required'))
+    })
 
-    expect(screen.queryByRole('dialog', { name: /enter bsl4/i })).not.toBeInTheDocument()
+    expect(screen.getByText(/decontaminate before leaving/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /manage suit/i }))
+
     expect(screen.getByText('Equipment')).toBeInTheDocument()
   })
 })
@@ -480,7 +500,7 @@ describe('BSL4 ventilation hookup', () => {
     expect(window.__bsl4Ready).toBe(false)
   })
 
-  test('closing the BSL4 suit station with the suit still on dispatches bsl4-suit-equipped and leaves ventilation connected', () => {
+  test('closing the BSL4 suit station with the suit still on leaves ventilation connected', () => {
     seedSavedGame({
       equipped: { ...unequipAll(), pressurized_suit: true, gloves: true },
       progress: { ...defaultSnapshot().progress, ventilationConnected: true },
@@ -490,14 +510,10 @@ describe('BSL4 ventilation hookup', () => {
     act(() => {
       window.dispatchEvent(new Event('bsl4-suit-popup-opened'))
     })
-    const spy = jest.spyOn(window, 'dispatchEvent')
     fireEvent.click(screen.getByRole('button', { name: /close/i }))
 
-    expect(spy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'bsl4-suit-equipped' })
-    )
     expect(window.__bsl4Ready).toBe(true)
-    spy.mockRestore()
+    expect(loadSavedGame().progress.ventilationConnected).toBe(true)
   })
 
   test('closing the BSL4 suit station with the suit off unplugs ventilation and satisfies the wash-up gate', () => {
