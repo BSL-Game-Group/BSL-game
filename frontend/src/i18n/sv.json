@@ -102,18 +102,13 @@
     "yes": "JA",
     "no": "NEJ"
   },
-  "bsl4Suit": {
-    "title": "BSL4 påklädningsstation"
-  },
   "bsl4NotReady": {
     "title": "Inte redo för BSL4",
     "message": "Ta på dig den trycksatta dräkten, koppla den till den externa ventilationen och stäng slussdörren innan du hanterar en mikrob här inne."
   },
   "bsl4SuitRequired": {
     "title": "Du är i BSL4",
-    "message": "Ta på dig den trycksatta dräkten och koppla den till den externa ventilationen — du måste ha dräkten på hela tiden du är här inne.",
-    "suitUpButton": "Ta på dräkten",
-    "connectVentilationButton": "Koppla ventilationen"
+    "message": "Ta på dig den trycksatta dräkten och koppla den till den externa ventilationen — du måste ha dräkten på hela tiden du är här inne."
   },
   "bslDoorRequired": {
     "title": "Stäng slussdörren först",
@@ -121,7 +116,14 @@
   },
   "bsl4UndressRequired": {
     "title": "Dekontaminera innan du lämnar",
-    "message": "Ta av den trycksatta dräkten och koppla ur den externa ventilationen innan dörren öppnas.",
-    "manageSuitButton": "Hantera dräkten"
+    "message": "Ta av den trycksatta dräkten och koppla ur den externa ventilationen innan dörren öppnas."
+  },
+  "bsl4Gear": {
+    "wearSuitButton": "Ta på dräkten",
+    "removeSuitButton": "Ta av dräkten",
+    "wearGlovesButton": "Ta på handskarna",
+    "removeGlovesButton": "Ta av handskarna",
+    "connectVentilationButton": "Koppla ventilationen",
+    "disconnectVentilationButton": "Koppla ur ventilationen"
   }
 }
