@@ -166,84 +166,6 @@ function setupUndressPoint(scene) {
     });
 }
 
-// BSL4 suit station point in airlock2's bottom-right corner. The single spot
-// where the suit goes on AND comes off: opens the same suit-only closet the
-// entry confirmation opens (see App.jsx's bsl4-suit-popup-opened handler),
-// so it also works when the player already declined the confirmation, or is
-// on the way back out and needs to strip the suit.
-function setupBsl4SuitPoint(scene) {
-    const sx = 1250;
-    const sy = 335;
-    const radius = 16;
-
-    scene.bsl4SuitPoint = { x: sx, y: sy };
-
-    scene.bsl4SuitGlow = scene.add.graphics();
-    scene.bsl4SuitGlow.fillStyle(0x0b6623, 0.8);
-    scene.bsl4SuitGlow.fillCircle(sx, sy, radius);
-    scene.bsl4SuitGlow.lineStyle(3, 0x0b6623);
-    scene.bsl4SuitGlow.strokeCircle(sx, sy, radius);
-    scene.bsl4SuitGlow.setDepth(5);
-    scene.bsl4SuitGlow.setVisible(false);
-
-    scene.bsl4SuitGlowTween = scene.tweens.add({
-        targets: scene.bsl4SuitGlow,
-        alpha: { from: 1.0, to: 0.3 },
-        duration: 1000,
-        yoyo: true,
-        repeat: -1,
-    });
-    scene.bsl4SuitGlowTween.pause();
-
-    scene.bsl4SuitZone = scene.add
-        .zone(sx, sy, radius * 2.4, radius * 2.4)
-        .setInteractive({ useHandCursor: true });
-
-    scene.bsl4SuitZone.on('pointerdown', () => {
-        if (!scene.playerInsideAirlock2) {return;}
-        window.dispatchEvent(new Event('bsl4-suit-popup-opened'));
-    });
-}
-
-// Ventilation hookup inside airlock2, right against the wall behind which the
-// air-systems machine sits (airCell, y:360-470). The BSL4 suit is useless
-// without this: connecting requires the suit already worn (checked in App),
-// and pressing it again disconnects — so it doubles as the decon step's
-// "unplug before you strip the suit" cue.
-function setupVentilationPoint(scene) {
-    const vx = 1195;
-    const vy = 350;
-    const radius = 16;
-
-    scene.ventilationPoint = { x: vx, y: vy };
-
-    scene.ventilationGlow = scene.add.graphics();
-    scene.ventilationGlow.fillStyle(0x0b6623, 0.8);
-    scene.ventilationGlow.fillCircle(vx, vy, radius);
-    scene.ventilationGlow.lineStyle(3, 0x0b6623);
-    scene.ventilationGlow.strokeCircle(vx, vy, radius);
-    scene.ventilationGlow.setDepth(5);
-    scene.ventilationGlow.setVisible(false);
-
-    scene.ventilationGlowTween = scene.tweens.add({
-        targets: scene.ventilationGlow,
-        alpha: { from: 1.0, to: 0.3 },
-        duration: 1000,
-        yoyo: true,
-        repeat: -1,
-    });
-    scene.ventilationGlowTween.pause();
-
-    scene.ventilationZone = scene.add
-        .zone(vx, vy, radius * 2.4, radius * 2.4)
-        .setInteractive({ useHandCursor: true });
-
-    scene.ventilationZone.on('pointerdown', () => {
-        if (!scene.playerInsideAirlock2) {return;}
-        window.dispatchEvent(new Event('ventilation-toggle-requested'));
-    });
-}
-
 // Dark green glow interactable inside each BSL room. Placeholder for the real element
 // (image TBD with the team) — pressing E or clicking it opens the answer popup.
 // Position per room: BSL-1/2/4 top-left, BSL-3 top-centre.
@@ -299,7 +221,7 @@ function setupBslInteractables(scene) {
                 window.dispatchEvent(new Event('lecture-required'));
                 return;
             }
-            if (entry.key === 'BSL-4' && !window.__bsl4Ready) {
+            if (entry.key === 'BSL-4' && (!window.__bsl4Ready || scene.bsl4Door?.isOpen)) {
                 window.dispatchEvent(new Event('bsl4-not-ready'));
                 return;
             }
@@ -608,8 +530,6 @@ export function createRooms(scene) {
     setupCloset(scene);
     setupBslInteractables(scene);
     setupUndressPoint(scene);
-    setupBsl4SuitPoint(scene);
-    setupVentilationPoint(scene);
     setupLectureRoom(scene, walls);
     setupLectureInfoPoint(scene);
     setupDressingRoomDeadzones(scene, walls);

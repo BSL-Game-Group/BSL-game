@@ -94,19 +94,11 @@
     "openCloset": "Öppna garderobsskåpet",
     "pressE": "Tryck E",
     "exitPrompt": "Tryck E för att lämna",
-    "washUp": "Tryck R eller klicka för att tvätta dig",
-    "bsl4Suit": "Tryck R eller klicka för att hantera BSL4-dräkten",
-    "ventilation": "Tryck E eller klicka för att koppla/koppla ur ventilationen"
+    "washUp": "Tryck R eller klicka för att tvätta dig"
   },
   "exitConfirm": {
     "title": "Avsluta",
     "message": "Vill du lämna spelet och gå tillbaka till startsidan?",
-    "yes": "JA",
-    "no": "NEJ"
-  },
-  "bsl4EntryConfirm": {
-    "title": "Gå in i BSL4?",
-    "message": "BSL4 kräver en trycksatt dräkt kopplad till det externa ventilationssystemet. Vill du gå in?",
     "yes": "JA",
     "no": "NEJ"
   },
@@ -115,6 +107,17 @@
   },
   "bsl4NotReady": {
     "title": "Inte redo för BSL4",
-    "message": "Ta på dig den trycksatta dräkten och koppla den till den externa ventilationen innan du hanterar en mikrob här inne."
+    "message": "Ta på dig den trycksatta dräkten, koppla den till den externa ventilationen och stäng slussdörren innan du hanterar en mikrob här inne."
+  },
+  "bsl4SuitRequired": {
+    "title": "BSL4 kräver en dräkt",
+    "message": "Du behöver ta på dig den trycksatta dräkten och koppla den till den externa ventilationen innan du kan gå in.",
+    "suitUpButton": "Ta på dräkten",
+    "connectVentilationButton": "Koppla ventilationen"
+  },
+  "bsl4UndressRequired": {
+    "title": "Dekontaminera innan du lämnar",
+    "message": "Ta av den trycksatta dräkten och koppla ur den externa ventilationen innan dörren öppnas.",
+    "manageSuitButton": "Hantera dräkten"
   }
 }

@@ -341,24 +341,11 @@ class MainScene extends Phaser.Scene {
         window.addEventListener('popup-opened', this.handlePopupOpen);
         window.addEventListener('popup-closed', this.handlePopupClosed);
 
-        // Opens the BSL4 <-> airlock2 door for the player once they've finished
-        // suiting up, so they don't also have to press E on the door itself.
-        // Guarded on isOpen: tryToChangeDoorState() is a toggle, and this event
-        // can fire again (e.g. re-opening the suit station to check) without
-        // the player having left through the door yet.
-        this.handleBsl4SuitEquipped = () => {
-            if (this.bsl4Door && !this.bsl4Door.isOpen) {
-                this.bsl4Door.tryToChangeDoorState();
-            }
-        };
-        window.addEventListener('bsl4-suit-equipped', this.handleBsl4SuitEquipped);
-
         // Clean up event listeners if the scene ever restarts/destroys
         this.events.on('shutdown', () => {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
             window.removeEventListener('popup-opened', this.handlePopupOpen);
             window.removeEventListener('popup-closed', this.handlePopupClosed);
-            window.removeEventListener('bsl4-suit-equipped', this.handleBsl4SuitEquipped);
             if (this.handleNewMicrobeRequest) {
                 EventBus.off('request-new-microbe', this.handleNewMicrobeRequest);
             }
@@ -386,7 +373,10 @@ class MainScene extends Phaser.Scene {
         this.playerInsideLectureRoom = false;
         this.playerInsideExitRoom = false;
         this.playerInsideDressingRoom = false;
-        this.playerInsideAirlock2 = false;
+        // True while the player is physically inside the BSL-4 room, suited or
+        // not — flips the BSL4 door's E-press semantics between "asking to
+        // enter" and "asking to leave" (see handleBsl4DoorPress).
+        this.bsl4Occupied = false;
         this.closetHint = this.add.text(0, 0, "", {
             fontSize: "14px",
             backgroundColor: "#222222",
@@ -396,22 +386,6 @@ class MainScene extends Phaser.Scene {
 
         // Proximity hint over the quick-undress spot, reminding the player to wash up.
         this.undressHint = this.add.text(0, 0, "", {
-            fontSize: "14px",
-            backgroundColor: "#222222",
-            color: "#ffffff",
-            padding: { left: 6, right: 6, top: 3, bottom: 3 }
-        }).setDepth(1000).setVisible(false);
-
-        // Proximity hint over the BSL4 suit station.
-        this.bsl4SuitHint = this.add.text(0, 0, "", {
-            fontSize: "14px",
-            backgroundColor: "#222222",
-            color: "#ffffff",
-            padding: { left: 6, right: 6, top: 3, bottom: 3 }
-        }).setDepth(1000).setVisible(false);
-
-        // Proximity hint over the ventilation hookup spot.
-        this.ventilationHint = this.add.text(0, 0, "", {
             fontSize: "14px",
             backgroundColor: "#222222",
             color: "#ffffff",
@@ -433,8 +407,6 @@ class MainScene extends Phaser.Scene {
             openCloset: window.__translations?.openCloset ?? 'Open Closet',
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
-            bsl4Suit: window.__translations?.bsl4Suit ?? 'Press R or click to manage the BSL4 suit',
-            ventilation: window.__translations?.ventilation ?? 'Press E or click to connect/disconnect ventilation'
         })
         // Keep the task the player was already working on; only roll a new one
         // when there is nothing to restore.
@@ -474,12 +446,6 @@ class MainScene extends Phaser.Scene {
         }
         if (this.undressHint) {
             this.undressHint.setText(translations.washUp)
-        }
-        if (this.bsl4SuitHint) {
-            this.bsl4SuitHint.setText(translations.bsl4Suit)
-        }
-        if (this.ventilationHint) {
-            this.ventilationHint.setText(translations.ventilation)
         }
         if (this.bslHint) {
             this.bslHint.setText(translations.pressE)
@@ -798,86 +764,6 @@ class MainScene extends Phaser.Scene {
             }
         }
 
-        // Airlock2 is BSL4's anteroom: this is where the suit goes on before
-        // going in, and comes back off on the way out. Entering here unsuited
-        // asks whether the player wants to suit up (bsl4-entry-confirm-opened);
-        // already suited (e.g. coming back out of BSL4), it stays quiet — the
-        // suit station glow is always available for managing the suit either way.
-        if (this.airlock2Zone) {
-            const inside = playerIsInsideZone(this.player, this.airlock2Zone);
-
-            if (inside && !this.playerInsideAirlock2) {
-                if (this.bsl4SuitGlow) {
-                    this.bsl4SuitGlow.setVisible(true);
-                    if (this.bsl4SuitGlowTween) {
-                        this.bsl4SuitGlowTween.resume();
-                    }
-                }
-                if (this.ventilationGlow) {
-                    this.ventilationGlow.setVisible(true);
-                    if (this.ventilationGlowTween) {
-                        this.ventilationGlowTween.resume();
-                    }
-                }
-                this.playerInsideAirlock2 = true;
-                if (!window.__bsl4Suited) {
-                    window.dispatchEvent(new Event('bsl4-entry-confirm-opened'));
-                }
-            } else if (!inside && this.playerInsideAirlock2) {
-                if (this.bsl4SuitGlow) {
-                    this.bsl4SuitGlow.setVisible(false);
-                    if (this.bsl4SuitGlowTween) {
-                        this.bsl4SuitGlowTween.pause();
-                    }
-                }
-                if (this.ventilationGlow) {
-                    this.ventilationGlow.setVisible(false);
-                    if (this.ventilationGlowTween) {
-                        this.ventilationGlowTween.pause();
-                    }
-                }
-                this.playerInsideAirlock2 = false;
-            }
-
-            // R opens the BSL4 suit station from anywhere in airlock2, same
-            // reach as the dressing room's R.
-            if (inside && this.justPressed(this.keyR)) {
-                window.dispatchEvent(new Event('bsl4-suit-popup-opened'));
-            }
-
-            // E toggles the ventilation hookup from anywhere in airlock2, same
-            // reach pattern as the closet/wash-up spots.
-            if (inside && this.justPressed(this.keyE)) {
-                window.dispatchEvent(new Event('ventilation-toggle-requested'));
-            }
-
-            // Proximity hint, positioned BELOW the glow (unlike the dressing
-            // room's, which sits above its point).
-            if (inside && this.bsl4SuitHint && this.bsl4SuitPoint) {
-                const dist = Phaser.Math.Distance.Between(
-                    this.player.x, this.player.y, this.bsl4SuitPoint.x, this.bsl4SuitPoint.y
-                );
-                const closeEnough = dist < 90;
-
-                this.bsl4SuitHint.setVisible(closeEnough);
-                if (closeEnough) {
-                    this.bsl4SuitHint.setPosition(this.bsl4SuitPoint.x - 320, this.bsl4SuitPoint.y + 30);
-                }
-            }
-
-            if (inside && this.ventilationHint && this.ventilationPoint) {
-                const dist = Phaser.Math.Distance.Between(
-                    this.player.x, this.player.y, this.ventilationPoint.x, this.ventilationPoint.y
-                );
-                const closeEnough = dist < 90;
-
-                this.ventilationHint.setVisible(closeEnough);
-                if (closeEnough) {
-                    this.ventilationHint.setPosition(this.ventilationPoint.x - 60, this.ventilationPoint.y - 45);
-                }
-            }
-        }
-
         // Info point: only active in the corridor. Show the glow and a Press E hint
         // there, and open the how-to-play popup on E.
         if (this.infoGlow && this.corridorZone && this.infoPoint) {
@@ -908,10 +794,16 @@ class MainScene extends Phaser.Scene {
                     entry.tween.resume();
                     entry.playerInside = true;
                     this.notifyRoomEntry(entry.key);
+                    if (entry.key === 'BSL-4') {
+                        this.bsl4Occupied = true;
+                    }
                 } else if (!inside && entry.playerInside) {
                     entry.glow.setVisible(false);
                     entry.tween.pause();
                     entry.playerInside = false;
+                    if (entry.key === 'BSL-4') {
+                        this.bsl4Occupied = false;
+                    }
                 }
 
                 if (inside) {
@@ -921,7 +813,7 @@ class MainScene extends Phaser.Scene {
 
                         if (!window.__lectureOpen) {
                             window.dispatchEvent(new Event('lecture-required'));
-                        } else if (entry.key === 'BSL-4' && !window.__bsl4Ready) {
+                        } else if (entry.key === 'BSL-4' && (!window.__bsl4Ready || this.bsl4Door?.isOpen)) {
                             window.dispatchEvent(new Event('bsl4-not-ready'));
                         } else {
                             window.dispatchEvent(
@@ -970,8 +862,8 @@ class MainScene extends Phaser.Scene {
 
     // After restoring a saved position, the scene must already know which rooms
     // the player is standing in. Otherwise update()'s first frame reads every
-    // room as a fresh entry: airlock2 re-asks the suiting-up confirmation, and a
-    // BSL room POSTs a duplicate room_entries row for a room the player never left.
+    // room as a fresh entry: a BSL room POSTs a duplicate room_entries row for a
+    // room the player never left, and BSL-4 forgets it was already occupied.
     seedPresenceFlags() {
         if (this.lectureRoomZone) {
             this.playerInsideLectureRoom = playerIsInsideZone(this.player, this.lectureRoomZone);
@@ -991,19 +883,12 @@ class MainScene extends Phaser.Scene {
             }
         }
 
-        if (this.airlock2Zone) {
-            this.playerInsideAirlock2 = playerIsInsideZone(this.player, this.airlock2Zone);
-            if (this.playerInsideAirlock2) {
-                this.bsl4SuitGlow?.setVisible(true);
-                this.bsl4SuitGlowTween?.resume();
-                this.ventilationGlow?.setVisible(true);
-                this.ventilationGlowTween?.resume();
-            }
-        }
-
         if (this.bslGlows) {
             for (const entry of this.bslGlows) {
                 entry.playerInside = playerIsInsideZone(this.player, entry.zone);
+                if (entry.key === 'BSL-4') {
+                    this.bsl4Occupied = entry.playerInside;
+                }
                 if (entry.playerInside) {
                     entry.glow.setVisible(true);
                     entry.tween.resume();
@@ -1021,8 +906,8 @@ class MainScene extends Phaser.Scene {
             bodyHeight: 9
         }
         const door1 = doors.addDoor(1200, 280, 'door_front', config).setScale(0.25);
-        // The BSL4 <-> airlock2 door: opened automatically once the player
-        // finishes suiting up (see the bsl4-suit-equipped listener in create()).
+        // The BSL4 <-> airlock2 door: the sole gate for suiting up, connecting
+        // ventilation, and undressing again (see handleBsl4DoorPress).
         this.bsl4Door = door1;
         config = {
             triggerZoneY: 490,
@@ -1065,9 +950,40 @@ class MainScene extends Phaser.Scene {
         const door = zone.parentDoor;
         this.doorHint.setVisible(true);
         this.doorHint.setPosition(door.x, door.y);
-        if (this.justPressed(this.keyE)) {
-            door.tryToChangeDoorState();
+        if (!this.justPressed(this.keyE)) {
+            return;
         }
+
+        if (door === this.bsl4Door) {
+            this.handleBsl4DoorPress(door);
+            return;
+        }
+
+        door.tryToChangeDoorState();
+    }
+
+    // The BSL4 door replaces the airlock2 hotspots entirely: it's the one
+    // place the suit/ventilation state is asked about. Closing an open door is
+    // always allowed (sealing the airlock after entering, or behind you on the
+    // way out); opening a closed one is gated on direction — entering needs
+    // the full kit, leaving needs it stripped first.
+    handleBsl4DoorPress(door) {
+        if (door.isOpen) {
+            door.tryToChangeDoorState();
+            return;
+        }
+
+        if (this.bsl4Occupied) {
+            if (window.__bsl4Suited) {
+                window.dispatchEvent(new Event('bsl4-undress-required'));
+                return;
+            }
+        } else if (!window.__bsl4Ready) {
+            window.dispatchEvent(new Event('bsl4-suit-required'));
+            return;
+        }
+
+        door.tryToChangeDoorState();
     }
 }
 

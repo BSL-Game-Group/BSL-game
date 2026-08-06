@@ -94,19 +94,11 @@
     "openCloset": "Open Closet",
     "pressE": "Press E",
     "exitPrompt": "Press E to exit",
-    "washUp": "Press R or click to wash up",
-    "bsl4Suit": "Press R or click to manage the BSL4 suit",
-    "ventilation": "Press E or click to connect/disconnect ventilation"
+    "washUp": "Press R or click to wash up"
   },
   "exitConfirm": {
     "title": "Exit",
     "message": "Do you want to leave the game and return to the start page?",
-    "yes": "YES",
-    "no": "NO"
-  },
-  "bsl4EntryConfirm": {
-    "title": "Enter BSL4?",
-    "message": "BSL4 requires a pressurized suit connected to the external ventilation system. Do you want to enter?",
     "yes": "YES",
     "no": "NO"
   },
@@ -115,6 +107,17 @@
   },
   "bsl4NotReady": {
     "title": "Not ready for BSL4",
-    "message": "Put on the pressurized suit and connect it to the external ventilation before handling a microbe in here."
+    "message": "Put on the pressurized suit, connect it to the external ventilation, and close the airlock door before handling a microbe in here."
+  },
+  "bsl4SuitRequired": {
+    "title": "BSL4 requires a suit",
+    "message": "You need to put on the pressurized suit and connect it to the external ventilation before you can go in.",
+    "suitUpButton": "Suit up",
+    "connectVentilationButton": "Connect ventilation"
+  },
+  "bsl4UndressRequired": {
+    "title": "Decontaminate before leaving",
+    "message": "Take off the pressurized suit and disconnect the external ventilation before the door will open.",
+    "manageSuitButton": "Manage suit"
   }
 }
