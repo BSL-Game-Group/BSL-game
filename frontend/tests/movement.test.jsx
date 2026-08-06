@@ -379,28 +379,11 @@ describe('BSL4 door press behavior (handleBsl4DoorPress)', () => {
     expect(door.tryToChangeDoorState).toHaveBeenCalledTimes(1)
   })
 
-  test('entering: blocked and asks the player to suit up when not ready', () => {
+  test('entering is always allowed, suited or not — the suit prompt now fires on stepping into BSL-4 itself', () => {
     const scene = createScene()
     const { zone, door } = makeBsl4DoorZone(scene, false)
     scene.bsl4Occupied = false
     window.__bsl4Ready = false
-    const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
-
-    scene.handleDoorInteraction(scene.player, zone)
-
-    expect(door.tryToChangeDoorState).not.toHaveBeenCalled()
-    expect(dispatchSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'bsl4-suit-required' })
-    )
-
-    dispatchSpy.mockRestore()
-  })
-
-  test('entering: opens once the player is fully suited and ready', () => {
-    const scene = createScene()
-    const { zone, door } = makeBsl4DoorZone(scene, false)
-    scene.bsl4Occupied = false
-    window.__bsl4Ready = true
 
     scene.handleDoorInteraction(scene.player, zone)
 
@@ -886,8 +869,48 @@ describe('presence flags after a reload', () => {
     expect(scene.notifyRoomEntry).toHaveBeenCalledWith('BSL-1')
   })
 
-  // The BSL4 entry confirmation now fires on airlock2 entry, not BSL-4 zone
-  // entry — see "Airlock2 BSL4 suit station behavior" above.
+  test('walking into BSL-4 unsuited asks the player to suit up', () => {
+    const bsl4Zone = { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 }
+    const entry = fakeGlowEntry(bsl4Zone)
+    const scene = createScene({ bslGlows: [entry] })
+    scene.player.x = 100
+    scene.player.y = 100
+    scene.notifyRoomEntry = jest.fn()
+    scene.seedPresenceFlags()
+
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    scene.player.x = 1000
+    scene.player.y = 100
+    scene.update()
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'bsl4-suit-required' })
+    )
+    expect(scene.bsl4Occupied).toBe(true)
+    spy.mockRestore()
+  })
+
+  test('walking into BSL-4 already suited does not ask to suit up again', () => {
+    const bsl4Zone = { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 }
+    const entry = fakeGlowEntry(bsl4Zone)
+    const scene = createScene({ bslGlows: [entry] })
+    scene.player.x = 100
+    scene.player.y = 100
+    scene.notifyRoomEntry = jest.fn()
+    scene.seedPresenceFlags()
+    window.__bsl4Suited = true
+
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    scene.player.x = 1000
+    scene.player.y = 100
+    scene.update()
+
+    expect(spy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'bsl4-suit-required' })
+    )
+    spy.mockRestore()
+    delete window.__bsl4Suited
+  })
 
 
   test('seeds the dressing room flag and shows its glows', () => {

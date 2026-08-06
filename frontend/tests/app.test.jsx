@@ -406,7 +406,7 @@ describe('BSL4 door prompts', () => {
       window.dispatchEvent(new Event('bsl4-suit-required'))
     })
 
-    expect(screen.getByText(/bsl4 requires a suit/i)).toBeInTheDocument()
+    expect(screen.getByText(/you're in bsl4/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /suit up/i })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /connect ventilation/i })).not.toBeInTheDocument()
   })
@@ -443,7 +443,7 @@ describe('BSL4 door prompts', () => {
     fireEvent.click(screen.getByRole('button', { name: /connect ventilation/i }))
 
     expect(window.__bsl4Ready).toBe(true)
-    expect(screen.queryByText(/bsl4 requires a suit/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/you're in bsl4/i)).not.toBeInTheDocument()
   })
 
   test('bsl4-undress-required shows a prompt with a Manage suit button', () => {
@@ -516,7 +516,7 @@ describe('BSL4 ventilation hookup', () => {
     expect(loadSavedGame().progress.ventilationConnected).toBe(true)
   })
 
-  test('closing the BSL4 suit station with the suit off unplugs ventilation and satisfies the wash-up gate', () => {
+  test('closing the BSL4 suit station with the suit off unplugs ventilation but does NOT satisfy the wash-up gate', () => {
     seedSavedGame({
       equipped: { ...unequipAll(), pressurized_suit: false, gloves: true },
       progress: {
@@ -535,6 +535,11 @@ describe('BSL4 ventilation hookup', () => {
 
     expect(window.__bsl4Ready).toBe(false)
     expect(loadSavedGame().progress.ventilationConnected).toBe(false)
+    expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
+    // The dressing room's own wash-up spot is still required, same as BSL1-3.
+    act(() => {
+      window.dispatchEvent(new Event('quick-undress'))
+    })
     expect(EventBus.emit).toHaveBeenCalledWith('request-new-microbe')
   })
 
@@ -550,6 +555,20 @@ describe('BSL4 ventilation hookup', () => {
     fireEvent.click(screen.getByRole('button', { name: /close/i }))
 
     expect(screen.queryByText(/not ready for bsl4/i)).not.toBeInTheDocument()
+  })
+
+  test('bsl-door-required shows a closable warning popup for BSL3', () => {
+    startGame()
+
+    act(() => {
+      window.dispatchEvent(new Event('bsl-door-required'))
+    })
+
+    expect(screen.getByText(/close the airlock door first/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+    expect(screen.queryByText(/close the airlock door first/i)).not.toBeInTheDocument()
   })
 })
 

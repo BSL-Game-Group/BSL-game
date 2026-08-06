@@ -597,6 +597,53 @@ describe('setupBslInteractables (via createRooms)', () => {
     delete window.__bsl4Ready
   })
 
+  test('clicking the BSL-3 glow asks the player to close the door first when it is open', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    window.__lectureOpen = true
+    scene.bsl3Door = { isOpen: true }
+
+    const answerListener = jest.fn()
+    const doorRequiredListener = jest.fn()
+    window.addEventListener('answer-popup-opened', answerListener)
+    window.addEventListener('bsl-door-required', doorRequiredListener)
+
+    const bsl3Entry = scene.bslGlows.find((g) => g.key === 'BSL-3')
+    const bsl3Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl3Entry.center.x && z.args.y === bsl3Entry.center.y
+    )
+    bsl3Entry.playerInside = true
+    bsl3Zone.handlers.pointerdown()
+
+    window.removeEventListener('answer-popup-opened', answerListener)
+    window.removeEventListener('bsl-door-required', doorRequiredListener)
+    expect(answerListener).not.toHaveBeenCalled()
+    expect(doorRequiredListener).toHaveBeenCalledTimes(1)
+    delete window.__lectureOpen
+  })
+
+  test('clicking the BSL-3 glow opens the answer popup once the door is closed', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    window.__lectureOpen = true
+    scene.bsl3Door = { isOpen: false }
+
+    const levels = []
+    const listener = (e) => levels.push(e.detail.level)
+    window.addEventListener('answer-popup-opened', listener)
+
+    const bsl3Entry = scene.bslGlows.find((g) => g.key === 'BSL-3')
+    const bsl3Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl3Entry.center.x && z.args.y === bsl3Entry.center.y
+    )
+    bsl3Entry.playerInside = true
+    bsl3Zone.handlers.pointerdown()
+
+    window.removeEventListener('answer-popup-opened', listener)
+    expect(levels).toEqual(['BSL-3'])
+    delete window.__lectureOpen
+  })
+
   describe('createRooms — exit area', () => {
   test('adds the exit area background image', () => {
     const scene = makeFakeScene()
