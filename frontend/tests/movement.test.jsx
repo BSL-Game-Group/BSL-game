@@ -922,6 +922,71 @@ describe('presence flags after a reload', () => {
     expect(scene.notifyRoomEntry).toHaveBeenCalledWith('BSL-1')
   })
 
+  test('walking into BSL-4 dispatches the entry confirmation event', () => {
+    const bsl4Zone = { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 }
+    const entry = fakeGlowEntry(bsl4Zone)
+    const scene = createScene({ bslGlows: [entry] })
+    scene.player.x = 100
+    scene.player.y = 100
+    scene.notifyRoomEntry = jest.fn()
+    scene.seedPresenceFlags()
+
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    scene.player.x = 1000
+    scene.player.y = 100
+    scene.update()
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'bsl4-entry-confirm-opened' })
+    )
+    spy.mockRestore()
+  })
+
+  test('walking into a non-BSL4 room does not dispatch the BSL4 entry confirmation', () => {
+    const entry = fakeGlowEntry(bslZone)
+    const scene = createScene({ bslGlows: [entry] })
+    scene.player.x = 100
+    scene.player.y = 100
+    scene.notifyRoomEntry = jest.fn()
+    scene.seedPresenceFlags()
+
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    scene.player.x = 800
+    scene.player.y = 600
+    scene.update()
+
+    expect(spy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'bsl4-entry-confirm-opened' })
+    )
+    spy.mockRestore()
+  })
+
+  test('re-entering BSL-4 after leaving asks for confirmation again', () => {
+    const bsl4Zone = { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 }
+    const entry = fakeGlowEntry(bsl4Zone)
+    const scene = createScene({ bslGlows: [entry] })
+    scene.player.x = 1000
+    scene.player.y = 100
+    scene.notifyRoomEntry = jest.fn()
+    scene.seedPresenceFlags()
+
+    // Leave the room.
+    scene.player.x = 100
+    scene.player.y = 100
+    scene.update()
+
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    // Walk back in.
+    scene.player.x = 1000
+    scene.player.y = 100
+    scene.update()
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'bsl4-entry-confirm-opened' })
+    )
+    spy.mockRestore()
+  })
+
   test('seeds the dressing room flag and shows its glows', () => {
     const ppeRoomZone = { x: 0, y: 430, width: 700, height: 290 }
     const scene = createScene({ ppeRoomZone })
