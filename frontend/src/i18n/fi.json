@@ -106,5 +106,14 @@
     "message": "Haluatko poistua pelistä ja palata aloitusnäkymään?",
     "yes": "KYLLÄ",
     "no": "EI"
+  },
+  "bsl4EntryConfirm": {
+    "title": "Mennäänkö BSL4-huoneeseen?",
+    "message": "BSL4 vaatii paineistetun puvun, joka on kytketty ulkoiseen ilmastointijärjestelmään. Haluatko mennä sisään?",
+    "yes": "KYLLÄ",
+    "no": "EI"
+  },
+  "bsl4Suit": {
+    "title": "BSL4-pukemispiste"
   }
 }

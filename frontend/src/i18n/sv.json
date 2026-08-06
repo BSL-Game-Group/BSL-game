@@ -106,5 +106,14 @@
     "message": "Vill du lämna spelet och gå tillbaka till startsidan?",
     "yes": "JA",
     "no": "NEJ"
+  },
+  "bsl4EntryConfirm": {
+    "title": "Gå in i BSL4?",
+    "message": "BSL4 kräver en trycksatt dräkt kopplad till det externa ventilationssystemet. Vill du gå in?",
+    "yes": "JA",
+    "no": "NEJ"
+  },
+  "bsl4Suit": {
+    "title": "BSL4 påklädningsstation"
   }
 }

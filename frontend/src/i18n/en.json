@@ -106,5 +106,14 @@
     "message": "Do you want to leave the game and return to the start page?",
     "yes": "YES",
     "no": "NO"
+  },
+  "bsl4EntryConfirm": {
+    "title": "Enter BSL4?",
+    "message": "BSL4 requires a pressurized suit connected to the external ventilation system. Do you want to enter?",
+    "yes": "YES",
+    "no": "NO"
+  },
+  "bsl4Suit": {
+    "title": "BSL4 suiting station"
   }
 }
