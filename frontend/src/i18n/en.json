@@ -115,5 +115,9 @@
   },
   "bsl4Suit": {
     "title": "BSL4 suiting station"
+  },
+  "bsl4NotReady": {
+    "title": "Not ready for BSL4",
+    "message": "Put on the pressurized suit and connect it to the external ventilation before handling a microbe in here."
   }
 }

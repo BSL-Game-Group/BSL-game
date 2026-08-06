@@ -115,5 +115,9 @@
   },
   "bsl4Suit": {
     "title": "BSL4-pukemispiste"
+  },
+  "bsl4NotReady": {
+    "title": "Et ole valmis BSL4:ään",
+    "message": "Pue paineistettu puku ja kytke se ulkoiseen ilmastointiin ennen kuin käsittelet mikrobia täällä."
   }
 }

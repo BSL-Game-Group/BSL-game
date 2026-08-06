@@ -115,5 +115,9 @@
   },
   "bsl4Suit": {
     "title": "BSL4 påklädningsstation"
+  },
+  "bsl4NotReady": {
+    "title": "Inte redo för BSL4",
+    "message": "Ta på dig den trycksatta dräkten och koppla den till den externa ventilationen innan du hanterar en mikrob här inne."
   }
 }

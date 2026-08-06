@@ -476,6 +476,46 @@ describe('setupAirlockWashPoint (via createRooms)', () => {
   })
 })
 
+describe('setupVentilationPoint (via createRooms)', () => {
+  test('creates a hidden glow inside airlock2, against the air-systems wall', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.ventilationPoint).toEqual({ x: 1195, y: 350 })
+    expect(scene.ventilationGlow.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.ventilationZone.setInteractive).toHaveBeenCalled()
+  })
+
+  test('clicking it while inside airlock2 fires ventilation-toggle-requested', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('ventilation-toggle-requested', listener)
+    scene.playerInsideAirlock2 = true
+
+    scene.ventilationZone.handlers.pointerdown()
+
+    window.removeEventListener('ventilation-toggle-requested', listener)
+    expect(listener).toHaveBeenCalledTimes(1)
+  })
+
+  test('clicking it does nothing when the player is not inside airlock2', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('ventilation-toggle-requested', listener)
+    scene.playerInsideAirlock2 = false
+
+    scene.ventilationZone.handlers.pointerdown()
+
+    window.removeEventListener('ventilation-toggle-requested', listener)
+    expect(listener).not.toHaveBeenCalled()
+  })
+})
+
 describe('setupBslInteractables (via createRooms)', () => {
   test('creates one interactable entry per BSL room, starting outside', () => {
     const scene = makeFakeScene()
@@ -560,6 +600,55 @@ describe('setupBslInteractables (via createRooms)', () => {
     expect(answerListener).not.toHaveBeenCalled()
     expect(requiredListener).toHaveBeenCalledTimes(1)
     delete window.__lectureOpen
+  })
+
+  test('clicking the BSL-4 glow asks the player to suit up first when not bsl4Ready', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    window.__lectureOpen = true
+    window.__bsl4Ready = false
+
+    const answerListener = jest.fn()
+    const notReadyListener = jest.fn()
+    window.addEventListener('answer-popup-opened', answerListener)
+    window.addEventListener('bsl4-not-ready', notReadyListener)
+
+    const bsl4Entry = scene.bslGlows.find((g) => g.key === 'BSL-4')
+    const bsl4Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl4Entry.center.x && z.args.y === bsl4Entry.center.y
+    )
+    bsl4Entry.playerInside = true
+    bsl4Zone.handlers.pointerdown()
+
+    window.removeEventListener('answer-popup-opened', answerListener)
+    window.removeEventListener('bsl4-not-ready', notReadyListener)
+    expect(answerListener).not.toHaveBeenCalled()
+    expect(notReadyListener).toHaveBeenCalledTimes(1)
+    delete window.__lectureOpen
+    delete window.__bsl4Ready
+  })
+
+  test('clicking the BSL-4 glow opens the answer popup once bsl4Ready', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    window.__lectureOpen = true
+    window.__bsl4Ready = true
+
+    const levels = []
+    const listener = (e) => levels.push(e.detail.level)
+    window.addEventListener('answer-popup-opened', listener)
+
+    const bsl4Entry = scene.bslGlows.find((g) => g.key === 'BSL-4')
+    const bsl4Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl4Entry.center.x && z.args.y === bsl4Entry.center.y
+    )
+    bsl4Entry.playerInside = true
+    bsl4Zone.handlers.pointerdown()
+
+    window.removeEventListener('answer-popup-opened', listener)
+    expect(levels).toEqual(['BSL-4'])
+    delete window.__lectureOpen
+    delete window.__bsl4Ready
   })
 
   describe('createRooms — exit area', () => {

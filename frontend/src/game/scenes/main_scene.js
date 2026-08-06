@@ -397,6 +397,14 @@ class MainScene extends Phaser.Scene {
             padding: { left: 6, right: 6, top: 3, bottom: 3 }
         }).setDepth(1000).setVisible(false);
 
+        // Proximity hint over the ventilation hookup spot.
+        this.ventilationHint = this.add.text(0, 0, "", {
+            fontSize: "14px",
+            backgroundColor: "#222222",
+            color: "#ffffff",
+            padding: { left: 6, right: 6, top: 3, bottom: 3 }
+        }).setDepth(1000).setVisible(false);
+
         // Hint shown near a BSL room's blue glow while the player is inside it.
         this.bslHint = this.add.text(0, 0, "", {
             fontSize: "14px",
@@ -412,7 +420,8 @@ class MainScene extends Phaser.Scene {
             openCloset: window.__translations?.openCloset ?? 'Open Closet',
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
-            airlockWash: window.__translations?.airlockWash ?? 'Press R or click to decontaminate'
+            airlockWash: window.__translations?.airlockWash ?? 'Press R or click to decontaminate',
+            ventilation: window.__translations?.ventilation ?? 'Press E or click to connect/disconnect ventilation'
         })
         // Keep the task the player was already working on; only roll a new one
         // when there is nothing to restore.
@@ -455,6 +464,9 @@ class MainScene extends Phaser.Scene {
         }
         if (this.airlockWashHint) {
             this.airlockWashHint.setText(translations.airlockWash)
+        }
+        if (this.ventilationHint) {
+            this.ventilationHint.setText(translations.ventilation)
         }
         if (this.bslHint) {
             this.bslHint.setText(translations.pressE)
@@ -787,6 +799,12 @@ class MainScene extends Phaser.Scene {
                         this.airlockWashGlowTween.resume();
                     }
                 }
+                if (this.ventilationGlow) {
+                    this.ventilationGlow.setVisible(true);
+                    if (this.ventilationGlowTween) {
+                        this.ventilationGlowTween.resume();
+                    }
+                }
                 this.playerInsideAirlock2 = true;
                 window.dispatchEvent(new Event('airlock-wash-reminder'));
             } else if (!inside && this.playerInsideAirlock2) {
@@ -796,6 +814,12 @@ class MainScene extends Phaser.Scene {
                         this.airlockWashGlowTween.pause();
                     }
                 }
+                if (this.ventilationGlow) {
+                    this.ventilationGlow.setVisible(false);
+                    if (this.ventilationGlowTween) {
+                        this.ventilationGlowTween.pause();
+                    }
+                }
                 this.playerInsideAirlock2 = false;
             }
 
@@ -803,6 +827,12 @@ class MainScene extends Phaser.Scene {
             // room's R — no need to stand exactly on the glow.
             if (inside && this.justPressed(this.keyR)) {
                 window.dispatchEvent(new Event('airlock-decon'));
+            }
+
+            // E toggles the ventilation hookup from anywhere in airlock2, same
+            // reach pattern as the closet/wash-up spots.
+            if (inside && this.justPressed(this.keyE)) {
+                window.dispatchEvent(new Event('ventilation-toggle-requested'));
             }
 
             // Proximity hint, positioned BELOW the glow (unlike the dressing
@@ -816,6 +846,18 @@ class MainScene extends Phaser.Scene {
                 this.airlockWashHint.setVisible(closeEnough);
                 if (closeEnough) {
                     this.airlockWashHint.setPosition(this.airlockWashPoint.x - 320, this.airlockWashPoint.y + 30);
+                }
+            }
+
+            if (inside && this.ventilationHint && this.ventilationPoint) {
+                const dist = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y, this.ventilationPoint.x, this.ventilationPoint.y
+                );
+                const closeEnough = dist < 90;
+
+                this.ventilationHint.setVisible(closeEnough);
+                if (closeEnough) {
+                    this.ventilationHint.setPosition(this.ventilationPoint.x - 60, this.ventilationPoint.y - 45);
                 }
             }
         }
@@ -870,6 +912,8 @@ class MainScene extends Phaser.Scene {
 
                         if (!window.__lectureOpen) {
                             window.dispatchEvent(new Event('lecture-required'));
+                        } else if (entry.key === 'BSL-4' && !window.__bsl4Ready) {
+                            window.dispatchEvent(new Event('bsl4-not-ready'));
                         } else {
                             window.dispatchEvent(
                                 new CustomEvent('answer-popup-opened', {
@@ -943,6 +987,8 @@ class MainScene extends Phaser.Scene {
             if (this.playerInsideAirlock2) {
                 this.airlockWashGlow?.setVisible(true);
                 this.airlockWashGlowTween?.resume();
+                this.ventilationGlow?.setVisible(true);
+                this.ventilationGlowTween?.resume();
             }
         }
 
