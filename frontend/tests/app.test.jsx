@@ -434,6 +434,53 @@ describe('PPE removal gate', () => {
 })
 
 // -----------------------------
+// BSL4 ENTRY CONFIRMATION
+// -----------------------------
+describe('BSL4 entry confirmation', () => {
+  function enterBsl4() {
+    startGame()
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-entry-confirm-opened'))
+    })
+  }
+
+  test('shows a Yes/No confirmation dialog on BSL4 entry', () => {
+    enterBsl4()
+
+    expect(screen.getByRole('dialog', { name: /enter bsl4/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^yes$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^no$/i })).toBeInTheDocument()
+  })
+
+  test('locks movement while the confirmation is open', () => {
+    const spy = jest.spyOn(window, 'dispatchEvent')
+
+    enterBsl4()
+
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: 'popup-opened' }))
+    spy.mockRestore()
+  })
+
+  test('answering No closes the dialog and does not open the suiting station', () => {
+    enterBsl4()
+
+    fireEvent.click(screen.getByRole('button', { name: /^no$/i }))
+
+    expect(screen.queryByRole('dialog', { name: /enter bsl4/i })).not.toBeInTheDocument()
+    expect(screen.queryByText('Equipment')).not.toBeInTheDocument()
+  })
+
+  test('answering Yes closes the dialog and opens the BSL4 suiting station', () => {
+    enterBsl4()
+
+    fireEvent.click(screen.getByRole('button', { name: /^yes$/i }))
+
+    expect(screen.queryByRole('dialog', { name: /enter bsl4/i })).not.toBeInTheDocument()
+    expect(screen.getByText('Equipment')).toBeInTheDocument()
+  })
+})
+
+// -----------------------------
 // WORN PPE (moved here from ClosetPopup.test.jsx — App owns this state now)
 // -----------------------------
 describe('worn PPE is owned by App', () => {
