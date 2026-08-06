@@ -4,6 +4,7 @@ import microbeService from '../../services/microbes'
 import { EventBus } from '../EventBus'
 import DoorGroup from '../groups/DoorGroup.js';
 import { loadSavedGame, patchSavedGame, savePlayerPosition } from '../../state/savedGame';
+import { loadAssets } from '../assets/loadAssets.js';
 
 export function playerIsInsideZone(player, zone) {
     return (
@@ -78,41 +79,7 @@ class MainScene extends Phaser.Scene {
     }
 
     preload() {
-        // Player base
-        this.load.image('player_base', 'assets/player/base.png');
-        this.load.image('head_only', 'assets/player/head_only.png');
-        this.load.image('no_hair', 'assets/player/no_hair.png');
-
-        // Equipment
-        this.load.image('lab_coat', 'assets/equipment/on_character/body/lab_coat_on.png');
-        this.load.image('mask', 'assets/equipment/on_character/masks/mask_on.png');
-        this.load.image('glasses', 'assets/equipment/on_character/eyewear/glasses_on.png');
-        this.load.image('sunglasses', 'assets/equipment/on_character/eyewear/sunglasses_on.png');
-        this.load.image('face_shield', 'assets/equipment/on_character/eyewear/face_shield_on.png');
-        this.load.image('bsl3_respirator', 'assets/equipment/on_character/masks/bsl3_respirator_on.png');
-        this.load.image('disposable_overall', 'assets/equipment/on_character/body/disposable_overall_on.png');
-        this.load.image('dresser', 'assets/dresser.png');
-        this.load.image('wood', 'assets/tiles/birchwood.png');
-        this.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
-        this.load.image('gloves', 'assets/equipment/on_character/gloves/gloves_on.png');
-        this.load.image('gloves_2', 'assets/equipment/on_character/gloves/gloves_2_on.png');
-        this.load.image('closable_lab_coat', 'assets/equipment/on_character/body/closable_lab_coat_on.png');
-        this.load.image('pressurized_suit', 'assets/equipment/on_character/body/pressurized_suit_on.png');
-        this.load.image('wow_helmet', 'assets/equipment/on_character/eyewear/wow_helmet_on.png');
-
-        // Rooms
-        this.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
-        this.load.image('lecture_room', 'assets/rooms/lecture_room2.png');
-        this.load.image('bsl2_room', 'assets/rooms/BSL-2.jpg');
-        this.load.image('bsl3_room', 'assets/rooms/BSL-3 ver. 2.png');
-        this.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
-        this.load.image('air_systems', 'assets/rooms/air-systems.jpeg');
-        this.load.image('dressing_room', 'assets/rooms/dressing-room.png');
-        this.load.image('info_desk', 'assets/rooms/info-desk.png');
-        this.load.image('exit_area', 'assets/rooms/exit_area.png');
-
-        this.load.image('door_front', 'assets/doors/door_front.png');
-        this.load.image('door_top', 'assets/doors/door_top.png');
+        loadAssets(this);
     }
 
     createWoodFloor() {
