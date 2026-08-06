@@ -6,6 +6,7 @@ import DoorGroup from '../groups/DoorGroup.js';
 import { loadSavedGame, patchSavedGame, savePlayerPosition } from '../../state/savedGame';
 import { loadAssets } from '../assets/loadAssets.js';
 import EquipmentManager from "../player/EquipmentManager";
+import PlayerController from "../player/PlayerController";
 
 export function playerIsInsideZone(player, zone) {
     return (
@@ -182,17 +183,16 @@ class MainScene extends Phaser.Scene {
         );
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.4);
-        // Narrow but full-height collision body: narrow so the character moves
-        // smoothly through doors and gaps, full height so the head is covered too
-        // and it can't slip through walls.
         this.player.body.setSize(60, 205);
         this.player.body.setOffset(23, 6);
         this.player.setDepth(10);
+        
+        this.playerController = new PlayerController(this, this.player);
 
         this.doors = this.initializeDoors(this.player);
 
         this.equipmentManager = new EquipmentManager(this, this.player);
-        
+
         this.handleEquipmentChange = (e) => {
             this.equipmentManager.setEquipment(e.detail);
         };
@@ -233,7 +233,6 @@ class MainScene extends Phaser.Scene {
         });
 
         // Setup inputs, text and colliders
-        this.cursors = this.input.keyboard.createCursorKeys();
         this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
         this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         
@@ -397,68 +396,26 @@ class MainScene extends Phaser.Scene {
     }
 
     update() {
-        this.player.setVelocityX(0);
-        this.player.setVelocityY(0);
 
-        if (this.player.body.embedded || (this.player.body.touching.none && this.player.body.wasTouching.none)) {
+        this.playerController.update();
+        
+        if (
+            this.player.body.embedded ||
+            (this.player.body.touching.none &&
+            this.player.body.wasTouching.none)
+        ) {
             if (!this.physics.overlap(this.player, this.doors)) {
                 this.doorHint.setVisible(false);
             }
         }
-        this.physics.overlap(this.player, this.doors, this.handleDoorInteraction, null, this);
 
-        // Change BSL-1 image depth depending on player position
-        if (this.bsl1Image) {
-            if (this.player.y < 505) {
-                this.bsl1Image.setDepth(20);
-            } else {
-                this.bsl1Image.setDepth(-5);
-            }
-        }
-
-        // Change BSL-3 image depth depending on player position
-        if (this.bsl3Image) {
-            if (this.player.y < 505) {
-                this.bsl3Image.setDepth(20);
-            } else {
-                this.bsl3Image.setDepth(-5);
-            }
-        }
-
-        // Same trick for the dressing room (top door at y:430): its front occludes
-        // the player at the doorway, then drops behind once they step inside.
-        if (this.dressingImage) {
-            if (this.player.y < 465) {
-                this.dressingImage.setDepth(20);
-            } else {
-                this.dressingImage.setDepth(-5);
-            }
-        }
-
-        // 1. MOVEMENT CONTROLS (Locked when popup is open)
-        if (!this.isPopupOpen) {
-            // Keyboard movement
-            if (this.cursors.left.isDown) {
-                this.player.setVelocityX(-160);
-            } else if (this.cursors.right.isDown) {
-                this.player.setVelocityX(160);
-            }
-
-            if (this.cursors.up.isDown) {
-                this.player.setVelocityY(-160);
-            } else if (this.cursors.down.isDown) {
-                this.player.setVelocityY(160);
-            }
-
-            // Mouse click movement tracking
-            const pointer = this.input.activePointer;
-            if (pointer.isDown && this.playArea && this.playArea.contains(pointer.x, pointer.y)) {
-                const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, pointer.x, pointer.y);
-                if (distance > 10) {
-                    this.physics.moveToObject(this.player, pointer, 160);
-                }
-            }
-        } // <-- END OF POPUP CHECK
+        this.physics.overlap(
+            this.player,
+            this.doors,
+            this.handleDoorInteraction,
+            null,
+            this
+        );
 
         // 2. UI HINTS (Always running)
         const pointer = this.input.activePointer;
