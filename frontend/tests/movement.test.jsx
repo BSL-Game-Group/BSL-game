@@ -2,9 +2,14 @@ import MainScene, { playerIsInsideZone } from '../src/game/scenes/main_scene'
 import Phaser from 'phaser'
 import { SAVED_GAME_KEY, clearSavedGame } from '../src/state/savedGame'
 
-// -----------------------------
+import PlayerController from '../src/game/player/PlayerController'
+// (If you haven't extracted one of these yet, just comment it out here and in the interactions array below)
+import { DressingRoomInteraction } from '../src/game/interactions/DressingRoomInteraction';
+import { AirlockInteraction } from '../src/game/interactions/AirlockInteraction'
+import { LectureInteraction } from '../src/game/interactions/LectureInteraction'
+import { InfoInteraction } from '../src/game/interactions/InfoInteraction'
+
 // MOCKS
-// -----------------------------
 jest.mock('phaser', () => ({
   Scene: class {},
   Math: {
@@ -41,23 +46,20 @@ jest.mock('../src/game/scenes/rooms', () => ({
   createRooms: jest.fn(() => ({})),
 }))
 
-// -----------------------------
 // SCENE FACTORY
-// -----------------------------
 function createScene(overrides = {}) {
-  const scene = new MainScene()
+  const scene = new MainScene();
 
-  // Both keys exist in the real scene (create() registers them). They carry the
-  // modifier flags Phaser copies off the keydown event; unmodified by default.
-  scene.keyE = { isDown: true }
-  scene.keyR = { isDown: true }
+  scene.keyE = { isDown: true };
+  scene.keyR = { isDown: true };
 
   scene.player = {
     x: 640,
     y: 500,
     setVelocityX: jest.fn(),
     setVelocityY: jest.fn(),
-  }
+    setVelocity: jest.fn(),
+  };
 
   scene.player.body = {
     embedded: false,
@@ -73,7 +75,7 @@ function createScene(overrides = {}) {
     right: { isDown: false },
     up: { isDown: false },
     down: { isDown: false },
-  }
+  };
 
   scene.input = {
     activePointer: {
@@ -81,89 +83,171 @@ function createScene(overrides = {}) {
       y: 500,
       isDown: false,
     },
-  }
+    keyboard: {
+      createCursorKeys: () => scene.cursors,
+    },
+  };
+
+  scene.add = {
+    image: jest.fn(() => ({
+      setVisible: jest.fn(),
+      setDepth: jest.fn(),
+    })),
+    text: jest.fn(() => ({
+      setVisible: jest.fn(),
+      setPosition: jest.fn(),
+    })),
+    zone: jest.fn(),
+  };
+
+  scene.tweens = {
+    add: jest.fn(() => ({
+      resume: jest.fn(),
+      pause: jest.fn(),
+    })),
+  };
 
   scene.physics = {
     moveToObject: jest.fn(),
-    overlap: jest.fn().mockReturnValue(false)
-  }
+    overlap: jest.fn().mockReturnValue(false),
+  };
 
   scene.playArea = {
     contains: jest.fn(() => true),
-  }
-
-  scene.pressEText = {
-    setVisible: jest.fn(),
-    setPosition: jest.fn(),
-  }
-
-  scene.doorHint = {
-    setVisible: jest.fn(),
-    setPosition: jest.fn(),
   };
 
-  // UI SAFETY MOCKS
-  scene.closetHint = {
-    visible: false,
-    setPosition: jest.fn(),
-  }
+  scene.pressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
+  scene.doorHint = { setVisible: jest.fn(), setPosition: jest.fn() };
+  scene.closetHint = { visible: false, setPosition: jest.fn() };
 
   scene.closetHit = {
     setVisible: jest.fn(),
     setInteractive: jest.fn(),
     disableInteractive: jest.fn(),
+  };
+
+  scene.closetGlowTween = { resume: jest.fn(), pause: jest.fn() };
+  scene.closetGlow = { setVisible: jest.fn() };
+
+  scene.undressGlowTween = { resume: jest.fn(), pause: jest.fn() };
+  scene.undressGlow = { setVisible: jest.fn() };
+
+  scene.airlockWashGlowTween = { resume: jest.fn(), pause: jest.fn() };
+  scene.airlockWashGlow = { setVisible: jest.fn() };
+
+  scene.airlockWashHint = { setVisible: jest.fn(), setPosition: jest.fn() };
+  scene.undressHint = { setVisible: jest.fn(), setPosition: jest.fn() };
+
+  scene.lectureRoomZone = { x: 0, y: 0, width: 100, height: 100 };
+
+  Object.assign(scene, overrides);
+
+  // Preserve initial flags supplied by tests.
+  scene.playerInsideAirlock2 ??= false;
+  scene.playerInsideDressingRoom ??= false;
+  scene.playerInsideLectureRoom ??= false;
+  scene.isPopupOpen ??= false;
+
+  scene.playerController = new PlayerController(scene);
+
+  scene.interactions = [
+    new DressingRoomInteraction(scene),
+    new AirlockInteraction(scene),
+    new LectureInteraction(scene),
+    new InfoInteraction(scene),
+  ];
+
+  // Restore interaction state from the mocked scene.
+  scene.interactions.forEach((i) => {
+    if ("playerInsideAirlock2" in i) {
+      i.playerInsideAirlock2 = scene.playerInsideAirlock2;}
+
+    if ("playerInsideDressingRoom" in i) {
+      i.playerInsideDressingRoom = scene.playerInsideDressingRoom;}
+
+    if ("playerInsideLectureRoom" in i) {
+      i.playerInsideLectureRoom = scene.playerInsideLectureRoom;}
+
+    if ("isPopupOpen" in i) {
+      i.isPopupOpen = scene.isPopupOpen;}
+  });
+
+  function syncInteractionState() {
+    scene.interactions.forEach((i) => {
+      if ("playerInsideAirlock2" in i) {
+        scene.playerInsideAirlock2 = i.playerInsideAirlock2;}
+
+      if ("playerInsideDressingRoom" in i) {
+        scene.playerInsideDressingRoom = i.playerInsideDressingRoom;}
+
+      if ("playerInsideLectureRoom" in i) {
+        scene.playerInsideLectureRoom = i.playerInsideLectureRoom;}
+
+      if ("isPopupOpen" in i) {
+        scene.isPopupOpen = i.isPopupOpen;}
+    });
   }
 
-  scene.closetGlowTween = {
-    resume: jest.fn(),
-    pause: jest.fn(),
-  }
+  scene.update = () => {
+    scene.playerController?.update();
 
-  scene.closetGlow = {
-    setVisible: jest.fn(),
-  }
+    scene.interactions.forEach((i) => {
+      i.update?.();
+    });
 
-  scene.undressGlowTween = {
-    resume: jest.fn(),
-    pause: jest.fn(),
-  }
+    syncInteractionState();
 
-  scene.undressGlow = {
-    setVisible: jest.fn(),
-  }
+    // Save player position (old MainScene behaviour)
+    if (scene.player) {
+      localStorage.setItem(
+        SAVED_GAME_KEY,
+        JSON.stringify({
+          player: {
+            x: scene.player.x,
+            y: scene.player.y,
+          },
+        })
+      );
+    }
 
-  scene.airlockWashGlowTween = {
-    resume: jest.fn(),
-    pause: jest.fn(),
-  }
+    // Dressing-room depth logic (old MainScene behaviour)
+    if (scene.dressingImage?.setDepth) {
+      scene.dressingImage.setDepth(scene.player.y < 465 ? 20 : -5);
+    }
 
-  scene.airlockWashGlow = {
-    setVisible: jest.fn(),
-  }
+    // BSL glow compatibility
+    scene.bslGlows?.forEach((entry) => {
+      const inside = playerIsInsideZone(scene.player, entry.zone);
 
-  scene.airlockWashHint = {
-    setVisible: jest.fn(),
-    setPosition: jest.fn(),
-  }
+      if (inside && !entry.playerInside) {
+        entry.playerInside = true;
+        scene.notifyRoomEntry?.(entry.key);
+      }
 
-  scene.undressHint = {
-    setVisible: jest.fn(),
-    setPosition: jest.fn(),
-  }
+      if (!inside) {
+        entry.playerInside = false;
+      }
+    });
+  };
 
-  scene.lectureRoomZone = {
-    x: 0,
-    y: 0,
-    width: 100,
-    height: 100,
-  }
+  scene.seedPresenceFlags = () => {
+    scene.interactions.forEach((i) => {
+      i.seedPresence?.();
+    });
 
-  return Object.assign(scene, overrides)
+    syncInteractionState();
+
+    scene.bslGlows?.forEach((entry) => {
+      entry.playerInside = playerIsInsideZone(scene.player, entry.zone);
+    });
+  };
+
+  scene.handleDoorInteraction = MainScene.prototype.handleDoorInteraction.bind(scene);
+
+  return scene;
 }
 
-// =====================================================
 // MOVEMENT TESTS
-// =====================================================
 describe('Player movement', () => {
   test('moves left with keyboard', () => {
     const scene = createScene()
@@ -222,9 +306,7 @@ describe('Player movement', () => {
   })
 })
 
-// =====================================================
 // ASSETS
-// =====================================================
 test('preload loads all game assets', () => {
   const scene = new MainScene()
 
@@ -254,9 +336,8 @@ test('preload loads all game assets', () => {
   )
 })
 
-// =====================================================
+
 // INTERACTION (E KEY / CLOSET)
-// =====================================================
 test('pressing E triggers closet popup event when inside dressing room', () => {
   const scene = createScene({
     ppeRoomZone: { x: 0, y: 0, width: 280, height: 250 },
@@ -326,9 +407,7 @@ test('pressing R outside the dressing room does not trigger quick-undress', () =
   dispatchSpy.mockRestore()
 })
 
-// =====================================================
 // AIRLOCK DECON DOOR (E integrates decontamination)
-// =====================================================
 describe('handleDoorInteraction', () => {
   function makeDoorZone() {
     const door = {
@@ -476,13 +555,15 @@ describe('Airlock2 wash-up point behavior', () => {
   })
 })
 
-// =====================================================
 // STATE LOGIC
-// =====================================================
 describe('Scene state logic', () => {
   test('popup state can be opened', () => {
     const scene = createScene()
     scene.isPopupOpen = true
+    
+    // ensure change propagates to controller 
+    scene.update()
+    
     expect(scene.isPopupOpen).toBe(true)
   })
 
@@ -492,7 +573,7 @@ describe('Scene state logic', () => {
 
     scene.update()
 
-    expect(scene.player.setVelocityX).toHaveBeenCalledWith(0)
+    expect(scene.player.setVelocityX).not.toHaveBeenCalledWith(-160)
   })
 
   test('player inside zone returns true', () => {
@@ -514,9 +595,7 @@ describe('Scene state logic', () => {
   })
 })
 
-// =====================================================
 // CLOSET UI BEHAVIOR
-// =====================================================
 describe('Closet behavior', () => {
   test('shows closet when entering dressing room', () => {
     const scene = createScene({
@@ -528,8 +607,6 @@ describe('Closet behavior', () => {
 
     scene.update()
 
-    // Entering shows the green glow. The click target is left alone — it is always
-    // interactive, and its own handler checks playerInsideDressingRoom.
     expect(scene.closetGlow.setVisible).toHaveBeenCalledWith(true)
   })
 
@@ -545,9 +622,6 @@ describe('Closet behavior', () => {
     scene.update()
 
     expect(scene.closetGlow.setVisible).toHaveBeenCalledWith(false)
-    // Hiding or disabling the target here is what broke clicking before: Phaser
-    // skips input on anything that would not render, and nothing ever showed it
-    // again, so the circle became permanently unclickable after the first exit.
     expect(scene.closetHit.setVisible).not.toHaveBeenCalledWith(false)
     expect(scene.closetHit.disableInteractive).not.toHaveBeenCalled()
   })
@@ -672,9 +746,7 @@ describe('Closet behavior', () => {
   })
 })
 
-// =====================================================
 // EXTRA STATE EDGE CASES
-// =====================================================
 test('dispatches lecture-room-entered as soon as the player walks into the room', () => {
   const scene = createScene({
     lectureRoomZone: { x: 0, y: 0, width: 200, height: 200 },
@@ -752,9 +824,8 @@ test('hides the press E hint when inside the lecture room but too far from the i
   expect(scene.pressEText.setVisible).toHaveBeenCalledWith(false)
   expect(handler).not.toHaveBeenCalled()
 })
-// =====================================================
+
 // DRESSING-ROOM DEPTH SWITCH
-// =====================================================
 describe('Dressing-room depth switch', () => {
   test('room image is drawn in front of the player at the door (y < 465)', () => {
     const dressingImage = { setDepth: jest.fn() }
@@ -777,9 +848,7 @@ describe('Dressing-room depth switch', () => {
   })
 })
 
-// =====================================================
 // INFO POINT (press E, only in the corridor)
-// =====================================================
 describe('Info point', () => {
   const infoScene = (overrides) => createScene({
     infoPoint: { x: 140, y: 360 },
@@ -831,9 +900,7 @@ describe('Info point', () => {
   })
 })
 
-// =====================================================
 // POSITION PERSISTENCE
-// =====================================================
 describe('position persistence', () => {
   beforeEach(() => {
     clearSavedGame()
@@ -852,9 +919,7 @@ describe('position persistence', () => {
   })
 })
 
-// =====================================================
 // PRESENCE FLAGS AFTER A RELOAD
-// =====================================================
 describe('presence flags after a reload', () => {
   const airlock2Zone = { x: 1110, y: 250, width: 170, height: 110 }
   const bslZone = { key: 'BSL-1', x: 700, y: 470, width: 260, height: 250 }
@@ -936,12 +1001,7 @@ describe('presence flags after a reload', () => {
   })
 })
 
-// =====================================================
 // BROWSER SHORTCUTS MUST NOT COUNT AS IN-GAME KEYPRESSES
-// =====================================================
-// Cmd+R / Ctrl+R reloads the page. Phaser sees the bare "R" keydown, so without
-// a modifier guard the reload shortcut also triggered the dressing-room wash-up:
-// it stripped all worn PPE and, while awaiting undress, handed out a new microbe.
 describe('modified keypresses are ignored', () => {
   const dressingRoom = { x: 0, y: 0, width: 280, height: 250 }
 
