@@ -1,17 +1,17 @@
 import Phaser from "phaser";
 
 export default class PlayerController {
-    constructor(scene, player) {
+    constructor(scene) {
         this.scene = scene;
-        this.player = player;
-
         this.cursors = scene.input.keyboard.createCursorKeys();
-
         this.speed = 160;
     }
 
     update() {
-        this.player.setVelocity(0);
+        if (!this.scene.player || !this.scene.player.body) {
+            return;}
+
+        this.scene.player.setVelocity(0);
 
         if (this.scene.isPopupOpen) {
             return;
@@ -23,15 +23,15 @@ export default class PlayerController {
 
     handleKeyboardMovement() {
         if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-this.speed);
+            this.scene.player.setVelocityX(-this.speed);
         } else if (this.cursors.right.isDown) {
-            this.player.setVelocityX(this.speed);
+            this.scene.player.setVelocityX(this.speed);
         }
 
         if (this.cursors.up.isDown) {
-            this.player.setVelocityY(-this.speed);
+            this.scene.player.setVelocityY(-this.speed);
         } else if (this.cursors.down.isDown) {
-            this.player.setVelocityY(this.speed);
+            this.scene.player.setVelocityY(this.speed);
         }
     }
 
@@ -47,15 +47,15 @@ export default class PlayerController {
         }
 
         const distance = Phaser.Math.Distance.Between(
-            this.player.x,
-            this.player.y,
+            this.scene.player.x,
+            this.scene.player.y,
             pointer.x,
             pointer.y
         );
 
         if (distance > 10) {
             this.scene.physics.moveToObject(
-                this.player,
+                this.scene.player,
                 pointer,
                 this.speed
             );
