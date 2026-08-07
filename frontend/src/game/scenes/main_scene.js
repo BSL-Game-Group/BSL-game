@@ -1,21 +1,20 @@
 import Phaser from 'phaser';
 import { createRooms } from './rooms';
-import microbeService from '../../services/microbes'
-import { EventBus } from '../EventBus'
+import microbeService from '../../services/microbes';
+import { EventBus } from '../EventBus';
 import DoorGroup from '../groups/DoorGroup.js';
 import { loadSavedGame, patchSavedGame, savePlayerPosition } from '../../state/savedGame';
 import { loadAssets } from '../assets/loadAssets.js';
 import EquipmentManager from "../player/EquipmentManager";
 import PlayerController from "../player/PlayerController";
 
-export function playerIsInsideZone(player, zone) {
-    return (
-        player.x >= zone.x &&
-        player.x <= zone.x + zone.width &&
-        player.y >= zone.y &&
-        player.y <= zone.y + zone.height
-    );
-}
+// Interactions
+import { LectureInteraction } from '../interactions/LectureInteraction';
+import { ExitInteraction } from '../interactions/ExitInteraction';
+import { DressingRoomInteraction } from '../interactions/DressingRoomInteraction';
+import { AirlockInteraction } from '../interactions/AirlockInteraction';
+import { BslInteraction } from '../interactions/BslInteraction';
+import { InfoInteraction } from '../interactions/InfoInteraction';
 
 class MainScene extends Phaser.Scene {
     constructor() {
@@ -246,11 +245,6 @@ class MainScene extends Phaser.Scene {
 
         this.physics.add.collider(this.player, walls);
 
-
-        this.playerInsideLectureRoom = false;
-        this.playerInsideExitRoom = false;
-        this.playerInsideDressingRoom = false;
-        this.playerInsideAirlock2 = false;
         this.closetHint = this.add.text(0, 0, "", {
             fontSize: "14px",
             backgroundColor: "#222222",
@@ -290,15 +284,26 @@ class MainScene extends Phaser.Scene {
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
             airlockWash: window.__translations?.airlockWash ?? 'Press R or click to decontaminate'
-        })
+        });
+
         // Keep the task the player was already working on; only roll a new one
         // when there is nothing to restore.
         if (this.savedGame?.microbe) {
-            this.currentMicrobe = this.savedGame.microbe
-            EventBus.emit('current-microbe-updated', this.currentMicrobe)
+            this.currentMicrobe = this.savedGame.microbe;
+            EventBus.emit('current-microbe-updated', this.currentMicrobe);
         } else {
-            this.replaceCurrentMicrobeRandomly()
+            this.replaceCurrentMicrobeRandomly();
         }
+
+        // --- NEW: Initialize Interactions ---
+        this.interactions = [
+            new LectureInteraction(this),
+            new ExitInteraction(this),
+            new DressingRoomInteraction(this),
+            new AirlockInteraction(this),
+            new BslInteraction(this),
+            new InfoInteraction(this)
+        ];
 
         this.seedPresenceFlags();
     }
@@ -308,97 +313,59 @@ class MainScene extends Phaser.Scene {
     registerEventBusListeners() {
         this.handleNewMicrobeRequest = () => {
             if (this.currentMicrobe) {
-                EventBus.emit('current-microbe-updated', this.currentMicrobe)
+                EventBus.emit('current-microbe-updated', this.currentMicrobe);
             }
-        }
-        EventBus.on('request-new-microbe', this.replaceCurrentMicrobeRandomly)
+        };
+        EventBus.on('request-new-microbe', this.replaceCurrentMicrobeRandomly);
+        EventBus.on('request-current-microbe', this.handleNewMicrobeRequest);
 
-        // Add this listener:
-        EventBus.on('request-current-microbe', this.handleNewMicrobeRequest)
-
-        this.handleTranslationsUpdate = (translations) => this.updateTextTranslations(translations)
-        EventBus.on('translations-updated', this.handleTranslationsUpdate)
+        this.handleTranslationsUpdate = (translations) => this.updateTextTranslations(translations);
+        EventBus.on('translations-updated', this.handleTranslationsUpdate);
     }
 
     updateTextTranslations(translations) {
         if (this.pressEText) {
-            this.pressEText.setText(translations.pressEToOpen)
+            this.pressEText.setText(translations.pressEToOpen);
         }
         if (this.closetHint) {
-            this.closetHint.setText(translations.openCloset)
+            this.closetHint.setText(translations.openCloset);
         }
         if (this.undressHint) {
-            this.undressHint.setText(translations.washUp)
+            this.undressHint.setText(translations.washUp);
         }
         if (this.airlockWashHint) {
-            this.airlockWashHint.setText(translations.airlockWash)
+            this.airlockWashHint.setText(translations.airlockWash);
         }
         if (this.bslHint) {
-            this.bslHint.setText(translations.pressE)
+            this.bslHint.setText(translations.pressE);
         }
         if (translations.exitPrompt) {
-            this.exitPromptText = translations.exitPrompt
+            this.exitPromptText = translations.exitPrompt;
         }
         if (this.doorHint) {
-            this.doorHint.setText(translations.pressE)
-        }
-    }
-
-    //Exit interaction
-    updateExitInteraction() {
-        if (!this.exitGlow || !this.exitZone || !this.exitButtonPoint) {
-            return;
-        }
-
-        const inside = playerIsInsideZone(this.player, this.exitZone);
-        this.exitGlow.setVisible(inside);
-
-        if (this.exitGlowTween) {
-            if (inside) {
-                this.exitGlowTween.resume();
-            } else {
-                this.exitGlowTween.pause();
-            }
-        }
-
-        if (!inside) {
-            this.pressEText?.setVisible(false);
-            return;
-        }
-
-        const dist = Phaser.Math.Distance.Between(
-            this.player.x,
-            this.player.y,
-            this.exitButtonPoint.x,
-            this.exitButtonPoint.y
-        );
-        const closeEnough = dist < 95;
-
-        if (closeEnough) {
-            this.pressEText?.setVisible(true);
-            this.pressEText?.setText(this.exitPromptText || 'Press E to exit');
-            this.pressEText?.setPosition(this.exitButtonPoint.x - 50, this.exitButtonPoint.y - 45);
-            if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
-                window.dispatchEvent(new Event('exit-popup-opened'));
-            }
-        } else {
-            this.pressEText?.setVisible(false);
+            this.doorHint.setText(translations.pressE);
         }
     }
 
     async replaceCurrentMicrobeRandomly() {
-        const microbe = await microbeService.getRandom()
+        const microbe = await microbeService.getRandom();
         if (microbe === null) {
-            return
+            return;
         }
-        this.currentMicrobe = microbe
-        EventBus.emit('current-microbe-updated', microbe)
+        this.currentMicrobe = microbe;
+        EventBus.emit('current-microbe-updated', microbe);
+    }
+
+    // After restoring a saved position, the scene must already know which rooms
+    // the player is standing in. Otherwise update()'s first frame reads every
+    // room as a fresh entry.
+    seedPresenceFlags() {
+        this.interactions.forEach(interaction => interaction.seedPresence());
     }
 
     update() {
-
         this.playerController.update();
-        
+
         if (
             this.player.body.embedded ||
             (this.player.body.touching.none &&
@@ -425,313 +392,12 @@ class MainScene extends Phaser.Scene {
 
         this.equipmentManager.updatePositions();
 
-        // Lecture room: the microbe task panel shows as soon as the player walks in.
-        // The lecture-materials section only unlocks once they walk up to the info
-        // point and press E — same glow + hint pattern as the other interactables.
-        if (this.lectureRoomZone) {
-            const inside = playerIsInsideZone(this.player, this.lectureRoomZone);
-            if (inside && !this.playerInsideLectureRoom) {
-                window.dispatchEvent(new Event('lecture-room-entered'));
-                this.playerInsideLectureRoom = true;
-            } else if (!inside) {
-                this.playerInsideLectureRoom = false;
-            }
-        }
-        if (this.exitZone) {
-            const inside = playerIsInsideZone(this.player, this.exitZone);
-
-            if (inside && !this.playerInsideExitRoom) {
-                this.playerInsideExitRoom = true;
-            } else if (!inside && this.playerInsideExitRoom) {
-                this.playerInsideExitRoom = false;
-            }
-        }
-
-        if (this.lectureGlow && this.lecturePoint && this.lectureRoomZone) {
-            const inside = playerIsInsideZone(this.player, this.lectureRoomZone);
-            this.lectureGlow.setVisible(inside);
-            if (this.lectureGlowTween) {
-                if (inside) { this.lectureGlowTween.resume(); } else { this.lectureGlowTween.pause(); }
-            }
-
-            if (inside) {
-                const dist = Phaser.Math.Distance.Between(
-                    this.player.x, this.player.y, this.lecturePoint.x, this.lecturePoint.y
-                );
-                const closeEnough = dist < 100;
-
-                if (closeEnough) {
-                    this.pressEText.setVisible(true);
-                    // Below the glow (it sits near the top of the room, so a hint
-                    // above it would clip off-screen — same fix as the top BSL rooms).
-                    this.pressEText.setPosition(this.lecturePoint.x - 40, this.lecturePoint.y + 45);
-                    if (this.justPressed(this.keyE)) {
-                        window.dispatchEvent(new Event('lecture-materials-unlocked'));
-                    }
-                } else {
-                    this.pressEText.setVisible(false);
-                }
-            } else {
-                this.pressEText.setVisible(false);
-            }
-        }
-
-        this.updateExitInteraction();
-
-        if (this.ppeRoomZone) {
-            const inside = playerIsInsideZone(this.player, this.ppeRoomZone);
-
-            // Only the glow is toggled here. The click target (closetHit) stays
-            // interactive and renderable for the whole scene — Phaser skips input on
-            // anything that would not render, so hiding it here left the circle
-            // permanently unclickable. Its handlers check playerInsideDressingRoom.
-            if (inside && !this.playerInsideDressingRoom) {
-                if (this.closetGlow) {
-                    this.closetGlow.setVisible(true);
-                    if (this.closetGlowTween) {
-                        this.closetGlowTween.resume();
-                    }
-                }
-                if (this.undressGlow) {
-                    this.undressGlow.setVisible(true);
-                    if (this.undressGlowTween) {
-                        this.undressGlowTween.resume();
-                    }
-                }
-                this.playerInsideDressingRoom = true;
-            } else if (!inside && this.playerInsideDressingRoom) {
-                if (this.closetGlow) {
-                    this.closetGlow.setVisible(false);
-                    if (this.closetGlowTween) {
-                        this.closetGlowTween.pause();
-                    }
-                }
-                if (this.undressGlow) {
-                    this.undressGlow.setVisible(false);
-                    if (this.undressGlowTween) {
-                        this.undressGlowTween.pause();
-                    }
-                }
-                this.playerInsideDressingRoom = false;
-            }
-
-            if (inside && this.justPressed(this.keyE)) {
-                window.dispatchEvent(new Event('closet-popup-opened'));
-            }
-
-            // R washes up / quick-undresses from anywhere in the dressing room —
-            // same reach as the closet's E, no need to stand exactly on the glow.
-            if (inside && this.justPressed(this.keyR)) {
-                window.dispatchEvent(new Event('quick-undress'));
-            }
-
-            // Only this room's own presence (`inside`) may hide the shared hint text —
-            // otherwise this always-running block stomps on the other rooms' hints
-            // (e.g. the lecture info point) every frame regardless of where the player is.
-            if (inside) {
-                const closetCenter = this.closetZone ? { x: this.closetZone.x + 35, y: this.closetZone.y + 60 } : null;
-                const dist = closetCenter
-                    ? Phaser.Math.Distance.Between(this.player.x, this.player.y, closetCenter.x, closetCenter.y)
-                    : Infinity;
-                const closeEnough = Boolean(closetCenter) && dist < 90;
-
-                this.pressEText.setVisible(closeEnough);
-                if (closeEnough) {
-                    this.pressEText.setPosition(closetCenter.x - 40, closetCenter.y - 80);
-                }
-            }
-
-            // Same proximity-hint pattern for the wash-up spot, but on its own text
-            // object (undressHint) so it doesn't fight the closet's pressEText when
-            // both interactables are visible in the same room.
-            if (inside && this.undressHint && this.undressPoint) {
-                const dist = Phaser.Math.Distance.Between(
-                    this.player.x, this.player.y, this.undressPoint.x, this.undressPoint.y
-                );
-                const closeEnough = dist < 110;
-
-                this.undressHint.setVisible(closeEnough);
-                if (closeEnough) {
-                    this.undressHint.setPosition(this.undressPoint.x - 60, this.undressPoint.y - 90);
-                }
-            }
-        }
-
-        // Airlock2 wash-up point: same enter/exit tracking as the dressing room's
-        // closet. The reminder fires as soon as the player arrives — a nudge to
-        // use the green decon spot before heading further out — not a scolding
-        // after the fact.
-        if (this.airlock2Zone) {
-            const inside = playerIsInsideZone(this.player, this.airlock2Zone);
-
-            if (inside && !this.playerInsideAirlock2) {
-                if (this.airlockWashGlow) {
-                    this.airlockWashGlow.setVisible(true);
-                    if (this.airlockWashGlowTween) {
-                        this.airlockWashGlowTween.resume();
-                    }
-                }
-                this.playerInsideAirlock2 = true;
-                window.dispatchEvent(new Event('airlock-wash-reminder'));
-            } else if (!inside && this.playerInsideAirlock2) {
-                if (this.airlockWashGlow) {
-                    this.airlockWashGlow.setVisible(false);
-                    if (this.airlockWashGlowTween) {
-                        this.airlockWashGlowTween.pause();
-                    }
-                }
-                this.playerInsideAirlock2 = false;
-            }
-
-            // R washes up from anywhere in airlock2, same reach as the dressing
-            // room's R — no need to stand exactly on the glow.
-            if (inside && this.justPressed(this.keyR)) {
-                window.dispatchEvent(new Event('airlock-decon'));
-            }
-
-            // Proximity hint, positioned BELOW the glow (unlike the dressing
-            // room's, which sits above its point).
-            if (inside && this.airlockWashHint && this.airlockWashPoint) {
-                const dist = Phaser.Math.Distance.Between(
-                    this.player.x, this.player.y, this.airlockWashPoint.x, this.airlockWashPoint.y
-                );
-                const closeEnough = dist < 90;
-
-                this.airlockWashHint.setVisible(closeEnough);
-                if (closeEnough) {
-                    this.airlockWashHint.setPosition(this.airlockWashPoint.x - 320, this.airlockWashPoint.y + 30);
-                }
-            }
-        }
-
-        // Info point: only active in the corridor. Show the glow and a Press E hint
-        // there, and open the how-to-play popup on E.
-        if (this.infoGlow && this.corridorZone && this.infoPoint) {
-            const inCorridor = playerIsInsideZone(this.player, this.corridorZone);
-            this.infoGlow.setVisible(inCorridor);
-            if (this.infoGlowTween) {
-                if (inCorridor) { this.infoGlowTween.resume(); } else { this.infoGlowTween.pause(); }
-            }
-            if (inCorridor) {
-                this.pressEText.setVisible(true);
-                this.pressEText.setPosition(this.infoPoint.x - 40, this.infoPoint.y - 45);
-                if (this.justPressed(this.keyE)) {
-                    window.dispatchEvent(new Event('info-popup-opened'));
-                }
-            }
-        }
-
-        // BSL room interactables: show the blue glow while inside a BSL room,
-        // and open the answer popup when E is pressed there.
-        if (this.bslGlows) {
-            let activeCenter = null;
-
-            for (const entry of this.bslGlows) {
-                const inside = playerIsInsideZone(this.player, entry.zone);
-
-                if (inside && !entry.playerInside) {
-                    entry.glow.setVisible(true);
-                    entry.tween.resume();
-                    entry.playerInside = true;
-                    this.notifyRoomEntry(entry.key);
-                } else if (!inside && entry.playerInside) {
-                    entry.glow.setVisible(false);
-                    entry.tween.pause();
-                    entry.playerInside = false;
-                }
-
-                if (inside) {
-                    activeCenter = entry.center;
-
-                    if (this.justPressed(this.keyE)) {
-
-                        if (!window.__lectureOpen) {
-                            window.dispatchEvent(new Event('lecture-required'));
-                        } else {
-                            window.dispatchEvent(
-                                new CustomEvent('answer-popup-opened', {
-                                    detail: { level: entry.key }
-                                })
-                            );
-                        }
-                    }
-                }
-            }
-
-            if (this.bslHint) {
-                if (activeCenter) {
-                    // Top-row rooms (glow near the screen top) would push the hint
-                    // off-screen / behind the wall, so show it below the glow there.
-                    const hintY = activeCenter.y > 80
-                        ? activeCenter.y - 48   // room lower down: hint above the glow
-                        : activeCenter.y + 36;  // top room: hint below the glow
-                    this.bslHint.setVisible(true);
-                    this.bslHint.setPosition(activeCenter.x - 28, hintY);
-                } else {
-                    this.bslHint.setVisible(false);
-                }
-            }
-        }
+        // --- Execute room/object interactions ---
+        this.interactions.forEach(interaction => interaction.update());
 
         // Throttled inside savePlayerPosition, and a no-op when the player has
         // not actually moved, so an idle tab can still go stale and expire.
         savePlayerPosition(this.player.x, this.player.y);
-    }
-
-    // Browser and OS shortcuts share our single-letter keys — Cmd+R / Ctrl+R
-    // reloads the page — and Phaser reports the bare letter regardless of the
-    // modifiers held with it. Without this guard, reloading with Cmd+R counted as
-    // the dressing room's "R = wash up": it stripped all worn PPE, and while the
-    // player still owed a wash-up it also handed out a fresh microbe. Shift is
-    // allowed through: it is not part of any shortcut we collide with.
-    justPressed(key) {
-        if (!key || !Phaser.Input.Keyboard.JustDown(key)) {
-            return false;
-        }
-
-        return !key.ctrlKey && !key.metaKey && !key.altKey;
-    }
-
-    // After restoring a saved position, the scene must already know which rooms
-    // the player is standing in. Otherwise update()'s first frame reads every
-    // room as a fresh entry: airlock2 re-fires its wash reminder, and a BSL room
-    // POSTs a duplicate room_entries row for a room the player never left.
-    seedPresenceFlags() {
-        if (this.lectureRoomZone) {
-            this.playerInsideLectureRoom = playerIsInsideZone(this.player, this.lectureRoomZone);
-        }
-
-        if (this.exitZone) {
-            this.playerInsideExitRoom = playerIsInsideZone(this.player, this.exitZone);
-        }
-
-        if (this.ppeRoomZone) {
-            this.playerInsideDressingRoom = playerIsInsideZone(this.player, this.ppeRoomZone);
-            if (this.playerInsideDressingRoom) {
-                this.closetGlow?.setVisible(true);
-                this.closetGlowTween?.resume();
-                this.undressGlow?.setVisible(true);
-                this.undressGlowTween?.resume();
-            }
-        }
-
-        if (this.airlock2Zone) {
-            this.playerInsideAirlock2 = playerIsInsideZone(this.player, this.airlock2Zone);
-            if (this.playerInsideAirlock2) {
-                this.airlockWashGlow?.setVisible(true);
-                this.airlockWashGlowTween?.resume();
-            }
-        }
-
-        if (this.bslGlows) {
-            for (const entry of this.bslGlows) {
-                entry.playerInside = playerIsInsideZone(this.player, entry.zone);
-                if (entry.playerInside) {
-                    entry.glow.setVisible(true);
-                    entry.tween.resume();
-                }
-            }
-        }
     }
 
     initializeDoors(player) {
@@ -741,14 +407,14 @@ class MainScene extends Phaser.Scene {
             bodyXOffset: 75,
             bodyYOffset: 105,
             bodyHeight: 9
-        }
+        };
         const door1 = doors.addDoor(1200, 280, 'door_front', config).setScale(0.25);
         config = {
             triggerZoneY: 490,
             bodyXOffset: 75,
             bodyYOffset: 95,
             bodyHeight: 9
-        }
+        };
         const door2 = doors.addDoor(1005, 515, 'door_front', config).setScale(0.25);
         this.physics.add.collider(player, doors.solidSprites);
 
@@ -756,7 +422,7 @@ class MainScene extends Phaser.Scene {
             triggerZoneWidth: 40,
             triggerZoneHeight: 40,
             bodyWidth: 9
-        }
+        };
         const door3 = doors.addDoor(1110, 305, 'door_top', config).setScale(0.5);
         const door4 = doors.addDoor(965, 305, 'door_top', config).setScale(0.5);
         const door5 = doors.addDoor(965, 415, 'door_top', config).setScale(0.5);
@@ -784,7 +450,10 @@ class MainScene extends Phaser.Scene {
         const door = zone.parentDoor;
         this.doorHint.setVisible(true);
         this.doorHint.setPosition(door.x, door.y);
-        if (this.justPressed(this.keyE)) {
+        
+        // Inline key guard check for doors since justPressed moved
+        if (Phaser.Input.Keyboard.JustDown(this.keyE) && 
+            !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey) {
             door.tryToChangeDoorState();
         }
     }
