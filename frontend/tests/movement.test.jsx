@@ -1,4 +1,5 @@
-import MainScene, { playerIsInsideZone } from '../src/game/scenes/main_scene'
+import MainScene from '../src/game/scenes/main_scene'
+import { playerIsInsideZone } from '../src/utils/geometry'
 import Phaser from 'phaser'
 import { SAVED_GAME_KEY, clearSavedGame } from '../src/state/savedGame'
 
