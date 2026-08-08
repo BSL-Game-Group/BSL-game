@@ -20,19 +20,6 @@ import { AirlockInteraction } from '../interactions/AirlockInteraction';
 import { BslInteraction } from '../interactions/BslInteraction';
 import { InfoInteraction } from '../interactions/InfoInteraction';
 
-// Restored for backwards compatibility with legacy tests
-export const playerIsInsideZone = (player, zone) => {
-    if (!player || !zone) {
-        return false;
-    }
-    return (
-        player.x >= zone.x &&
-        player.x <= zone.x + zone.width &&
-        player.y >= zone.y &&
-        player.y <= zone.y + zone.height
-    );
-};
-
 class MainScene extends Phaser.Scene {
     constructor() {
         super({ key: 'MainScene' });
