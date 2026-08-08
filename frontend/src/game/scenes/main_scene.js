@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { createRooms } from './rooms';
 import microbeService from '../../services/microbes';
+import { generateSessionId, notifyRoomEntry } from '../services/tracking';
 import { EventBus } from '../EventBus';
 import DoorGroup from '../groups/DoorGroup.js';
 import { loadSavedGame, patchSavedGame, savePlayerPosition } from '../../state/savedGame';
@@ -32,55 +33,7 @@ export const playerIsInsideZone = (player, zone) => {
 class MainScene extends Phaser.Scene {
     constructor() {
         super({ key: 'MainScene' });
-    }
-
-    generateSessionId() {
-        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    }
-
-    async notifyRoomEntry(roomKey) {
-        try {
-            const sessionId = window.__gameData?.sessionId;
-            if (!sessionId) {
-                return;
-            }
-
-            const backendUrl = this.getBackendUrl();
-            const response = await fetch(`${backendUrl}/api/rooms/enter`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    room_key: roomKey,
-                    session_id: sessionId,
-                }),
-            });
-
-            if (!response.ok) {
-                return;
-            }
-
-            await response.json();
-        // eslint-disable-next-line no-unused-vars
-        } catch (error) {
-            // Silently fail - room entry is not critical to gameplay
-        }
-    }
-
-    getBackendUrl() {
-        if (process.env.VITE_API_URL) {
-            return process.env.VITE_API_URL;
-        }
-        if (typeof window !== 'undefined') {
-            const protocol = window.location.protocol;
-            const hostname = window.location.hostname;
-            if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                return 'http://localhost:3001';
-            }
-            return `${protocol}//backend:3001`;
-        }
-        return 'http://localhost:3001';
+        this.notifyRoomEntry = notifyRoomEntry;
     }
 
     preload() {
@@ -165,7 +118,7 @@ class MainScene extends Phaser.Scene {
         this.createLabFloor();
 
         if (!window.__gameData?.sessionId) {
-            const sessionId = this.savedGame?.sessionId ?? this.generateSessionId();
+            const sessionId = this.savedGame?.sessionId ?? generateSessionId(); // Removed 'this.'
             window.__gameData = { ...window.__gameData, sessionId };
             patchSavedGame({ sessionId });
         }
