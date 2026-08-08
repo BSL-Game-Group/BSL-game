@@ -10,6 +10,7 @@ import { loadSavedGame, patchSavedGame, savePlayerPosition } from '../../state/s
 import { loadAssets } from '../assets/loadAssets.js';
 import EquipmentManager from "../player/EquipmentManager";
 import PlayerController from "../player/PlayerController";
+import { PLAYER_CONFIG, DOORS_CONFIG } from '../config/constants';
 
 // Interactions
 import { LectureInteraction } from '../interactions/LectureInteraction';
@@ -65,15 +66,15 @@ class MainScene extends Phaser.Scene {
         }
 
         this.player = this.physics.add.sprite(
-            this.savedGame?.player.x ?? 590,
-            this.savedGame?.player.y ?? 150,
+            this.savedGame?.player.x ?? PLAYER_CONFIG.startX,
+            this.savedGame?.player.y ?? PLAYER_CONFIG.startY,
             'player_base'
         );
         this.player.setCollideWorldBounds(true);
-        this.player.setScale(0.4);
-        this.player.body.setSize(60, 205);
-        this.player.body.setOffset(23, 6);
-        this.player.setDepth(10);
+        this.player.setScale(PLAYER_CONFIG.scale);
+        this.player.body.setSize(PLAYER_CONFIG.body.width, PLAYER_CONFIG.body.height);
+        this.player.body.setOffset(PLAYER_CONFIG.body.offsetX, PLAYER_CONFIG.body.offsetY);
+        this.player.setDepth(PLAYER_CONFIG.depth);
         
         this.playerController = new PlayerController(this, this.player);
 
@@ -116,10 +117,6 @@ class MainScene extends Phaser.Scene {
         if (this.savedGame) {
             this.equipmentManager.setEquipment(this.savedGame.equipped);
         }
-
-        this.events.on('shutdown', () => {
-            window.removeEventListener('equipment-changed', this.handleEquipmentChange);
-        });
         
         this.isPopupOpen = this.savedGame?.popups.closet ?? false;
 
@@ -244,28 +241,28 @@ class MainScene extends Phaser.Scene {
     }
 
     initializeDoors(player) {
-        const doors = new DoorGroup(this);
-        let config = { triggerZoneY: 260, bodyXOffset: 75, bodyYOffset: 105, bodyHeight: 9 };
-        const door1 = doors.addDoor(1200, 280, 'door_front', config).setScale(0.25);
-        
-        config = { triggerZoneY: 490, bodyXOffset: 75, bodyYOffset: 95, bodyHeight: 9 };
-        const door2 = doors.addDoor(1005, 515, 'door_front', config).setScale(0.25);
-        this.physics.add.collider(player, doors.solidSprites);
+            const doorsGroup = new DoorGroup(this);
+            const doorInstances = {}; // Temporary dictionary to hold doors by their ID
 
-        config = { triggerZoneWidth: 40, triggerZoneHeight: 40, bodyWidth: 9 };
-        const door3 = doors.addDoor(1110, 305, 'door_top', config).setScale(0.5);
-        const door4 = doors.addDoor(965, 305, 'door_top', config).setScale(0.5);
-        const door5 = doors.addDoor(965, 415, 'door_top', config).setScale(0.5);
+            // 1. Create all doors from the config
+            DOORS_CONFIG.forEach(config => {
+                const door = doorsGroup.addDoor(config.x, config.y, config.type, config.physics).setScale(config.scale);
+                doorInstances[config.id] = door;
+            });
 
-        door1.addAirlockDoorPair(door3);
-        door3.addAirlockDoorPair(door1);
-        door3.addAirlockDoorPair(door4);
-        door4.addAirlockDoorPair(door3);
-        door2.addAirlockDoorPair(door5);
-        door5.addAirlockDoorPair(door2);
+            // Add collisions once for the whole group
+            this.physics.add.collider(player, doorsGroup.solidSprites);
 
-        return doors;
-    }
+            // 2. Link airlock pairs based on the 'links' array
+            DOORS_CONFIG.forEach(config => {
+                const currentDoor = doorInstances[config.id];
+                config.links.forEach(linkId => {
+                    currentDoor.addAirlockDoorPair(doorInstances[linkId]);
+                });
+            });
+
+            return doorsGroup;
+        }
 
     handleDoorInteraction(player, zone) {
         const door = zone.parentDoor;
