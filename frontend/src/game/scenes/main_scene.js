@@ -3,6 +3,7 @@ import { createRooms } from './rooms';
 import microbeService from '../../services/microbes';
 import { generateSessionId, notifyRoomEntry } from '../services/tracking';
 import { createWoodFloor, createLabFloor } from '../environment/EnvironmentBuilder';
+import HintManager from '../managers/HintManager';
 import { EventBus } from '../EventBus';
 import DoorGroup from '../groups/DoorGroup.js';
 import { loadSavedGame, patchSavedGame, savePlayerPosition } from '../../state/savedGame';
@@ -76,6 +77,29 @@ class MainScene extends Phaser.Scene {
         
         this.playerController = new PlayerController(this, this.player);
 
+        this.hintManager = new HintManager(this);
+
+        // Temporary Backwards Compatibility:
+        this.pressEText = this.hintManager.pressEText;
+        this.closetHint = this.hintManager.closetHint;
+        this.undressHint = this.hintManager.undressHint;
+        this.airlockWashHint = this.hintManager.airlockWashHint;
+        this.bslHint = this.hintManager.bslHint;
+        this.doorHint = this.hintManager.doorHint;
+        
+        Object.defineProperty(this, 'exitPromptText', {
+            get: () => this.hintManager.exitPromptText
+        });
+
+        // Apply initial translations
+        this.hintManager.updateTranslations({
+            pressEToOpen: window.__translations?.pressEToOpen ?? 'Press E to open',
+            openCloset: window.__translations?.openCloset ?? 'Open Closet',
+            pressE: window.__translations?.pressE ?? 'Press E',
+            washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
+            airlockWash: window.__translations?.airlockWash ?? 'Press R or click to decontaminate'
+        });
+
         this.doors = this.initializeDoors(this.player);
 
         this.equipmentManager = new EquipmentManager(this, this.player);
@@ -120,53 +144,10 @@ class MainScene extends Phaser.Scene {
         this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
         this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         
-        this.pressEText = this.add.text(0, 0, "", {
-            fontSize: "14px",
-            backgroundColor: "#000",
-            color: "#fff",
-            padding: { x: 6, y: 3 }
-        }).setDepth(1000).setVisible(false);
-        this.exitPromptText = 'Press E to exit';
-
         this.physics.add.collider(this.player, walls);
-
-        this.closetHint = this.add.text(0, 0, "", {
-            fontSize: "14px",
-            backgroundColor: "#222222",
-            color: "#ffffff",
-            padding: { left: 6, right: 6, top: 3, bottom: 3 }
-        }).setDepth(1000).setVisible(false);
-
-        this.undressHint = this.add.text(0, 0, "", {
-            fontSize: "14px",
-            backgroundColor: "#222222",
-            color: "#ffffff",
-            padding: { left: 6, right: 6, top: 3, bottom: 3 }
-        }).setDepth(1000).setVisible(false);
-
-        this.airlockWashHint = this.add.text(0, 0, "", {
-            fontSize: "14px",
-            backgroundColor: "#222222",
-            color: "#ffffff",
-            padding: { left: 6, right: 6, top: 3, bottom: 3 }
-        }).setDepth(1000).setVisible(false);
-
-        this.bslHint = this.add.text(0, 0, "", {
-            fontSize: "14px",
-            backgroundColor: "#000",
-            color: "#fff",
-            padding: { x: 6, y: 3 }
-        }).setDepth(1000).setVisible(false);
         
         this.currentMicrobe = null;
         this.registerEventBusListeners();
-        this.updateTextTranslations({
-            pressEToOpen: window.__translations?.pressEToOpen ?? 'Press E to open',
-            openCloset: window.__translations?.openCloset ?? 'Open Closet',
-            pressE: window.__translations?.pressE ?? 'Press E',
-            washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
-            airlockWash: window.__translations?.airlockWash ?? 'Press R or click to decontaminate'
-        });
 
         if (this.savedGame?.microbe) {
             this.currentMicrobe = this.savedGame.microbe;
@@ -196,32 +177,8 @@ class MainScene extends Phaser.Scene {
         EventBus.on('request-new-microbe', this.replaceCurrentMicrobeRandomly);
         EventBus.on('request-current-microbe', this.handleNewMicrobeRequest);
 
-        this.handleTranslationsUpdate = (translations) => this.updateTextTranslations(translations);
+        this.handleTranslationsUpdate = (translations) => this.hintManager.updateTranslations(translations);
         EventBus.on('translations-updated', this.handleTranslationsUpdate);
-    }
-
-    updateTextTranslations(translations) {
-        if (this.pressEText) {
-            this.pressEText.setText(translations.pressEToOpen);
-        }
-        if (this.closetHint) {
-            this.closetHint.setText(translations.openCloset);
-        }
-        if (this.undressHint) {
-            this.undressHint.setText(translations.washUp);
-        }
-        if (this.airlockWashHint) {
-            this.airlockWashHint.setText(translations.airlockWash);
-        }
-        if (this.bslHint) {
-            this.bslHint.setText(translations.pressE);
-        }
-        if (translations.exitPrompt) {
-            this.exitPromptText = translations.exitPrompt;
-        }
-        if (this.doorHint) {
-            this.doorHint.setText(translations.pressE);
-        }
     }
 
     async replaceCurrentMicrobeRandomly() {
@@ -269,11 +226,8 @@ class MainScene extends Phaser.Scene {
             );
         }
 
-        if (this.input && this.input.activePointer) {
-            const pointer = this.input.activePointer;
-            if (this.closetHint && this.closetHint.visible) {
-                this.closetHint.setPosition(pointer.x + 15, pointer.y + 15);
-            }
+        if (this.hintManager && this.input && this.input.activePointer) {
+            this.hintManager.update(this.input.activePointer);
         }
 
         if (this.equipmentManager) {
@@ -309,10 +263,6 @@ class MainScene extends Phaser.Scene {
         door4.addAirlockDoorPair(door3);
         door2.addAirlockDoorPair(door5);
         door5.addAirlockDoorPair(door2);
-
-        this.doorHint = this.add.text(0, 0, "", {
-            fontSize: "14px", backgroundColor: "#000", color: "#fff", padding: { x: 6, y: 3 }
-        }).setDepth(1000).setVisible(false);
 
         return doors;
     }
