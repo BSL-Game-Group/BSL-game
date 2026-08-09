@@ -138,6 +138,12 @@ function App() {
     }
   }, [])
 
+  // Lock movement while the gear popup is up — otherwise the player can walk
+  // out of BSL-4 with the arrow keys while it's still open, mid-decision.
+  useEffect(() => {
+    window.dispatchEvent(new Event(bsl4GearOpen ? 'popup-opened' : 'popup-closed'))
+  }, [bsl4GearOpen])
+
   // The suit cannot exist outside BSL-4 — Phaser fires this the instant the
   // player's position leaves the room while still suited (normally prevented
   // by the door, but this is the hard guarantee regardless of how they got out).
