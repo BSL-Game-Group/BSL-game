@@ -399,6 +399,22 @@ describe('PPE removal gate', () => {
 // BSL4 ENTRY CONFIRMATION
 // -----------------------------
 describe('BSL4 gear popup', () => {
+  test('locks movement while open, unlocks when it closes', () => {
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    startGame()
+
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-suit-required'))
+    })
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: 'popup-opened' }))
+
+    spy.mockClear()
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: 'popup-closed' }))
+
+    spy.mockRestore()
+  })
+
   test('bsl4-suit-required shows the "put it on" prompt with suit/gloves buttons, no ventilation button yet', () => {
     startGame()
 
