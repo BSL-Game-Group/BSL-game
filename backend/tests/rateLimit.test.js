@@ -8,10 +8,6 @@ const { resetGameTables, closeDb } = require('./helpers/db');
 beforeEach(resetGameTables);
 after(closeDb);
 
-// The limiter's counters are module state, not database rows, so resetGameTables
-// does NOT clear them and the tests below run against a shared, accumulating
-// budget. That is why this file exists on its own: node --test gives each file its
-// own process, which keeps a maxed-out username from leaking into other suites.
 const USERNAME = 'Test_User';
 const PASSWORD = 'test-password-123';
 

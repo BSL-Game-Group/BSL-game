@@ -1,9 +1,6 @@
 const db = require('../models')
 const { verifyToken } = require('../utils/token')
 
-// The user is looked up rather than trusted from the payload, so a token for a
-// deleted account stops working immediately. The lookup goes through User's
-// default scope, so req.user never carries the password hash.
 async function resolveUser(req) {
   const header = req.get('authorization')
 

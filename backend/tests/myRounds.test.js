@@ -18,8 +18,6 @@ async function register(username) {
   return response.body;
 }
 
-// An explicit createdAt is honoured by create() (verified), which is what makes the
-// ordering assertions below deterministic rather than dependent on insert timing.
 function round(attributes) {
   return db.Round.create({
     session_id: 'session-a',

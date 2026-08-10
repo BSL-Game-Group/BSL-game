@@ -65,9 +65,6 @@ test('answers hang off a round and carry the chosen equipment as an array', asyn
   assert.deepStrictEqual(withAnswers.answers[0].chosen_equipment, ['lab_coat', 'gloves']);
 });
 
-// JSONB, not a stringified array — the same failure mode that made every BSL class
-// hold a JSON string. An array stored as a string would still round-trip through
-// Sequelize but be unusable to anything reading it in SQL.
 test('chosen_equipment is stored as a JSON array, not a JSON string', async () => {
   const microbe = await db.Microbe.findOne();
   const round = await db.Round.create({

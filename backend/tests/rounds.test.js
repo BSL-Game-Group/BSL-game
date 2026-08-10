@@ -11,10 +11,6 @@ after(closeDb);
 
 const PASSWORD = 'test-password-123';
 
-// BSL-1 requires gloves as well as a coat and glasses (decided 2026-08-07, and
-// what the seeder and 20260807000001 both write). A coat and glasses alone is the
-// answer the CLIENT still calls correct, so it is not a correct answer here — do
-// not trim this back to two items to match frontend/src/utils/equipmentRules.js.
 const BSL1_CORRECT = ['lab_coat', 'glasses', 'gloves'];
 
 // Real seeded microbes, so grading runs against the real rule set.
@@ -144,15 +140,6 @@ test('empty, oversized and malformed answer lists are 400s', async () => {
     { session_id: 'session-a', answers: [{ microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: 'lab_coat' }] },
     { session_id: 'session-a', answers: [{ microbe_id: 'abc', chosen_level: 1, chosen_equipment: [] }] },
     { answers: [{ microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: [] }] },
-    // chosen_level lands in a Postgres INTEGER column, so a value it cannot hold
-    // has to be refused here. Both of these pass a Number.isFinite check; measured
-    // against the real column, they then fail in two different ways:
-    //
-    //   3.5  — bulkCreate SILENTLY ROUNDS it and stores 4. Grading ran on 3.5 and
-    //          recorded level_correct: false, so for a BSL-4 microbe the stored row
-    //          now re-scores to TRUE and contradicts the score on its own round.
-    //          That is the re-scorability this table exists for, quietly broken.
-    //   1e21 — throws `integer out of range`, so a 500 for a plain bad request.
     { session_id: 'session-a', answers: [{ microbe_id: bsl1.id, chosen_level: 3.5, chosen_equipment: [] }] },
     { session_id: 'session-a', answers: [{ microbe_id: bsl1.id, chosen_level: 1e21, chosen_equipment: [] }] },
   ];
@@ -162,8 +149,6 @@ test('empty, oversized and malformed answer lists are 400s', async () => {
     assert.strictEqual(response.status, 400, `expected 400 for ${JSON.stringify(body).slice(0, 60)}`);
   }
 
-  // No body at all, which is not the same as an empty one: nothing has parsed, so
-  // req.body is undefined rather than {}.
   const noBody = await request(app).post('/api/rounds');
   assert.strictEqual(noBody.status, 400);
   assert.strictEqual(noBody.body.code, 'session_id_missing');
@@ -171,10 +156,6 @@ test('empty, oversized and malformed answer lists are 400s', async () => {
   assert.strictEqual(await db.Round.count(), 0);
 });
 
-// The documented fallback for a level that has no rules row. Worth pinning because
-// it decides which half of the answer a bad level costs: the level is wrong, but
-// with no rules to violate the equipment is called correct — the same fallback
-// getEquipmentRulesForBslLevel makes on the client.
 test('a level with no rules costs the level, not the equipment', async () => {
   const bsl1 = await microbeAtLevel(1);
 

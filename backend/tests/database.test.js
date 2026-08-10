@@ -5,7 +5,6 @@ const request = require('supertest');
 const app = require('../app');
 const db = require('../models');
 
-// node --test keeps the process alive while the pg pool has a handle open.
 after(async () => {
   await db.sequelize.close();
 });

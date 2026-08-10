@@ -160,8 +160,6 @@ test('/api/auth/me is a 401 without a usable token', async () => {
 });
 
 test('a token still works after the password is changed underneath it', async () => {
-  // There is no revocation by design (spec §12): the JWT stays valid until it
-  // expires. Pinning that here so the trade-off is visible rather than assumed.
   const registered = await registerTestUser();
   await db.User.update({ password_hash: 'a-different-hash' }, { where: { id: registered.user.id } });
 

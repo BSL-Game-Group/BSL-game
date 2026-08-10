@@ -88,9 +88,6 @@ test('a session with nothing to claim is not an error', async () => {
   assert.strictEqual(await claimRoundsForSession(42, user.id), 0);
 });
 
-// The transaction option exists so a caller can make the claim part of a larger
-// atomic operation. Without this test the parameter is merely passed through and
-// never proven to work.
 test('honours a caller supplied transaction, so a rollback un-claims', async () => {
   const user = await makeUser('Test_User');
   await guestRound('session-a');

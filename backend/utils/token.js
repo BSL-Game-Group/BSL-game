@@ -3,22 +3,6 @@ const jwt = require('jsonwebtoken')
 const TEST_SECRET = 'bsl-game-test-secret'
 const TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60
 
-// Resolved at require time, so an image with no secret fails to start instead of
-// booting and signing every token with a constant.
-//
-// There is deliberately NO fallback outside the test suite. A default living in
-// this repository is a published private key: anyone who can read the repo could
-// forge a token for any account. NODE_ENV=test is the single exception, so the
-// backend suite runs unconfigured; every other value — including unset — throws.
-//
-// This is stricter than the original design, which fell back unless
-// NODE_ENV === 'production'. That guard would never have fired: NODE_ENV is set
-// nowhere in this repo (not in backend/Dockerfile, docker-compose.yaml, or
-// backend/manifests/deployment.yaml) and Node does not default it, so a missing
-// secret would silently have become the repo-published constant.
-//
-// Local play is unaffected: docker-compose.yaml supplies JWT_SECRET. Running
-// `npm start` directly needs it in the environment, by design.
 function resolveSecret() {
   if (process.env.JWT_SECRET) {
     return process.env.JWT_SECRET

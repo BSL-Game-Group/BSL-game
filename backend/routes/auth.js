@@ -83,8 +83,6 @@ router.post('/register', authLimiter, async (req, res) => {
   try {
     user = await db.User.create({ username, password_hash })
   } catch (error) {
-    // Two registrations for the same name in the same instant: the index, not the
-    // check above, is the real guard.
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(409).json({ error: 'That username is taken', code: 'username_taken' })
     }
@@ -116,10 +114,6 @@ router.post('/login', authLimiter, async (req, res) => {
     where: whereUsernameMatches(username),
   })
 
-  // Same body AND same cost for "no such user" and "wrong password": the endpoint
-  // must not tell an attacker which usernames exist. The throwaway compare below
-  // is what equalises the timing — returning early here leaks existence far more
-  // loudly than the response body ever could.
   if (!user) {
     await bcrypt.compare(password, NO_SUCH_USER_HASH)
     return res.status(401).json(rejection)
