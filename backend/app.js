@@ -2,6 +2,9 @@ const express = require('express')
 const cors = require('cors')
 const db = require('./models')
 const authRouter = require('./routes/auth')
+const roundsRouter = require('./routes/rounds')
+const leaderboardRouter = require('./routes/leaderboard')
+const { errorHandler } = require('./middleware/errorHandler')
 
 const app = express()
 
@@ -14,6 +17,11 @@ app.use(express.json())
 // Mounted above the pre-existing routes, and after express.json() so the routers
 // see a parsed body.
 app.use('/api/auth', authRouter)
+
+// Mounted at /api rather than /api/rounds because this router also owns
+// GET /api/me/rounds.
+app.use('/api', roundsRouter)
+app.use('/api', leaderboardRouter)
 
 app.get('/', (req, res) => {
   res.send('Backend is running')
@@ -118,5 +126,7 @@ app.post('/api/rooms/enter', async (req, res) => {
     res.status(500).json({ error: 'Failed to record room entry' })
   }
 })
+
+app.use(errorHandler)
 
 module.exports = app
