@@ -377,7 +377,41 @@ function setupLectureInfoPoint(scene) {
         .zone(gx, gy, radius * 2.4, radius * 2.4)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-            window.dispatchEvent(new Event('lecture-materials-unlocked'));
+            window.dispatchEvent(new Event('microbe-info-popup-opened'));
+        });
+}
+
+function setupLectureHelloButton(scene) {
+    const gx = 410;
+    const gy = 120;
+    const radius = 25;
+
+    const glow = scene.add.graphics();
+    glow.fillStyle(0x0b6623, 0.8);
+    glow.fillCircle(gx, gy, radius);
+    glow.lineStyle(3, 0x0b6623);
+    glow.strokeCircle(gx, gy, radius);
+    glow.setDepth(5);
+    glow.setVisible(false);
+
+    const tween = scene.tweens.add({
+        targets: glow,
+        alpha: { from: 1.0, to: 0.3 },
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+    });
+    tween.pause();
+
+    scene.lectureHelloGlow = glow;
+    scene.lectureHelloGlowTween = tween;
+    scene.lectureHelloPoint = { x: gx, y: gy };
+
+    scene.add
+        .zone(gx, gy, radius * 2.4, radius * 2.4)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+            window.dispatchEvent(new Event('hello-popup-opened'));
         });
 }
 
@@ -568,6 +602,7 @@ export function createRooms(scene) {
     setupAirlockWashPoint(scene);
     setupLectureRoom(scene, walls);
     setupLectureInfoPoint(scene);
+    setupLectureHelloButton(scene);
     setupDressingRoomDeadzones(scene, walls);
     setupInfoDesk(scene, walls);
     setupExitArea(scene, walls);

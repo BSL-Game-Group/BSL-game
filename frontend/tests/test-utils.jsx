@@ -32,6 +32,11 @@ const translationValue = {
       'airlockWashRequired.message': 'Always sanitize yourself at the airlock decon spot whenever you leave the BSL4 laboratory.',
 
       'common.close': 'Close',
+      'microbeInfoPopup.title': 'Microbe Information',
+      'microbeInfoPopup.commonName': 'Common name',
+      'microbeInfoPopup.scientificName': 'Scientific name',
+      'microbeInfoPopup.type': 'Type',
+      'microbeInfoPopup.description': 'Description',
     }
 
     return translations[key] ?? key

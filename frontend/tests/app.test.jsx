@@ -244,6 +244,25 @@ test('clicking the show button opens the lecture materials popup', async () => {
   expect(await screen.findByRole('heading', { name: /BSL Game Material \(Biosafety Levels\)/i })).toBeInTheDocument()
 })
 
+test('microbe info popup opens when the lecture info event is fired and a current microbe exists', async () => {
+  startGame()
+
+  const microbe = {
+    common_name: 'E. coli',
+    scientific_name: 'Escherichia coli',
+    type: 'Bacterium',
+    lecture_text: 'Common gut bacterium',
+  }
+
+  act(() => {
+    EventBus.emit('current-microbe-updated', microbe)
+    window.dispatchEvent(new Event('microbe-info-popup-opened'))
+  })
+
+  expect(await screen.findByRole('heading', { name: /microbe information/i })).toBeInTheDocument()
+  expect(screen.getByText(/Escherichia coli/i)).toBeInTheDocument()
+})
+
 // -----------------------------
 // CLOSET FEATURE TESTS
 // -----------------------------

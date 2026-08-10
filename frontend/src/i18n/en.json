@@ -71,7 +71,19 @@
     "belongs": "{name} belongs to BSL-{level}."
   },
   "common": {
-    "close": "Close"
+    "close": "Close",
+    "loading": "Loading..."
+  },
+  "helloPopup": {
+    "title": "Hello world",
+    "message": "This is a new lecture room popup."
+  },
+  "microbeInfoPopup": {
+    "title": "Microbe Information",
+    "commonName": "Common name",
+    "scientificName": "Scientific name",
+    "type": "Type",
+    "description": "Description"
   },
   "rooms": {
     "exit": "Exit",

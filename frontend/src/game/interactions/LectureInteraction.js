@@ -14,9 +14,18 @@ export class LectureInteraction extends BaseInteraction {
     }
 
     update() {
-        const { lectureRoomZone, lectureGlow, lecturePoint, lectureGlowTween, pressEText } = this.scene;
+        const {
+            lectureRoomZone,
+            lectureGlow,
+            lecturePoint,
+            lectureGlowTween,
+            lectureHelloGlow,
+            lectureHelloGlowTween,
+            pressEText,
+        } = this.scene;
         if (!lectureRoomZone) {
-            return;}
+            return;
+        }
 
         const inside = this.isInside(lectureRoomZone);
 
@@ -45,11 +54,19 @@ export class LectureInteraction extends BaseInteraction {
                     pressEText.setVisible(true);
                     pressEText.setPosition(lecturePoint.x - 40, lecturePoint.y + 45);
                     if (this.justPressed(this.keyE)) {
-                        window.dispatchEvent(new Event('lecture-materials-unlocked'));
+                        window.dispatchEvent(new Event('microbe-info-popup-opened'));
                     }
                 } else {
                     pressEText.setVisible(false);
                 }
+            }
+        }
+
+        // Lecture-room right-side hello button glow
+        if (lectureHelloGlow) {
+            lectureHelloGlow.setVisible(inside);
+            if (lectureHelloGlowTween) {
+                inside ? lectureHelloGlowTween.resume() : lectureHelloGlowTween.pause();
             }
         }
     }
