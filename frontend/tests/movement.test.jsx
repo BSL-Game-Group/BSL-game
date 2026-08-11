@@ -795,9 +795,9 @@ test('shows the lecture info-point glow, and unlocks materials on E when close t
   Phaser.Input.Keyboard.JustDown.mockReturnValueOnce(true)
 
   const handler = jest.fn()
-  window.addEventListener('lecture-materials-unlocked', handler)
+  window.addEventListener('microbe-info-popup-opened', handler)
   scene.update()
-  window.removeEventListener('lecture-materials-unlocked', handler)
+  window.removeEventListener('microbe-info-popup-opened', handler)
 
   expect(scene.lectureGlow.setVisible).toHaveBeenCalledWith(true)
   expect(scene.lectureGlowTween.resume).toHaveBeenCalled()
@@ -816,9 +816,9 @@ test('hides the press E hint when inside the lecture room but too far from the i
   scene.player.y = 300
 
   const handler = jest.fn()
-  window.addEventListener('lecture-materials-unlocked', handler)
+  window.addEventListener('microbe-info-popup-opened', handler)
   scene.update()
-  window.removeEventListener('lecture-materials-unlocked', handler)
+  window.removeEventListener('microbe-info-popup-opened', handler)
 
   expect(scene.lectureGlow.setVisible).toHaveBeenCalledWith(true)
   expect(scene.pressEText.setVisible).toHaveBeenCalledWith(false)

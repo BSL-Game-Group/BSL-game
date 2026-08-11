@@ -16,13 +16,16 @@ function LectureMaterialPopup({ open, onClose }) {
     }
 
     let cancelled = false
-    setMaterial(null)
 
-    bslMaterialService.getMaterial(language).then((data) => {
+    const loadMaterial = async () => {
+      setMaterial(null)
+      const data = await bslMaterialService.getMaterial(language)
       if (!cancelled) {
         setMaterial(data)
       }
-    })
+    }
+
+    loadMaterial()
 
     return () => {
       cancelled = true

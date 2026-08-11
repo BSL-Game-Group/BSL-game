@@ -287,19 +287,20 @@ describe('createRooms — lecture room', () => {
     expect(glow.fillCircle).toHaveBeenCalledWith(180, 240, 35)
   })
 
-  test('clicking the info point unlocks the lecture materials', () => {
+  test('clicking the info point opens the microbe info popup', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
     const handler = jest.fn()
-    window.addEventListener('lecture-materials-unlocked', handler)
+    window.addEventListener('microbe-info-popup-opened', handler)
 
     const lectureZone = scene.__created.zones.find(
-      (z) => z.args.x === 180 && z.args.y === 240
+    (z) => z.args.x === 180 && z.args.y === 240
     )
     lectureZone.handlers.pointerdown()
 
-    window.removeEventListener('lecture-materials-unlocked', handler)
+    window.removeEventListener('microbe-info-popup-opened', handler)
+
     expect(handler).toHaveBeenCalledTimes(1)
   })
 })

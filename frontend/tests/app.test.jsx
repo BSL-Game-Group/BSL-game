@@ -118,6 +118,13 @@ function unlockLectureMaterials() {
 
 function openCloset() {
   startGame()
+
+  act(() => {
+    window.dispatchEvent(new Event('closet-popup-opened'))
+  })
+}
+
+function triggerClosetPopup() {
   act(() => {
     window.dispatchEvent(new Event('closet-popup-opened'))
   })
@@ -208,43 +215,38 @@ describe('Start-screen instructions', () => {
 })
 
 // -----------------------------
-// LECTURE PANEL TESTS
+// LECTURE ROOM TESTS
 // -----------------------------
-test('lecture panel is hidden before entering lecture room', () => {
-  enterLectureRoom()
 
-  expect(screen.getByTestId('lecture-panel')).toBeVisible()
+test('lecture material popup is closed initially', () => {
+  startGame()
+
+  expect(
+    screen.queryByRole('heading', {
+      name: /BSL Game Material \(Biosafety Levels\)/i,
+    })
+  ).not.toBeInTheDocument()
 })
 
-test('lecture-room-entered event shows lecture panel', () => {
-  enterLectureRoom()
+test('hello-popup-opened opens the lecture material popup and loads material', async () => {
+  startGame()
 
-  expect(screen.getByTestId('lecture-panel')).toBeVisible()
+  act(() => {
+    window.dispatchEvent(new Event('hello-popup-opened'))
+  })
+
+  expect(
+    await screen.findByRole('heading', {
+      name: /BSL Game Material \(Biosafety Levels\)/i,
+    })
+  ).toBeInTheDocument()
+
+  expect(
+    await screen.findByText(/International development/i)
+  ).toBeInTheDocument()
 })
 
-test('lecture materials section is hidden until unlocked at the info point', () => {
-  enterLectureRoom()
-
-  expect(screen.queryByRole('heading', { name: /lecture materials/i })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: /show/i })).not.toBeInTheDocument()
-})
-
-test('lecture-materials-unlocked event reveals the Lecture Materials section', () => {
-  unlockLectureMaterials()
-
-  expect(screen.getByRole('heading', { name: /lecture materials/i })).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: /show/i })).toBeInTheDocument()
-})
-
-test('clicking the show button opens the lecture materials popup', async () => {
-  unlockLectureMaterials()
-
-  fireEvent.click(screen.getByRole('button', { name: /show/i }))
-
-  expect(await screen.findByRole('heading', { name: /BSL Game Material \(Biosafety Levels\)/i })).toBeInTheDocument()
-})
-
-test('microbe info popup opens when the lecture info event is fired and a current microbe exists', async () => {
+test('microbe info popup opens when the microbe info event is fired and a current microbe exists', async () => {
   startGame()
 
   const microbe = {
@@ -259,8 +261,15 @@ test('microbe info popup opens when the lecture info event is fired and a curren
     window.dispatchEvent(new Event('microbe-info-popup-opened'))
   })
 
-  expect(await screen.findByRole('heading', { name: /microbe information/i })).toBeInTheDocument()
-  expect(screen.getByText(/Escherichia coli/i)).toBeInTheDocument()
+  expect(
+    await screen.findByRole('heading', {
+      name: /microbe information/i,
+    })
+  ).toBeInTheDocument()
+
+  expect(
+    screen.getByText(/Escherichia coli/i)
+  ).toBeInTheDocument()
 })
 
 // -----------------------------
@@ -566,17 +575,18 @@ describe('restoring a saved game', () => {
     expect(screen.getByRole('button', { name: /start game/i })).toBeInTheDocument()
   })
 
-  test('restores the lecture panel and unlocked materials', () => {
-    seedSavedGame({
-      progress: { lectureVisited: true, materialsUnlocked: true, awaitingUndress: false },
-    })
-
-    renderApp()
-
-    expect(screen.getByTestId('lecture-panel')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /lecture materials/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /show/i })).toBeInTheDocument()
+  test('restores saved game without showing a lecture panel', () => {
+  seedSavedGame({
+    progress: {
+      lectureVisited: true,
+      awaitingUndress: false,
+    },
   })
+
+  renderApp()
+
+  expect(screen.queryByTestId('lecture-panel')).not.toBeInTheDocument()
+})
 
   test('reopens the closet popup that was open before the reload', () => {
     seedSavedGame({ popups: { ...defaultSnapshot().popups, closet: true } })
@@ -633,23 +643,47 @@ describe('saving state', () => {
     expect(loadSavedGame()).not.toBeNull()
   })
 
-  test('progress changes are persisted', () => {
-    unlockLectureMaterials()
+  test('lecture material popup state is persisted', async () => {
+    startGame()
 
-    expect(loadSavedGame().progress.materialsUnlocked).toBe(true)
+    act(() => {
+      window.dispatchEvent(new Event('hello-popup-opened'))
+    })
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /BSL Game Material \(Biosafety Levels\)/i,
+      })
+  ).toBeInTheDocument()
+
+    expect(loadSavedGame().popups.lectureMaterials).toBe(true)
+  })
+  
+  test('microbe info popup state is persisted', () => {
+    startGame()
+
+    act(() => {
+      window.dispatchEvent(new Event('microbe-info-popup-opened'))
+    })
+
+    expect(loadSavedGame().popups.microbeInfo).toBe(true)
   })
 
   test('an open popup is persisted', () => {
-    openCloset()
+  startGame()
 
-    expect(loadSavedGame().popups.closet).toBe(true)
+  triggerClosetPopup()
+
+  expect(loadSavedGame().popups.closet).toBe(true)
   })
 
   test('worn PPE is persisted', () => {
-    openCloset()
+  startGame()
 
-    fireEvent.click(screen.getByText('test-equip-mask'))
+  triggerClosetPopup()
 
-    expect(loadSavedGame().equipped.mask).toBe(true)
-  })
+  fireEvent.click(screen.getByText('test-equip-mask'))
+
+  expect(loadSavedGame().equipped.mask).toBe(true)
+})
 })
