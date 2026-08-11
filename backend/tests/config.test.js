@@ -14,8 +14,6 @@ const DB_ENV_KEYS = [
   'DB_NAME_TEST',
 ];
 
-// config.js reads process.env at require time, so reset the relevant keys and
-// bust the module cache for each scenario.
 function loadConfig(env = {}) {
   for (const k of DB_ENV_KEYS) {
     delete process.env[k];
