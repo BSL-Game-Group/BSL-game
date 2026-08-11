@@ -41,6 +41,15 @@ function buildEquipment(items) {
     style.width = pxToPercent(style.width, BASE_W);
     style.height = pxToPercent(style.height, BASE_H);
 
+    // NEW: Convert any remaining fixed 'px' inside the CSS transforms 
+    // (like translateY or perspective) into container height percentages (cqh)
+    if (style.transform) {
+      style.transform = style.transform.replace(/([-0-9.]+)px/g, (match, val) => {
+        const percentageOfHeight = (parseFloat(val) / BASE_H) * 100;
+        return `${percentageOfHeight}cqh`;
+      });
+    }
+
     out[id] = {
       ...item,
       id,
@@ -60,8 +69,8 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'body',
     label: 'Lab coat',
     equippedStyle: {
-      position: 'absolute', top: '45px', left: '52px', width: '130px', height: 'auto',
-      transform: 'scale(1.63) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '43px', left: '54px', width: '130px', height: 'auto',
+      transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   closable_lab_coat: {
@@ -76,24 +85,24 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'body',
     label: 'Pressurized suit',
     equippedStyle: {
-      position: 'absolute', top: '5px', left: '60px', width: '130px', height: 'auto',
-      transform: 'scale(1.9) rotate(0deg) translateY(0px)', transformOrigin: 'top center',
+      position: 'absolute', top: '1px', left: '60px', width: '130px', height: 'auto',
+      transform: 'scale(1.3) rotate(0deg) translateY(0px)', transformOrigin: 'top center',
     }
   },
   mask: {
     category: 'masks',
     label: 'Mask',
     equippedStyle: {
-      position: 'absolute', top: '53px', left: '73px', width: '70px', height: 'auto',
-      transform: 'scale(1.6) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '45px', left: '77px', width: '70px', height: 'auto',
+      transform: 'scale(1.2) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   glasses: {
     category: 'eyewear',
     label: 'Glasses',
     equippedStyle: {
-      position: 'absolute', top: '37px', left: '71px', width: '70px', height: 'auto',
-      transform: 'scale(1.7) rotate(-1.5deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '30px', left: '77px', width: '70px', height: 'auto',
+      transform: 'scale(1.3) rotate(-1.5deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
 
@@ -101,16 +110,16 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'masks',
     label: 'BSL3 respirator',
     equippedStyle: {
-      position: 'absolute', top: '19px', left: '73px', width: '70px', height: 'auto',
-      transform: 'scale(2.7) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '6px', left: '80px', width: '70px', height: 'auto',
+      transform: 'scale(2.05) rotate(-1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   sunglasses: {
     category: 'eyewear',
     label: 'Sunglasses',
     equippedStyle: {
-      position: 'absolute', top: '29px', left: '68px', width: '106px', height: 'auto',
-      transform: 'perspective(360px) rotateY(20deg) rotate(1deg) scale(1.6) translateY(5px)',
+      position: 'absolute', top: '10px', left: '68px', width: '106px', height: 'auto',
+      transform: 'perspective(360px) rotateY(20deg) rotate(1deg) scale(1.2) translateY(5px)',
       transformOrigin: 'center center',
     }
   },
@@ -119,7 +128,7 @@ const EQUIPMENT_CONFIG = buildEquipment({
     label: 'Disposable overall',
     equippedStyle: {
       position: 'absolute', top: '-20px', left: '53px', width: '130px', height: 'auto',
-      transform: 'scale(3.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+      transform: 'scale(2) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
 
@@ -127,8 +136,8 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'eyewear',
     label: 'Face shield',    
     equippedStyle: {
-      position: 'absolute', top: '19px', left: '70px', width: '82px', height: 'auto',
-      transform: 'scale(1.9) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '10px', left: '76px', width: '82px', height: 'auto',
+      transform: 'scale(1.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   
@@ -136,8 +145,8 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'eyewear',
     label: 'Fantasy helmet',
     equippedStyle: {
-      position: 'absolute', top: '20px', left: '57px', width: '106px', height: 'auto',
-      transform: 'perspective(360px) rotateY(20deg) rotate(0deg) scale(1.95) translateY(5px)',
+      position: 'absolute', top: '-3px', left: '61px', width: '106px', height: 'auto',
+      transform: 'perspective(360px) rotateY(20deg) rotate(0deg) scale(1.32) translateY(5px)',
       transformOrigin: 'center center',
     }
   },
@@ -145,16 +154,16 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'gloves',
     label: 'Gloves',
     equippedStyle: {
-      position: 'absolute', top: '160px', left: '84px', width: '59px', height: '35px',
-      transform: 'scale(3.3) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '171px', left: '89px', width: '59px', height: '35px',
+      transform: 'scale(2.25) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   gloves_2: {
     category: 'gloves',
     label: 'Gloves 2',
     equippedStyle: {
-      position: 'absolute', top: '189px', left: '87px', width: '60px', height: 'auto',
-      transform: 'scale(3.5) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '183px', left: '90px', width: '60px', height: 'auto',
+      transform: 'scale(2.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
 
