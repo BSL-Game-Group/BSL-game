@@ -5,10 +5,9 @@ import DraggableItem from './DragFunctionality'
 export default function Character({ equipped, onToggleEquip }) {
   const [, drop] = useDrop(() => ({
     accept: ItemType,
-    drop: (item) => onToggleEquip(item.id, true) // True means we are equipping it
+    drop: (item) => onToggleEquip(item.id, true)
   }))
 
-  // Determine which player image to show based on the equipment
   const getBaseImageSrc = () => {
       if (equipped.pressurized_suit || equipped.disposable_overall) {
         return "/assets/player/head_only.png";
@@ -22,20 +21,30 @@ export default function Character({ equipped, onToggleEquip }) {
     };
 
   return (
-    <div className="pt-2" ref={drop} style={{
-      position: 'relative',
-      width: '100%',
-      maxHeight: '100%',
-      aspectRatio: '250 / 350',
-      display: 'flex',
-      justifyContent: 'center'
+    // 1. OUTER CONTAINER: Fills the Bootstrap column entirely.
+    // Setting `containerType: 'size'` here lets us measure the exact available space using `cqw` and `cqh`.
+    <div className="pt-2 d-flex align-items-center justify-content-center" style={{ 
+      width: '100%', 
+      height: '100%', 
+      containerType: 'size' 
     }}>
-      <img 
-        src={getBaseImageSrc()} 
-        alt="base"
-        className="img-fluid"
-        style={{ height: '100%', width: '100%', objectFit: 'contain' }}
-      />
+      
+      {/* 
+        2. INNER CONTAINER: The actual drop zone.
+        Using `min()` math forces this box to strictly lock to a 250/350 ratio 
+        whether the window is squeezed horizontally or vertically.
+      */}
+      <div ref={drop} style={{
+        position: 'relative',
+        containerType: 'size', // Creates a new context so the equipment correctly reads THIS box's height for transforms
+        width: 'min(100cqw, calc(100cqh * 250 / 350))',
+        height: 'min(100cqh, calc(100cqw * 350 / 250))',
+      }}>
+        <img 
+          src={getBaseImageSrc()} 
+          alt="base"
+          style={{ display: 'block', height: '100%', width: '100%', objectFit: 'contain' }}
+        />
 
         {Object.values(EQUIPMENT_CONFIG).map((config) => {
           if (!equipped[config.id]) {
@@ -55,5 +64,6 @@ export default function Character({ equipped, onToggleEquip }) {
           )
         })}
       </div>
-    )
-  }
+    </div>
+  )
+}

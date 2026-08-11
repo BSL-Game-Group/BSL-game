@@ -272,7 +272,8 @@ function App() {
   return (
     <Container fluid className="h-100">
       <Row className="h-100">
-      <Col xs={3}>
+      {/* Use xs={12} to take full width on narrow windows, md={3} for side-by-side on desktop */}
+      <Col xs={12} md={3} className="mb-3 mb-md-0">
       <h1 className="app-title">{t('app.title')}</h1>
       <LanguageSelector />
                   {/* SIDEBAR */}
@@ -311,7 +312,7 @@ function App() {
           <HowToPlay />
         </div>
       ) : (
-          <Col xs={9} className="h-100">
+          <Col xs={12} md={9} className="h-100">
             {/* MAIN GAME */}
             <div className="game-wrapper-grid">
               {/* Only the game itself lives in the grid */}
