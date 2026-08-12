@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 import Game from './Game.jsx'
 import ClosetPopup from './components/ClosetPopup/ClosetPopup'
-import SidebarPopup from './components/SidebarPopup'
-import Task from './components/Task.jsx'
+import MicrobeInfoPopup from './components/MicrobeInfoPopup'
 import AnswerPopup from './components/AnswerPopup/AnswerPopup'
+import LectureMaterialPopup from './components/LectureMaterialPopup'
 import HowToPlay from './components/HowToPlay'
 import InfoPopup from './components/InfoPopup/InfoPopup'
 import LanguageSelector from './components/LanguageSelector'
@@ -45,16 +45,14 @@ function App() {
   const [gameStarted, setGameStarted] = useState(restored !== null)
   const [lectureOpen, setLectureOpen] = useState(restored?.progress.lectureVisited ?? false)
   const [isPopupOpen, setPopupOpen] = useState(restored?.popups.closet ?? false)
-  const [isLecturePopupOpen, setLecturePopupOpen] = useState(
-    restored?.popups.lectureMaterials ?? false
-  )
-  const [materialsUnlocked, setMaterialsUnlocked] = useState(
-    restored?.progress.materialsUnlocked ?? false
+  const [LectureMaterialOpen, setLectureMaterialOpen] = useState(
+    restored?.popups.lectureMaterial ?? false
   )
   const [answerOpen, setAnswerOpen] = useState(restored?.popups.answer ?? false)
   const [answerLevel, setAnswerLevel] = useState(restored?.popups.answerLevel ?? '')
   const [currentMicrobe, setCurrentMicrobe] = useState(restored?.microbe ?? null)
   const [infoOpen, setInfoOpen] = useState(restored?.popups.info ?? false)
+  const [microbeInfoOpen, setMicrobeInfoOpen] = useState(restored?.popups.microbeInfo ?? false)
   const [lectureWarningOpen, setLectureWarningOpen] = useState(
     restored?.popups.lectureWarning ?? false
   );
@@ -90,22 +88,20 @@ function App() {
     return () => EventBus.off('current-microbe-updated', handleMicrobeUpdate)
   }, [])
   useEffect(() => {
+    const handler = () => setLectureWarningOpen(true);
+    window.addEventListener('lecture-required', handler);
+    return () => window.removeEventListener('lecture-required', handler);
+  }, [])
+  useEffect(() => {
     const handler = () => setLectureOpen(true)
     window.addEventListener('lecture-room-entered', handler)
     return () => window.removeEventListener('lecture-room-entered', handler)
   }, [])
-  useEffect(() => { window.__lectureOpen = lectureOpen }, [lectureOpen])
-  useEffect(() => {
-    const handler = () => setLectureWarningOpen(true);
-    window.addEventListener('lecture-required', handler);
-    return () => window.removeEventListener('lecture-required', handler);
-  }, []);
 
-  useEffect(() => {
-    const handleUnlock = () => setMaterialsUnlocked(true);
-    window.addEventListener('lecture-materials-unlocked', handleUnlock);
-    return () => window.removeEventListener('lecture-materials-unlocked', handleUnlock);
-  }, []);
+  // Phaser's BSL interactables gate on this (rooms.js + BslInteraction.js) and
+  // can't read React state, so the lecture visit has to be mirrored onto window.
+  useEffect(() => { window.__lectureOpen = lectureOpen }, [lectureOpen])
+
   useEffect(() => {
     const handleClosetClick = () => setPopupOpen(true)
     window.addEventListener('closet-popup-opened', handleClosetClick)
@@ -204,6 +200,16 @@ function App() {
     return () => window.removeEventListener('info-popup-opened', handleInfoOpen)
   }, [])
   useEffect(() => {
+    const handleMicrobeInfoOpen = () => setMicrobeInfoOpen(true)
+    window.addEventListener('microbe-info-popup-opened', handleMicrobeInfoOpen)
+    return () => window.removeEventListener('microbe-info-popup-opened', handleMicrobeInfoOpen)
+  }, [])
+  useEffect(() => {
+    const handleLectureMaterialOpen = () => setLectureMaterialOpen(true)
+    window.addEventListener('lecture-material-popup-opened', handleLectureMaterialOpen)
+    return () => window.removeEventListener('lecture-material-popup-opened', handleLectureMaterialOpen)
+  }, [])
+  useEffect(() => {
     const handleAnswerOpen = (e) => {
       setAnswerLevel(e?.detail?.level ?? '')
       setAnswerOpen(true)
@@ -235,14 +241,14 @@ function App() {
       microbe: currentMicrobe,
       progress: {
         lectureVisited: lectureOpen,
-        materialsUnlocked,
         awaitingUndress,
         ventilationConnected,
       },
       popups: {
         closet: isPopupOpen,
-        lectureMaterials: isLecturePopupOpen,
+        lectureMaterial: LectureMaterialOpen,
         info: infoOpen,
+        microbeInfo: microbeInfoOpen,
         answer: answerOpen,
         answerLevel,
         lectureWarning: lectureWarningOpen,
@@ -256,13 +262,12 @@ function App() {
     gameStarted,
     equipped,
     currentMicrobe,
-    lectureOpen,
-    materialsUnlocked,
     awaitingUndress,
     ventilationConnected,
     isPopupOpen,
-    isLecturePopupOpen,
+    LectureMaterialOpen,
     infoOpen,
+    microbeInfoOpen,
     answerOpen,
     answerLevel,
     lectureWarningOpen,
@@ -284,10 +289,9 @@ function App() {
   const resetGameState = () => {
     clearSavedGame()
     setGameStarted(false)
-    setLectureOpen(false)
     setPopupOpen(false)
-    setLecturePopupOpen(false)
-    setMaterialsUnlocked(false)
+    setMicrobeInfoOpen(false)
+    setLectureMaterialOpen(false)
     setAnswerOpen(false)
     setAnswerLevel('')
     setCurrentMicrobe(null)
@@ -415,29 +419,7 @@ function App() {
       <Row className="h-100">
       {/* Use xs={12} to take full width on narrow windows, md={3} for side-by-side on desktop */}
       <Col xs={12} md={3} className="mb-3 mb-md-0">
-      <h1 className="app-title">{t('app.title')}</h1>
-                  {/* SIDEBAR */}
-          {lectureOpen && (
-            <Col lg={3} md={4} xs={12} className="mb-3 w-100">
-              <div
-                  className="lecture-panel"
-                  data-testid="lecture-panel"
-              >
-                <Task />
-                {materialsUnlocked && (
-                  <div className="d-flex flex-column align-items-start gap-1 mt-2">
-                    <h2 className="h5">{t('lecturePanel.title')}</h2>
-                    <button
-                      className="btn btn-sm btn-success"
-                      onClick={() => setLecturePopupOpen((open) => !open)}
-                    >
-                      {isLecturePopupOpen ? t('lecturePanel.hideButton') : t('lecturePanel.showButton')}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </Col>
-          )}
+        <h1 className="app-title">{t('app.title')}</h1>
       </Col>
 
       {!gameStarted ? (
@@ -482,9 +464,14 @@ function App() {
         setEquipped={setEquipped}
         itemFilter={(id) => id !== 'pressurized_suit'}
       />
-      <SidebarPopup
-        open={isLecturePopupOpen}
-        onClose={() => setLecturePopupOpen(false)}
+      <MicrobeInfoPopup
+        open={microbeInfoOpen}
+        onClose={() => setMicrobeInfoOpen(false)}
+        microbe={currentMicrobe}
+      />
+      <LectureMaterialPopup
+        open={LectureMaterialOpen}
+        onClose={() => setLectureMaterialOpen(false)}
       />
       <InfoPopup
         open={infoOpen}

@@ -287,19 +287,52 @@ describe('createRooms — lecture room', () => {
     expect(glow.fillCircle).toHaveBeenCalledWith(180, 240, 35)
   })
 
-  test('clicking the info point unlocks the lecture materials', () => {
+  test('clicking the info point opens the microbe info popup', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
     const handler = jest.fn()
-    window.addEventListener('lecture-materials-unlocked', handler)
+    window.addEventListener('microbe-info-popup-opened', handler)
 
     const lectureZone = scene.__created.zones.find(
-      (z) => z.args.x === 180 && z.args.y === 240
+    (z) => z.args.x === 180 && z.args.y === 240
     )
     lectureZone.handlers.pointerdown()
 
-    window.removeEventListener('lecture-materials-unlocked', handler)
+    window.removeEventListener('microbe-info-popup-opened', handler)
+
+    expect(handler).toHaveBeenCalledTimes(1)
+  })
+
+  test('creates the lecture-material glow and exposes its scene refs', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    expect(scene.lectureMaterialPoint).toEqual({ x: 410, y: 120 })
+    expect(scene.lectureMaterialGlow).toBeDefined()
+    expect(scene.lectureMaterialGlowTween).toBeDefined()
+
+    const glow = scene.__created.graphics.find((g) => g === scene.lectureMaterialGlow)
+    expect(glow.fillCircle).toHaveBeenCalledWith(410, 120, 25)
+  })
+
+  // The event name is the contract between this zone and App's listener — the
+  // sibling assertion lives in app.test.jsx ('lecture-material-popup-opened
+  // opens the lecture material popup'). Renaming one side alone fails the other.
+  test('clicking the lecture-material point opens the lecture material popup', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const handler = jest.fn()
+    window.addEventListener('lecture-material-popup-opened', handler)
+
+    const materialZone = scene.__created.zones.find(
+      (z) => z.args.x === 410 && z.args.y === 120
+    )
+    materialZone.handlers.pointerdown()
+
+    window.removeEventListener('lecture-material-popup-opened', handler)
+
     expect(handler).toHaveBeenCalledTimes(1)
   })
 })

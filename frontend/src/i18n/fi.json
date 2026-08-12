@@ -51,6 +51,13 @@
     "title": "Mikrobi jota tulet käsittelemään",
     "undressRequired": "Mene pukuhuoneeseen ja peseydy ennen seuraavaa mikrobia."
   },
+  "microbeInfoPopup": {
+    "title": "Mikrobin tiedot",
+    "commonName": "Yleinen nimi",
+    "scientificName": "Tieteellinen nimi",
+    "type": "Tyyppi",
+    "description": "Kuvaus"
+  },
   "closet": {
     "title": "Pukukaappi",
     "player": "Pelaaja",
@@ -67,7 +74,8 @@
     "belongs": "{name} kuuluu tasolle BSL-{level}."
   },
   "common": {
-    "close": "Sulje"
+    "close": "Sulje",
+    "loading": "Ladataan..."
   },
   "rooms": {
     "exit": "Poistuminen",

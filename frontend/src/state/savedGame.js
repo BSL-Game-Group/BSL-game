@@ -37,8 +37,9 @@ export function defaultSnapshot() {
     },
     popups: {
       closet: false,
-      lectureMaterials: false,
+      lectureMaterial: false,
       info: false,
+      microbeInfo: false,
       answer: false,
       answerLevel: '',
       lectureWarning: false,
@@ -169,8 +170,9 @@ function validate(raw, now) {
     },
     popups: {
       closet: raw.popups?.closet === true,
-      lectureMaterials: raw.popups?.lectureMaterials === true,
+      lectureMaterial: raw.popups?.lectureMaterial === true,
       info: raw.popups?.info === true,
+      microbeInfo: raw.popups?.microbeInfo === true,
       answer: raw.popups?.answer === true,
       answerLevel: typeof raw.popups?.answerLevel === 'string' ? raw.popups.answerLevel : '',
       lectureWarning: raw.popups?.lectureWarning === true,

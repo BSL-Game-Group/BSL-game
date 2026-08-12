@@ -29,6 +29,11 @@ const translationValue = {
       'closet.title': 'Closet',
 
       'common.close': 'Close',
+      'microbeInfoPopup.title': 'Microbe Information',
+      'microbeInfoPopup.commonName': 'Common name',
+      'microbeInfoPopup.scientificName': 'Scientific name',
+      'microbeInfoPopup.type': 'Type',
+      'microbeInfoPopup.description': 'Description',
 
       'hud.score': 'Score: {score}',
       'hud.microbes': 'Microbes: {count}',

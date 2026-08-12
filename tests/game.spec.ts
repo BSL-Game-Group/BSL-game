@@ -12,18 +12,6 @@ test('game starts without crashing', async ({ game }) => {
   expect(errors).toHaveLength(0);
 });
 
-test('lecture room shows UI panel', async ({ game }) => {
-  await game.start();
-  await game.waitForSceneReady();
-  await game.page.waitForLoadState('networkidle');
-
-  // simulate entering lecture room
-  await game.page.evaluate(() => {
-    window.dispatchEvent(new Event('lecture-room-entered'));
-  });
-  await expect(game.lecturePanel).toBeVisible();
-});
-
 test('closet opens via event', async ({ game }) => {
   await game.start();
 
@@ -41,22 +29,26 @@ test('closet closes via button', async ({ game }) => {
   await expect(game.closetPopup).not.toBeVisible();
 });
 
-test('entering the lecture room shows the task in the lecture panel', async ({ game }) => {
+test('lecture material popup opens via event and shows the fetched material', async ({ game }) => {
   await game.start();
-  await game.page.waitForLoadState('networkidle');
-  await game.page.evaluate(() => {
-    window.dispatchEvent(new Event('lecture-room-entered'));
-  });
-  await expect(game.lecturePanel).toContainText('The microbe you will handle');
 
-  const LiElements = await game.page
-    .getByText('The microbe you will handle')
-    .locator('..')
-    .locator('ul > li')
-    .all();
-  for (const microbeInfo of LiElements) {
-    await expect(microbeInfo).not.toBeEmpty();
-  }
+  await game.openLectureMaterial();
+
+  await expect(game.lectureMaterialPopup).toBeVisible();
+  // The title renders while the material is still loading too, so assert on a
+  // section that only exists once /api/bsl-material has answered.
+  await expect(game.page.getByRole('heading', { name: /^sources$/i })).toBeVisible();
+});
+
+test('lecture material popup closes via button', async ({ game }) => {
+  await game.start();
+
+  await game.openLectureMaterial();
+  await expect(game.lectureMaterialPopup).toBeVisible();
+
+  await game.closeButton.click();
+
+  await expect(game.lectureMaterialPopup).not.toBeVisible();
 });
 
 test('info popup opens via event and shows the instructions', async ({ game }) => {

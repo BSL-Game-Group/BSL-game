@@ -51,6 +51,13 @@
     "title": "Mikroben du kommer att hantera",
     "undressRequired": "Gå till påklädningsrummet och tvätta dig innan du får nästa mikrob."
   },
+  "microbeInfoPopup": {
+    "title": "Mikrobinformation",
+    "commonName": "Vanligt namn",
+    "scientificName": "Vetenskapligt namn",
+    "type": "Typ",
+    "description": "Beskrivning"
+  },
   "closet": {
     "title": "Garderob",
     "player": "Spelare",
@@ -67,7 +74,8 @@
     "belongs": "{name} tillhör BSL-{level}."
   },
   "common": {
-    "close": "Stäng"
+    "close": "Stäng",
+    "loading": "Laddar..."
   },
   "rooms": {
     "exit": "Utgång",
