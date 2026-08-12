@@ -37,8 +37,8 @@ function App() {
   const [gameStarted, setGameStarted] = useState(restored !== null)
   const [lectureOpen, setLectureOpen] = useState(restored?.progress.lectureVisited ?? false)
   const [isPopupOpen, setPopupOpen] = useState(restored?.popups.closet ?? false)
-  const [helloOpen, setHelloOpen] = useState(
-    restored?.popups.hello ?? restored?.popups.lectureMaterials ?? false
+  const [LectureMaterialOpen, setLectureMaterialOpen] = useState(
+    restored?.popups.LectureMaterial ?? restored?.popups.lectureMaterial ?? false
   )
   const [answerOpen, setAnswerOpen] = useState(restored?.popups.answer ?? false)
   const [answerLevel, setAnswerLevel] = useState(restored?.popups.answerLevel ?? '')
@@ -129,9 +129,9 @@ function App() {
     return () => window.removeEventListener('microbe-info-popup-opened', handleMicrobeInfoOpen)
   }, [])
   useEffect(() => {
-    const handleHelloOpen = () => setHelloOpen(true)
-    window.addEventListener('hello-popup-opened', handleHelloOpen)
-    return () => window.removeEventListener('hello-popup-opened', handleHelloOpen)
+    const handleLectureMaterialOpen = () => setLectureMaterialOpen(true)
+    window.addEventListener('lecture-materials-popup-opened', handleLectureMaterialOpen)
+    return () => window.removeEventListener('lecture-materials-popup-opened', handleLectureMaterialOpen)
   }, [])
   useEffect(() => {
     const handleAnswerOpen = (e) => {
@@ -178,10 +178,10 @@ function App() {
       },
       popups: {
         closet: isPopupOpen,
-        lectureMaterials: helloOpen,
+        lectureMaterial: LectureMaterialOpen,
         info: infoOpen,
         microbeInfo: microbeInfoOpen,
-        hello: helloOpen,
+        lecture: LectureMaterialOpen,
         answer: answerOpen,
         answerLevel,
         lectureWarning: lectureWarningOpen,
@@ -194,7 +194,7 @@ function App() {
     currentMicrobe,
     awaitingUndress,
     isPopupOpen,
-    helloOpen,
+    LectureMaterialOpen,
     infoOpen,
     microbeInfoOpen,
     answerOpen,
@@ -219,7 +219,7 @@ function App() {
     setGameStarted(false)
     setPopupOpen(false)
     setMicrobeInfoOpen(false)
-    setHelloOpen(false)
+    setLectureMaterialOpen(false)
     setAnswerOpen(false)
     setAnswerLevel('')
     setCurrentMicrobe(null)
@@ -314,8 +314,8 @@ function App() {
         microbe={currentMicrobe}
       />
       <LectureMaterialPopup
-        open={helloOpen}
-        onClose={() => setHelloOpen(false)}
+        open={LectureMaterialOpen}
+        onClose={() => setLectureMaterialOpen(false)}
       />
       <InfoPopup
         open={infoOpen}

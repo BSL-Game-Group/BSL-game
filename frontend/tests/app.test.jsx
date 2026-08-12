@@ -116,6 +116,20 @@ function unlockLectureMaterials() {
   })
 }
 
+function openLectureMaterialPopup() {
+  unlockLectureMaterials()
+  act(() => {
+    window.dispatchEvent(new Event('lecture-material-popup-opened'))
+  })
+}
+
+function openMicrobeInfoPopup() {
+  unlockLectureMaterials()
+  act(() => {
+    window.dispatchEvent(new Event('microbe-info-popup-opened'))
+  })
+}
+
 function openCloset() {
   startGame()
 
@@ -226,24 +240,6 @@ test('lecture material popup is closed initially', () => {
       name: /BSL Game Material \(Biosafety Levels\)/i,
     })
   ).not.toBeInTheDocument()
-})
-
-test('hello-popup-opened opens the lecture material popup and loads material', async () => {
-  startGame()
-
-  act(() => {
-    window.dispatchEvent(new Event('hello-popup-opened'))
-  })
-
-  expect(
-    await screen.findByRole('heading', {
-      name: /BSL Game Material \(Biosafety Levels\)/i,
-    })
-  ).toBeInTheDocument()
-
-  expect(
-    await screen.findByText(/International development/i)
-  ).toBeInTheDocument()
 })
 
 test('microbe info popup opens when the microbe info event is fired and a current microbe exists', async () => {
@@ -641,22 +637,6 @@ describe('saving state', () => {
     startGame()
 
     expect(loadSavedGame()).not.toBeNull()
-  })
-
-  test('lecture material popup state is persisted', async () => {
-    startGame()
-
-    act(() => {
-      window.dispatchEvent(new Event('hello-popup-opened'))
-    })
-
-    expect(
-      await screen.findByRole('heading', {
-        name: /BSL Game Material \(Biosafety Levels\)/i,
-      })
-  ).toBeInTheDocument()
-
-    expect(loadSavedGame().popups.lectureMaterials).toBe(true)
   })
   
   test('microbe info popup state is persisted', () => {

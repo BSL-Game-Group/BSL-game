@@ -33,7 +33,7 @@ export function defaultSnapshot() {
     },
     popups: {
       closet: false,
-      lectureMaterials: false,
+      lectureMaterial: false,
       info: false,
       microbeInfo: false,
       answer: false,

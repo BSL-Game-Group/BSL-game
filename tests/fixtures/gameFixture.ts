@@ -42,8 +42,8 @@ class Game {
     return this.page.locator('#game-container canvas');
   }
 
-  get lecturePanel() {
-    return this.page.getByTestId('lecture-panel');
+  get infoPopup() {
+    return this.page.getByRole('dialog', { name: /how to play/i });
   }
 
   get closetPopup() {

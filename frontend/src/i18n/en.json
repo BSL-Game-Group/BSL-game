@@ -74,10 +74,6 @@
     "close": "Close",
     "loading": "Loading..."
   },
-  "helloPopup": {
-    "title": "Hello world",
-    "message": "This is a new lecture room popup."
-  },
   "microbeInfoPopup": {
     "title": "Microbe Information",
     "commonName": "Common name",

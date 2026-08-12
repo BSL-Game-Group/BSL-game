@@ -19,8 +19,8 @@ export class LectureInteraction extends BaseInteraction {
             lectureGlow,
             lecturePoint,
             lectureGlowTween,
-            lectureHelloGlow,
-            lectureHelloGlowTween,
+            lectureMaterialGlow,
+            lectureMaterialGlowTween,
             pressEText,
         } = this.scene;
         if (!lectureRoomZone) {
@@ -62,11 +62,11 @@ export class LectureInteraction extends BaseInteraction {
             }
         }
 
-        // Lecture-room right-side hello button glow
-        if (lectureHelloGlow) {
-            lectureHelloGlow.setVisible(inside);
-            if (lectureHelloGlowTween) {
-                inside ? lectureHelloGlowTween.resume() : lectureHelloGlowTween.pause();
+        // Lecture-room right-side Lecture material button glow
+        if (lectureMaterialGlow) {
+            lectureMaterialGlow.setVisible(inside);
+            if (lectureMaterialGlowTween) {
+                inside ? lectureMaterialGlowTween.resume() : lectureMaterialGlowTween.pause();
             }
         }
     }

@@ -381,7 +381,7 @@ function setupLectureInfoPoint(scene) {
         });
 }
 
-function setupLectureHelloButton(scene) {
+function setupLectureMaterialButton(scene) {
     const gx = 410;
     const gy = 120;
     const radius = 25;
@@ -403,15 +403,15 @@ function setupLectureHelloButton(scene) {
     });
     tween.pause();
 
-    scene.lectureHelloGlow = glow;
-    scene.lectureHelloGlowTween = tween;
-    scene.lectureHelloPoint = { x: gx, y: gy };
+    scene.lectureMaterialGlow = glow;
+    scene.lectureMaterialGlowTween = tween;
+    scene.lectureMaterialPoint = { x: gx, y: gy };
 
     scene.add
         .zone(gx, gy, radius * 2.4, radius * 2.4)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-            window.dispatchEvent(new Event('hello-popup-opened'));
+            window.dispatchEvent(new Event('lecture-material-popup-opened'));
         });
 }
 
@@ -602,7 +602,7 @@ export function createRooms(scene) {
     setupAirlockWashPoint(scene);
     setupLectureRoom(scene, walls);
     setupLectureInfoPoint(scene);
-    setupLectureHelloButton(scene);
+    setupLectureMaterialButton(scene);
     setupDressingRoomDeadzones(scene, walls);
     setupInfoDesk(scene, walls);
     setupExitArea(scene, walls);
