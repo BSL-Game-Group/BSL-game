@@ -30,6 +30,13 @@ spec:
                 secretKeyRef:
                   name: bsl-backend-secret
                   key: DB_URL
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
 
       containers:
         - name: bsl-backend
@@ -43,3 +50,10 @@ spec:
                 secretKeyRef:
                   name: bsl-backend-secret
                   key: DB_URL
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
