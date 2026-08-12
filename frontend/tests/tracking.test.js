@@ -1,4 +1,4 @@
-import { getBackendUrl, generateSessionId, notifyRoomEntry } from '../src/game/services/tracking';
+import { getBackendUrl, notifyRoomEntry } from '../src/game/services/tracking';
 
 describe('Tracking Service', () => {
   
@@ -70,17 +70,6 @@ describe('Tracking Service', () => {
       delete process.env.VITE_API_URL;
       const url = getBackendUrl();
       expect(url).toMatch(/localhost:3001|backend:3001/);
-    });
-  });
-
-  describe('generateSessionId', () => {
-    test('generates unique session IDs', () => {
-      const id1 = generateSessionId();
-      const id2 = generateSessionId();
-
-      expect(id1).toMatch(/^session_\d+_[a-z0-9]+$/);
-      expect(id2).toMatch(/^session_\d+_[a-z0-9]+$/);
-      expect(id1).not.toEqual(id2);
     });
   });
 

@@ -22,7 +22,6 @@ export function defaultSnapshot() {
   return {
     version: SAVED_GAME_VERSION,
     savedAt: 0,
-    sessionId: null,
     player: { x: SPAWN_X, y: SPAWN_Y },
     equipped: unequipAll(),
     microbe: null,
@@ -137,7 +136,6 @@ function validate(raw, now) {
   return {
     version: SAVED_GAME_VERSION,
     savedAt: raw.savedAt,
-    sessionId: typeof raw.sessionId === 'string' ? raw.sessionId : null,
     player: { x: player.x, y: player.y },
     equipped,
     microbe,

@@ -45,12 +45,12 @@ describe('patch and load', () => {
   })
 
   test('a patch round-trips through storage', () => {
-    patchSavedGame({ sessionId: 'session_abc', player: { x: 700, y: 300 } }, 1000)
+    patchSavedGame({ player: { x: 700, y: 300 }, progress: { lectureVisited: true } }, 1000)
 
     const loaded = loadSavedGame(1000)
 
-    expect(loaded.sessionId).toBe('session_abc')
     expect(loaded.player).toEqual({ x: 700, y: 300 })
+    expect(loaded.progress.lectureVisited).toBe(true)
   })
 
   test('patches merge one level deep instead of replacing whole sections', () => {
@@ -71,13 +71,13 @@ describe('patch and load', () => {
   })
 
   test('every patch re-stamps savedAt', () => {
-    patchSavedGame({ sessionId: 'a' }, 5000)
+    patchSavedGame({ player: { x: 700, y: 300 } }, 5000)
 
     expect(loadSavedGame(5000).savedAt).toBe(5000)
   })
 
   test('clearSavedGame removes the key', () => {
-    patchSavedGame({ sessionId: 'a' }, 1000)
+    patchSavedGame({ player: { x: 700, y: 300 } }, 1000)
 
     clearSavedGame()
 
@@ -173,12 +173,19 @@ describe('validation', () => {
   })
 
   test('drops a microbe without a numeric bsl_level instead of rejecting the save', () => {
-    seed({ microbe: { id: 3 }, sessionId: 'session_keepme' })
+    seed({ microbe: { id: 3 }, progress: { lectureVisited: true } })
 
     const loaded = loadSavedGame(1_000_000)
 
     expect(loaded.microbe).toBeNull()
-    expect(loaded.sessionId).toBe('session_keepme')
+    expect(loaded.progress.lectureVisited).toBe(true)
+  })
+
+  test('the snapshot no longer carries a session id', () => {
+    seed({ sessionId: 'session_legacy' })
+
+    expect(defaultSnapshot().sessionId).toBeUndefined()
+    expect(loadSavedGame(1_000_000).sessionId).toBeUndefined()
   })
 
   test('coerces junk booleans rather than trusting them', () => {

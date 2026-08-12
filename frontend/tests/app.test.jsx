@@ -522,7 +522,6 @@ function seedSavedGame(overrides = {}) {
   const snapshot = {
     ...defaultSnapshot(),
     savedAt: Date.now(),
-    sessionId: 'session_restored',
     ...overrides,
   }
   localStorage.setItem(SAVED_GAME_KEY, JSON.stringify(snapshot))
