@@ -2,11 +2,11 @@ const ItemType = 'EQUIPMENT';
 
 // The tabs, in display order. `stackable` allows 2+ equipped at once.
 const CATEGORY_CONFIG = {
-  eyewear: { id: 'eyewear', label: 'Eyewear', order: 0, stackable: false },
-  masks:   { id: 'masks',   label: 'Masks',   order: 1, stackable: false },
-  body:    { id: 'body',    label: 'Body',    order: 2, stackable: false },
-  gloves:  { id: 'gloves',  label: 'Gloves',  order: 3, stackable: true  },
-  footwear:  { id: 'footwear',  label: 'Footwear',  order: 4, stackable: false  },
+  eyewear:  { id: 'eyewear',  label: 'Eyewear',  order: 0, stackable: false },
+  masks:    { id: 'masks',    label: 'Masks',    order: 1, stackable: false },
+  body:     { id: 'body',     label: 'Body',     order: 2, stackable: false },
+  gloves:   { id: 'gloves',   label: 'Gloves',   order: 3, stackable: true  },
+  footwear: { id: 'footwear', label: 'Footwear', order: 4, stackable: false },
 };
 
 // Image paths are derived from each item's id + category, so the asset tree is

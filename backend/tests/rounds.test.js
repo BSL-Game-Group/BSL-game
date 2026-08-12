@@ -183,7 +183,7 @@ test('a level with no rules costs the level, not the equipment', async () => {
 
 // --- PATCH /api/rounds/:id ---
 
-const BSL2_CORRECT = ['lab_coat', 'gloves', 'mask'];
+const BSL2_CORRECT = ['lab_coat', 'gloves', 'mask', 'indoor_shoes'];
 
 function createRound(sessionId, answers, token) {
   const pending = request(app).post('/api/rounds');

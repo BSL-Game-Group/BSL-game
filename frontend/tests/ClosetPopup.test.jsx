@@ -295,6 +295,15 @@ describe('ClosetPopup component', () => {
     expect(screen.getByRole('button', { name: /^gloves 2$/i })).toBeInTheDocument()
   })
 
+  test('Footwear tab shows both footwear items', () => {
+    renderPopup(true)
+
+    fireEvent.click(screen.getByRole('button', { name: /^footwear$/i }))
+
+    expect(screen.getByRole('button', { name: /^indoor shoes$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^disposable foot covers$/i })).toBeInTheDocument()
+  })
+
   test('renders base character image', () => {
     renderPopup(true)
 

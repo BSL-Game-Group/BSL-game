@@ -20,15 +20,23 @@
 // regression to the string form fails loudly instead of silently grading every
 // equipment answer as correct.
 const REQUIRED_EQUIPMENT = {
-  1: { required: ['lab_coat', 'glasses', 'gloves'], anyOf: ['indoor_shoes', 'disposable_foot_covers'], optional: [] },
-  2: { required: ['lab_coat', 'gloves'],anyOf: [
-    {
-      allOf: [
-        { anyOf: ['mask', 'face_shield'] },
-        { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
-      ],
-    },
-  ], optional: [] },
+  1: {
+    required: ['lab_coat', 'glasses', 'gloves'],
+    anyOf: ['indoor_shoes', 'disposable_foot_covers'],
+    optional: [],
+  },
+  2: {
+    required: ['lab_coat', 'gloves'],
+    anyOf: [
+      {
+        allOf: [
+          { anyOf: ['mask', 'face_shield'] },
+          { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
+        ],
+      },
+    ],
+    optional: [],
+  },
   3: {
     required: ['gloves', 'gloves_2'],
     anyOf: [
@@ -38,7 +46,7 @@ const REQUIRED_EQUIPMENT = {
           {
             anyOf: [
               { allOf: ['mask', { anyOf: ['glasses', 'face_shield'] }] },
-              'respirator',
+              'bsl3_respirator',
             ],
           },
           { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
@@ -81,9 +89,10 @@ module.exports = {
   },
 };
 
-// Exported so backend/tests/requiredEquipment.test.js can assert that this seeder
-// and 20260807000001-fix-and-align-required-equipment.js produce identical rules.
-// They are duplicated on purpose — a migration must keep doing the same thing
-// forever, so it cannot import a shared module — and this is what keeps the
-// duplicates honest.
+// Exported so backend/tests/requiredEquipment.test.js can assert that this seeder and
+// the latest rules migration — 20260812000001-require-footwear-in-required-equipment.js
+// — produce identical rules. They are duplicated on purpose: a migration must keep
+// doing the same thing forever, so it cannot import a shared module, and changing a
+// rule means editing this seeder and adding a new migration. That test is what keeps
+// the duplicates honest.
 module.exports.REQUIRED_EQUIPMENT = REQUIRED_EQUIPMENT;

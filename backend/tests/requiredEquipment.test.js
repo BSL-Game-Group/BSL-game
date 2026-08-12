@@ -7,15 +7,23 @@ const { closeDb } = require('./helpers/db');
 after(closeDb);
 
 const CANONICAL_RULES = {
-  1: { required: ['lab_coat', 'glasses', 'gloves'], anyOf: ['indoor_shoes', 'disposable_foot_covers'], optional: [] },
-  2: { required: ['lab_coat', 'gloves'],anyOf: [
-    {
-      allOf: [
-        { anyOf: ['mask', 'face_shield'] },
-        { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
-      ],
-    },
-  ], optional: [] },
+  1: {
+    required: ['lab_coat', 'glasses', 'gloves'],
+    anyOf: ['indoor_shoes', 'disposable_foot_covers'],
+    optional: [],
+  },
+  2: {
+    required: ['lab_coat', 'gloves'],
+    anyOf: [
+      {
+        allOf: [
+          { anyOf: ['mask', 'face_shield'] },
+          { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
+        ],
+      },
+    ],
+    optional: [],
+  },
   3: {
     required: ['gloves', 'gloves_2'],
     anyOf: [
@@ -25,7 +33,7 @@ const CANONICAL_RULES = {
           {
             anyOf: [
               { allOf: ['mask', { anyOf: ['glasses', 'face_shield'] }] },
-              'respirator',
+              'bsl3_respirator',
             ],
           },
           { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
@@ -51,11 +59,11 @@ test('the database rules match the rules the game grades against', async () => {
   }
 });
 
-test('the seeder and the repair migration produce identical rules', () => {
+test('the seeder and the latest rules migration produce identical rules', () => {
   const { REQUIRED_EQUIPMENT } = require('../seeders/20260622000001-seed-bsl-classes');
   const {
     CANONICAL_RULES: migrationRules,
-  } = require('../migrations/20260807000001-fix-and-align-required-equipment');
+  } = require('../migrations/20260812000001-require-footwear-in-required-equipment');
 
   assert.deepStrictEqual(
     REQUIRED_EQUIPMENT,

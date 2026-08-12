@@ -1,28 +1,16 @@
 'use strict';
 
 const CANONICAL_RULES = {
-  1: { required: ['lab_coat', 'glasses', 'gloves'], anyOf: ['indoor_shoes', 'disposable_foot_covers'], optional: [] },
-  2: { required: ['lab_coat', 'gloves'],anyOf: [
-    {
-      allOf: [
-        { anyOf: ['mask', 'face_shield'] },
-        { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
-      ],
-    },
-  ], optional: [] },
+  1: { required: ['lab_coat', 'glasses', 'gloves'], anyOf: [], optional: [] },
+  2: { required: ['lab_coat', 'gloves'], anyOf: ['mask', 'face_shield'], optional: [] },
   3: {
     required: ['gloves', 'gloves_2'],
     anyOf: [
+      { anyOf: ['closable_lab_coat', 'disposable_overall'] },
       {
-        allOf: [
-          { anyOf: ['closable_lab_coat', 'disposable_overall'] },
-          {
-            anyOf: [
-              { allOf: ['mask', { anyOf: ['glasses', 'face_shield'] }] },
-              'respirator',
-            ],
-          },
-          { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
+        anyOf: [
+          { allOf: ['mask', { anyOf: ['glasses', 'face_shield'] }] },
+          'respirator',
         ],
       },
     ],
