@@ -11,7 +11,7 @@ after(closeDb);
 
 const PASSWORD = 'test-password-123';
 
-const BSL1_CORRECT = ['lab_coat', 'glasses', 'gloves'];
+const BSL1_CORRECT = ['lab_coat', 'glasses', 'gloves', 'indoor_shoes'];
 
 // Real seeded microbes, so grading runs against the real rule set.
 async function microbeAtLevel(level) {
