@@ -242,6 +242,58 @@ test('lecture material popup is closed initially', () => {
   ).not.toBeInTheDocument()
 })
 
+// 'lecture-material-popup-opened' is the exact event the lecture room's material
+// point dispatches (see rooms.test.jsx, 'clicking the lecture-material point
+// opens the lecture material popup'). Both sides assert the same literal, so
+// renaming one alone fails the other instead of silently killing the button.
+test('lecture-material-popup-opened opens the lecture material popup and loads material', async () => {
+  openLectureMaterialPopup()
+
+  expect(
+    await screen.findByRole('heading', {
+      name: /BSL Game Material \(Biosafety Levels\)/i,
+    })
+  ).toBeInTheDocument()
+
+  expect(
+    await screen.findByText(/International development/i)
+  ).toBeInTheDocument()
+})
+
+test('the lecture material popup closes via its close button', async () => {
+  openLectureMaterialPopup()
+
+  const heading = await screen.findByRole('heading', {
+    name: /BSL Game Material \(Biosafety Levels\)/i,
+  })
+  expect(heading).toBeInTheDocument()
+
+  fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+  expect(
+    screen.queryByRole('heading', {
+      name: /BSL Game Material \(Biosafety Levels\)/i,
+    })
+  ).not.toBeInTheDocument()
+})
+
+// Phaser's BSL interactables gate on window.__lectureOpen (rooms.js/BslInteraction),
+// so App has to mirror the visit onto window — without it every BSL room answers
+// with "visit the lecture first" and the answer popup can never open.
+test('entering the lecture room mirrors the visit onto window.__lectureOpen', () => {
+  startGame()
+
+  expect(window.__lectureOpen).toBe(false)
+
+  act(() => {
+    window.dispatchEvent(new Event('lecture-room-entered'))
+  })
+
+  expect(window.__lectureOpen).toBe(true)
+
+  delete window.__lectureOpen
+})
+
 test('microbe info popup opens when the microbe info event is fired and a current microbe exists', async () => {
   startGame()
 
@@ -789,6 +841,20 @@ describe('restoring a saved game', () => {
       screen.getByText(/your protective equipment did not fully match the required setup/i)
     ).toBeInTheDocument()
   })
+
+  test('restores an open lecture material popup', async () => {
+    seedSavedGame({
+      popups: { ...defaultSnapshot().popups, lectureMaterial: true },
+    })
+
+    renderApp()
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /BSL Game Material \(Biosafety Levels\)/i,
+      })
+    ).toBeInTheDocument()
+  })
 })
 
 describe('saving state', () => {
@@ -812,6 +878,20 @@ describe('saving state', () => {
     })
 
     expect(loadSavedGame().popups.microbeInfo).toBe(true)
+  })
+
+  // The key App writes has to be the key loadSavedGame() gives back, or the
+  // popup silently fails to reopen after a reload.
+  test('lecture material popup state is persisted', async () => {
+    openLectureMaterialPopup()
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /BSL Game Material \(Biosafety Levels\)/i,
+      })
+    ).toBeInTheDocument()
+
+    expect(loadSavedGame().popups.lectureMaterial).toBe(true)
   })
 
   test('an open popup is persisted', () => {

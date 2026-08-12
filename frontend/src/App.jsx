@@ -38,7 +38,7 @@ function App() {
   const [lectureOpen, setLectureOpen] = useState(restored?.progress.lectureVisited ?? false)
   const [isPopupOpen, setPopupOpen] = useState(restored?.popups.closet ?? false)
   const [LectureMaterialOpen, setLectureMaterialOpen] = useState(
-    restored?.popups.LectureMaterial ?? restored?.popups.lectureMaterial ?? false
+    restored?.popups.lectureMaterial ?? false
   )
   const [answerOpen, setAnswerOpen] = useState(restored?.popups.answer ?? false)
   const [answerLevel, setAnswerLevel] = useState(restored?.popups.answerLevel ?? '')
@@ -85,6 +85,10 @@ function App() {
     window.addEventListener('lecture-room-entered', handler)
     return () => window.removeEventListener('lecture-room-entered', handler)
   }, [])
+
+  // Phaser's BSL interactables gate on this (rooms.js + BslInteraction.js) and
+  // can't read React state, so the lecture visit has to be mirrored onto window.
+  useEffect(() => { window.__lectureOpen = lectureOpen }, [lectureOpen])
 
   useEffect(() => {
     const handleClosetClick = () => setPopupOpen(true)
@@ -190,8 +194,8 @@ function App() {
   }, [])
   useEffect(() => {
     const handleLectureMaterialOpen = () => setLectureMaterialOpen(true)
-    window.addEventListener('lecture-materials-popup-opened', handleLectureMaterialOpen)
-    return () => window.removeEventListener('lecture-materials-popup-opened', handleLectureMaterialOpen)
+    window.addEventListener('lecture-material-popup-opened', handleLectureMaterialOpen)
+    return () => window.removeEventListener('lecture-material-popup-opened', handleLectureMaterialOpen)
   }, [])
   useEffect(() => {
     const handleAnswerOpen = (e) => {
@@ -241,7 +245,6 @@ function App() {
         lectureMaterial: LectureMaterialOpen,
         info: infoOpen,
         microbeInfo: microbeInfoOpen,
-        lecture: LectureMaterialOpen,
         answer: answerOpen,
         answerLevel,
         lectureWarning: lectureWarningOpen,

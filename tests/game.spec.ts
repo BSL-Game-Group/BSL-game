@@ -29,6 +29,28 @@ test('closet closes via button', async ({ game }) => {
   await expect(game.closetPopup).not.toBeVisible();
 });
 
+test('lecture material popup opens via event and shows the fetched material', async ({ game }) => {
+  await game.start();
+
+  await game.openLectureMaterial();
+
+  await expect(game.lectureMaterialPopup).toBeVisible();
+  // The title renders while the material is still loading too, so assert on a
+  // section that only exists once /api/bsl-material has answered.
+  await expect(game.page.getByRole('heading', { name: /^sources$/i })).toBeVisible();
+});
+
+test('lecture material popup closes via button', async ({ game }) => {
+  await game.start();
+
+  await game.openLectureMaterial();
+  await expect(game.lectureMaterialPopup).toBeVisible();
+
+  await game.closeButton.click();
+
+  await expect(game.lectureMaterialPopup).not.toBeVisible();
+});
+
 test('info popup opens via event and shows the instructions', async ({ game }) => {
   await game.start();
 

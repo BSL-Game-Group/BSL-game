@@ -150,7 +150,7 @@ function validate(raw, now) {
     },
     popups: {
       closet: raw.popups?.closet === true,
-      lectureMaterials: raw.popups?.lectureMaterials === true,
+      lectureMaterial: raw.popups?.lectureMaterial === true,
       info: raw.popups?.info === true,
       microbeInfo: raw.popups?.microbeInfo === true,
       answer: raw.popups?.answer === true,
