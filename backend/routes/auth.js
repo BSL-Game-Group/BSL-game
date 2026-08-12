@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs')
 const db = require('../models')
 const { signToken } = require('../utils/token')
 const { requireAuth } = require('../middleware/auth')
-const { authLimiter } = require('../middleware/rateLimit')
+const { registerLimiter, loginLimiter } = require('../middleware/rateLimit')
 const { claimRoundsForSession } = require('../services/claim')
 
 const router = express.Router()
@@ -62,9 +62,10 @@ function whereUsernameMatches(username) {
   )
 }
 
-// authLimiter runs first, and needs a parsed body for its username key — which it
-// has, because express.json() runs in app.js before this router is mounted.
-router.post('/register', authLimiter, async (req, res) => {
+// The limiter runs first, and needs a parsed body for its username key — which it
+// has, because express.json() runs in app.js before this router is mounted. Each
+// route gets its own instance, so neither can spend the other's budget.
+router.post('/register', registerLimiter, async (req, res) => {
   const { username, password, session_id: sessionId } = req.body ?? {}
 
   const invalid = validateCredentials(username, password)
@@ -98,7 +99,7 @@ router.post('/register', authLimiter, async (req, res) => {
   })
 })
 
-router.post('/login', authLimiter, async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   const { username, password, session_id: sessionId } = req.body ?? {}
 
   const rejection = {

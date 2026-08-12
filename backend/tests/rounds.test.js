@@ -142,6 +142,14 @@ test('empty, oversized and malformed answer lists are 400s', async () => {
     { answers: [{ microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: [] }] },
     { session_id: 'session-a', answers: [{ microbe_id: bsl1.id, chosen_level: 3.5, chosen_equipment: [] }] },
     { session_id: 'session-a', answers: [{ microbe_id: bsl1.id, chosen_level: 1e21, chosen_equipment: [] }] },
+    // Each of these coerces to a number, and 0 is a perfectly storable integer, so
+    // a check that measured Number(value) instead of value called them well-formed
+    // and quietly recorded an answer at level 0 rather than refusing the request.
+    { session_id: 'session-a', answers: [{ microbe_id: bsl1.id, chosen_level: null, chosen_equipment: [] }] },
+    { session_id: 'session-a', answers: [{ microbe_id: bsl1.id, chosen_level: false, chosen_equipment: [] }] },
+    { session_id: 'session-a', answers: [{ microbe_id: bsl1.id, chosen_level: [], chosen_equipment: [] }] },
+    // A level is a number, the same way microbe_id already has to be one.
+    { session_id: 'session-a', answers: [{ microbe_id: bsl1.id, chosen_level: '2', chosen_equipment: [] }] },
   ];
 
   for (const body of bodies) {
