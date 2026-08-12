@@ -29,10 +29,6 @@
     "title": "Käy ensin luentohuoneessa",
     "message": "Ennen mikrobin käsittelyä sinun täytyy käydä luentohuoneessa lukemassa mikrobista ja oppimassa sen bioturvallisuustaso (BSL)."
   },
-  "airlockWashRequired": {
-    "title": "HUOMIO",
-    "message": "Kun poistut BSL4-laboratoriosta, sanitoi itsesi aina sulkutilan pesupisteellä ennen kuin jatkat eteenpäin."
-  },
   "lecturePanel": {
     "title": "Luentomateriaali",
     "description": "Klikkaa alla olevaa linkkiä avataksesi luentomateriaalin uuteen välilehteen.",
@@ -106,13 +102,36 @@
     "openCloset": "Avaa kaappi",
     "pressE": "Paina E",
     "exitPrompt": "Paina E poistutuaksesi",
-    "washUp": "Paina R tai klikkaa peseytyäksesi",
-    "airlockWash": "Paina R tai klikkaa desinfioidaksesi"
+    "washUp": "Paina R tai klikkaa peseytyäksesi"
   },
   "exitConfirm": {
     "title": "Poistu",
     "message": "Haluatko poistua pelistä ja palata aloitusnäkymään?",
     "yes": "KYLLÄ",
     "no": "EI"
+  },
+  "bsl4NotReady": {
+    "title": "Et ole valmis BSL4:ään",
+    "message": "Pue paineistettu puku, kytke se ulkoiseen ilmastointiin ja sulje sulkutilan ovi ennen kuin käsittelet mikrobia täällä."
+  },
+  "bsl4SuitRequired": {
+    "title": "Olet BSL4:ssä",
+    "message": "Pue paineistettu puku ja kytke se ulkoiseen ilmastointiin — sinulla täytyy olla puku päällä koko ajan kun olet täällä."
+  },
+  "bslDoorRequired": {
+    "title": "Sulje sulkutilan ovi ensin",
+    "message": "Sulje ilmatiivis ovi ennen kuin käsittelet mikrobia täällä."
+  },
+  "bsl4UndressRequired": {
+    "title": "Peseydy ennen poistumista",
+    "message": "Riisu paineistettu puku ja irrota ulkoinen ilmastointi ennen kuin ovi aukeaa."
+  },
+  "bsl4Gear": {
+    "wearSuitButton": "Pue puku",
+    "removeSuitButton": "Riisu puku",
+    "wearGlovesButton": "Pue käsineet",
+    "removeGlovesButton": "Riisu käsineet",
+    "connectVentilationButton": "Kytke ilmastointi",
+    "disconnectVentilationButton": "Irrota ilmastointi"
   }
 }

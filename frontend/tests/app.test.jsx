@@ -360,32 +360,6 @@ test('info popup opens on info-popup-opened event and shows the steps', () => {
 })
 
 // -----------------------------
-// AIRLOCK2 WASH REMINDER (soft, non-blocking) TESTS
-// -----------------------------
-test('shows a soft reminder when entering airlock2', () => {
-  startGame()
-
-  act(() => {
-    window.dispatchEvent(new Event('airlock-wash-reminder'))
-  })
-
-  expect(screen.getByRole('heading', { name: /attention/i })).toBeInTheDocument()
-})
-
-test('the airlock wash reminder does NOT gate the next microbe', () => {
-  openAnswerPopup('BSL-2')
-
-  fireEvent.click(screen.getByRole('button', { name: /close/i }))
-  EventBus.emit.mockClear()
-
-  act(() => {
-    window.dispatchEvent(new Event('airlock-wash-reminder'))
-  })
-
-  expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
-})
-
-// -----------------------------
 // UNDRESS-BEFORE-NEXT-MICROBE TESTS
 // -----------------------------
 describe('PPE removal gate', () => {
@@ -443,17 +417,222 @@ describe('PPE removal gate', () => {
     expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
   })
 
-  test('the BSL4 airlock decon point does NOT satisfy the wash-up requirement', () => {
-    openAnswerPopup('BSL-2')
+})
 
-    fireEvent.click(screen.getByRole('button', { name: /close/i }))
-    EventBus.emit.mockClear()
+// -----------------------------
+// BSL4 ENTRY CONFIRMATION
+// -----------------------------
+describe('BSL4 gear popup', () => {
+  test('locks movement while open, unlocks when it closes', () => {
+    const spy = jest.spyOn(window, 'dispatchEvent')
+    startGame()
 
     act(() => {
-      window.dispatchEvent(new Event('airlock-decon'))
+      window.dispatchEvent(new Event('bsl4-suit-required'))
+    })
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: 'popup-opened' }))
+
+    spy.mockClear()
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: 'popup-closed' }))
+
+    spy.mockRestore()
+  })
+
+  test('bsl4-suit-required shows the "put it on" prompt with suit/gloves buttons, no ventilation button yet', () => {
+    startGame()
+
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-suit-required'))
     })
 
+    expect(screen.getByText(/you're in bsl4/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^put on suit$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^put on gloves$/i })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /connect ventilation/i })).not.toBeInTheDocument()
+  })
+
+  test('clicking Put on suit / Put on gloves equips them directly, no separate closet', () => {
+    startGame()
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-suit-required'))
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /^put on suit$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^put on gloves$/i }))
+
+    expect(screen.getByRole('button', { name: /^take off suit$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^take off gloves$/i })).toBeInTheDocument()
+    expect(screen.queryByText('Equipment')).not.toBeInTheDocument()
+  })
+
+  test('once suited, a Connect ventilation button appears in the same prompt', () => {
+    seedSavedGame({ equipped: { ...unequipAll(), pressurized_suit: true, gloves: true } })
+    renderApp()
+
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-suit-required'))
+    })
+
+    expect(screen.getByRole('button', { name: /^connect ventilation$/i })).toBeInTheDocument()
+  })
+
+  test('clicking Connect ventilation makes bsl4Ready true', () => {
+    seedSavedGame({ equipped: { ...unequipAll(), pressurized_suit: true, gloves: true } })
+    renderApp()
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-suit-required'))
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /^connect ventilation$/i }))
+
+    expect(window.__bsl4Ready).toBe(true)
+    expect(screen.getByRole('button', { name: /^disconnect ventilation$/i })).toBeInTheDocument()
+  })
+
+  test('bsl4-undress-required shows the "take it off" prompt when already suited', () => {
+    seedSavedGame({ equipped: { ...unequipAll(), pressurized_suit: true, gloves: true } })
+    renderApp()
+
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-undress-required'))
+    })
+
+    expect(screen.getByText(/decontaminate before leaving/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /^take off suit$/i }))
+
+    expect(screen.getByRole('button', { name: /^put on suit$/i })).toBeInTheDocument()
+  })
+
+  test('taking off the suit also unplugs the ventilation', () => {
+    seedSavedGame({
+      equipped: { ...unequipAll(), pressurized_suit: true, gloves: true },
+      progress: { ...defaultSnapshot().progress, ventilationConnected: true },
+    })
+    renderApp()
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-undress-required'))
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /^take off suit$/i }))
+
+    expect(window.__bsl4Ready).toBe(false)
+    expect(loadSavedGame().progress.ventilationConnected).toBe(false)
+  })
+})
+
+// -----------------------------
+// BSL4 VENTILATION & READINESS
+// -----------------------------
+describe('BSL4 ventilation hookup', () => {
+  function toggleVentilation() {
+    act(() => {
+      window.dispatchEvent(new Event('ventilation-toggle-requested'))
+    })
+  }
+
+  test('connecting does nothing while the suit is not worn', () => {
+    startGame()
+
+    toggleVentilation()
+
+    expect(window.__bsl4Ready).toBe(false)
+  })
+
+  test('connecting succeeds once the suit and gloves are worn, making bsl4Ready true', () => {
+    seedSavedGame({ equipped: { ...unequipAll(), pressurized_suit: true, gloves: true } })
+    renderApp()
+
+    toggleVentilation()
+
+    expect(window.__bsl4Ready).toBe(true)
+  })
+
+  test('pressing the spot again disconnects', () => {
+    seedSavedGame({ equipped: { ...unequipAll(), pressurized_suit: true, gloves: true } })
+    renderApp()
+
+    toggleVentilation()
+    expect(window.__bsl4Ready).toBe(true)
+
+    toggleVentilation()
+    expect(window.__bsl4Ready).toBe(false)
+  })
+
+  test('taking off the suit unplugs ventilation but does NOT satisfy the wash-up gate — only the dressing room does', () => {
+    seedSavedGame({
+      equipped: { ...unequipAll(), pressurized_suit: true, gloves: true },
+      progress: {
+        ...defaultSnapshot().progress,
+        ventilationConnected: true,
+        awaitingUndress: true,
+      },
+    })
+    renderApp()
+
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-undress-required'))
+    })
+    EventBus.emit.mockClear()
+    fireEvent.click(screen.getByRole('button', { name: /^take off suit$/i }))
+
+    expect(window.__bsl4Ready).toBe(false)
+    expect(loadSavedGame().progress.ventilationConnected).toBe(false)
     expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
+    // The dressing room's own wash-up spot is still required, same as BSL1-3.
+    act(() => {
+      window.dispatchEvent(new Event('quick-undress'))
+    })
+    expect(EventBus.emit).toHaveBeenCalledWith('request-new-microbe')
+  })
+
+  test('bsl4-suit-forced-off strips the suit, unplugs ventilation, and closes the gear popup', () => {
+    seedSavedGame({
+      equipped: { ...unequipAll(), pressurized_suit: true, gloves: true },
+      progress: { ...defaultSnapshot().progress, ventilationConnected: true },
+    })
+    renderApp()
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-undress-required'))
+    })
+    expect(screen.getByText(/decontaminate before leaving/i)).toBeInTheDocument()
+
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-suit-forced-off'))
+    })
+
+    expect(window.__bsl4Ready).toBe(false)
+    expect(loadSavedGame().progress.ventilationConnected).toBe(false)
+    expect(screen.queryByText(/decontaminate before leaving/i)).not.toBeInTheDocument()
+  })
+
+  test('bsl4-not-ready shows a closable warning popup', () => {
+    startGame()
+
+    act(() => {
+      window.dispatchEvent(new Event('bsl4-not-ready'))
+    })
+
+    expect(screen.getByText(/not ready for bsl4/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+    expect(screen.queryByText(/not ready for bsl4/i)).not.toBeInTheDocument()
+  })
+
+  test('bsl-door-required shows a closable warning popup for BSL3', () => {
+    startGame()
+
+    act(() => {
+      window.dispatchEvent(new Event('bsl-door-required'))
+    })
+
+    expect(screen.getByText(/close the airlock door first/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+    expect(screen.queryByText(/close the airlock door first/i)).not.toBeInTheDocument()
   })
 })
 
@@ -501,20 +680,6 @@ describe('worn PPE is owned by App', () => {
     const spy = jest.spyOn(window, 'dispatchEvent')
     act(() => {
       window.dispatchEvent(new Event('quick-undress'))
-    })
-
-    expect(lastEquipmentBroadcast(spy).detail).toEqual(unequipAll())
-
-    spy.mockRestore()
-  })
-
-  test('the airlock-decon event strips all PPE', () => {
-    openCloset()
-    fireEvent.click(screen.getByText('test-equip-mask'))
-
-    const spy = jest.spyOn(window, 'dispatchEvent')
-    act(() => {
-      window.dispatchEvent(new Event('airlock-decon'))
     })
 
     expect(lastEquipmentBroadcast(spy).detail).toEqual(unequipAll())

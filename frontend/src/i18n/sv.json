@@ -29,10 +29,6 @@
   "title": "Besök föreläsningsrummet först",
   "message": "Innan du hanterar en mikrob måste du först besöka föreläsningsrummet för att läsa om mikroben och ta reda på dess biosäkerhetsnivå (BSL)."
 },
-  "airlockWashRequired": {
-    "title": "OBS",
-    "message": "Sanera dig alltid vid slussens dekontamineringsplats när du lämnar BSL4-laboratoriet."
-  },
   "lecturePanel": {
     "title": "Kursmaterial",
     "description": "Klicka på en länk nedan för att öppna föreläsningsmaterialet i en ny flik.",
@@ -106,13 +102,36 @@
     "openCloset": "Öppna garderobsskåpet",
     "pressE": "Tryck E",
     "exitPrompt": "Tryck E för att lämna",
-    "washUp": "Tryck R eller klicka för att tvätta dig",
-    "airlockWash": "Tryck R eller klicka för att dekontaminera"
+    "washUp": "Tryck R eller klicka för att tvätta dig"
   },
   "exitConfirm": {
     "title": "Avsluta",
     "message": "Vill du lämna spelet och gå tillbaka till startsidan?",
     "yes": "JA",
     "no": "NEJ"
+  },
+  "bsl4NotReady": {
+    "title": "Inte redo för BSL4",
+    "message": "Ta på dig den trycksatta dräkten, koppla den till den externa ventilationen och stäng slussdörren innan du hanterar en mikrob här inne."
+  },
+  "bsl4SuitRequired": {
+    "title": "Du är i BSL4",
+    "message": "Ta på dig den trycksatta dräkten och koppla den till den externa ventilationen — du måste ha dräkten på hela tiden du är här inne."
+  },
+  "bslDoorRequired": {
+    "title": "Stäng slussdörren först",
+    "message": "Stäng den lufttäta dörren innan du hanterar en mikrob här inne."
+  },
+  "bsl4UndressRequired": {
+    "title": "Dekontaminera innan du lämnar",
+    "message": "Ta av den trycksatta dräkten och koppla ur den externa ventilationen innan dörren öppnas."
+  },
+  "bsl4Gear": {
+    "wearSuitButton": "Ta på dräkten",
+    "removeSuitButton": "Ta av dräkten",
+    "wearGlovesButton": "Ta på handskarna",
+    "removeGlovesButton": "Ta av handskarna",
+    "connectVentilationButton": "Koppla ventilationen",
+    "disconnectVentilationButton": "Koppla ur ventilationen"
   }
 }

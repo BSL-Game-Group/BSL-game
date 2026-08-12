@@ -28,9 +28,6 @@ const translationValue = {
 
       'closet.title': 'Closet',
 
-      'airlockWashRequired.title': 'ATTENTION',
-      'airlockWashRequired.message': 'Always sanitize yourself at the airlock decon spot whenever you leave the BSL4 laboratory.',
-
       'common.close': 'Close',
       'microbeInfoPopup.title': 'Microbe Information',
       'microbeInfoPopup.commonName': 'Common name',

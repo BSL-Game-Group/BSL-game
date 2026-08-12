@@ -166,45 +166,6 @@ function setupUndressPoint(scene) {
     });
 }
 
-// Wash-up point in airlock2's bottom-right corner. Same look/click as the
-// dressing room's quick-undress spot and resets PPE the same way. App.jsx's
-// dressing-room gate doesn't listen for this event, so it still doesn't
-// replace the real checkout — it's just a reminder/decon step on the way out
-// of BSL4 (main_scene fires it as soon as the player arrives in airlock2).
-function setupAirlockWashPoint(scene) {
-    const wx = 1250;
-    const wy = 335;
-    const radius = 16;
-
-    scene.airlockWashPoint = { x: wx, y: wy };
-
-    scene.airlockWashGlow = scene.add.graphics();
-    scene.airlockWashGlow.fillStyle(0x0b6623, 0.8);
-    scene.airlockWashGlow.fillCircle(wx, wy, radius);
-    scene.airlockWashGlow.lineStyle(3, 0x0b6623);
-    scene.airlockWashGlow.strokeCircle(wx, wy, radius);
-    scene.airlockWashGlow.setDepth(5);
-    scene.airlockWashGlow.setVisible(false);
-
-    scene.airlockWashGlowTween = scene.tweens.add({
-        targets: scene.airlockWashGlow,
-        alpha: { from: 1.0, to: 0.3 },
-        duration: 1000,
-        yoyo: true,
-        repeat: -1,
-    });
-    scene.airlockWashGlowTween.pause();
-
-    scene.airlockWashZone = scene.add
-        .zone(wx, wy, radius * 2.4, radius * 2.4)
-        .setInteractive({ useHandCursor: true });
-
-    scene.airlockWashZone.on('pointerdown', () => {
-        if (!scene.playerInsideAirlock2) {return;}
-        window.dispatchEvent(new Event('airlock-decon'));
-    });
-}
-
 // Dark green glow interactable inside each BSL room. Placeholder for the real element
 // (image TBD with the team) — pressing E or clicking it opens the answer popup.
 // Position per room: BSL-1/2/4 top-left, BSL-3 top-centre.
@@ -258,6 +219,14 @@ function setupBslInteractables(scene) {
             if (!entry.playerInside) { return; }
             if (!window.__lectureOpen) {
                 window.dispatchEvent(new Event('lecture-required'));
+                return;
+            }
+            if (entry.key === 'BSL-4' && (!window.__bsl4Ready || scene.bsl4Door?.isOpen)) {
+                window.dispatchEvent(new Event('bsl4-not-ready'));
+                return;
+            }
+            if (entry.key === 'BSL-3' && scene.bsl3Door?.isOpen) {
+                window.dispatchEvent(new Event('bsl-door-required'));
                 return;
             }
             window.dispatchEvent(
@@ -599,7 +568,6 @@ export function createRooms(scene) {
     setupCloset(scene);
     setupBslInteractables(scene);
     setupUndressPoint(scene);
-    setupAirlockWashPoint(scene);
     setupLectureRoom(scene, walls);
     setupLectureInfoPoint(scene);
     setupLectureMaterialButton(scene);

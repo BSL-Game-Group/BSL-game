@@ -29,10 +29,6 @@
   "title": "Visit the lecture room first",
   "message": "Before handling a microbe, you must first visit the lecture room to read about the microbe and learn its Biosafety Level (BSL)."
 },
-  "airlockWashRequired": {
-    "title": "ATTENTION",
-    "message": "Always sanitize yourself at the airlock decon spot whenever you leave the BSL4 laboratory."
-  },
   "lecturePanel": {
     "title": "Lecture Materials",
     "description": "Click a link below to open the lecture material in a new tab.",
@@ -106,13 +102,36 @@
     "openCloset": "Open Closet",
     "pressE": "Press E",
     "exitPrompt": "Press E to exit",
-    "washUp": "Press R or click to wash up",
-    "airlockWash": "Press R or click to decontaminate"
+    "washUp": "Press R or click to wash up"
   },
   "exitConfirm": {
     "title": "Exit",
     "message": "Do you want to leave the game and return to the start page?",
     "yes": "YES",
     "no": "NO"
+  },
+  "bsl4NotReady": {
+    "title": "Not ready for BSL4",
+    "message": "Put on the pressurized suit, connect it to the external ventilation, and close the airlock door before handling a microbe in here."
+  },
+  "bsl4SuitRequired": {
+    "title": "You're in BSL4",
+    "message": "Put on the pressurized suit and connect it to the external ventilation — you must be fully suited up the entire time you're in here."
+  },
+  "bslDoorRequired": {
+    "title": "Close the airlock door first",
+    "message": "Close the airtight door before handling a microbe in here."
+  },
+  "bsl4UndressRequired": {
+    "title": "Decontaminate before leaving",
+    "message": "Take off the pressurized suit and disconnect the external ventilation before the door will open."
+  },
+  "bsl4Gear": {
+    "wearSuitButton": "Put on suit",
+    "removeSuitButton": "Take off suit",
+    "wearGlovesButton": "Put on gloves",
+    "removeGlovesButton": "Take off gloves",
+    "connectVentilationButton": "Connect ventilation",
+    "disconnectVentilationButton": "Disconnect ventilation"
   }
 }

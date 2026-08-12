@@ -10,6 +10,24 @@ jobs:
     name: Test (Full Stack via Docker)
     runs-on: ubuntu-latest
 
+    # Host port 5433, not 5432: `docker compose up` later in this same job starts
+    # its own Postgres publishing 5432, and two containers cannot bind the same
+    # host port.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: bsluser
+          POSTGRES_PASSWORD: bslpassword
+          POSTGRES_DB: bsldb_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U bsluser -d bsldb_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,8 +45,13 @@ jobs:
       # ---------------------------
       - name: Backend unit tests (with coverage)
         working-directory: ./backend
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5433
+          DB_NAME_TEST: bsldb_test
         run: |
           npm ci
+          npm run test:db:prepare
           npm test
 
       # ---------------------------
