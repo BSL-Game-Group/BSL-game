@@ -18,6 +18,7 @@ export function loadAssets(scene) {
     scene.load.image('pressurized_suit', 'assets/equipment/on_character/body/pressurized_suit_on.png');
     scene.load.image('wow_helmet', 'assets/equipment/on_character/eyewear/wow_helmet_on.png');
     scene.load.image('indoor_shoes', 'assets/equipment/on_character/footwear/indoor_shoes_on.png');
+    scene.load.image('disposable_foot_covers', 'assets/equipment/on_character/footwear/disposable_foot_covers_on.png');
 
     // Game area elements
     scene.load.image('dresser', 'assets/game_arena_elements/dresser.png');

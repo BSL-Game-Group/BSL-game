@@ -175,6 +175,14 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transform: 'scale(2.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
+  disposable_foot_covers: {
+    category: 'footwear',
+    label: 'Disposable foot covers',
+    equippedStyle: {
+      position: 'absolute', top: '279px', left: '86px', width: '60px', height: 'auto',
+      transform: 'scale(2.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
 });
 
 // Pure equip rule: returns a new equipped map with `itemId` on. For a
