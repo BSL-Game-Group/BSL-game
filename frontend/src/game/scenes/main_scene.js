@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import { createRooms } from './rooms';
 import microbeService from '../../services/microbes';
-import { generateSessionId, notifyRoomEntry } from '../services/tracking';
+import { notifyRoomEntry } from '../services/tracking';
 import { createWoodFloor, createLabFloor } from '../environment/EnvironmentBuilder';
 import HintManager from '../managers/HintManager';
 import { EventBus } from '../EventBus';
 import DoorGroup from '../groups/DoorGroup.js';
-import { loadSavedGame, patchSavedGame, savePlayerPosition } from '../../state/savedGame';
+import { loadSavedGame, savePlayerPosition } from '../../state/savedGame';
+import { getOrCreateSessionId } from '../../state/session';
 import { loadAssets } from '../assets/loadAssets.js';
 import EquipmentManager from "../player/EquipmentManager";
 import PlayerController from "../player/PlayerController";
@@ -45,10 +46,11 @@ class MainScene extends Phaser.Scene {
         createWoodFloor(this);
         createLabFloor(this);
 
+        // The id is owned by state/session.js so the login UI can read it before
+        // this scene exists. Publishing it on __gameData keeps notifyRoomEntry and
+        // the Playwright fixture working unchanged.
         if (!window.__gameData?.sessionId) {
-            const sessionId = this.savedGame?.sessionId ?? generateSessionId(); // Removed 'this.'
-            window.__gameData = { ...window.__gameData, sessionId };
-            patchSavedGame({ sessionId });
+            window.__gameData = { ...window.__gameData, sessionId: getOrCreateSessionId() };
         }
 
         this.player = this.physics.add.sprite(

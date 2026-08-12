@@ -104,6 +104,57 @@
     "exitPrompt": "Paina E poistutuaksesi",
     "washUp": "Paina R tai klikkaa peseytyäksesi"
   },
+  "hud": {
+    "score": "Pisteet: {score}",
+    "microbes": "Mikrobit: {count}"
+  },
+  "auth": {
+    "guest": "Pelaat vieraana",
+    "signedInAs": "Kirjautuneena: {username}",
+    "loginButton": "Kirjaudu",
+    "logoutButton": "Kirjaudu ulos",
+    "cancel": "Peruuta",
+    "usernameLabel": "Käyttäjänimi",
+    "passwordLabel": "Salasana",
+    "submitLogin": "Kirjaudu",
+    "submitRegister": "Luo tili",
+    "switchToRegister": "Eikö sinulla ole tiliä? Luo tili",
+    "switchToLogin": "Onko sinulla jo tili? Kirjaudu",
+    "noRecovery": "Salasanaa ei voi palauttaa — kirjoita se talteen.",
+    "working": "Odota…",
+    "errors": {
+      "username_invalid": "Käyttäjänimessä on oltava 3-32 merkkiä: kirjaimia, numeroita, _ tai -.",
+      "password_too_short": "Salasanassa on oltava vähintään 8 merkkiä.",
+      "username_taken": "Käyttäjänimi on jo käytössä.",
+      "invalid_credentials": "Väärä käyttäjänimi tai salasana.",
+      "rate_limited": "Liian monta yritystä tällä käyttäjänimellä. Yritä uudelleen 15 minuutin kuluttua.",
+      "network": "Palvelimeen ei saada yhteyttä. Yritä uudelleen."
+    },
+    "rounds": {
+      "title": "Kierroksesi",
+      "empty": "Ei kierroksia.",
+      "score": "Pisteet",
+      "correct": "Oikein",
+      "played": "Pelattu",
+      "openButton": "Omat kierrokset"
+    },
+    "leaderboard": {
+      "title": "Parhaat tulokset",
+      "empty": "Ei pelattuja kierroksia.",
+      "rank": "#",
+      "player": "Pelaaja",
+      "score": "Pisteet",
+      "openButton": "Parhaat tulokset"
+    },
+    "claim": {
+      "title": "Kierros päättyi",
+      "scoreLine": "Sait {score} pistettä {total} mahdollisesta.",
+      "guestWarning": "Tulos säilyy vain tässä selaimessa, ellet tallenna sitä.",
+      "keepScore": "Tallenna tulokseni",
+      "savedToAccount": "Tallennettu tilillesi.",
+      "roundsSaved": "Kierroksia tallennettu tilillesi: {count}"
+    }
+  },
   "exitConfirm": {
     "title": "Poistu",
     "message": "Haluatko poistua pelistä ja palata aloitusnäkymään?",
