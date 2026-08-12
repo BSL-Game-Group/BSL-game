@@ -10,14 +10,12 @@ function ScoreHud({ score, answered }) {
   const { t } = useTranslation()
 
   return (
-    <div className="position-fixed top-0 start-0 p-3 z-3">
       <div className="score-hud" data-testid="score-hud" role="status">
         <span className="score-hud__score">{t('hud.score').replace('{score}', score)}</span>
         <span className="score-hud__count">
           {t('hud.microbes').replace('{count}', answered)}
         </span>
       </div>
-    </div>
   )
 }
 
