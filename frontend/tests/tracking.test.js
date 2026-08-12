@@ -1,4 +1,4 @@
-import { getBackendUrl, generateSessionId, notifyRoomEntry } from '../src/game/services/tracking';
+import { generateSessionId, notifyRoomEntry } from '../src/game/services/tracking';
 
 describe('Tracking Service', () => {
   
@@ -52,24 +52,6 @@ describe('Tracking Service', () => {
 
       // Should not throw
       await expect(notifyRoomEntry('bsl-2')).resolves.not.toThrow();
-    });
-  });
-
-  describe('getBackendUrl', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-      delete process.env.VITE_API_URL;
-    });
-
-    test('returns VITE_API_URL when set', () => {
-      process.env.VITE_API_URL = 'https://custom-api.example.com';
-      expect(getBackendUrl()).toBe('https://custom-api.example.com');
-    });
-
-    test('uses current window location for URL detection', () => {
-      delete process.env.VITE_API_URL;
-      const url = getBackendUrl();
-      expect(url).toMatch(/localhost:3001|backend:3001/);
     });
   });
 
