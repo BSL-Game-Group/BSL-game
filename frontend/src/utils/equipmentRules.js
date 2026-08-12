@@ -1,5 +1,5 @@
 const BSL_EQUIPMENT_RULES = {
-  1: { required: ['lab_coat', 'glasses'], anyOf: [], optional: [] },
+  1: { required: ['lab_coat', 'glasses', 'gloves'], anyOf: [], optional: [] },
   2: { required: ['lab_coat', 'gloves'], anyOf: ['mask', 'face_shield'], optional: [] },
   3: {
     required: ['gloves', 'gloves_2'],

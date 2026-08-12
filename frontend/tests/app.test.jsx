@@ -2,6 +2,8 @@ import { render, screen, fireEvent, act } from './test-utils'
 import '@testing-library/jest-dom'
 import App from '../src/App'
 import { TranslationProvider } from '../src/i18n'
+import { AuthProvider } from '../src/auth/provider'
+import roundsService from '../src/services/rounds'
 import { EventBus } from '../src/game/EventBus'
 import { unequipAll } from '../src/components/ClosetPopup/ItemConfig'
 import {
@@ -16,6 +18,7 @@ import {
 beforeEach(() => {
   clearSavedGame()
   localStorage.clear()
+  jest.clearAllMocks()
 })
 
 // -----------------------------
@@ -57,6 +60,29 @@ jest.mock('../src/components/ClosetPopup/ClosetPopup', () => (props) => {
 
 jest.mock('../game/main', () => jest.fn(() => ({ destroy: jest.fn() })))
 
+jest.mock('../src/services/auth', () => ({
+  __esModule: true,
+  default: {
+    register: jest.fn(),
+    login: jest.fn(),
+    me: jest.fn(() => Promise.reject(new Error('no token in these tests'))),
+  },
+  AuthError: class AuthError extends Error {},
+}))
+
+jest.mock('../src/services/rounds', () => ({
+  __esModule: true,
+  default: {
+    submitRound: jest.fn(),
+    updateRound: jest.fn(),
+    saveRound: jest.fn(() =>
+      Promise.resolve({ id: 1, score: 0, correct_count: 0, answer_count: 1, owned: false })
+    ),
+    getMyRounds: jest.fn(() => Promise.resolve([])),
+    getLeaderboard: jest.fn(() => Promise.resolve([])),
+  },
+}))
+
 jest.mock('../src/services/bslMaterial', () => ({
   getMaterial: jest.fn(() => Promise.resolve({
     intro: { heading: 'International development', paragraphs: [] },
@@ -92,7 +118,9 @@ jest.mock('../src/game/EventBus', () => {
 function renderApp() {
   return render(
     <TranslationProvider>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </TranslationProvider>
   )
 }
@@ -632,4 +660,158 @@ describe('saving state', () => {
 
     expect(loadSavedGame().equipped.mask).toBe(true)
   })
+})
+
+// -----------------------------
+// ROUND TESTS
+// -----------------------------
+
+const identifiedMicrobe = { ...testMicrobe, id: 7 }
+
+function answerCurrentMicrobe(level = 'BSL-1', microbe = identifiedMicrobe) {
+  act(() => {
+    EventBus.emit('current-microbe-updated', microbe)
+  })
+  act(() => {
+    window.dispatchEvent(new CustomEvent('answer-popup-opened', { detail: { level } }))
+  })
+  fireEvent.click(screen.getByRole('button', { name: /close/i }))
+}
+
+const reachExit = async () => {
+  await act(async () => {
+    window.dispatchEvent(new Event('exit-popup-opened'))
+  })
+}
+
+test('reaching the exit saves what the player has answered so far', async () => {
+  startGame()
+  answerCurrentMicrobe('BSL-1')
+
+  await reachExit()
+
+  expect(roundsService.saveRound).toHaveBeenCalledWith(
+    [{ microbe_id: 7, chosen_level: 1, chosen_equipment: [], correct: false }],
+    null,
+    null
+  )
+})
+
+test('a second visit to the exit updates the same round', async () => {
+  roundsService.saveRound.mockResolvedValue({
+    id: 42,
+    score: 0,
+    correct_count: 0,
+    answer_count: 1,
+    owned: false,
+  })
+  startGame()
+  answerCurrentMicrobe('BSL-1')
+
+  await reachExit()
+  fireEvent.click(screen.getByRole('button', { name: /no/i }))
+  await reachExit()
+
+  expect(roundsService.saveRound).toHaveBeenLastCalledWith(expect.anything(), null, 42)
+})
+
+test('the exit popup still opens when there is nothing to save', async () => {
+  startGame()
+
+  await reachExit()
+
+  expect(roundsService.saveRound).not.toHaveBeenCalled()
+  expect(screen.getByRole('button', { name: /yes/i })).toBeInTheDocument()
+})
+
+test('the answers and the open round are written to the snapshot', () => {
+  startGame()
+  answerCurrentMicrobe('BSL-1')
+
+  expect(loadSavedGame().round.answers).toEqual([
+    { microbe_id: 7, chosen_level: 1, chosen_equipment: [], correct: false },
+  ])
+})
+
+test('leaving for the start screen abandons the round', async () => {
+  startGame()
+  answerCurrentMicrobe('BSL-1')
+  await reachExit()
+
+  fireEvent.click(screen.getByRole('button', { name: /yes/i }))
+
+  expect(loadSavedGame()).toBeNull()
+})
+
+test('the score is on screen from the first moment of play', () => {
+  startGame()
+
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Score: 0')
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Microbes: 0')
+})
+
+test('handling a microbe moves the counter', () => {
+  startGame()
+
+  answerCurrentMicrobe('BSL-1')
+
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Microbes: 1')
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Score: 0')
+})
+
+test('the score counts the correct answers already in the round', () => {
+  localStorage.setItem(
+    SAVED_GAME_KEY,
+    JSON.stringify({
+      ...defaultSnapshot(),
+      savedAt: Date.now(),
+      round: {
+        openRoundId: 5,
+        answers: [
+          { microbe_id: 1, chosen_level: 1, chosen_equipment: ['lab_coat'], correct: true },
+          { microbe_id: 2, chosen_level: 2, chosen_equipment: [], correct: false },
+        ],
+      },
+    })
+  )
+
+  renderApp()
+
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Score: 1')
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Microbes: 2')
+})
+
+test('the start screen has no score to show', () => {
+  renderApp()
+
+  expect(screen.queryByTestId('score-hud')).not.toBeInTheDocument()
+})
+
+test('a guest can sign in from the start screen, before playing', () => {
+  renderApp()
+
+  expect(screen.getByRole('button', { name: /start game/i })).toBeInTheDocument()
+  expect(screen.getByText('Playing as a guest')).toBeInTheDocument()
+
+  fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+
+  expect(screen.getByLabelText('Username')).toBeInTheDocument()
+})
+
+test('the exit popup reports the round it just saved', async () => {
+  roundsService.saveRound.mockResolvedValue({
+    id: 42,
+    score: 0,
+    correct_count: 0,
+    answer_count: 1,
+    owned: false,
+  })
+  startGame()
+  answerCurrentMicrobe('BSL-1')
+
+  await reachExit()
+
+  expect(screen.getByRole('heading', { name: 'Round finished' })).toBeInTheDocument()
+  expect(screen.getByText('You scored 0 out of 1.')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Keep my score' })).toBeInTheDocument()
 })

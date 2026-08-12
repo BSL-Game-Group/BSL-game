@@ -11,14 +11,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(() => Boolean(readStoredToken()))
   const [claimedRounds, setClaimedRounds] = useState(null)
 
-  // Confirms a token that came out of storage. A token we just received from
-  // login/register is already known-good, so `user` is set there and this only
-  // re-confirms it — cheap, and it keeps one code path for "is this token real".
   useEffect(() => {
-    // No synchronous setState here: eslint forbids it (cascading renders), and it
-    // would be redundant anyway. Without a token there is nothing to confirm, and
-    // every path that clears the token — logout() and the .catch below — already
-    // resets `user` and `loading` itself.
     if (!token) {
       return undefined
     }
@@ -72,16 +65,11 @@ export function AuthProvider({ children }) {
     [acceptSession]
   )
 
-  // Client-side only: there is no revocation endpoint, and the token expires in
-  // seven days. The session id is deliberately left alone, so rounds played after
-  // logging out are anonymous again and claimable by whoever signs in next.
   const logout = useCallback(() => {
     clearStoredToken()
     setToken(null)
     setUser(null)
     setClaimedRounds(null)
-    // Logging out mid-confirmation cancels the in-flight me(), so nothing else
-    // would ever flip `loading` back off.
     setLoading(false)
   }, [])
 

@@ -10,13 +10,6 @@ const router = express.Router()
 const MAX_ANSWERS = 100
 const EMPTY_RULES = { required: [], anyOf: [], optional: [] }
 
-// round_answers.chosen_level is a Postgres INTEGER, so anything it cannot hold is a
-// bad request, not a wrong answer. A plain isFinite check admits 3.5 and 1e21, and
-// measured against the real column those fail in two different ways: bulkCreate
-// silently ROUNDS 3.5 to 4, storing an answer that re-scores to a different verdict
-// than the one already counted in the round's score, while 1e21 throws `integer out
-// of range` and becomes a 500. Rejecting both here is the only place either is
-// still cheap to catch.
 const INT32_MAX = 2147483647
 
 function isStorableInteger(value) {
@@ -36,29 +29,43 @@ function isWellFormedAnswer(answer) {
   )
 }
 
-router.post('/rounds', optionalAuth, async (req, res) => {
-  const { session_id: sessionId, answers } = req.body ?? {}
+async function validateAndGrade(body) {
+  const { session_id: sessionId, answers } = body ?? {}
 
   if (typeof sessionId !== 'string' || sessionId.length === 0) {
-    return res.status(400).json({ error: 'Missing session_id', code: 'session_id_missing' })
+    return {
+      error: {
+        status: 400,
+        body: { error: 'Missing session_id', code: 'session_id_missing' },
+      },
+    }
   }
 
   if (!Array.isArray(answers) || answers.length === 0 || answers.length > MAX_ANSWERS) {
-    return res.status(400).json({
-      error: `answers must be a non-empty array of at most ${MAX_ANSWERS} entries`,
-      code: 'answers_invalid',
-    })
+    return {
+      error: {
+        status: 400,
+        body: {
+          error: `answers must be a non-empty array of at most ${MAX_ANSWERS} entries`,
+          code: 'answers_invalid',
+        },
+      },
+    }
   }
 
   if (!answers.every(isWellFormedAnswer)) {
-    return res.status(400).json({ error: 'Malformed answer', code: 'answers_invalid' })
+    return {
+      error: { status: 400, body: { error: 'Malformed answer', code: 'answers_invalid' } },
+    }
   }
 
   const microbeIds = [...new Set(answers.map((answer) => answer.microbe_id))]
   const microbes = await db.Microbe.findAll({ where: { id: microbeIds } })
 
   if (microbes.length !== microbeIds.length) {
-    return res.status(400).json({ error: 'Unknown microbe', code: 'unknown_microbe' })
+    return {
+      error: { status: 400, body: { error: 'Unknown microbe', code: 'unknown_microbe' } },
+    }
   }
 
   const microbeById = new Map(microbes.map((microbe) => [microbe.id, microbe]))
@@ -84,10 +91,36 @@ router.post('/rounds', optionalAuth, async (req, res) => {
     ),
   }))
 
-  const score = scoreRound(graded)
-  const correctCount = graded.filter(
-    (answer) => answer.level_correct && answer.equipment_correct
-  ).length
+  return {
+    sessionId,
+    graded,
+    score: scoreRound(graded),
+    correctCount: graded.filter((answer) => answer.level_correct && answer.equipment_correct)
+      .length,
+  }
+}
+
+function roundResponse(round, graded, owned) {
+  return {
+    id: round.id,
+    score: round.score,
+    correct_count: round.correct_count,
+    answer_count: round.answer_count,
+    owned,
+    answers: graded.map((answer) => ({
+      microbe_id: answer.microbe_id,
+      level_correct: answer.level_correct,
+      equipment_correct: answer.equipment_correct,
+    })),
+  }
+}
+
+router.post('/rounds', optionalAuth, async (req, res) => {
+  const result = await validateAndGrade(req.body)
+
+  if (result.error) {
+    return res.status(result.error.status).json(result.error.body)
+  }
 
   // One transaction, so a round never exists without the answers that justify its
   // score — which is what makes a stored round re-scorable.
@@ -95,35 +128,74 @@ router.post('/rounds', optionalAuth, async (req, res) => {
     const created = await db.Round.create(
       {
         user_id: req.user ? req.user.id : null,
-        session_id: sessionId,
-        score,
-        correct_count: correctCount,
-        answer_count: graded.length,
+        session_id: result.sessionId,
+        score: result.score,
+        correct_count: result.correctCount,
+        answer_count: result.graded.length,
         claimed_at: null,
       },
       { transaction }
     )
 
     await db.RoundAnswer.bulkCreate(
-      graded.map((answer) => ({ ...answer, round_id: created.id })),
+      result.graded.map((answer) => ({ ...answer, round_id: created.id })),
       { transaction }
     )
 
     return created
   })
 
-  res.status(201).json({
-    id: round.id,
-    score: round.score,
-    correct_count: round.correct_count,
-    answer_count: round.answer_count,
-    owned: Boolean(req.user),
-    answers: graded.map((answer) => ({
-      microbe_id: answer.microbe_id,
-      level_correct: answer.level_correct,
-      equipment_correct: answer.equipment_correct,
-    })),
+  res.status(201).json(roundResponse(round, result.graded, Boolean(req.user)))
+})
+
+router.patch('/rounds/:id', optionalAuth, async (req, res) => {
+  const roundId = Number(req.params.id)
+
+  if (!Number.isInteger(roundId) || roundId < 1 || roundId > INT32_MAX) {
+    return res.status(404).json({ error: 'Round not found', code: 'round_not_found' })
+  }
+
+  const round = await db.Round.findByPk(roundId)
+
+  if (!round) {
+    return res.status(404).json({ error: 'Round not found', code: 'round_not_found' })
+  }
+
+  const { session_id: sessionId } = req.body ?? {}
+  const authorized =
+    round.user_id === null
+      ? typeof sessionId === 'string' && sessionId === round.session_id
+      : Boolean(req.user) && req.user.id === round.user_id
+
+  if (!authorized) {
+    return res.status(403).json({ error: 'Not your round', code: 'not_your_round' })
+  }
+
+  const result = await validateAndGrade(req.body)
+
+  if (result.error) {
+    return res.status(result.error.status).json(result.error.body)
+  }
+
+  await db.sequelize.transaction(async (transaction) => {
+    await round.update(
+      {
+        score: result.score,
+        correct_count: result.correctCount,
+        answer_count: result.graded.length,
+      },
+      { transaction }
+    )
+
+    await db.RoundAnswer.destroy({ where: { round_id: round.id }, transaction })
+
+    await db.RoundAnswer.bulkCreate(
+      result.graded.map((answer) => ({ ...answer, round_id: round.id })),
+      { transaction }
+    )
   })
+
+  res.json(roundResponse(round, result.graded, round.user_id !== null))
 })
 
 const MAX_HISTORY = 50

@@ -101,6 +101,57 @@
     "washUp": "Tryck R eller klicka för att tvätta dig",
     "airlockWash": "Tryck R eller klicka för att dekontaminera"
   },
+  "hud": {
+    "score": "Poäng: {score}",
+    "microbes": "Mikrober: {count}"
+  },
+  "auth": {
+    "guest": "Du spelar som gäst",
+    "signedInAs": "Inloggad som {username}",
+    "loginButton": "Logga in",
+    "logoutButton": "Logga ut",
+    "cancel": "Avbryt",
+    "usernameLabel": "Användarnamn",
+    "passwordLabel": "Lösenord",
+    "submitLogin": "Logga in",
+    "submitRegister": "Skapa konto",
+    "switchToRegister": "Har du inget konto? Skapa ett",
+    "switchToLogin": "Har du redan ett konto? Logga in",
+    "noRecovery": "Det går inte att återställa lösenordet — skriv ner det på ett säkert ställe.",
+    "working": "Arbetar…",
+    "errors": {
+      "username_invalid": "Användarnamnet måste ha 3-32 tecken: bokstäver, siffror, _ eller -.",
+      "password_too_short": "Lösenordet måste ha minst 8 tecken.",
+      "username_taken": "Användarnamnet är redan i bruk.",
+      "invalid_credentials": "Fel användarnamn eller lösenord.",
+      "rate_limited": "För många försök för användarnamnet. Försök igen om 15 minuter.",
+      "network": "Kunde inte nå servern. Försök igen."
+    },
+    "rounds": {
+      "title": "Dina rundor",
+      "empty": "Inga rundor.",
+      "score": "Poäng",
+      "correct": "Rätt",
+      "played": "Spelad",
+      "openButton": "Mina rundor"
+    },
+    "leaderboard": {
+      "title": "Bästa resultaten",
+      "empty": "Ingen spelade rundor.",
+      "rank": "#",
+      "player": "Spelare",
+      "score": "Poäng",
+      "openButton": "Bästa resultaten"
+    },
+    "claim": {
+      "title": "Rundan är slut",
+      "scoreLine": "Du fick {score} av {total} poäng.",
+      "guestWarning": "Resultatet finns bara i den här webbläsaren tills du sparar det.",
+      "keepScore": "Spara mitt resultat",
+      "savedToAccount": "Sparat på ditt konto.",
+      "roundsSaved": "Rundor sparade på ditt konto: {count}"
+    }
+  },
   "exitConfirm": {
     "title": "Avsluta",
     "message": "Vill du lämna spelet och gå tillbaka till startsidan?",

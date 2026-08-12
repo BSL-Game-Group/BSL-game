@@ -6,6 +6,10 @@ export const MAX_AGE_MS = 2 * 60 * 60 * 1000
 export const MAX_CLOCK_SKEW_MS = 5 * 60 * 1000
 export const THROTTLE_MS = 500
 
+// The server's own cap (routes/rounds.js MAX_ANSWERS). A hand-edited snapshot with
+// more than this would 400 the submit and cost the player every answer in it.
+export const MAX_ROUND_ANSWERS = 100
+
 const WORLD_WIDTH = 1280
 const WORLD_HEIGHT = 720
 const SPAWN_X = 590
@@ -38,6 +42,10 @@ export function defaultSnapshot() {
       answerLevel: '',
       lectureWarning: false,
       airlockWarning: false,
+    },
+    round: {
+      openRoundId: null,
+      answers: [],
     },
   }
 }
@@ -91,6 +99,20 @@ function mergeSnapshot(base, partial) {
 
 function isNumber(value) {
   return typeof value === 'number' && Number.isFinite(value)
+}
+
+// The shape POST/PATCH /api/rounds accepts. One malformed entry rejects the whole
+// submit, so anything that does not fit is dropped rather than trusted — the same
+// bargain the soft fields below make.
+function isStoredAnswer(answer) {
+  return (
+    answer !== null &&
+    typeof answer === 'object' &&
+    Number.isInteger(answer.microbe_id) &&
+    Number.isInteger(answer.chosen_level) &&
+    Array.isArray(answer.chosen_equipment) &&
+    answer.chosen_equipment.every((item) => typeof item === 'string')
+  )
 }
 
 // Returns a normalized snapshot, or null when the stored value must be thrown
@@ -152,6 +174,23 @@ function validate(raw, now) {
       answerLevel: typeof raw.popups?.answerLevel === 'string' ? raw.popups.answerLevel : '',
       lectureWarning: raw.popups?.lectureWarning === true,
       airlockWarning: raw.popups?.airlockWarning === true,
+    },
+    round: {
+      openRoundId:
+        Number.isInteger(raw.round?.openRoundId) && raw.round.openRoundId > 0
+          ? raw.round.openRoundId
+          : null,
+      answers: Array.isArray(raw.round?.answers)
+        ? raw.round.answers
+            .filter(isStoredAnswer)
+            .slice(0, MAX_ROUND_ANSWERS)
+            .map((answer) => ({
+              microbe_id: answer.microbe_id,
+              chosen_level: answer.chosen_level,
+              chosen_equipment: answer.chosen_equipment,
+              correct: answer.correct === true,
+            }))
+        : [],
     },
   }
 }
@@ -216,9 +255,6 @@ export function patchSavedGameThrottled(partial, now = Date.now()) {
   return current
 }
 
-// Called every frame from MainScene.update(). Writing unconditionally would
-// re-stamp savedAt forever on an idle open tab, and a snapshot that never goes
-// stale can never expire — so an unchanged position is a no-op.
 export function savePlayerPosition(x, y, now = Date.now()) {
   const nextX = Math.round(x)
   const nextY = Math.round(y)

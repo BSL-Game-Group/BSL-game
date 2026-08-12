@@ -1,5 +1,3 @@
-// Same swallow-everything discipline as state/savedGame.js: storage that throws
-// means "not signed in", never a crashed game.
 export const AUTH_STORAGE_KEY = 'bsl-game.auth.v1'
 
 export function readStoredToken() {

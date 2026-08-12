@@ -86,12 +86,6 @@ describe('patch and load', () => {
   })
 })
 
-// A snapshot written straight to storage, bypassing patchSavedGame, so the test
-// controls exactly what load() has to defend against. It deliberately does NOT
-// call loadSavedGame() itself: load() rejects and DELETES an invalid snapshot, so
-// a load inside the helper would make the assertions below pass for the wrong
-// reason (empty key rather than rejected value). load() always re-reads storage,
-// so there is no stale in-memory copy to worry about.
 function seed(overrides = {}) {
   const snapshot = { ...defaultSnapshot(), savedAt: 1_000_000, ...overrides }
   localStorage.setItem(SAVED_GAME_KEY, JSON.stringify(snapshot))
@@ -199,8 +193,6 @@ describe('validation', () => {
   })
 
   test('a throwing localStorage never propagates', () => {
-    // jsdom's localStorage instance is not directly spyable, so mock the
-    // prototype method it delegates to (what Safari private mode would throw).
     const spy = jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new Error('SecurityError')
     })
@@ -281,11 +273,65 @@ describe('savePlayerPosition', () => {
     savePlayerPosition(120, 300, 1000)
     savePlayerPosition(121, 300, 2000)
 
-    // The second call lands inside the throttle window, so it is pending rather
-    // than written — flushing is what a page unload does.
     flushSavedGame()
 
     expect(storedSnapshot().savedAt).toBe(2000)
     expect(storedSnapshot().player).toEqual({ x: 121, y: 300 })
+  })
+})
+
+describe('the round in progress', () => {
+  test('a fresh snapshot has no answers and no open round', () => {
+    expect(defaultSnapshot().round).toEqual({ openRoundId: null, answers: [] })
+  })
+
+  test('answers and the open round id survive a round trip', () => {
+    const answers = [
+      { microbe_id: 3, chosen_level: 2, chosen_equipment: ['lab_coat'], correct: true },
+    ]
+
+    patchSavedGame({ round: { openRoundId: 42, answers } })
+
+    expect(loadSavedGame().round).toEqual({ openRoundId: 42, answers })
+  })
+
+  test('a malformed answer is dropped instead of poisoning the whole submit', () => {
+    const good = { microbe_id: 3, chosen_level: 2, chosen_equipment: [], correct: false }
+
+    window.localStorage.setItem(
+      SAVED_GAME_KEY,
+      JSON.stringify({
+        ...defaultSnapshot(),
+        savedAt: Date.now(),
+        round: {
+          openRoundId: 42,
+          answers: [good, { microbe_id: 'nope', chosen_level: 2, chosen_equipment: [] }],
+        },
+      })
+    )
+
+    expect(loadSavedGame().round.answers).toEqual([good])
+  })
+
+  test('a nonsense open round id degrades to no open round', () => {
+    window.localStorage.setItem(
+      SAVED_GAME_KEY,
+      JSON.stringify({
+        ...defaultSnapshot(),
+        savedAt: Date.now(),
+        round: { openRoundId: 'forty-two', answers: [] },
+      })
+    )
+
+    expect(loadSavedGame().round.openRoundId).toBeNull()
+  })
+
+  test('a snapshot written before this field existed still loads', () => {
+    const legacy = { ...defaultSnapshot(), savedAt: Date.now() }
+    delete legacy.round
+
+    window.localStorage.setItem(SAVED_GAME_KEY, JSON.stringify(legacy))
+
+    expect(loadSavedGame().round).toEqual({ openRoundId: null, answers: [] })
   })
 })
