@@ -15,7 +15,8 @@ export default class EquipmentManager {
             gloves_2: { scale: 0.085, offsetX: -1.5, offsetY: 14, depth: 13 },
             closable_lab_coat: { scale: 0.33, offsetX: -1, offsetY: 7, depth: 11 },
             pressurized_suit: { scale: 0.085, offsetX: 0, offsetY: 0, depth: 11 },
-            wow_helmet: { scale: 0.1, offsetX: -2, offsetY: -31, depth: 13 }
+            wow_helmet: { scale: 0.1, offsetX: -2, offsetY: -31, depth: 13 },
+            indoor_shoes: { scale: 0.105, offsetX: -2, offsetY: 39, depth: 13 }
         };
 
         this.sprites = {};
