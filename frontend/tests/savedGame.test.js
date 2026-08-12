@@ -30,6 +30,7 @@ describe('defaultSnapshot', () => {
       lectureVisited: false,
       materialsUnlocked: false,
       awaitingUndress: false,
+      ventilationConnected: false,
     })
     expect(snapshot.popups.answerLevel).toBe('')
   })

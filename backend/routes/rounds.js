@@ -10,12 +10,22 @@ const router = express.Router()
 const MAX_ANSWERS = 100
 const EMPTY_RULES = { required: [], anyOf: [], optional: [] }
 
+// round_answers.chosen_level is a Postgres INTEGER, so anything it cannot hold is a
+// bad request, not a wrong answer. A plain isFinite check admits 3.5 and 1e21, and
+// measured against the real column those fail in two different ways: bulkCreate
+// silently ROUNDS 3.5 to 4, storing an answer that re-scores to a different verdict
+// than the one already counted in the round's score, while 1e21 throws `integer out
+// of range` and becomes a 500. Rejecting both here is the only place either is
+// still cheap to catch.
+//
+// It measures `value`, never Number(value). Coercing first admitted null, false
+// and [] — all of them Number() 0, and 0 is storable — so a request that named no
+// level at all was answered 201 and recorded at level 0. A level arrives as a
+// number, the same way microbe_id below always has.
 const INT32_MAX = 2147483647
 
 function isStorableInteger(value) {
-  const asNumber = Number(value)
-
-  return Number.isInteger(asNumber) && Math.abs(asNumber) <= INT32_MAX
+  return Number.isInteger(value) && Math.abs(value) <= INT32_MAX
 }
 
 function isWellFormedAnswer(answer) {

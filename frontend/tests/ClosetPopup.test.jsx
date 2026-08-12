@@ -9,11 +9,17 @@ import { unequipAll } from '../src/components/ClosetPopup/ItemConfig'
 // HELPERS
 // -----------------------------
 // ClosetPopup is controlled now, so the test owns the state the real App owns.
-function Harness({ open, onClose, initialEquipped }) {
+function Harness({ open, onClose, initialEquipped, itemFilter }) {
   const [equipped, setEquipped] = useState(initialEquipped ?? unequipAll())
 
   return (
-    <ClosetPopup open={open} onClose={onClose} equipped={equipped} setEquipped={setEquipped} />
+    <ClosetPopup
+      open={open}
+      onClose={onClose}
+      equipped={equipped}
+      setEquipped={setEquipped}
+      itemFilter={itemFilter}
+    />
   )
 }
 
@@ -293,6 +299,29 @@ describe('ClosetPopup component', () => {
     renderPopup(true)
 
     expect(screen.getByAltText('base')).toBeInTheDocument()
+  })
+
+  // -----------------------------
+  // ITEM FILTER
+  // -----------------------------
+
+  test('itemFilter hides items it rejects from the inventory', () => {
+    render(
+      <Harness
+        open={true}
+        onClose={jest.fn()}
+        itemFilter={(id) => id !== 'glasses'}
+      />
+    )
+
+    expect(screen.queryByRole('button', { name: /^glasses$/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^sunglasses$/i })).toBeInTheDocument()
+  })
+
+  test('without itemFilter, every item stays available', () => {
+    renderPopup(true)
+
+    expect(screen.getByRole('button', { name: /^glasses$/i })).toBeInTheDocument()
   })
 
   // -----------------------------

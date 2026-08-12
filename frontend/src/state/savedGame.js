@@ -33,6 +33,7 @@ export function defaultSnapshot() {
       lectureVisited: false,
       materialsUnlocked: false,
       awaitingUndress: false,
+      ventilationConnected: false,
     },
     popups: {
       closet: false,
@@ -41,7 +42,6 @@ export function defaultSnapshot() {
       answer: false,
       answerLevel: '',
       lectureWarning: false,
-      airlockWarning: false,
     },
     round: {
       openRoundId: null,
@@ -165,6 +165,7 @@ function validate(raw, now) {
       lectureVisited: raw.progress?.lectureVisited === true,
       materialsUnlocked: raw.progress?.materialsUnlocked === true,
       awaitingUndress: raw.progress?.awaitingUndress === true,
+      ventilationConnected: raw.progress?.ventilationConnected === true,
     },
     popups: {
       closet: raw.popups?.closet === true,
@@ -173,7 +174,6 @@ function validate(raw, now) {
       answer: raw.popups?.answer === true,
       answerLevel: typeof raw.popups?.answerLevel === 'string' ? raw.popups.answerLevel : '',
       lectureWarning: raw.popups?.lectureWarning === true,
-      airlockWarning: raw.popups?.airlockWarning === true,
     },
     round: {
       openRoundId:

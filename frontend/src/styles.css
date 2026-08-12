@@ -47,8 +47,10 @@ body {
 /* Mobile responsive override */
 @media (max-width: 767px) {
   .game-wrapper-grid {
-    aspect-ratio: auto;
-    height: 300px;
+    /* Let it inherit the 16/9 aspect ratio from the base class */
+    aspect-ratio: 16 / 9;
+    height: auto;
+    border-radius: 8px; /* Optional: slightly smaller corners on mobile */
   }
 }
 
