@@ -16,7 +16,6 @@ import { PLAYER_CONFIG, DOORS_CONFIG } from '../config/constants';
 import { LectureInteraction } from '../interactions/LectureInteraction';
 import { ExitInteraction } from '../interactions/ExitInteraction';
 import { DressingRoomInteraction } from '../interactions/DressingRoomInteraction';
-import { AirlockInteraction } from '../interactions/AirlockInteraction';
 import { BslInteraction } from '../interactions/BslInteraction';
 import { InfoInteraction } from '../interactions/InfoInteraction';
 
@@ -71,7 +70,6 @@ class MainScene extends Phaser.Scene {
         this.pressEText = this.hintManager.pressEText;
         this.closetHint = this.hintManager.closetHint;
         this.undressHint = this.hintManager.undressHint;
-        this.airlockWashHint = this.hintManager.airlockWashHint;
         this.bslHint = this.hintManager.bslHint;
         this.doorHint = this.hintManager.doorHint;
         
@@ -85,7 +83,6 @@ class MainScene extends Phaser.Scene {
             openCloset: window.__translations?.openCloset ?? 'Open Closet',
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
-            airlockWash: window.__translations?.airlockWash ?? 'Press R or click to decontaminate'
         });
 
         this.doors = this.initializeDoors(this.player);
@@ -144,7 +141,6 @@ class MainScene extends Phaser.Scene {
             new LectureInteraction(this),
             new ExitInteraction(this),
             new DressingRoomInteraction(this),
-            new AirlockInteraction(this),
             new BslInteraction(this),
             new InfoInteraction(this)
         ];
@@ -248,6 +244,12 @@ class MainScene extends Phaser.Scene {
                 });
             });
 
+            // The BSL4 <-> airlock2 door (id 1) and the BSL3 airlock <-> BSL-3
+            // room door (id 2): both gate entry to their room on being closed
+            // before a microbe can be examined (see BslInteraction).
+            this.bsl4Door = doorInstances[1];
+            this.bsl3Door = doorInstances[2];
+
             return doorsGroup;
         }
 
@@ -255,11 +257,36 @@ class MainScene extends Phaser.Scene {
         const door = zone.parentDoor;
         this.doorHint.setVisible(true);
         this.doorHint.setPosition(door.x, door.y);
-        
-        if (this.keyE && Phaser.Input.Keyboard.JustDown(this.keyE) && 
-            !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey) {
-            door.tryToChangeDoorState();
+
+        if (!(this.keyE && Phaser.Input.Keyboard.JustDown(this.keyE) &&
+            !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey)) {
+            return;
         }
+
+        if (door === this.bsl4Door) {
+            this.handleBsl4DoorPress(door);
+            return;
+        }
+
+        door.tryToChangeDoorState();
+    }
+
+    // Entering BSL-4 is unrestricted — the suiting-up prompt fires once the
+    // player steps into the room itself (see BslInteraction). Leaving is the
+    // only gated direction: closing an open door is always allowed, but
+    // opening a closed one while still suited means stripping the suit first.
+    handleBsl4DoorPress(door) {
+        if (door.isOpen) {
+            door.tryToChangeDoorState();
+            return;
+        }
+
+        if (this.bsl4Occupied && window.__bsl4Suited) {
+            window.dispatchEvent(new Event('bsl4-undress-required'));
+            return;
+        }
+
+        door.tryToChangeDoorState();
     }
 }
 
