@@ -124,7 +124,3 @@ sequenceDiagram
     GameScene->>InventoryUI: Refresh inventory and character visuals
     InventoryUI-->>Player: Show equipped item feedback
 ```
-
-### Entity relationship diagrams
-
-### Class diagrams

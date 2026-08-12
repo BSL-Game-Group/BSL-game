@@ -6,7 +6,7 @@ The game has end-to-end tests made with Jest. Playwright and React testing libra
 
 ## Coverage
 
-GOAL coverage?
+Test coverage goal: 80%
 
 [![Overall Coverage](https://codecov.io/github/BSL-Game-Group/BSL-game/branch/main/graph/badge.svg?token=7AAAO14S1O)](https://codecov.io/github/BSL-Game-Group/BSL-game)
 [![Frontend Coverage](https://codecov.io/github/BSL-Game-Group/BSL-game/branch/main/graph/badge.svg?flag=frontend)](https://app.codecov.io/github/BSL-Game-Group/BSL-game/flags/frontend)
