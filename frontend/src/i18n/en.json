@@ -67,7 +67,15 @@
     "belongs": "{name} belongs to BSL-{level}."
   },
   "common": {
-    "close": "Close"
+    "close": "Close",
+    "loading": "Loading..."
+  },
+  "microbeInfoPopup": {
+    "title": "Microbe Information",
+    "commonName": "Common name",
+    "scientificName": "Scientific name",
+    "type": "Type",
+    "description": "Description"
   },
   "rooms": {
     "exit": "Exit",
@@ -95,6 +103,57 @@
     "pressE": "Press E",
     "exitPrompt": "Press E to exit",
     "washUp": "Press R or click to wash up"
+  },
+  "hud": {
+    "score": "Score: {score}",
+    "microbes": "Microbes: {count}"
+  },
+  "auth": {
+    "guest": "Playing as a guest",
+    "signedInAs": "Signed in as {username}",
+    "loginButton": "Log in",
+    "logoutButton": "Log out",
+    "cancel": "Cancel",
+    "usernameLabel": "Username",
+    "passwordLabel": "Password",
+    "submitLogin": "Log in",
+    "submitRegister": "Create account",
+    "switchToRegister": "No account yet? Create one",
+    "switchToLogin": "Already have an account? Log in",
+    "noRecovery": "There is no password recovery — write it down somewhere safe.",
+    "working": "Working…",
+    "errors": {
+      "username_invalid": "Username must be 3-32 characters: letters, numbers, _ or -.",
+      "password_too_short": "Password must be at least 8 characters.",
+      "username_taken": "That username is taken.",
+      "invalid_credentials": "Wrong username or password.",
+      "rate_limited": "Too many attempts for this username. Try again in 15 minutes.",
+      "network": "Could not reach the server. Try again."
+    },
+    "rounds": {
+      "title": "Your rounds",
+      "empty": "No rounds.",
+      "score": "Score",
+      "correct": "Correct",
+      "played": "Played",
+      "openButton": "My rounds"
+    },
+    "leaderboard": {
+      "title": "Leaderboard",
+      "empty": "No rounds played.",
+      "rank": "#",
+      "player": "Player",
+      "score": "Score",
+      "openButton": "Leaderboard"
+    },
+    "claim": {
+      "title": "Round finished",
+      "scoreLine": "You scored {score} out of {total}.",
+      "guestWarning": "This score only lives in this browser until you keep it.",
+      "keepScore": "Keep my score",
+      "savedToAccount": "Saved to your account.",
+      "roundsSaved": "Rounds saved to your account: {count}"
+    }
   },
   "exitConfirm": {
     "title": "Exit",

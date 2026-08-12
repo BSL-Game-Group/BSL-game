@@ -13,10 +13,6 @@ export const getBackendUrl = () => {
     return 'http://localhost:3001';
 };
 
-export const generateSessionId = () => {
-    return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-};
-
 export const notifyRoomEntry = async (roomKey) => {
     try {
         const sessionId = window.__gameData?.sessionId;

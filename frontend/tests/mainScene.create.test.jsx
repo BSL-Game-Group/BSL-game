@@ -53,12 +53,16 @@ import {
   defaultSnapshot,
   clearSavedGame,
 } from '../src/state/savedGame'
+import { resetSessionIdCache } from '../src/state/session'
 
-// create() now persists the session id, so without this a snapshot written by one
+// create() reads the session id, so without this a snapshot written by one
 // test would have the next test restoring a saved game it never asked for.
+// session.js caches the id in module state, which localStorage.clear() cannot
+// reach — reset it too or the first minted id leaks into every later test.
 beforeEach(() => {
   clearSavedGame()
   localStorage.clear()
+  resetSessionIdCache()
   window.__gameData = undefined
 })
 
@@ -299,7 +303,6 @@ function seedSavedGame(overrides = {}) {
   const snapshot = {
     ...defaultSnapshot(),
     savedAt: Date.now(),
-    sessionId: 'session_restored',
     ...overrides,
   }
   localStorage.setItem(SAVED_GAME_KEY, JSON.stringify(snapshot))
@@ -330,20 +333,22 @@ describe('restoring a saved game', () => {
     expect(scene.physics.add.sprite).toHaveBeenCalledWith(590, 150, 'player_base')
   })
 
-  test('adopts the saved session id instead of minting a new one', () => {
-    seedSavedGame({ sessionId: 'session_restored' })
+  test('adopts the stored session id instead of minting a new one', () => {
+    localStorage.setItem('bsl-game.session.v1', 'stored-session-id')
 
     const scene = createScene()
     scene.create()
 
-    expect(window.__gameData.sessionId).toBe('session_restored')
+    expect(window.__gameData.sessionId).toBe('stored-session-id')
   })
 
-  test('generates a session id when there is no saved game', () => {
+  test('mints a uuid session id when the browser has none', () => {
     const scene = createScene()
     scene.create()
 
-    expect(window.__gameData.sessionId).toMatch(/^session_/)
+    expect(window.__gameData.sessionId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    )
   })
 
   test('adopts the saved microbe without asking the API for a new one', () => {

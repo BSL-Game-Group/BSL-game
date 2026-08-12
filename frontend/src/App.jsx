@@ -1,18 +1,25 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 import Game from './Game.jsx'
 import ClosetPopup from './components/ClosetPopup/ClosetPopup'
-import SidebarPopup from './components/SidebarPopup'
-import Task from './components/Task.jsx'
+import MicrobeInfoPopup from './components/MicrobeInfoPopup'
 import AnswerPopup from './components/AnswerPopup/AnswerPopup'
+import LectureMaterialPopup from './components/LectureMaterialPopup'
 import HowToPlay from './components/HowToPlay'
 import InfoPopup from './components/InfoPopup/InfoPopup'
 import LanguageSelector from './components/LanguageSelector'
+import ScoreHud from './components/ScoreHud'
+import AuthStatus from './auth/AuthStatus'
+import EndPopup from './components/EndPopup'
+import YourRounds from './auth/YourRounds'
+import Leaderboard from './auth/Leaderboard'
 import { EventBus } from './game/EventBus'
 import { useTranslation } from './i18n/context'
 import { evaluateEquipmentRules, getEquipmentRulesForBslLevel } from './utils/equipmentRules'
 import { unequipAll } from './components/ClosetPopup/ItemConfig'
-import { loadSavedGame, patchSavedGame, flushSavedGame, clearSavedGame } from './state/savedGame'
+import { useAuth } from './auth/context'
+import roundsService from './services/rounds'
+import { loadSavedGame, patchSavedGame, flushSavedGame, clearSavedGame, MAX_ROUND_ANSWERS } from './state/savedGame'
 
 const initialEquipment = {
   mask: false,
@@ -29,6 +36,7 @@ const initialEquipment = {
 
 function App() {
   const { t, language } = useTranslation()
+  const { token } = useAuth()
 
   // Read once, before first paint: a valid snapshot means the game was already
   // started, so the start screen must never appear for a returning player.
@@ -37,16 +45,14 @@ function App() {
   const [gameStarted, setGameStarted] = useState(restored !== null)
   const [lectureOpen, setLectureOpen] = useState(restored?.progress.lectureVisited ?? false)
   const [isPopupOpen, setPopupOpen] = useState(restored?.popups.closet ?? false)
-  const [isLecturePopupOpen, setLecturePopupOpen] = useState(
-    restored?.popups.lectureMaterials ?? false
-  )
-  const [materialsUnlocked, setMaterialsUnlocked] = useState(
-    restored?.progress.materialsUnlocked ?? false
+  const [LectureMaterialOpen, setLectureMaterialOpen] = useState(
+    restored?.popups.lectureMaterial ?? false
   )
   const [answerOpen, setAnswerOpen] = useState(restored?.popups.answer ?? false)
   const [answerLevel, setAnswerLevel] = useState(restored?.popups.answerLevel ?? '')
   const [currentMicrobe, setCurrentMicrobe] = useState(restored?.microbe ?? null)
   const [infoOpen, setInfoOpen] = useState(restored?.popups.info ?? false)
+  const [microbeInfoOpen, setMicrobeInfoOpen] = useState(restored?.popups.microbeInfo ?? false)
   const [lectureWarningOpen, setLectureWarningOpen] = useState(
     restored?.popups.lectureWarning ?? false
   );
@@ -69,6 +75,10 @@ function App() {
     restored?.progress.ventilationConnected ?? false
   )
 
+  const [roundAnswers, setRoundAnswers] = useState(restored?.round.answers ?? [])
+  const [openRoundId, setOpenRoundId] = useState(restored?.round.openRoundId ?? null)
+  const [roundResult, setRoundResult] = useState(null)
+
 
   // --- HOOKS (Preserved from original) ---
   useEffect(() => { fetch('/api/test') }, [])
@@ -78,22 +88,20 @@ function App() {
     return () => EventBus.off('current-microbe-updated', handleMicrobeUpdate)
   }, [])
   useEffect(() => {
+    const handler = () => setLectureWarningOpen(true);
+    window.addEventListener('lecture-required', handler);
+    return () => window.removeEventListener('lecture-required', handler);
+  }, [])
+  useEffect(() => {
     const handler = () => setLectureOpen(true)
     window.addEventListener('lecture-room-entered', handler)
     return () => window.removeEventListener('lecture-room-entered', handler)
   }, [])
-  useEffect(() => { window.__lectureOpen = lectureOpen }, [lectureOpen])
-  useEffect(() => {
-    const handler = () => setLectureWarningOpen(true);
-    window.addEventListener('lecture-required', handler);
-    return () => window.removeEventListener('lecture-required', handler);
-  }, []);
 
-  useEffect(() => {
-    const handleUnlock = () => setMaterialsUnlocked(true);
-    window.addEventListener('lecture-materials-unlocked', handleUnlock);
-    return () => window.removeEventListener('lecture-materials-unlocked', handleUnlock);
-  }, []);
+  // Phaser's BSL interactables gate on this (rooms.js + BslInteraction.js) and
+  // can't read React state, so the lecture visit has to be mirrored onto window.
+  useEffect(() => { window.__lectureOpen = lectureOpen }, [lectureOpen])
+
   useEffect(() => {
     const handleClosetClick = () => setPopupOpen(true)
     window.addEventListener('closet-popup-opened', handleClosetClick)
@@ -192,20 +200,22 @@ function App() {
     return () => window.removeEventListener('info-popup-opened', handleInfoOpen)
   }, [])
   useEffect(() => {
+    const handleMicrobeInfoOpen = () => setMicrobeInfoOpen(true)
+    window.addEventListener('microbe-info-popup-opened', handleMicrobeInfoOpen)
+    return () => window.removeEventListener('microbe-info-popup-opened', handleMicrobeInfoOpen)
+  }, [])
+  useEffect(() => {
+    const handleLectureMaterialOpen = () => setLectureMaterialOpen(true)
+    window.addEventListener('lecture-material-popup-opened', handleLectureMaterialOpen)
+    return () => window.removeEventListener('lecture-material-popup-opened', handleLectureMaterialOpen)
+  }, [])
+  useEffect(() => {
     const handleAnswerOpen = (e) => {
       setAnswerLevel(e?.detail?.level ?? '')
       setAnswerOpen(true)
     }
     window.addEventListener('answer-popup-opened', handleAnswerOpen)
     return () => window.removeEventListener('answer-popup-opened', handleAnswerOpen)
-  }, [])
-  useEffect(() => {
-    const handleExitOpen = () => {
-      setExitConfirmOpen(true)
-      window.dispatchEvent(new Event('popup-opened'))
-    }
-    window.addEventListener('exit-popup-opened', handleExitOpen)
-    return () => window.removeEventListener('exit-popup-opened', handleExitOpen)
   }, [])
   useEffect(() => {
     const translations = {
@@ -231,33 +241,38 @@ function App() {
       microbe: currentMicrobe,
       progress: {
         lectureVisited: lectureOpen,
-        materialsUnlocked,
         awaitingUndress,
         ventilationConnected,
       },
       popups: {
         closet: isPopupOpen,
-        lectureMaterials: isLecturePopupOpen,
+        lectureMaterial: LectureMaterialOpen,
         info: infoOpen,
+        microbeInfo: microbeInfoOpen,
         answer: answerOpen,
         answerLevel,
         lectureWarning: lectureWarningOpen,
+      },
+      round: {
+        openRoundId,
+        answers: roundAnswers,
       },
     })
   }, [
     gameStarted,
     equipped,
     currentMicrobe,
-    lectureOpen,
-    materialsUnlocked,
     awaitingUndress,
     ventilationConnected,
     isPopupOpen,
-    isLecturePopupOpen,
+    LectureMaterialOpen,
     infoOpen,
+    microbeInfoOpen,
     answerOpen,
     answerLevel,
     lectureWarningOpen,
+    openRoundId,
+    roundAnswers,
   ])
 
   // The scene's position writes are throttled, so make sure a pending one lands
@@ -274,10 +289,9 @@ function App() {
   const resetGameState = () => {
     clearSavedGame()
     setGameStarted(false)
-    setLectureOpen(false)
     setPopupOpen(false)
-    setLecturePopupOpen(false)
-    setMaterialsUnlocked(false)
+    setMicrobeInfoOpen(false)
+    setLectureMaterialOpen(false)
     setAnswerOpen(false)
     setAnswerLevel('')
     setCurrentMicrobe(null)
@@ -287,6 +301,9 @@ function App() {
     setAwaitingUndress(false)
     setVentilationConnected(false)
     setExitConfirmOpen(false)
+    setRoundAnswers([])
+    setOpenRoundId(null)
+    setRoundResult(null)
     setBsl4NotReadyOpen(false)
     setBsl4GearOpen(false)
     setBslDoorRequiredOpen(false)
@@ -302,14 +319,59 @@ function App() {
   const isEquipmentCorrect = evaluateEquipmentRules(equipmentRules, chosenEquipment)
   const isCorrect = isLevelCorrect && isEquipmentCorrect
 
+  const roundScore = roundAnswers.filter((answer) => answer.correct).length
+
   // Handling a microbe always requires a trip to the dressing room's wash-up
   // spot afterward — whether or not any PPE was actually worn — before the
   // next microbe is handed out.
   const handleAnswerClose = () => {
+    if (Number.isInteger(currentMicrobe?.id) && Number.isInteger(chosenLevel)) {
+      setRoundAnswers((answers) =>
+        answers.length >= MAX_ROUND_ANSWERS
+          ? answers
+          : [
+              ...answers,
+              {
+                microbe_id: currentMicrobe.id,
+                chosen_level: chosenLevel,
+                chosen_equipment: chosenEquipment,
+                correct: isCorrect,
+              },
+            ]
+      )
+    }
+
     setAnswerOpen(false)
     setAwaitingUndress(true)
     EventBus.emit('undress-required')
   }
+
+  const saveRoundSoFar = useCallback(async () => {
+    if (roundAnswers.length === 0) {
+      return
+    }
+
+    try {
+      const result = await roundsService.saveRound(roundAnswers, token, openRoundId)
+
+      setOpenRoundId(result.id)
+      setRoundResult(result)
+    } catch {
+      // A failed save must not keep the player at the door. The answers stay in
+      // the buffer and the next visit to the exit tries again.
+      setRoundResult(null)
+    }
+  }, [roundAnswers, token, openRoundId])
+
+  useEffect(() => {
+    const handleExitOpen = () => {
+      setExitConfirmOpen(true)
+      window.dispatchEvent(new Event('popup-opened'))
+      saveRoundSoFar()
+    }
+    window.addEventListener('exit-popup-opened', handleExitOpen)
+    return () => window.removeEventListener('exit-popup-opened', handleExitOpen)
+  }, [saveRoundSoFar])
 
   const handleExitCancel = () => {
     setExitConfirmOpen(false)
@@ -357,30 +419,7 @@ function App() {
       <Row className="h-100">
       {/* Use xs={12} to take full width on narrow windows, md={3} for side-by-side on desktop */}
       <Col xs={12} md={3} className="mb-3 mb-md-0">
-      <h1 className="app-title">{t('app.title')}</h1>
-      <LanguageSelector />
-                  {/* SIDEBAR */}
-          {lectureOpen && (
-            <Col lg={3} md={4} xs={12} className="mb-3 w-100">
-              <div
-                  className="lecture-panel"
-                  data-testid="lecture-panel"
-              >
-                <Task />
-                {materialsUnlocked && (
-                  <div className="d-flex flex-column align-items-start gap-1 mt-2">
-                    <h2 className="h5">{t('lecturePanel.title')}</h2>
-                    <button
-                      className="btn btn-sm btn-success"
-                      onClick={() => setLecturePopupOpen((open) => !open)}
-                    >
-                      {isLecturePopupOpen ? t('lecturePanel.hideButton') : t('lecturePanel.showButton')}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </Col>
-          )}
+        <h1 className="app-title">{t('app.title')}</h1>
       </Col>
 
       {!gameStarted ? (
@@ -406,6 +445,17 @@ function App() {
 
       </Row>
 
+      {gameStarted && <ScoreHud score={roundScore} answered={roundAnswers.length} />}
+
+      {/* HUD, top right. Pinned to the viewport rather than to a column, so the
+          full-screen refactor cannot displace it, and stacked so the auth panel
+          can grow downwards when its form opens. Unguarded, unlike the score:
+          signing in before the first round is what keeps it off the claim path. */}
+      <div className="position-fixed top-0 end-0 p-3 z-3 d-flex flex-column align-items-end gap-2">
+        <LanguageSelector />
+        <AuthStatus />
+      </div>
+
       {/* --- ALL POPUPS RENDERED AT ROOT LEVEL (Outside of the grid) --- */}
       <ClosetPopup
         open={isPopupOpen}
@@ -414,9 +464,14 @@ function App() {
         setEquipped={setEquipped}
         itemFilter={(id) => id !== 'pressurized_suit'}
       />
-      <SidebarPopup
-        open={isLecturePopupOpen}
-        onClose={() => setLecturePopupOpen(false)}
+      <MicrobeInfoPopup
+        open={microbeInfoOpen}
+        onClose={() => setMicrobeInfoOpen(false)}
+        microbe={currentMicrobe}
+      />
+      <LectureMaterialPopup
+        open={LectureMaterialOpen}
+        onClose={() => setLectureMaterialOpen(false)}
       />
       <InfoPopup
         open={infoOpen}
@@ -496,22 +551,14 @@ function App() {
           </div>
         </div>
       )}
-      {exitConfirmOpen && (
-        <div className="popup-overlay" role="dialog" aria-modal="true" aria-labelledby="exit-confirm-title">
-          <div className="popup-box popup-box--incorrect">
-            <h2 id="exit-confirm-title">{t('exitConfirm.title')}</h2>
-            <p>{t('exitConfirm.message')}</p>
-            <div className="d-flex gap-2 mt-3">
-              <button className="btn btn-outline-secondary" onClick={handleExitCancel}>
-                {t('exitConfirm.no')}
-              </button>
-              <button className="btn btn-danger" onClick={handleExitConfirm}>
-                {t('exitConfirm.yes')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EndPopup
+        open={exitConfirmOpen}
+        round={roundResult}
+        onKeepPlaying={handleExitCancel}
+        onExit={handleExitConfirm}
+      />
+      <YourRounds />
+      <Leaderboard />
     </Container>
   )
 }

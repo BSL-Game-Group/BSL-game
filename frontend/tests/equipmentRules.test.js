@@ -50,4 +50,16 @@ describe('evaluateEquipmentRules', () => {
     expect(evaluateEquipmentRules(rules, ['lab_coat', 'gloves', 'mask'])).toBe(true)
     expect(evaluateEquipmentRules(rules, ['lab_coat', 'gloves'])).toBe(false)
   })
+
+  test('BSL-1 requires a lab coat, glasses and gloves', () => {
+    expect(getEquipmentRulesForBslLevel(1)).toEqual({
+      required: ['lab_coat', 'glasses', 'gloves'],
+      anyOf: [],
+      optional: [],
+    })
+
+    expect(evaluateEquipmentRules(getEquipmentRulesForBslLevel(1), ['lab_coat', 'glasses'])).toBe(
+      false
+    )
+  })
 })

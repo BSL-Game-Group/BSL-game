@@ -42,8 +42,16 @@ class Game {
     return this.page.locator('#game-container canvas');
   }
 
-  get lecturePanel() {
-    return this.page.getByTestId('lecture-panel');
+  // The popups are plain overlay divs (no role="dialog"), so they're located by
+  // their heading — the same way the specs have always found the closet.
+  get infoPopup() {
+    return this.page.getByRole('heading', { name: /how to play/i });
+  }
+
+  get lectureMaterialPopup() {
+    return this.page.getByRole('heading', {
+      name: /BSL Game Material \(Biosafety Levels\)/i,
+    });
   }
 
   get closetPopup() {
@@ -71,6 +79,20 @@ class Game {
   async openCloset() {
     await this.page.evaluate(() => {
       window.dispatchEvent(new Event('closet-popup-opened'));
+    });
+  }
+
+  async enterLectureRoom() {
+    await this.page.evaluate(() => {
+      window.dispatchEvent(new Event('lecture-room-entered'));
+    });
+  }
+
+  // The same event the lecture room's material point dispatches on click
+  // (rooms.js, setupLectureMaterialButton).
+  async openLectureMaterial() {
+    await this.page.evaluate(() => {
+      window.dispatchEvent(new Event('lecture-material-popup-opened'));
     });
   }
 
