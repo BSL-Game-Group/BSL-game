@@ -73,6 +73,7 @@ function fakeSprite() {
     disableInteractive: jest.fn().mockReturnThis(),
     // Restoring saved PPE swaps the player's base texture.
     setTexture: jest.fn().mockReturnThis(),
+    setAngle: jest.fn().mockReturnThis(),
     body: {
       setSize: jest.fn(),
       setOffset: jest.fn(),
