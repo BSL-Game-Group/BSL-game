@@ -203,9 +203,6 @@ test('create shrinks the player collision body to the legs', () => {
 
   scene.create()
 
-  // Source-texture pixels, not world pixels — Phaser scales these by the
-  // sprite's 0.4 scale. base.png is 106x217 and the legs occupy rows
-  // 152-217, columns 22-78.
   expect(scene.player.body.setSize).toHaveBeenCalledWith(56, 65)
   expect(scene.player.body.setOffset).toHaveBeenCalledWith(22, 152)
 })
