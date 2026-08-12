@@ -50,9 +50,6 @@ function App() {
   const [lectureWarningOpen, setLectureWarningOpen] = useState(
     restored?.popups.lectureWarning ?? false
   );
-  const [airlockWashWarningOpen, setAirlockWashWarningOpen] = useState(
-    restored?.popups.airlockWarning ?? false
-  );
   // The single owner of worn PPE. Its shape comes from EQUIPMENT_CONFIG rather
   // than a hand-written literal, so it cannot drift from the real item list.
   const [equipped, setEquipped] = useState(restored?.equipped ?? unequipAll())
@@ -60,6 +57,17 @@ function App() {
     restored?.progress.awaitingUndress ?? false
   )
   const [exitConfirmOpen, setExitConfirmOpen] = useState(false)
+  // None of these are persisted, same as exitConfirmOpen — a reload should not
+  // leave the player stuck mid-dialog.
+  const [bsl4NotReadyOpen, setBsl4NotReadyOpen] = useState(false)
+  // One popup for both directions — its title/message/buttons are picked at
+  // render time from whether the suit is currently worn, so the same dialog
+  // serves "put it on" (entering) and "take it off" (leaving).
+  const [bsl4GearOpen, setBsl4GearOpen] = useState(false)
+  const [bslDoorRequiredOpen, setBslDoorRequiredOpen] = useState(false)
+  const [ventilationConnected, setVentilationConnected] = useState(
+    restored?.progress.ventilationConnected ?? false
+  )
 
 
   // --- HOOKS (Preserved from original) ---
@@ -81,18 +89,6 @@ function App() {
     return () => window.removeEventListener('lecture-required', handler);
   }, []);
 
-  // Soft reminder only — shown as soon as the player steps into airlock2
-  // (coming out of BSL4), nudging them to decon before continuing. It doesn't
-  // block movement or gate anything.
-  useEffect(() => {
-    const handler = () => setAirlockWashWarningOpen(true);
-
-    window.addEventListener('airlock-wash-reminder', handler);
-
-    return () =>
-      window.removeEventListener('airlock-wash-reminder', handler);
-  }, []);
-
   useEffect(() => {
     const handleUnlock = () => setMaterialsUnlocked(true);
     window.addEventListener('lecture-materials-unlocked', handleUnlock);
@@ -103,6 +99,12 @@ function App() {
     window.addEventListener('closet-popup-opened', handleClosetClick)
     return () => window.removeEventListener('closet-popup-opened', handleClosetClick)
   }, [])
+
+  // BSL4 needs the suit, gloves and a live ventilation hookup before the
+  // microbe can be handled — Phaser reads this global the same way it already
+  // reads window.__lectureOpen. Computed early: several effects below (the
+  // BSL4 door prompts) need it before they're declared.
+  const bsl4Ready = Boolean(equipped.pressurized_suit) && Boolean(equipped.gloves) && ventilationConnected
 
   // App owns the worn-PPE state, so it is also what tells Phaser to redraw the
   // character.
@@ -118,13 +120,71 @@ function App() {
     return () => window.removeEventListener('quick-undress', handler)
   }, [])
 
-  // The BSL4 airlock decon point resets worn PPE too, but on its own event —
-  // unlike quick-undress, it must NOT satisfy App's "go wash up at the
-  // dressing room" requirement, so it's kept separate from quick-undress.
+  // Phaser reads this to decide whether the BSL4 door's E-press means "let me
+  // in" or "let me out" once the player is already inside (handleBsl4DoorPress).
   useEffect(() => {
-    const handler = () => setEquipped(unequipAll())
-    window.addEventListener('airlock-decon', handler)
-    return () => window.removeEventListener('airlock-decon', handler)
+    window.__bsl4Suited = Boolean(equipped.pressurized_suit)
+  }, [equipped.pressurized_suit])
+
+  // Stepping into BSL-4 unsuited, or pressing the closed door back out while
+  // still suited, both open the same gear popup — put it on, or take it off.
+  useEffect(() => {
+    const handler = () => setBsl4GearOpen(true)
+    window.addEventListener('bsl4-suit-required', handler)
+    window.addEventListener('bsl4-undress-required', handler)
+    return () => {
+      window.removeEventListener('bsl4-suit-required', handler)
+      window.removeEventListener('bsl4-undress-required', handler)
+    }
+  }, [])
+
+  // Lock movement while the gear popup is up — otherwise the player can walk
+  // out of BSL-4 with the arrow keys while it's still open, mid-decision.
+  useEffect(() => {
+    window.dispatchEvent(new Event(bsl4GearOpen ? 'popup-opened' : 'popup-closed'))
+  }, [bsl4GearOpen])
+
+  // The suit cannot exist outside BSL-4 — Phaser fires this the instant the
+  // player's position leaves the room while still suited (normally prevented
+  // by the door, but this is the hard guarantee regardless of how they got out).
+  useEffect(() => {
+    const handler = () => {
+      setEquipped((prev) => ({ ...prev, pressurized_suit: false }))
+      setVentilationConnected(false)
+      setBsl4GearOpen(false)
+    }
+    window.addEventListener('bsl4-suit-forced-off', handler)
+    return () => window.removeEventListener('bsl4-suit-forced-off', handler)
+  }, [])
+
+  // Connecting requires the pressurized suit already worn; pressing the spot
+  // again always disconnects. Depends on `equipped` so the handler always
+  // sees the current suit state.
+  useEffect(() => {
+    const handler = () => {
+      setVentilationConnected((connected) => {
+        if (connected) {
+          return false
+        }
+        return Boolean(equipped.pressurized_suit)
+      })
+    }
+    window.addEventListener('ventilation-toggle-requested', handler)
+    return () => window.removeEventListener('ventilation-toggle-requested', handler)
+  }, [equipped])
+
+  useEffect(() => { window.__bsl4Ready = bsl4Ready }, [bsl4Ready])
+  useEffect(() => {
+    const handler = () => setBsl4NotReadyOpen(true)
+    window.addEventListener('bsl4-not-ready', handler)
+    return () => window.removeEventListener('bsl4-not-ready', handler)
+  }, [])
+  // BSL3's airlock door must be closed too before handling a microbe there —
+  // same idea as BSL4's door check, just without any suit/ventilation of its own.
+  useEffect(() => {
+    const handler = () => setBslDoorRequiredOpen(true)
+    window.addEventListener('bsl-door-required', handler)
+    return () => window.removeEventListener('bsl-door-required', handler)
   }, [])
   useEffect(() => {
     const handleInfoOpen = () => setInfoOpen(true)
@@ -154,7 +214,6 @@ function App() {
       pressE: t('phaser.pressE'),
       exitPrompt: t('phaser.exitPrompt'),
       washUp: t('phaser.washUp'),
-      airlockWash: t('phaser.airlockWash'),
     }
     window.__translations = translations
     EventBus.emit('translations-updated', translations)
@@ -174,6 +233,7 @@ function App() {
         lectureVisited: lectureOpen,
         materialsUnlocked,
         awaitingUndress,
+        ventilationConnected,
       },
       popups: {
         closet: isPopupOpen,
@@ -182,7 +242,6 @@ function App() {
         answer: answerOpen,
         answerLevel,
         lectureWarning: lectureWarningOpen,
-        airlockWarning: airlockWashWarningOpen,
       },
     })
   }, [
@@ -192,13 +251,13 @@ function App() {
     lectureOpen,
     materialsUnlocked,
     awaitingUndress,
+    ventilationConnected,
     isPopupOpen,
     isLecturePopupOpen,
     infoOpen,
     answerOpen,
     answerLevel,
     lectureWarningOpen,
-    airlockWashWarningOpen,
   ])
 
   // The scene's position writes are throttled, so make sure a pending one lands
@@ -224,10 +283,13 @@ function App() {
     setCurrentMicrobe(null)
     setInfoOpen(false)
     setLectureWarningOpen(false)
-    setAirlockWashWarningOpen(false)
     setEquipped(unequipAll())
     setAwaitingUndress(false)
+    setVentilationConnected(false)
     setExitConfirmOpen(false)
+    setBsl4NotReadyOpen(false)
+    setBsl4GearOpen(false)
+    setBslDoorRequiredOpen(false)
     window.dispatchEvent(new Event('popup-closed'))
   }
 
@@ -258,6 +320,27 @@ function App() {
     resetGameState()
   }
 
+  // Taking the suit off also unplugs the ventilation — same as walking away
+  // from it would mean physically. Note this does NOT hand out the next
+  // microbe: BSL4 still requires a separate trip to the dressing room's
+  // wash-up point afterward, same as everyone else.
+  const handleToggleSuit = () => {
+    if (equipped.pressurized_suit) {
+      setEquipped((prev) => ({ ...prev, pressurized_suit: false }))
+      setVentilationConnected(false)
+    } else {
+      setEquipped((prev) => ({ ...prev, pressurized_suit: true }))
+    }
+  }
+
+  const handleToggleGloves = () => {
+    setEquipped((prev) => ({ ...prev, gloves: !prev.gloves }))
+  }
+
+  const handleToggleVentilation = () => {
+    window.dispatchEvent(new Event('ventilation-toggle-requested'))
+  }
+
   useEffect(() => {
     const handleWashUp = () => {
       if (awaitingUndress) {
@@ -272,7 +355,8 @@ function App() {
   return (
     <Container fluid className="h-100">
       <Row className="h-100">
-      <Col xs={3}>
+      {/* Use xs={12} to take full width on narrow windows, md={3} for side-by-side on desktop */}
+      <Col xs={12} md={3} className="mb-3 mb-md-0">
       <h1 className="app-title">{t('app.title')}</h1>
       <LanguageSelector />
                   {/* SIDEBAR */}
@@ -311,7 +395,7 @@ function App() {
           <HowToPlay />
         </div>
       ) : (
-          <Col xs={9} className="h-100">
+          <Col xs={12} md={9} className="h-100">
             {/* MAIN GAME */}
             <div className="game-wrapper-grid">
               {/* Only the game itself lives in the grid */}
@@ -328,6 +412,7 @@ function App() {
         onClose={() => setPopupOpen(false)}
         equipped={equipped}
         setEquipped={setEquipped}
+        itemFilter={(id) => id !== 'pressurized_suit'}
       />
       <SidebarPopup
         open={isLecturePopupOpen}
@@ -359,14 +444,55 @@ function App() {
           </div>
         </div>
       )}
-      {airlockWashWarningOpen && (
+      {bsl4NotReadyOpen && (
         <div className="popup-overlay">
           <div className="popup-box popup-box--incorrect">
-            <button className="popup-close-button" onClick={() => setAirlockWashWarningOpen(false)}>
+            <button className="popup-close-button" onClick={() => setBsl4NotReadyOpen(false)}>
               {t('common.close')}
             </button>
-            <h2>{t('airlockWashRequired.title')}</h2>
-            <p>{t('airlockWashRequired.message')}</p>
+            <h2>{t('bsl4NotReady.title')}</h2>
+            <p>{t('bsl4NotReady.message')}</p>
+          </div>
+        </div>
+      )}
+      {bslDoorRequiredOpen && (
+        <div className="popup-overlay">
+          <div className="popup-box popup-box--incorrect">
+            <button className="popup-close-button" onClick={() => setBslDoorRequiredOpen(false)}>
+              {t('common.close')}
+            </button>
+            <h2>{t('bslDoorRequired.title')}</h2>
+            <p>{t('bslDoorRequired.message')}</p>
+          </div>
+        </div>
+      )}
+      {bsl4GearOpen && (
+        <div className="popup-overlay">
+          <div className="popup-box popup-box--incorrect">
+            <button className="popup-close-button" onClick={() => setBsl4GearOpen(false)}>
+              {t('common.close')}
+            </button>
+            <h2>
+              {equipped.pressurized_suit ? t('bsl4UndressRequired.title') : t('bsl4SuitRequired.title')}
+            </h2>
+            <p>
+              {equipped.pressurized_suit ? t('bsl4UndressRequired.message') : t('bsl4SuitRequired.message')}
+            </p>
+            <div className="d-flex gap-2 mt-3">
+              <button className="btn btn-success" onClick={handleToggleSuit}>
+                {equipped.pressurized_suit ? t('bsl4Gear.removeSuitButton') : t('bsl4Gear.wearSuitButton')}
+              </button>
+              <button className="btn btn-success" onClick={handleToggleGloves}>
+                {equipped.gloves ? t('bsl4Gear.removeGlovesButton') : t('bsl4Gear.wearGlovesButton')}
+              </button>
+              {equipped.pressurized_suit && equipped.gloves && (
+                <button className="btn btn-success" onClick={handleToggleVentilation}>
+                  {ventilationConnected
+                    ? t('bsl4Gear.disconnectVentilationButton')
+                    : t('bsl4Gear.connectVentilationButton')}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
