@@ -4,11 +4,14 @@ import { createRoot } from 'react-dom/client'
 import './styles.css'
 import App from './App.jsx'
 import { TranslationProvider } from './i18n/index.jsx'
+import { AuthProvider } from './auth/provider'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <TranslationProvider>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </TranslationProvider>
   </StrictMode>,
 )

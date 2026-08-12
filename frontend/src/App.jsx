@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 import Game from './Game.jsx'
 import ClosetPopup from './components/ClosetPopup/ClosetPopup'
@@ -8,11 +8,18 @@ import AnswerPopup from './components/AnswerPopup/AnswerPopup'
 import HowToPlay from './components/HowToPlay'
 import InfoPopup from './components/InfoPopup/InfoPopup'
 import LanguageSelector from './components/LanguageSelector'
+import ScoreHud from './components/ScoreHud'
+import AuthStatus from './auth/AuthStatus'
+import EndPopup from './components/EndPopup'
+import YourRounds from './auth/YourRounds'
+import Leaderboard from './auth/Leaderboard'
 import { EventBus } from './game/EventBus'
 import { useTranslation } from './i18n/context'
 import { evaluateEquipmentRules, getEquipmentRulesForBslLevel } from './utils/equipmentRules'
 import { unequipAll } from './components/ClosetPopup/ItemConfig'
-import { loadSavedGame, patchSavedGame, flushSavedGame, clearSavedGame } from './state/savedGame'
+import { useAuth } from './auth/context'
+import roundsService from './services/rounds'
+import { loadSavedGame, patchSavedGame, flushSavedGame, clearSavedGame, MAX_ROUND_ANSWERS } from './state/savedGame'
 
 const initialEquipment = {
   mask: false,
@@ -29,6 +36,7 @@ const initialEquipment = {
 
 function App() {
   const { t, language } = useTranslation()
+  const { token } = useAuth()
 
   // Read once, before first paint: a valid snapshot means the game was already
   // started, so the start screen must never appear for a returning player.
@@ -68,6 +76,10 @@ function App() {
   const [ventilationConnected, setVentilationConnected] = useState(
     restored?.progress.ventilationConnected ?? false
   )
+
+  const [roundAnswers, setRoundAnswers] = useState(restored?.round.answers ?? [])
+  const [openRoundId, setOpenRoundId] = useState(restored?.round.openRoundId ?? null)
+  const [roundResult, setRoundResult] = useState(null)
 
 
   // --- HOOKS (Preserved from original) ---
@@ -200,14 +212,6 @@ function App() {
     return () => window.removeEventListener('answer-popup-opened', handleAnswerOpen)
   }, [])
   useEffect(() => {
-    const handleExitOpen = () => {
-      setExitConfirmOpen(true)
-      window.dispatchEvent(new Event('popup-opened'))
-    }
-    window.addEventListener('exit-popup-opened', handleExitOpen)
-    return () => window.removeEventListener('exit-popup-opened', handleExitOpen)
-  }, [])
-  useEffect(() => {
     const translations = {
       pressEToOpen: t('phaser.pressEToOpen'),
       openCloset: t('phaser.openCloset'),
@@ -243,6 +247,10 @@ function App() {
         answerLevel,
         lectureWarning: lectureWarningOpen,
       },
+      round: {
+        openRoundId,
+        answers: roundAnswers,
+      },
     })
   }, [
     gameStarted,
@@ -258,6 +266,8 @@ function App() {
     answerOpen,
     answerLevel,
     lectureWarningOpen,
+    openRoundId,
+    roundAnswers,
   ])
 
   // The scene's position writes are throttled, so make sure a pending one lands
@@ -287,6 +297,9 @@ function App() {
     setAwaitingUndress(false)
     setVentilationConnected(false)
     setExitConfirmOpen(false)
+    setRoundAnswers([])
+    setOpenRoundId(null)
+    setRoundResult(null)
     setBsl4NotReadyOpen(false)
     setBsl4GearOpen(false)
     setBslDoorRequiredOpen(false)
@@ -302,14 +315,59 @@ function App() {
   const isEquipmentCorrect = evaluateEquipmentRules(equipmentRules, chosenEquipment)
   const isCorrect = isLevelCorrect && isEquipmentCorrect
 
+  const roundScore = roundAnswers.filter((answer) => answer.correct).length
+
   // Handling a microbe always requires a trip to the dressing room's wash-up
   // spot afterward — whether or not any PPE was actually worn — before the
   // next microbe is handed out.
   const handleAnswerClose = () => {
+    if (Number.isInteger(currentMicrobe?.id) && Number.isInteger(chosenLevel)) {
+      setRoundAnswers((answers) =>
+        answers.length >= MAX_ROUND_ANSWERS
+          ? answers
+          : [
+              ...answers,
+              {
+                microbe_id: currentMicrobe.id,
+                chosen_level: chosenLevel,
+                chosen_equipment: chosenEquipment,
+                correct: isCorrect,
+              },
+            ]
+      )
+    }
+
     setAnswerOpen(false)
     setAwaitingUndress(true)
     EventBus.emit('undress-required')
   }
+
+  const saveRoundSoFar = useCallback(async () => {
+    if (roundAnswers.length === 0) {
+      return
+    }
+
+    try {
+      const result = await roundsService.saveRound(roundAnswers, token, openRoundId)
+
+      setOpenRoundId(result.id)
+      setRoundResult(result)
+    } catch {
+      // A failed save must not keep the player at the door. The answers stay in
+      // the buffer and the next visit to the exit tries again.
+      setRoundResult(null)
+    }
+  }, [roundAnswers, token, openRoundId])
+
+  useEffect(() => {
+    const handleExitOpen = () => {
+      setExitConfirmOpen(true)
+      window.dispatchEvent(new Event('popup-opened'))
+      saveRoundSoFar()
+    }
+    window.addEventListener('exit-popup-opened', handleExitOpen)
+    return () => window.removeEventListener('exit-popup-opened', handleExitOpen)
+  }, [saveRoundSoFar])
 
   const handleExitCancel = () => {
     setExitConfirmOpen(false)
@@ -358,7 +416,6 @@ function App() {
       {/* Use xs={12} to take full width on narrow windows, md={3} for side-by-side on desktop */}
       <Col xs={12} md={3} className="mb-3 mb-md-0">
       <h1 className="app-title">{t('app.title')}</h1>
-      <LanguageSelector />
                   {/* SIDEBAR */}
           {lectureOpen && (
             <Col lg={3} md={4} xs={12} className="mb-3 w-100">
@@ -405,6 +462,17 @@ function App() {
       )}
 
       </Row>
+
+      {gameStarted && <ScoreHud score={roundScore} answered={roundAnswers.length} />}
+
+      {/* HUD, top right. Pinned to the viewport rather than to a column, so the
+          full-screen refactor cannot displace it, and stacked so the auth panel
+          can grow downwards when its form opens. Unguarded, unlike the score:
+          signing in before the first round is what keeps it off the claim path. */}
+      <div className="position-fixed top-0 end-0 p-3 z-3 d-flex flex-column align-items-end gap-2">
+        <LanguageSelector />
+        <AuthStatus />
+      </div>
 
       {/* --- ALL POPUPS RENDERED AT ROOT LEVEL (Outside of the grid) --- */}
       <ClosetPopup
@@ -496,22 +564,14 @@ function App() {
           </div>
         </div>
       )}
-      {exitConfirmOpen && (
-        <div className="popup-overlay" role="dialog" aria-modal="true" aria-labelledby="exit-confirm-title">
-          <div className="popup-box popup-box--incorrect">
-            <h2 id="exit-confirm-title">{t('exitConfirm.title')}</h2>
-            <p>{t('exitConfirm.message')}</p>
-            <div className="d-flex gap-2 mt-3">
-              <button className="btn btn-outline-secondary" onClick={handleExitCancel}>
-                {t('exitConfirm.no')}
-              </button>
-              <button className="btn btn-danger" onClick={handleExitConfirm}>
-                {t('exitConfirm.yes')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EndPopup
+        open={exitConfirmOpen}
+        round={roundResult}
+        onKeepPlaying={handleExitCancel}
+        onExit={handleExitConfirm}
+      />
+      <YourRounds />
+      <Leaderboard />
     </Container>
   )
 }
