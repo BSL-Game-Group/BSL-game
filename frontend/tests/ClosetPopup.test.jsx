@@ -283,7 +283,7 @@ describe('ClosetPopup component', () => {
     const { container } = renderPopup(true)
 
     const labels = [...container.querySelectorAll('.gear-tab')].map((el) => el.textContent)
-    expect(labels).toEqual(['Eyewear', 'Masks', 'Body', 'Gloves'])
+    expect(labels).toEqual(['Eyewear', 'Masks', 'Body', 'Gloves', 'Footwear'])
   })
 
   test('Gloves tab shows the gloves item', () => {
@@ -293,6 +293,15 @@ describe('ClosetPopup component', () => {
     // Items are exposed as buttons named via aria-label (the image is decorative),
     // so the glove items appear as buttons alongside the "Gloves" tab.
     expect(screen.getByRole('button', { name: /^gloves 2$/i })).toBeInTheDocument()
+  })
+
+  test('Footwear tab shows both footwear items', () => {
+    renderPopup(true)
+
+    fireEvent.click(screen.getByRole('button', { name: /^footwear$/i }))
+
+    expect(screen.getByRole('button', { name: /^indoor shoes$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^disposable foot covers$/i })).toBeInTheDocument()
   })
 
   test('renders base character image', () => {

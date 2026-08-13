@@ -34,18 +34,18 @@ test.describe('reloading the page', () => {
     ).toBeVisible();
   });
 
-  test('keeps the lecture panel open across a reload', async ({ game, page }) => {
+  // Guards the snapshot key round-trip: App has to write the popup under the
+  // same key loadSavedGame() hands back, or the popup quietly fails to reopen.
+  test('keeps the lecture material popup open across a reload', async ({ game, page }) => {
     await game.start();
-    await page.evaluate(() => {
-      window.dispatchEvent(new Event('lecture-room-entered'));
-    });
-    await expect(game.lecturePanel).toBeVisible();
+    await game.openLectureMaterial();
+    await expect(game.lectureMaterialPopup).toBeVisible();
     await game.waitForSceneReady();
 
     await page.reload();
     await page.waitForLoadState('networkidle');
 
-    await expect(game.lecturePanel).toBeVisible();
+    await expect(game.lectureMaterialPopup).toBeVisible();
   });
 
   // Cmd+R / Ctrl+R reloads the page, and Phaser reports the bare "R" regardless
@@ -70,7 +70,7 @@ test.describe('reloading the page', () => {
           microbe: null,
           progress: { lectureVisited: true, materialsUnlocked: false, awaitingUndress: false },
           popups: {
-            closet: false, lectureMaterials: false, info: false, answer: false,
+            closet: false, lectureMaterial: false, info: false, answer: false,
             answerLevel: '', lectureWarning: false, airlockWarning: false,
           },
         })

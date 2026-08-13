@@ -5,28 +5,31 @@ test.describe('Game Flow and Validation', () => {
   test('displays feedback on incorrect answer', async ({ game, page }) => {
     await game.start();
     await page.waitForLoadState('networkidle');
-    
-    // Open the answer popup via event
+
+    // No microbe has been handed out, so BSL-2 cannot be the right room and the
+    // verdict has to come out negative — asserting the exact wording, since a
+    // regex matching both verdicts would pass no matter what the popup says.
     await game.openAnswerPopup();
 
-    // Wait for the answer popup dialog to appear
     await expect(game.answerPopup).toBeVisible();
-    
-    // Verify the popup contains either correct or incorrect feedback
-    const answerContent = await game.answerPopup.textContent();
-    expect(answerContent).toMatch(/Correct|Incorrect|Not quite/i);
+    await expect(game.answerPopup).toContainText(/not quite/i);
   });
 
-  test('validates equipment before allowing entry', async ({ game, page }) => {
+  test('visiting the lecture room unlocks the BSL rooms', async ({ game, page }) => {
     await game.start();
     await page.waitForLoadState('networkidle');
 
-    // Open the lecture room to trigger equipment validation flow
-    await game.page.evaluate(() => {
-      window.dispatchEvent(new Event('lecture-room-entered'));
-    });
+    // Phaser's BSL interactables can't read React state, so App mirrors the
+    // lecture visit onto window.__lectureOpen. Until it flips, every BSL room
+    // answers a click with "visit the lecture first" instead of the answer popup.
+    await expect(
+      page.evaluate(() => (window as unknown as { __lectureOpen?: boolean }).__lectureOpen)
+    ).resolves.toBe(false);
 
-    // Verify the lecture panel appears
-    await expect(game.lecturePanel).toBeVisible();
+    await game.enterLectureRoom();
+
+    await page.waitForFunction(
+      () => (window as unknown as { __lectureOpen?: boolean }).__lectureOpen === true
+    );
   });
 });

@@ -2,6 +2,8 @@ import { render, screen, fireEvent, act } from './test-utils'
 import '@testing-library/jest-dom'
 import App from '../src/App'
 import { TranslationProvider } from '../src/i18n'
+import { AuthProvider } from '../src/auth/provider'
+import roundsService from '../src/services/rounds'
 import { EventBus } from '../src/game/EventBus'
 import { unequipAll } from '../src/components/ClosetPopup/ItemConfig'
 import {
@@ -16,6 +18,7 @@ import {
 beforeEach(() => {
   clearSavedGame()
   localStorage.clear()
+  jest.clearAllMocks()
 })
 
 // -----------------------------
@@ -57,6 +60,29 @@ jest.mock('../src/components/ClosetPopup/ClosetPopup', () => (props) => {
 
 jest.mock('../game/main', () => jest.fn(() => ({ destroy: jest.fn() })))
 
+jest.mock('../src/services/auth', () => ({
+  __esModule: true,
+  default: {
+    register: jest.fn(),
+    login: jest.fn(),
+    me: jest.fn(() => Promise.reject(new Error('no token in these tests'))),
+  },
+  AuthError: class AuthError extends Error {},
+}))
+
+jest.mock('../src/services/rounds', () => ({
+  __esModule: true,
+  default: {
+    submitRound: jest.fn(),
+    updateRound: jest.fn(),
+    saveRound: jest.fn(() =>
+      Promise.resolve({ id: 1, score: 0, correct_count: 0, answer_count: 1, owned: false })
+    ),
+    getMyRounds: jest.fn(() => Promise.resolve([])),
+    getLeaderboard: jest.fn(() => Promise.resolve([])),
+  },
+}))
+
 jest.mock('../src/services/bslMaterial', () => ({
   getMaterial: jest.fn(() => Promise.resolve({
     intro: { heading: 'International development', paragraphs: [] },
@@ -92,7 +118,9 @@ jest.mock('../src/game/EventBus', () => {
 function renderApp() {
   return render(
     <TranslationProvider>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </TranslationProvider>
   )
 }
@@ -116,8 +144,29 @@ function unlockLectureMaterials() {
   })
 }
 
+function openLectureMaterialPopup() {
+  unlockLectureMaterials()
+  act(() => {
+    window.dispatchEvent(new Event('lecture-material-popup-opened'))
+  })
+}
+
+function openMicrobeInfoPopup() {
+  unlockLectureMaterials()
+  act(() => {
+    window.dispatchEvent(new Event('microbe-info-popup-opened'))
+  })
+}
+
 function openCloset() {
   startGame()
+
+  act(() => {
+    window.dispatchEvent(new Event('closet-popup-opened'))
+  })
+}
+
+function triggerClosetPopup() {
   act(() => {
     window.dispatchEvent(new Event('closet-popup-opened'))
   })
@@ -208,40 +257,95 @@ describe('Start-screen instructions', () => {
 })
 
 // -----------------------------
-// LECTURE PANEL TESTS
+// LECTURE ROOM TESTS
 // -----------------------------
-test('lecture panel is hidden before entering lecture room', () => {
-  enterLectureRoom()
 
-  expect(screen.getByTestId('lecture-panel')).toBeVisible()
+test('lecture material popup is closed initially', () => {
+  startGame()
+
+  expect(
+    screen.queryByRole('heading', {
+      name: /BSL Game Material \(Biosafety Levels\)/i,
+    })
+  ).not.toBeInTheDocument()
 })
 
-test('lecture-room-entered event shows lecture panel', () => {
-  enterLectureRoom()
+// 'lecture-material-popup-opened' is the exact event the lecture room's material
+// point dispatches (see rooms.test.jsx, 'clicking the lecture-material point
+// opens the lecture material popup'). Both sides assert the same literal, so
+// renaming one alone fails the other instead of silently killing the button.
+test('lecture-material-popup-opened opens the lecture material popup and loads material', async () => {
+  openLectureMaterialPopup()
 
-  expect(screen.getByTestId('lecture-panel')).toBeVisible()
+  expect(
+    await screen.findByRole('heading', {
+      name: /BSL Game Material \(Biosafety Levels\)/i,
+    })
+  ).toBeInTheDocument()
+
+  expect(
+    await screen.findByText(/International development/i)
+  ).toBeInTheDocument()
 })
 
-test('lecture materials section is hidden until unlocked at the info point', () => {
-  enterLectureRoom()
+test('the lecture material popup closes via its close button', async () => {
+  openLectureMaterialPopup()
 
-  expect(screen.queryByRole('heading', { name: /lecture materials/i })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: /show/i })).not.toBeInTheDocument()
+  const heading = await screen.findByRole('heading', {
+    name: /BSL Game Material \(Biosafety Levels\)/i,
+  })
+  expect(heading).toBeInTheDocument()
+
+  fireEvent.click(screen.getByRole('button', { name: /close/i }))
+
+  expect(
+    screen.queryByRole('heading', {
+      name: /BSL Game Material \(Biosafety Levels\)/i,
+    })
+  ).not.toBeInTheDocument()
 })
 
-test('lecture-materials-unlocked event reveals the Lecture Materials section', () => {
-  unlockLectureMaterials()
+// Phaser's BSL interactables gate on window.__lectureOpen (rooms.js/BslInteraction),
+// so App has to mirror the visit onto window — without it every BSL room answers
+// with "visit the lecture first" and the answer popup can never open.
+test('entering the lecture room mirrors the visit onto window.__lectureOpen', () => {
+  startGame()
 
-  expect(screen.getByRole('heading', { name: /lecture materials/i })).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: /show/i })).toBeInTheDocument()
+  expect(window.__lectureOpen).toBe(false)
+
+  act(() => {
+    window.dispatchEvent(new Event('lecture-room-entered'))
+  })
+
+  expect(window.__lectureOpen).toBe(true)
+
+  delete window.__lectureOpen
 })
 
-test('clicking the show button opens the lecture materials popup', async () => {
-  unlockLectureMaterials()
+test('microbe info popup opens when the microbe info event is fired and a current microbe exists', async () => {
+  startGame()
 
-  fireEvent.click(screen.getByRole('button', { name: /show/i }))
+  const microbe = {
+    common_name: 'E. coli',
+    scientific_name: 'Escherichia coli',
+    type: 'Bacterium',
+    lecture_text: 'Common gut bacterium',
+  }
 
-  expect(await screen.findByRole('heading', { name: /BSL Game Material \(Biosafety Levels\)/i })).toBeInTheDocument()
+  act(() => {
+    EventBus.emit('current-microbe-updated', microbe)
+    window.dispatchEvent(new Event('microbe-info-popup-opened'))
+  })
+
+  expect(
+    await screen.findByRole('heading', {
+      name: /microbe information/i,
+    })
+  ).toBeInTheDocument()
+
+  expect(
+    screen.getByText(/Escherichia coli/i)
+  ).toBeInTheDocument()
 })
 
 // -----------------------------
@@ -687,7 +791,6 @@ function seedSavedGame(overrides = {}) {
   const snapshot = {
     ...defaultSnapshot(),
     savedAt: Date.now(),
-    sessionId: 'session_restored',
     ...overrides,
   }
   localStorage.setItem(SAVED_GAME_KEY, JSON.stringify(snapshot))
@@ -712,17 +815,18 @@ describe('restoring a saved game', () => {
     expect(screen.getByRole('button', { name: /start game/i })).toBeInTheDocument()
   })
 
-  test('restores the lecture panel and unlocked materials', () => {
-    seedSavedGame({
-      progress: { lectureVisited: true, materialsUnlocked: true, awaitingUndress: false },
-    })
-
-    renderApp()
-
-    expect(screen.getByTestId('lecture-panel')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /lecture materials/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /show/i })).toBeInTheDocument()
+  test('restores saved game without showing a lecture panel', () => {
+  seedSavedGame({
+    progress: {
+      lectureVisited: true,
+      awaitingUndress: false,
+    },
   })
+
+  renderApp()
+
+  expect(screen.queryByTestId('lecture-panel')).not.toBeInTheDocument()
+})
 
   test('reopens the closet popup that was open before the reload', () => {
     seedSavedGame({ popups: { ...defaultSnapshot().popups, closet: true } })
@@ -764,6 +868,20 @@ describe('restoring a saved game', () => {
       screen.getByText(/your protective equipment did not fully match the required setup/i)
     ).toBeInTheDocument()
   })
+
+  test('restores an open lecture material popup', async () => {
+    seedSavedGame({
+      popups: { ...defaultSnapshot().popups, lectureMaterial: true },
+    })
+
+    renderApp()
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /BSL Game Material \(Biosafety Levels\)/i,
+      })
+    ).toBeInTheDocument()
+  })
 })
 
 describe('saving state', () => {
@@ -778,24 +896,200 @@ describe('saving state', () => {
 
     expect(loadSavedGame()).not.toBeNull()
   })
+  
+  test('microbe info popup state is persisted', () => {
+    startGame()
 
-  test('progress changes are persisted', () => {
-    unlockLectureMaterials()
+    act(() => {
+      window.dispatchEvent(new Event('microbe-info-popup-opened'))
+    })
 
-    expect(loadSavedGame().progress.materialsUnlocked).toBe(true)
+    expect(loadSavedGame().popups.microbeInfo).toBe(true)
+  })
+
+  // The key App writes has to be the key loadSavedGame() gives back, or the
+  // popup silently fails to reopen after a reload.
+  test('lecture material popup state is persisted', async () => {
+    openLectureMaterialPopup()
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /BSL Game Material \(Biosafety Levels\)/i,
+      })
+    ).toBeInTheDocument()
+
+    expect(loadSavedGame().popups.lectureMaterial).toBe(true)
   })
 
   test('an open popup is persisted', () => {
-    openCloset()
+  startGame()
 
-    expect(loadSavedGame().popups.closet).toBe(true)
+  triggerClosetPopup()
+
+  expect(loadSavedGame().popups.closet).toBe(true)
   })
 
   test('worn PPE is persisted', () => {
-    openCloset()
+  startGame()
 
-    fireEvent.click(screen.getByText('test-equip-mask'))
+  triggerClosetPopup()
 
-    expect(loadSavedGame().equipped.mask).toBe(true)
+  fireEvent.click(screen.getByText('test-equip-mask'))
+
+  expect(loadSavedGame().equipped.mask).toBe(true)
+})
+})
+
+// -----------------------------
+// ROUND TESTS
+// -----------------------------
+
+const identifiedMicrobe = { ...testMicrobe, id: 7 }
+
+function answerCurrentMicrobe(level = 'BSL-1', microbe = identifiedMicrobe) {
+  act(() => {
+    EventBus.emit('current-microbe-updated', microbe)
   })
+  act(() => {
+    window.dispatchEvent(new CustomEvent('answer-popup-opened', { detail: { level } }))
+  })
+  fireEvent.click(screen.getByRole('button', { name: /close/i }))
+}
+
+const reachExit = async () => {
+  await act(async () => {
+    window.dispatchEvent(new Event('exit-popup-opened'))
+  })
+}
+
+test('reaching the exit saves what the player has answered so far', async () => {
+  startGame()
+  answerCurrentMicrobe('BSL-1')
+
+  await reachExit()
+
+  expect(roundsService.saveRound).toHaveBeenCalledWith(
+    [{ microbe_id: 7, chosen_level: 1, chosen_equipment: [], correct: false }],
+    null,
+    null
+  )
+})
+
+test('a second visit to the exit updates the same round', async () => {
+  roundsService.saveRound.mockResolvedValue({
+    id: 42,
+    score: 0,
+    correct_count: 0,
+    answer_count: 1,
+    owned: false,
+  })
+  startGame()
+  answerCurrentMicrobe('BSL-1')
+
+  await reachExit()
+  fireEvent.click(screen.getByRole('button', { name: /no/i }))
+  await reachExit()
+
+  expect(roundsService.saveRound).toHaveBeenLastCalledWith(expect.anything(), null, 42)
+})
+
+test('the exit popup still opens when there is nothing to save', async () => {
+  startGame()
+
+  await reachExit()
+
+  expect(roundsService.saveRound).not.toHaveBeenCalled()
+  expect(screen.getByRole('button', { name: /yes/i })).toBeInTheDocument()
+})
+
+test('the answers and the open round are written to the snapshot', () => {
+  startGame()
+  answerCurrentMicrobe('BSL-1')
+
+  expect(loadSavedGame().round.answers).toEqual([
+    { microbe_id: 7, chosen_level: 1, chosen_equipment: [], correct: false },
+  ])
+})
+
+test('leaving for the start screen abandons the round', async () => {
+  startGame()
+  answerCurrentMicrobe('BSL-1')
+  await reachExit()
+
+  fireEvent.click(screen.getByRole('button', { name: /yes/i }))
+
+  expect(loadSavedGame()).toBeNull()
+})
+
+test('the score is on screen from the first moment of play', () => {
+  startGame()
+
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Score: 0')
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Microbes: 0')
+})
+
+test('handling a microbe moves the counter', () => {
+  startGame()
+
+  answerCurrentMicrobe('BSL-1')
+
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Microbes: 1')
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Score: 0')
+})
+
+test('the score counts the correct answers already in the round', () => {
+  localStorage.setItem(
+    SAVED_GAME_KEY,
+    JSON.stringify({
+      ...defaultSnapshot(),
+      savedAt: Date.now(),
+      round: {
+        openRoundId: 5,
+        answers: [
+          { microbe_id: 1, chosen_level: 1, chosen_equipment: ['lab_coat'], correct: true },
+          { microbe_id: 2, chosen_level: 2, chosen_equipment: [], correct: false },
+        ],
+      },
+    })
+  )
+
+  renderApp()
+
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Score: 1')
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Microbes: 2')
+})
+
+test('the start screen has no score to show', () => {
+  renderApp()
+
+  expect(screen.queryByTestId('score-hud')).not.toBeInTheDocument()
+})
+
+test('a guest can sign in from the start screen, before playing', () => {
+  renderApp()
+
+  expect(screen.getByRole('button', { name: /start game/i })).toBeInTheDocument()
+  expect(screen.getByText('Playing as a guest')).toBeInTheDocument()
+
+  fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+
+  expect(screen.getByLabelText('Username')).toBeInTheDocument()
+})
+
+test('the exit popup reports the round it just saved', async () => {
+  roundsService.saveRound.mockResolvedValue({
+    id: 42,
+    score: 0,
+    correct_count: 0,
+    answer_count: 1,
+    owned: false,
+  })
+  startGame()
+  answerCurrentMicrobe('BSL-1')
+
+  await reachExit()
+
+  expect(screen.getByRole('heading', { name: 'Round finished' })).toBeInTheDocument()
+  expect(screen.getByText('You scored 0 out of 1.')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Keep my score' })).toBeInTheDocument()
 })

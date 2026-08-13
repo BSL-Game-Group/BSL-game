@@ -11,7 +11,7 @@ after(closeDb);
 
 const PASSWORD = 'test-password-123';
 
-const BSL1_CORRECT = ['lab_coat', 'glasses', 'gloves'];
+const BSL1_CORRECT = ['lab_coat', 'glasses', 'gloves', 'indoor_shoes'];
 
 // Real seeded microbes, so grading runs against the real rule set.
 async function microbeAtLevel(level) {
@@ -179,4 +179,162 @@ test('a level with no rules costs the level, not the equipment', async () => {
     { microbe_id: bsl1.id, level_correct: false, equipment_correct: true },
   ]);
   assert.strictEqual(response.body.score, 0);
+});
+
+// --- PATCH /api/rounds/:id ---
+
+const BSL2_CORRECT = ['lab_coat', 'gloves', 'mask', 'indoor_shoes'];
+
+function createRound(sessionId, answers, token) {
+  const pending = request(app).post('/api/rounds');
+
+  if (token) {
+    pending.set('Authorization', `Bearer ${token}`);
+  }
+
+  return pending.send({ session_id: sessionId, answers });
+}
+
+function updateRound(id, sessionId, answers, token) {
+  const pending = request(app).patch(`/api/rounds/${id}`);
+
+  if (token) {
+    pending.set('Authorization', `Bearer ${token}`);
+  }
+
+  return pending.send({ session_id: sessionId, answers });
+}
+
+function registerAs(username, sessionId) {
+  return request(app)
+    .post('/api/auth/register')
+    .send({ username, password: PASSWORD, session_id: sessionId });
+}
+
+test('a guest round is updated in place as the round goes on', async () => {
+  const bsl1 = await microbeAtLevel(1);
+  const bsl2 = await microbeAtLevel(2);
+
+  const created = await createRound('session-a', [
+    { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT },
+  ]);
+
+  assert.strictEqual(created.body.score, 1);
+
+  const updated = await updateRound(created.body.id, 'session-a', [
+    { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT },
+    { microbe_id: bsl2.id, chosen_level: 2, chosen_equipment: BSL2_CORRECT },
+  ]);
+
+  assert.strictEqual(updated.status, 200);
+  assert.strictEqual(updated.body.id, created.body.id);
+  assert.strictEqual(updated.body.score, 2);
+  assert.strictEqual(updated.body.correct_count, 2);
+  assert.strictEqual(updated.body.answer_count, 2);
+
+  assert.strictEqual(await db.Round.count(), 1);
+  assert.strictEqual(
+    await db.RoundAnswer.count({ where: { round_id: created.body.id } }),
+    2
+  );
+});
+
+test('the stored answers are replaced, not appended to', async () => {
+  const bsl1 = await microbeAtLevel(1);
+
+  const created = await createRound('session-a', [
+    { microbe_id: bsl1.id, chosen_level: 4, chosen_equipment: [] },
+  ]);
+
+  assert.strictEqual(created.body.score, 0);
+
+  const updated = await updateRound(created.body.id, 'session-a', [
+    { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT },
+  ]);
+
+  assert.strictEqual(updated.body.answer_count, 1);
+  assert.strictEqual(updated.body.score, 1);
+
+  const stored = await db.RoundAnswer.findAll({ where: { round_id: created.body.id } });
+
+  assert.strictEqual(stored.length, 1);
+  assert.strictEqual(stored[0].chosen_level, 1);
+});
+
+test('a round id that names nothing is a 404, never a 500', async () => {
+  const bsl1 = await microbeAtLevel(1);
+  const answers = [{ microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT }];
+
+  const missing = await updateRound(999999, 'session-a', answers);
+
+  assert.strictEqual(missing.status, 404);
+  assert.strictEqual(missing.body.code, 'round_not_found');
+
+  // Without the guard this reaches findByPk and comes back as a Postgres cast
+  // error, i.e. a 500 for what is plainly a request for something absent.
+  const nonNumeric = await updateRound('not-a-number', 'session-a', answers);
+
+  assert.strictEqual(nonNumeric.status, 404);
+  assert.strictEqual(nonNumeric.body.code, 'round_not_found');
+});
+
+test('only the round s owner may update it', async () => {
+  const bsl1 = await microbeAtLevel(1);
+  const correct = [{ microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT }];
+
+  const created = await createRound('session-a', [
+    { microbe_id: bsl1.id, chosen_level: 4, chosen_equipment: [] },
+  ]);
+
+  // A guest round belongs to whoever holds its session id, and to nobody else.
+  const otherBrowser = await updateRound(created.body.id, 'session-b', correct);
+
+  assert.strictEqual(otherBrowser.status, 403);
+  assert.strictEqual(otherBrowser.body.code, 'not_your_round');
+  assert.strictEqual((await db.Round.findByPk(created.body.id)).score, 0);
+
+  // Registering claims every unclaimed round for session-a, this one included.
+  const { token } = (await registerAs('owner_user', 'session-a')).body;
+  const { token: thiefToken } = (await registerAs('thief_user', 'session-b')).body;
+
+  const bySessionAlone = await updateRound(created.body.id, 'session-a', correct);
+
+  assert.strictEqual(bySessionAlone.status, 403);
+  assert.strictEqual(bySessionAlone.body.code, 'not_your_round');
+
+  const byStranger = await updateRound(created.body.id, 'session-a', correct, thiefToken);
+
+  assert.strictEqual(byStranger.status, 403);
+  assert.strictEqual(byStranger.body.code, 'not_your_round');
+
+  const byOwner = await updateRound(created.body.id, 'session-a', correct, token);
+
+  assert.strictEqual(byOwner.status, 200);
+  assert.strictEqual(byOwner.body.owned, true);
+  assert.strictEqual(byOwner.body.score, 1);
+});
+
+test('an update is validated exactly like a create', async () => {
+  const bsl1 = await microbeAtLevel(1);
+
+  const created = await createRound('session-a', [
+    { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT },
+  ]);
+
+  const malformed = await updateRound(created.body.id, 'session-a', [
+    { microbe_id: 'not-an-id', chosen_level: 1, chosen_equipment: [] },
+  ]);
+
+  assert.strictEqual(malformed.status, 400);
+  assert.strictEqual(malformed.body.code, 'answers_invalid');
+
+  const empty = await updateRound(created.body.id, 'session-a', []);
+
+  assert.strictEqual(empty.status, 400);
+  assert.strictEqual(empty.body.code, 'answers_invalid');
+
+  // The round is untouched by either rejection.
+  const round = await db.Round.findByPk(created.body.id);
+  assert.strictEqual(round.answer_count, 1);
+  assert.strictEqual(round.score, 1);
 });

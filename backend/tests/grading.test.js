@@ -12,7 +12,7 @@ const BSL3 = {
     {
       anyOf: [
         { allOf: ['mask', { anyOf: ['glasses', 'face_shield'] }] },
-        'respirator',
+        'bsl3_respirator',
       ],
     },
   ],
@@ -35,7 +35,7 @@ test('a flat anyOf needs exactly one of its options', () => {
 });
 
 test('BSL-3 accepts a respirator in place of mask-plus-eye-protection', () => {
-  const withRespirator = ['gloves', 'gloves_2', 'closable_lab_coat', 'respirator'];
+  const withRespirator = ['gloves', 'gloves_2', 'closable_lab_coat', 'bsl3_respirator'];
 
   assert.strictEqual(evaluateEquipmentRules(BSL3, withRespirator), true);
 });
@@ -48,20 +48,43 @@ test('BSL-3 accepts mask plus either kind of eye protection', () => {
 });
 
 test('BSL-3 needs both pairs of gloves', () => {
-  const oneGlove = ['gloves', 'closable_lab_coat', 'respirator'];
+  const oneGlove = ['gloves', 'closable_lab_coat', 'bsl3_respirator'];
 
   assert.strictEqual(evaluateEquipmentRules(BSL3, oneGlove), false);
 });
 
-test('a single anyOf branch is enough, which grades BSL-3 more leniently than reality', () => {
+test('sibling anyOf branches are alternatives, so a single one is enough', () => {
   const noEyeProtection = ['gloves', 'gloves_2', 'disposable_overall', 'mask'];
-  const noBodyCovering = ['gloves', 'gloves_2', 'respirator'];
+  const noBodyCovering = ['gloves', 'gloves_2', 'bsl3_respirator'];
 
   assert.strictEqual(evaluateEquipmentRules(BSL3, noEyeProtection), true);
   assert.strictEqual(evaluateEquipmentRules(BSL3, noBodyCovering), true);
 
   // Not vacuous: satisfying NEITHER branch is still wrong, so anyOf is doing work.
   assert.strictEqual(evaluateEquipmentRules(BSL3, ['gloves', 'gloves_2']), false);
+});
+
+// The tests above use hand-written rule shapes to pin down the evaluator. These grade
+// against the rules the game actually ships, where the branches are wrapped in a single
+// allOf so that every group is mandatory.
+test('the shipped BSL-3 rules need body covering, face protection and footwear', () => {
+  const { REQUIRED_EQUIPMENT } = require('../seeders/20260622000001-seed-bsl-classes');
+  const rules = REQUIRED_EQUIPMENT[3];
+  const gloves = ['gloves', 'gloves_2'];
+  const dressed = [...gloves, 'disposable_overall', 'bsl3_respirator'];
+
+  assert.strictEqual(evaluateEquipmentRules(rules, [...dressed, 'indoor_shoes']), true);
+  assert.strictEqual(evaluateEquipmentRules(rules, [...dressed, 'disposable_foot_covers']), true);
+
+  assert.strictEqual(evaluateEquipmentRules(rules, dressed), false);
+  assert.strictEqual(
+    evaluateEquipmentRules(rules, [...gloves, 'disposable_overall', 'indoor_shoes']),
+    false
+  );
+  assert.strictEqual(
+    evaluateEquipmentRules(rules, [...gloves, 'bsl3_respirator', 'indoor_shoes']),
+    false
+  );
 });
 
 test('junk arguments are false rather than a crash', () => {
