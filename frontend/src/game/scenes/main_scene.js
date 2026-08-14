@@ -31,9 +31,6 @@ class MainScene extends Phaser.Scene {
         
         // Restored for backward compatibility with tests expecting this specific call
         this.load.image('dresser', 'assets/dresser.png');
-
-        this.load.image('airlock_room_(empty)', 'assets/rooms/airlock_room_(empty).png');
-        this.load.image('airlock_room_with_shower', 'assets/rooms/airlock_room_with_shower.png');
     }
 
     create() {
