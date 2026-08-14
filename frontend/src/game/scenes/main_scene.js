@@ -267,7 +267,7 @@ class MainScene extends Phaser.Scene {
 
     handleDoorInteraction(player, zone) {
         const door = zone.parentDoor;
-        this.showDoorHint(door);
+        this.hintManager.showDoorHint(door);
 
         if (!(this.keyE && Phaser.Input.Keyboard.JustDown(this.keyE) &&
             !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey)) {
@@ -284,16 +284,6 @@ class MainScene extends Phaser.Scene {
             const notificationText = window.__translations?.closeTheDoorBehindYouFirst ?? 'Close the door behind you first.';
             this.notify(Math.min(door.x, 1000), door.y - 30, notificationText);
         }
-    }
-
-    showDoorHint(door) {
-        if (door.isOpenable()) {
-            this.doorHint.setAlpha(1);
-        } else {
-            this.doorHint.setAlpha(0.5);
-        }
-        this.doorHint.setVisible(true);
-        this.doorHint.setPosition(door.x, door.y);
     }
 
     // Entering BSL-4 is unrestricted — the suiting-up prompt fires once the
