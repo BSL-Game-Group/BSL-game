@@ -43,3 +43,16 @@ spec:
                 secretKeyRef:
                   name: bsl-backend-secret
                   key: DB_URL
+            # The app signs session tokens with this and refuses to start without
+            # it. Deliberately NOT marked `optional: true`: a missing key must
+            # stop the rollout, not start a pod that cannot sign anyone in.
+            #
+            # The key MUST exist in bsl-backend-secret before this rolls out, or
+            # the pod fails with CreateContainerConfigError. See README.md.
+            # Not needed on the db-init initContainer, which only runs
+            # sequelize-cli and never requires utils/token.js.
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: bsl-backend-secret
+                  key: JWT_SECRET

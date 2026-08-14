@@ -1,12 +1,30 @@
-import { render, screen, fireEvent, act } from './test-utils'
+import { useState } from 'react';
+import { render,act } from './test-utils';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom'
 import ClosetPopup from '../src/components/ClosetPopup/ClosetPopup'
+import { unequipAll } from '../src/components/ClosetPopup/ItemConfig'
 
 // -----------------------------
 // HELPERS
 // -----------------------------
-function renderPopup(open = true, onClose = jest.fn()) {
-  return render(<ClosetPopup open={open} onClose={onClose} />)
+// ClosetPopup is controlled now, so the test owns the state the real App owns.
+function Harness({ open, onClose, initialEquipped, itemFilter }) {
+  const [equipped, setEquipped] = useState(initialEquipped ?? unequipAll())
+
+  return (
+    <ClosetPopup
+      open={open}
+      onClose={onClose}
+      equipped={equipped}
+      setEquipped={setEquipped}
+      itemFilter={itemFilter}
+    />
+  )
+}
+
+function renderPopup(open = true, onClose = jest.fn(), initialEquipped = undefined) {
+  return render(<Harness open={open} onClose={onClose} initialEquipped={initialEquipped} />)
 }
 
 describe('ClosetPopup component', () => {
@@ -19,7 +37,7 @@ describe('ClosetPopup component', () => {
   test('renders when open', () => {
     renderPopup(true)
 
-    expect(screen.getByText(/equipment/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: /closet/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument()
   })
 
@@ -55,7 +73,7 @@ describe('ClosetPopup component', () => {
 
     const { rerender } = renderPopup(true)
 
-    rerender(<ClosetPopup open={false} onClose={jest.fn()} />)
+    rerender(<Harness open={false} onClose={jest.fn()} />)
 
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'popup-closed' })
@@ -64,36 +82,8 @@ describe('ClosetPopup component', () => {
     spy.mockRestore()
   })
 
-  test('dispatches equipment-changed event on mount', () => {
-    const spy = jest.spyOn(window, 'dispatchEvent')
-
-    renderPopup(true)
-
-    expect(spy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'equipment-changed' })
-    )
-
-    spy.mockRestore()
-  })
-
-  test('handles equipment-changed event update', () => {
-    renderPopup(true)
-
-    act(() => {
-      window.dispatchEvent(
-        new CustomEvent('equipment-changed', {
-          detail: {
-            mask: true,
-            lab_coat: true,
-            glasses: false,
-          },
-        })
-      )
-    })
-
-    // UI should still exist after state update
-    expect(screen.getByText(/equipment/i)).toBeInTheDocument()
-  })
+  // The equipment-changed broadcast moved to App, which owns the worn-PPE state
+  // now. Its tests live in app.test.jsx.
 
   // -----------------------------
   // UI TESTS
@@ -168,10 +158,11 @@ describe('ClosetPopup component', () => {
     expect(screen.getByRole('dialog', { name: /closet/i })).toBeInTheDocument()
   })
 
-  test('focuses the dialog when opened', () => {
-    renderPopup(true)
-
-    expect(screen.getByRole('dialog')).toHaveFocus()
+  test('focuses the dialog when opened', async () => {
+    renderPopup(true);
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toHaveFocus();
+    })
   })
 
   test('pressing Escape calls onClose', () => {
@@ -216,17 +207,16 @@ describe('ClosetPopup component', () => {
     expect(buttons[buttons.length - 1]).toHaveFocus()
   })
 
-  test('Shift+Tab from the dialog container wraps to the last control', () => {
-    renderPopup(true)
+  test('Shift+Tab from the dialog container wraps to the last control', async () => {
+    renderPopup(true);
+    const dialog = screen.getByRole('dialog');
 
-    // This is the state right after opening: focus sits on the container, so
-    // Shift+Tab would otherwise walk straight out of the modal.
-    expect(screen.getByRole('dialog')).toHaveFocus()
+    await waitFor(() => {
+      expect(dialog).toHaveFocus();
+    })
 
-    fireEvent.keyDown(window, { key: 'Tab', shiftKey: true })
+    fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
 
-    const buttons = focusableItems()
-    expect(buttons[buttons.length - 1]).toHaveFocus()
   })
 
   test('Tab pulls focus back in when it has drifted outside the dialog', () => {
@@ -293,7 +283,7 @@ describe('ClosetPopup component', () => {
     const { container } = renderPopup(true)
 
     const labels = [...container.querySelectorAll('.gear-tab')].map((el) => el.textContent)
-    expect(labels).toEqual(['Eyewear', 'Masks', 'Body', 'Gloves'])
+    expect(labels).toEqual(['Eyewear', 'Masks', 'Body', 'Gloves', 'Footwear'])
   })
 
   test('Gloves tab shows the gloves item', () => {
@@ -305,10 +295,13 @@ describe('ClosetPopup component', () => {
     expect(screen.getByRole('button', { name: /^gloves 2$/i })).toBeInTheDocument()
   })
 
-  test('renders player heading', () => {
+  test('Footwear tab shows both footwear items', () => {
     renderPopup(true)
 
-    expect(screen.getByText(/player/i)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /^footwear$/i }))
+
+    expect(screen.getByRole('button', { name: /^indoor shoes$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^disposable foot covers$/i })).toBeInTheDocument()
   })
 
   test('renders base character image', () => {
@@ -316,4 +309,34 @@ describe('ClosetPopup component', () => {
 
     expect(screen.getByAltText('base')).toBeInTheDocument()
   })
+
+  // -----------------------------
+  // ITEM FILTER
+  // -----------------------------
+
+  test('itemFilter hides items it rejects from the inventory', () => {
+    render(
+      <Harness
+        open={true}
+        onClose={jest.fn()}
+        itemFilter={(id) => id !== 'glasses'}
+      />
+    )
+
+    expect(screen.queryByRole('button', { name: /^glasses$/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^sunglasses$/i })).toBeInTheDocument()
+  })
+
+  test('without itemFilter, every item stays available', () => {
+    renderPopup(true)
+
+    expect(screen.getByRole('button', { name: /^glasses$/i })).toBeInTheDocument()
+  })
+
+  // -----------------------------
+  // QUICK UNDRESS / AIRLOCK DECON
+  // -----------------------------
+  // Both events strip worn PPE, and both are now handled by App, which owns that
+  // state — including while this popup is closed. Their tests live in
+  // app.test.jsx.
 })

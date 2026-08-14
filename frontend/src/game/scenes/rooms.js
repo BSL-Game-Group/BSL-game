@@ -76,20 +76,25 @@ function label(scene, cx, cy, text, size = 14, bold = false, depth = 21) {
         .setDepth(depth);
 }
 
-// Closet interactable inside the dressing room: a green glow marks the spot and an
-// invisible sprite is the click target (the dresser art now lives in the room image).
+// Closet interactable inside the dressing room: the green glow circle IS the element
+// (the dresser art now lives in the room image), and clicking anywhere on it opens the
+// closet. The click target is an invisible zone matching the circle — same pattern as
+// the BSL glows below. It must be a zone, not a hidden sprite: Phaser only hit-tests
+// objects that would render (InputManager#inputCandidate), so a sprite kept invisible
+// receives no pointer events at all.
 function setupCloset(scene) {
-    const dresserX = 90;
-    const dresserY = 500;
+    const closetX = 90;
+    const closetY = 500;
+    const radius = 55;
 
-    scene.closetZone = { x: dresserX - 35, y: dresserY - 60, width: 80, height: 80 };
+    scene.closetZone = { x: closetX - 35, y: closetY - 60, width: 80, height: 80 };
     window.__gameData = { ...window.__gameData, closetZone: scene.closetZone };
 
     scene.closetGlow = scene.add.graphics();
     scene.closetGlow.fillStyle(0x0b6623, 0.8);
-    scene.closetGlow.fillCircle(dresserX, dresserY, 55);
+    scene.closetGlow.fillCircle(closetX, closetY, radius);
     scene.closetGlow.lineStyle(3, 0x0b6623);
-    scene.closetGlow.strokeCircle(dresserX, dresserY, 55);
+    scene.closetGlow.strokeCircle(closetX, closetY, radius);
     scene.closetGlow.setVisible(false);
 
     scene.closetGlowTween = scene.tweens.add({
@@ -101,23 +106,63 @@ function setupCloset(scene) {
     });
     scene.closetGlowTween.pause();
 
-    scene.closetImage = scene.add
-        .image(dresserX, dresserY, 'dresser')
-        .setOrigin(0.5)
-        .setScale(1.5)
-        .setVisible(false)
+    // Stays interactive for the whole scene — the handlers gate on the player being
+    // in the room, so nothing needs to toggle this target on room entry/exit.
+    scene.closetHit = scene.add
+        .zone(closetX, closetY, radius * 2, radius * 2)
         .setInteractive({ useHandCursor: true });
 
-    scene.closetImage.on('pointerover', () => {
+    scene.closetHit.on('pointerover', () => {
         if (!scene.playerInsideDressingRoom) {return;}
         scene.closetHint.setVisible(true);
     });
-    scene.closetImage.on('pointerout', () => {
+    scene.closetHit.on('pointerout', () => {
         scene.closetHint.setVisible(false);
     });
-    scene.closetImage.on('pointerdown', () => {
+    scene.closetHit.on('pointerdown', () => {
         if (!scene.playerInsideDressingRoom) {return;}
         window.dispatchEvent(new Event('closet-popup-opened'));
+    });
+}
+
+// Quick-undress interactable inside the dressing room: a green glow, same look as
+// the other room interactables (closet, BSL rooms, info points). Clicking it resets
+// all worn PPE in one go. Placed toward the bottom-right of the walkable floor —
+// the literal corner is blocked by the decon-counter/shelves/glass-booth furniture.
+function setupUndressPoint(scene) {
+    const ux = 620;
+    const uy = 650;
+    const radius = 40;
+
+    scene.undressPoint = { x: ux, y: uy };
+
+    scene.undressGlow = scene.add.graphics();
+    scene.undressGlow.fillStyle(0x0b6623, 0.8);
+    scene.undressGlow.fillCircle(ux, uy, radius);
+    scene.undressGlow.lineStyle(3, 0x0b6623);
+    scene.undressGlow.strokeCircle(ux, uy, radius);
+    scene.undressGlow.setDepth(5);
+    scene.undressGlow.setVisible(false);
+
+    scene.undressGlowTween = scene.tweens.add({
+        targets: scene.undressGlow,
+        alpha: { from: 1.0, to: 0.3 },
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+    });
+    scene.undressGlowTween.pause();
+
+    scene.undressZone = scene.add
+        .zone(ux, uy, radius * 2.4, radius * 2.4)
+        .setInteractive({ useHandCursor: true });
+
+    // The "press R" hint is proximity-driven (main_scene's update loop), same as
+    // the closet's — that way it works for keyboard players too, not just mouse
+    // hover, and both R and a click trigger the same wash-up.
+    scene.undressZone.on('pointerdown', () => {
+        if (!scene.playerInsideDressingRoom) {return;}
+        window.dispatchEvent(new Event('quick-undress'));
     });
 }
 
@@ -172,6 +217,18 @@ function setupBslInteractables(scene) {
             .setInteractive({ useHandCursor: true });
         hit.on('pointerdown', () => {
             if (!entry.playerInside) { return; }
+            if (!window.__lectureOpen) {
+                window.dispatchEvent(new Event('lecture-required'));
+                return;
+            }
+            if (entry.key === 'BSL-4' && (!window.__bsl4Ready || scene.bsl4Door?.isOpen)) {
+                window.dispatchEvent(new Event('bsl4-not-ready'));
+                return;
+            }
+            if (entry.key === 'BSL-3' && scene.bsl3Door?.isOpen) {
+                window.dispatchEvent(new Event('bsl-door-required'));
+                return;
+            }
             window.dispatchEvent(
                 new CustomEvent('answer-popup-opened', { detail: { level: entry.key } })
             );
@@ -190,6 +247,10 @@ function setupLectureRoom(scene, walls) {
         .setDisplaySize(480, 290)
         .setDepth(-5);
 
+    // Thicker visible wall across the room's top edge (24px, vs. the default
+    // 6px outer boundary elsewhere on the map).
+    walls.push(wallRect(scene, 0, 0, 480, 24));
+
     // Back wall
     solidBox(scene, 0, 0, 480, 60, walls);
 
@@ -199,8 +260,8 @@ function setupLectureRoom(scene, walls) {
     // Left workstation
     solidBox(scene, 40, 132, 214, 236, walls);
 
-    // Right workstation
-    solidBox(scene, 266, 132, 440, 236, walls);
+    // New collider: x 200-290, y:77.5-146.25.
+    solidBox(scene, 200, 77.5, 290, 146.25, walls);
 
     // No bookshelf colliders anymore
     scene.lectureShelves = [];
@@ -215,13 +276,48 @@ function setupExitArea(scene, walls) {
     solidBox(scene, 480, 0, 700, 60, walls);
 }
 
+function setupExitButton(scene) {
+    const gx = 575;
+    const gy = 180;
+    const radius = 28;
+
+    const glow = scene.add.graphics();
+    glow.fillStyle(0x0b6623, 0.8);
+    glow.fillCircle(gx, gy, radius);
+    glow.lineStyle(3, 0x0b6623);
+    glow.strokeCircle(gx, gy, radius);
+    glow.setDepth(5);
+    glow.setVisible(false);
+
+    const tween = scene.tweens.add({
+        targets: glow,
+        alpha: { from: 1.0, to: 0.3 },
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+    });
+    tween.pause();
+
+    scene.exitGlow = glow;
+    scene.exitGlowTween = tween;
+    scene.exitButtonPoint = { x: gx, y: gy };
+
+    scene.add
+        .zone(gx, gy, radius * 2.4, radius * 2.4)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+            if (!scene.playerInsideExitRoom) { return; }
+            window.dispatchEvent(new Event('exit-popup-opened'));
+        });
+}
+
 // Info point in the lecture room: a green pulsing glow (same look as the corridor
 // info desk) that opens the lecture-materials panel on E, instead of it opening
-// automatically when the player enters the room. Placed past the right workstation
-// on open floor (y:236+), since the display wall (y:0-110) and both workstations
-// (x:40-214 and x:266-440, y:132-236) are solid.
+// automatically when the player enters the room. Mirrored to the left workstation
+// side, on open floor (y:236+), since the display wall (y:0-110) and both
+// workstations (x:40-214 and x:266-440, y:132-236) are solid.
 function setupLectureInfoPoint(scene) {
-    const gx = 300;
+    const gx = 180;
     const gy = 240;
     const radius = 35;
 
@@ -250,7 +346,41 @@ function setupLectureInfoPoint(scene) {
         .zone(gx, gy, radius * 2.4, radius * 2.4)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-            window.dispatchEvent(new Event('lecture-materials-unlocked'));
+            window.dispatchEvent(new Event('microbe-info-popup-opened'));
+        });
+}
+
+function setupLectureMaterialButton(scene) {
+    const gx = 410;
+    const gy = 120;
+    const radius = 25;
+
+    const glow = scene.add.graphics();
+    glow.fillStyle(0x0b6623, 0.8);
+    glow.fillCircle(gx, gy, radius);
+    glow.lineStyle(3, 0x0b6623);
+    glow.strokeCircle(gx, gy, radius);
+    glow.setDepth(5);
+    glow.setVisible(false);
+
+    const tween = scene.tweens.add({
+        targets: glow,
+        alpha: { from: 1.0, to: 0.3 },
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+    });
+    tween.pause();
+
+    scene.lectureMaterialGlow = glow;
+    scene.lectureMaterialGlowTween = tween;
+    scene.lectureMaterialPoint = { x: gx, y: gy };
+
+    scene.add
+        .zone(gx, gy, radius * 2.4, radius * 2.4)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+            window.dispatchEvent(new Event('lecture-material-popup-opened'));
         });
 }
 
@@ -321,10 +451,13 @@ export function createRooms(scene) {
     vSeg(scene, 1280 - T / 2, 0, 720, walls);    // right
 
     // ---- LEFT SIDE ----
-    // Lecture | Exit divider (no door)
-    vWall(scene, 480, 0, 290, [], walls);
-    // Lecture/Exit bottom = Corridor top (doors to both)
-    hWall(scene, 0, 700, 290, [[180, 270], [540, 630]], walls);
+    // Lecture | Exit divider — door here now, so the exit room is reached from
+    // the lecture room instead of straight down from the corridor. Door sits
+    // right at the bottom edge of the divider (y:290 = corridor line).
+    vWall(scene, 480, 0, 290, [[200, 290]], walls);
+    // Lecture bottom = Corridor top (door). Exit room's old down-facing door
+    // to the corridor is now closed — it's only reachable via the lecture room.
+    hWall(scene, 0, 700, 290, [[220, 310]], walls);
     // Corridor bottom = Dressing room top (one narrower door)
     hWall(scene, 0, 700, 430, [[315, 375]], walls);
 
@@ -345,10 +478,15 @@ export function createRooms(scene) {
     hWall(scene, 960, 1280, 470, [[970, 1040]], walls);  // BSL3 airlock <-> BSL 3 only
 
     // ---- LABELS ----
-    label(scene, 830, 125, 'BSL 2', 16, true);
-    label(scene, 830, 595, 'BSL 1', 16, true);
-    label(scene, 1120, 125, 'BSL 4', 16, true);
-    label(scene, 1120, 595, 'BSL 3', 16, true);
+    // BSL 2/4 (top rooms) sit below the player (depth 1). BSL 1/3 (bottom rooms)
+    // have a front-wall image that occludes the player at depth 20 while
+    // approaching from above (see bsl1Image/bsl3Image in main_scene.js) — their
+    // labels need to sit above that occluding image (depth 21) or they'd be
+    // hidden until the player walks down into the room.
+    label(scene, 830, 125, 'BSL 2', 16, true, 1);
+    label(scene, 830, 595, 'BSL 1', 16, true, 21);
+    label(scene, 1120, 125, 'BSL 4', 16, true, 1);
+    label(scene, 1120, 595, 'BSL 3', 16, true, 21);
 
     // ---- ZONES (game logic) ----
     scene.lectureRoomZone = { x: 0, y: 0, width: 480, height: 290 };
@@ -360,6 +498,9 @@ export function createRooms(scene) {
         { key: 'BSL-3', x: 960, y: 470, width: 320, height: 250 },
         { key: 'BSL-4', x: 960, y: 0, width: 320, height: 250 },
     ];
+    // Airlock2's reachable cell (row1 only — its row2 cell has no doors in or
+    // out). Player enter/exit is tracked the same way as the dressing room.
+    scene.airlock2Zone = { x: 1110, y: 250, width: 170, height: 110 };
     scene.exitZone = {
         x: 480,
         y: 0,
@@ -430,11 +571,14 @@ export function createRooms(scene) {
 
     setupCloset(scene);
     setupBslInteractables(scene);
+    setupUndressPoint(scene);
     setupLectureRoom(scene, walls);
     setupLectureInfoPoint(scene);
+    setupLectureMaterialButton(scene);
     setupDressingRoomDeadzones(scene, walls);
     setupInfoDesk(scene, walls);
     setupExitArea(scene, walls);
+    setupExitButton(scene);
 
     return walls;
 }

@@ -4,7 +4,8 @@
   },
   "startScreen": {
     "subtitle": "Käsittele mikrobeja turvallisesti — valitse oikea suojavarustus ja oikea laboratorio.",
-    "startButton": "Aloita peli"
+    "startButton": "Aloita peli",
+    "quitButton": "Lopeta peli (tyhjennä tila)"
   },
   "howToPlay": {
     "title": "Näin pelaat",
@@ -23,6 +24,10 @@
       "Voit poistua milloin tahansa Exitin kautta — peli sulkeutuu."
     ],
     "controls": "Ohjaimet: Nuolinäppäimet / klikkaus liikkumiseen · E tai klikkaus vuorovaikutukseen · Sulje-painike sulkee ikkunat"
+  },
+  "lectureRequired": {
+    "title": "Käy ensin luentohuoneessa",
+    "message": "Ennen mikrobin käsittelyä sinun täytyy käydä luentohuoneessa lukemassa mikrobista ja oppimassa sen bioturvallisuustaso (BSL)."
   },
   "lecturePanel": {
     "title": "Luentomateriaali",
@@ -43,9 +48,18 @@
     "sources": "Lähteet"
   },
   "task": {
-    "title": "Mikrobi jota tulet käsittelemään"
+    "title": "Mikrobi jota tulet käsittelemään",
+    "undressRequired": "Mene pukuhuoneeseen ja peseydy ennen seuraavaa mikrobia."
+  },
+  "microbeInfoPopup": {
+    "title": "Mikrobin tiedot",
+    "commonName": "Yleinen nimi",
+    "scientificName": "Tieteellinen nimi",
+    "type": "Tyyppi",
+    "description": "Kuvaus"
   },
   "closet": {
+    "title": "Pukukaappi",
     "player": "Pelaaja",
     "equipmentLabel": "Varusteet"
   },
@@ -54,11 +68,14 @@
     "incorrect": "Ei aivan",
     "correctFallback": "Se on oikea huone.",
     "incorrectFallback": "Se ei ole oikea huone.",
+    "equipmentCorrect": "Suojavarustuksesi vastasi vaadittua varustusta.",
+    "equipmentIncorrect": "Suojavarustuksesi ei vastannut täysin vaadittua varustusta.",
     "chosenLevel": "Valitsit {level}.",
     "belongs": "{name} kuuluu tasolle BSL-{level}."
   },
   "common": {
-    "close": "Sulje"
+    "close": "Sulje",
+    "loading": "Ladataan..."
   },
   "rooms": {
     "exit": "Poistuminen",
@@ -84,6 +101,89 @@
     "pressEToOpen": "Paina E avataksesi",
     "openCloset": "Avaa kaappi",
     "pressE": "Paina E",
-    "closeTheDoorBehindYouFirst": "Sulje takanasi oleva ovi ensin."
+    "closeTheDoorBehindYouFirst": "Sulje takanasi oleva ovi ensin.",
+    "exitPrompt": "Paina E poistutuaksesi",
+    "washUp": "Paina R tai klikkaa peseytyäksesi"
+  },
+  "hud": {
+    "score": "Pisteet: {score}",
+    "microbes": "Mikrobit: {count}"
+  },
+  "auth": {
+    "guest": "Pelaat vieraana",
+    "signedInAs": "Kirjautuneena: {username}",
+    "loginButton": "Kirjaudu",
+    "logoutButton": "Kirjaudu ulos",
+    "cancel": "Peruuta",
+    "usernameLabel": "Käyttäjänimi",
+    "passwordLabel": "Salasana",
+    "submitLogin": "Kirjaudu",
+    "submitRegister": "Luo tili",
+    "switchToRegister": "Eikö sinulla ole tiliä? Luo tili",
+    "switchToLogin": "Onko sinulla jo tili? Kirjaudu",
+    "noRecovery": "Salasanaa ei voi palauttaa — kirjoita se talteen.",
+    "working": "Odota…",
+    "errors": {
+      "username_invalid": "Käyttäjänimessä on oltava 3-32 merkkiä: kirjaimia, numeroita, _ tai -.",
+      "password_too_short": "Salasanassa on oltava vähintään 8 merkkiä.",
+      "username_taken": "Käyttäjänimi on jo käytössä.",
+      "invalid_credentials": "Väärä käyttäjänimi tai salasana.",
+      "rate_limited": "Liian monta yritystä tällä käyttäjänimellä. Yritä uudelleen 15 minuutin kuluttua.",
+      "network": "Palvelimeen ei saada yhteyttä. Yritä uudelleen."
+    },
+    "rounds": {
+      "title": "Kierroksesi",
+      "empty": "Ei kierroksia.",
+      "score": "Pisteet",
+      "correct": "Oikein",
+      "played": "Pelattu",
+      "openButton": "Omat kierrokset"
+    },
+    "leaderboard": {
+      "title": "Parhaat tulokset",
+      "empty": "Ei pelattuja kierroksia.",
+      "rank": "#",
+      "player": "Pelaaja",
+      "score": "Pisteet",
+      "openButton": "Parhaat tulokset"
+    },
+    "claim": {
+      "title": "Kierros päättyi",
+      "scoreLine": "Sait {score} pistettä {total} mahdollisesta.",
+      "guestWarning": "Tulos säilyy vain tässä selaimessa, ellet tallenna sitä.",
+      "keepScore": "Tallenna tulokseni",
+      "savedToAccount": "Tallennettu tilillesi.",
+      "roundsSaved": "Kierroksia tallennettu tilillesi: {count}"
+    }
+  },
+  "exitConfirm": {
+    "title": "Poistu",
+    "message": "Haluatko poistua pelistä ja palata aloitusnäkymään?",
+    "yes": "KYLLÄ",
+    "no": "EI"
+  },
+  "bsl4NotReady": {
+    "title": "Et ole valmis BSL4:ään",
+    "message": "Pue paineistettu puku, kytke se ulkoiseen ilmastointiin ja sulje sulkutilan ovi ennen kuin käsittelet mikrobia täällä."
+  },
+  "bsl4SuitRequired": {
+    "title": "Olet BSL4:ssä",
+    "message": "Pue paineistettu puku ja kytke se ulkoiseen ilmastointiin — sinulla täytyy olla puku päällä koko ajan kun olet täällä."
+  },
+  "bslDoorRequired": {
+    "title": "Sulje sulkutilan ovi ensin",
+    "message": "Sulje ilmatiivis ovi ennen kuin käsittelet mikrobia täällä."
+  },
+  "bsl4UndressRequired": {
+    "title": "Peseydy ennen poistumista",
+    "message": "Riisu paineistettu puku ja irrota ulkoinen ilmastointi ennen kuin ovi aukeaa."
+  },
+  "bsl4Gear": {
+    "wearSuitButton": "Pue puku",
+    "removeSuitButton": "Riisu puku",
+    "wearGlovesButton": "Pue käsineet",
+    "removeGlovesButton": "Riisu käsineet",
+    "connectVentilationButton": "Kytke ilmastointi",
+    "disconnectVentilationButton": "Irrota ilmastointi"
   }
 }

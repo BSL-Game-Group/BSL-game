@@ -2,10 +2,11 @@ const ItemType = 'EQUIPMENT';
 
 // The tabs, in display order. `stackable` allows 2+ equipped at once.
 const CATEGORY_CONFIG = {
-  eyewear: { id: 'eyewear', label: 'Eyewear', order: 0, stackable: false },
-  masks:   { id: 'masks',   label: 'Masks',   order: 1, stackable: false },
-  body:    { id: 'body',    label: 'Body',    order: 2, stackable: false },
-  gloves:  { id: 'gloves',  label: 'Gloves',  order: 3, stackable: true  },
+  eyewear:  { id: 'eyewear',  label: 'Eyewear',  order: 0, stackable: false },
+  masks:    { id: 'masks',    label: 'Masks',    order: 1, stackable: false },
+  body:     { id: 'body',     label: 'Body',     order: 2, stackable: false },
+  gloves:   { id: 'gloves',   label: 'Gloves',   order: 3, stackable: true  },
+  footwear: { id: 'footwear', label: 'Footwear', order: 4, stackable: false },
 };
 
 // Image paths are derived from each item's id + category, so the asset tree is
@@ -18,10 +19,42 @@ const CHARACTER_ROOT = '/assets/equipment/on_character';
 // Injects id + derived inventorySrc/equippedSrc into each item definition.
 function buildEquipment(items) {
   const out = {};
+  
+  // Base dimensions of your character image
+  const BASE_W = 250;
+  const BASE_H = 350;
+
+  // Helper function to convert px to % dynamically
+  const pxToPercent = (val, base) => {
+    if (typeof val === 'string' && val.endsWith('px')) {
+      return `${(parseFloat(val) / base) * 100}%`;
+    }
+    return val;
+  };
+
   for (const [id, item] of Object.entries(items)) {
+    // Clone the style object so we can safely mutate it
+    const style = { ...item.equippedStyle };
+    
+    // Convert fixed pixel coordinates/sizes to percentages
+    style.top = pxToPercent(style.top, BASE_H);
+    style.left = pxToPercent(style.left, BASE_W);
+    style.width = pxToPercent(style.width, BASE_W);
+    style.height = pxToPercent(style.height, BASE_H);
+
+    // NEW: Convert any remaining fixed 'px' inside the CSS transforms 
+    // (like translateY or perspective) into container height percentages (cqh)
+    if (style.transform) {
+      style.transform = style.transform.replace(/([-0-9.]+)px/g, (match, val) => {
+        const percentageOfHeight = (parseFloat(val) / BASE_H) * 100;
+        return `${percentageOfHeight}cqh`;
+      });
+    }
+
     out[id] = {
       ...item,
       id,
+      equippedStyle: style, // Overwrite with responsive styles
       inventorySrc: `${INVENTORY_ROOT}/${item.category}/${id}.png`,
       equippedSrc: `${CHARACTER_ROOT}/${item.category}/${id}_on.png`,
     };
@@ -37,7 +70,7 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'body',
     label: 'Lab coat',
     equippedStyle: {
-      position: 'absolute', top: '45px', left: '55px', width: '130px', height: 'auto',
+      position: 'absolute', top: '43px', left: '54px', width: '130px', height: 'auto',
       transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
@@ -49,28 +82,72 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transform: 'scale(0.93) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
+  pressurized_suit: {
+    category: 'body',
+    label: 'Pressurized suit',
+    equippedStyle: {
+      position: 'absolute', top: '1px', left: '60px', width: '130px', height: 'auto',
+      transform: 'scale(1.3) rotate(0deg) translateY(0px)', transformOrigin: 'top center',
+    }
+  },
   mask: {
     category: 'masks',
     label: 'Mask',
     equippedStyle: {
-      position: 'absolute', top: '49px', left: '79px', width: '70px', height: 'auto',
-      transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '45px', left: '77px', width: '70px', height: 'auto',
+      transform: 'scale(1.2) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   glasses: {
     category: 'eyewear',
     label: 'Glasses',
     equippedStyle: {
-      position: 'absolute', top: '35px', left: '75px', width: '70px', height: 'auto',
-      transform: 'scale(1.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '30px', left: '77px', width: '70px', height: 'auto',
+      transform: 'scale(1.3) rotate(-1.5deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+
+  bsl3_respirator: {
+    category: 'masks',
+    label: 'BSL3 respirator',
+    equippedStyle: {
+      position: 'absolute', top: '6px', left: '80px', width: '70px', height: 'auto',
+      transform: 'scale(2.05) rotate(-1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   sunglasses: {
     category: 'eyewear',
     label: 'Sunglasses',
     equippedStyle: {
-      position: 'absolute', top: '9px', left: '66px', width: '106px', height: 'auto',
-      transform: 'perspective(360px) rotateY(20deg) rotate(-2deg) scale(1.1) translateY(5px)',
+      position: 'absolute', top: '10px', left: '68px', width: '106px', height: 'auto',
+      transform: 'perspective(360px) rotateY(20deg) rotate(1deg) scale(1.2) translateY(5px)',
+      transformOrigin: 'center center',
+    }
+  },
+  disposable_overall: {
+    category: 'body',
+    label: 'Disposable overall',
+    equippedStyle: {
+      position: 'absolute', top: '-20px', left: '53px', width: '130px', height: 'auto',
+      transform: 'scale(2) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+
+  face_shield: {
+    category: 'eyewear',
+    label: 'Face shield',    
+    equippedStyle: {
+      position: 'absolute', top: '10px', left: '76px', width: '82px', height: 'auto',
+      transform: 'scale(1.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+  
+  wow_helmet: {
+    category: 'eyewear',
+    label: 'Fantasy helmet',
+    equippedStyle: {
+      position: 'absolute', top: '-3px', left: '61px', width: '106px', height: 'auto',
+      transform: 'perspective(360px) rotateY(20deg) rotate(0deg) scale(1.32) translateY(5px)',
       transformOrigin: 'center center',
     }
   },
@@ -78,7 +155,7 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'gloves',
     label: 'Gloves',
     equippedStyle: {
-      position: 'absolute', top: '169px', left: '89px', width: '59px', height: '35px',
+      position: 'absolute', top: '171px', left: '89px', width: '59px', height: '35px',
       transform: 'scale(2.25) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
@@ -86,11 +163,26 @@ const EQUIPMENT_CONFIG = buildEquipment({
     category: 'gloves',
     label: 'Gloves 2',
     equippedStyle: {
-      position: 'absolute', top: '178px', left: '91px', width: '60px', height: 'auto',
+      position: 'absolute', top: '183px', left: '90px', width: '60px', height: 'auto',
       transform: 'scale(2.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
-
+  indoor_shoes: {
+    category: 'footwear',
+    label: 'Indoor shoes',
+    equippedStyle: {
+      position: 'absolute', top: '299px', left: '86px', width: '60px', height: 'auto',
+      transform: 'scale(2.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+  disposable_foot_covers: {
+    category: 'footwear',
+    label: 'Disposable foot covers',
+    equippedStyle: {
+      position: 'absolute', top: '279px', left: '86px', width: '60px', height: 'auto',
+      transform: 'scale(2.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
 });
 
 // Pure equip rule: returns a new equipped map with `itemId` on. For a
@@ -109,4 +201,13 @@ function applyEquip(equipped, itemId, equipmentConfig = EQUIPMENT_CONFIG, catego
   return next;
 }
 
-export { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip };
+// Returns a new equipped map with every known item unequipped.
+function unequipAll(equipmentConfig = EQUIPMENT_CONFIG) {
+  const next = {};
+  for (const id of Object.keys(equipmentConfig)) {
+    next[id] = false;
+  }
+  return next;
+}
+
+export { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip, unequipAll };

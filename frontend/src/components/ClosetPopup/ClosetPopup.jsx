@@ -6,30 +6,29 @@ import Character from './Character'
 import DraggableItem from './DragFunctionality'
 import { useTranslation } from '../../i18n/context'
 
-// Tabs in display order, derived from the category registry.
 const CATEGORIES = Object.values(CATEGORY_CONFIG).sort((a, b) => a.order - b.order)
 
-function InventoryPanel({ equipped, onToggleEquip }) {
+function InventoryPanel({ equipped, onToggleEquip, itemFilter }) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState(CATEGORIES[0].id)
 
   const [, drop] = useDrop(() => ({
     accept: ItemType,
-    drop: (item) => onToggleEquip(item.id, false) // False means we are unequipping it
+    drop: (item) => onToggleEquip(item.id, false)
   }))
 
-  const itemsInTab = Object.values(EQUIPMENT_CONFIG).filter((c) => c.category === activeTab)
+  const itemsInTab = Object.values(EQUIPMENT_CONFIG)
+    .filter((c) => c.category === activeTab)
+    .filter((c) => itemFilter(c.id))
   const available = itemsInTab.filter((c) => !equipped[c.id])
 
   return (
-    <div ref={drop} style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      <h3 style={{ marginTop: 0 }}>{t('closet.equipmentLabel')}</h3>
-
-      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 12 }}>
+    <div ref={drop} className="d-flex flex-column h-100 w-100">
+      <div className="d-flex flex-row flex-wrap gap-2 p-2 border-bottom">
         {CATEGORIES.map((cat) => (
           <button
             key={cat.id}
-            className={`gear-tab${activeTab === cat.id ? ' active' : ''}`}
+            className={`btn btn-sm gear-tab ${activeTab === cat.id ? 'btn-primary' : 'btn-outline-secondary'}`}
             onClick={() => setActiveTab(cat.id)}
           >
             {cat.label}
@@ -37,10 +36,10 @@ function InventoryPanel({ equipped, onToggleEquip }) {
         ))}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div className="flex-grow-1 p-3 overflow-auto">
         {available.map((config) => (
           <DraggableItem
-            key={`inventory-${config.id}`}
+            key={config.id}
             id={config.id}
             src={config.inventorySrc}
             label={config.label}
@@ -61,21 +60,11 @@ function InventoryPanel({ equipped, onToggleEquip }) {
   )
 }
 
-function ClosetPopup({ open, onClose, onEquipmentChange }) {
+// `itemFilter` restricts which items an instance of the closet offers — e.g. the
+// dressing room excludes the BSL4 pressurized suit (it can only be put on inside
+// BSL4's own suiting station). Defaults to offering every item.
+function ClosetPopup({ open, onClose, equipped, setEquipped, itemFilter = () => true, title }) {
   const { t } = useTranslation()
-  const [equipped, setEquipped] = useState({
-    mask: false,
-    gloves: false,
-    gloves_2: false,
-    closable_lab_coat: false,
-    disposable_overall: false,
-    respirator: false,
-    face_shield: false,
-    lab_coat: false,
-    glasses: false,
-    sunglasses: false,
-    pressurized_suit: false,
-  })
   const dialogRef = useRef(null)
 
   const pendingFocusRef = useRef(null)
@@ -88,14 +77,9 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
     pendingFocusRef.current = itemId
   }
 
-  // Effect to handle external broadcasts
-  useEffect(() => {
-    // If you are using a pure React app, favor the onEquipmentChange prop.
-    // The window events are preserved here in case you are binding to a non-React engine.
-    if (onEquipmentChange) {
-      onEquipmentChange(equipped);}
-    window.dispatchEvent(new CustomEvent('equipment-changed', { detail: equipped }));
-  }, [equipped, onEquipmentChange]);
+  // Stripping PPE (the dressing-room wash-up and the BSL4 airlock decon) and
+  // broadcasting the worn kit both live in App now: it owns this state, and both
+  // must keep working while this popup is closed.
 
   useEffect(() => {
     window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'));
@@ -167,36 +151,42 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
     dialogRef.current?.querySelector(`[data-item-id="${itemId}"]`)?.focus()
   }, [equipped])
 
-  if (!open) {
-    return null;}
+  if (!open) {return;}
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="popup-overlay">
+      <div className="popup-overlay d-flex align-items-center justify-content-center">
         <div
-          className="popup-box"
+          className="popup-box bg-white p-4 h-100 w-100 d-flex flex-column"
           role="dialog"
           aria-modal="true"
-          aria-label={t('closet.title')}
+          aria-label={title ?? t('closet.title')}
           ref={dialogRef}
           tabIndex={-1}
         >
-          <button
-            onClick={onClose}
-            className="popup-close-button"
-          >
-            {t('common.close')}
-          </button>
+          {/* Header */}
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h2>{title ?? t('closet.title')}</h2>
+            <button className="btn btn-danger" onClick={onClose}>
+              {t('common.close')}
+            </button>
+          </div>
 
-          <div style={{ display: 'flex', gap: '40px', flex: 1, marginTop: '20px' }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid #eee' }}>
-              <h3 style={{ marginTop: 0 }}>{t('closet.player')}</h3>
-              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Character equipped={equipped} onToggleEquip={handleToggleEquip} />
-              </div>
+          {/* Main Grid Content */}
+          <div className="row flex-grow-1 overflow-hidden">
+            {/* Player Side */}
+            <div className="col-4 border-end h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden">
+              <Character equipped={equipped} onToggleEquip={handleToggleEquip} />
             </div>
 
-            <InventoryPanel equipped={equipped} onToggleEquip={handleToggleEquip} />
+            {/* Inventory Side */}
+            <div className="col-8 h-100">
+              <InventoryPanel
+                equipped={equipped}
+                onToggleEquip={handleToggleEquip}
+                itemFilter={itemFilter}
+              />
+            </div>
           </div>
         </div>
       </div>

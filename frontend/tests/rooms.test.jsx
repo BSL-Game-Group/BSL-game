@@ -12,13 +12,26 @@ function makeFakeScene() {
     const o = {
       args,
       handlers: {},
+      // Phaser state the input system reads (see pointerHits below).
+      visible: true,
+      interactive: false,
       setOrigin: jest.fn(() => o),
       setScale: jest.fn(() => o),
       setDisplaySize: jest.fn(() => o),
-      setVisible: jest.fn(() => o),
+      setVisible: jest.fn((v) => {
+        o.visible = v
+        return o
+      }),
       setDepth: jest.fn(() => o),
       setAlpha: jest.fn(() => o),
-      setInteractive: jest.fn(() => o),
+      setInteractive: jest.fn(() => {
+        o.interactive = true
+        return o
+      }),
+      disableInteractive: jest.fn(() => {
+        o.interactive = false
+        return o
+      }),
       fillStyle: jest.fn(() => o),
       fillCircle: jest.fn(() => o),
       lineStyle: jest.fn(() => o),
@@ -46,9 +59,22 @@ function makeFakeScene() {
     tweens: { add: jest.fn(() => ({ pause: jest.fn(), resume: jest.fn() })) },
     // Set by main_scene in the real game; rooms.js only reads it on hover.
     closetHint: { setVisible: jest.fn() },
+    undressHint: { setVisible: jest.fn() },
   }
   scene.__created = created
   return scene
+}
+
+// Mirrors Phaser's own hit-test gate (InputManager#inputCandidate): a Game Object
+// only receives pointer events when its input is enabled AND it would render.
+// A permanently hidden object is therefore never clickable, however large its
+// bounds are — which is why the click target must be a zone, not a hidden sprite.
+function pointerHits(target, x, y) {
+  if (!target || !target.interactive || !target.visible) {
+    return false
+  }
+  const { x: cx, y: cy, w, h } = target.args
+  return Math.abs(x - cx) <= w / 2 && Math.abs(y - cy) <= h / 2
 }
 
 describe('createRooms', () => {
@@ -128,7 +154,7 @@ describe('createRooms', () => {
     expect(window.__gameData.bslRoomZones).toEqual(scene.bslRoomZones)
   })
 
-  test('draws the room labels, centred', () => {
+  test('draws the BSL room labels, centred', () => {
     const scene = makeFakeScene()
 
     createRooms(scene)
@@ -138,12 +164,10 @@ describe('createRooms', () => {
       expect.arrayContaining([
         'BSL 1',
         'BSL 2',
+        'BSL 3',
+        'BSL 4',
       ])
     )
-    // The lecture room is now shown via the pixel-art overlay, so it no longer
-    // has a text label.
-    expect(labelTexts).not.toContain('Lecture room')
-    // Every label is centred on its coordinate.
     scene.__created.texts.forEach((t) =>
       expect(t.setOrigin).toHaveBeenCalledWith(0.5)
     )
@@ -239,8 +263,8 @@ describe('createRooms — lecture room', () => {
     // Left workstation
     expect(scene.add.rectangle).toHaveBeenCalledWith(127, 184, 174, 104)
 
-    // Right workstation
-    expect(scene.add.rectangle).toHaveBeenCalledWith(353, 184, 174, 104)
+    // Right workstation collider was removed — no longer created
+    expect(scene.add.rectangle).not.toHaveBeenCalledWith(353, 184, 174, 104)
   })
 
   test('does not expose bookshelf colliders anymore', () => {
@@ -255,33 +279,69 @@ describe('createRooms — lecture room', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
-    expect(scene.lecturePoint).toEqual({ x: 300, y: 240 })
+    expect(scene.lecturePoint).toEqual({ x: 180, y: 240 })
     expect(scene.lectureGlow).toBeDefined()
     expect(scene.lectureGlowTween).toBeDefined()
 
     const glow = scene.__created.graphics.find((g) => g === scene.lectureGlow)
-    expect(glow.fillCircle).toHaveBeenCalledWith(300, 240, 35)
+    expect(glow.fillCircle).toHaveBeenCalledWith(180, 240, 35)
   })
 
-  test('clicking the info point unlocks the lecture materials', () => {
+  test('clicking the info point opens the microbe info popup', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
     const handler = jest.fn()
-    window.addEventListener('lecture-materials-unlocked', handler)
+    window.addEventListener('microbe-info-popup-opened', handler)
 
     const lectureZone = scene.__created.zones.find(
-      (z) => z.args.x === 300 && z.args.y === 240
+    (z) => z.args.x === 180 && z.args.y === 240
     )
     lectureZone.handlers.pointerdown()
 
-    window.removeEventListener('lecture-materials-unlocked', handler)
+    window.removeEventListener('microbe-info-popup-opened', handler)
+
+    expect(handler).toHaveBeenCalledTimes(1)
+  })
+
+  test('creates the lecture-material glow and exposes its scene refs', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    expect(scene.lectureMaterialPoint).toEqual({ x: 410, y: 120 })
+    expect(scene.lectureMaterialGlow).toBeDefined()
+    expect(scene.lectureMaterialGlowTween).toBeDefined()
+
+    const glow = scene.__created.graphics.find((g) => g === scene.lectureMaterialGlow)
+    expect(glow.fillCircle).toHaveBeenCalledWith(410, 120, 25)
+  })
+
+  // The event name is the contract between this zone and App's listener — the
+  // sibling assertion lives in app.test.jsx ('lecture-material-popup-opened
+  // opens the lecture material popup'). Renaming one side alone fails the other.
+  test('clicking the lecture-material point opens the lecture material popup', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const handler = jest.fn()
+    window.addEventListener('lecture-material-popup-opened', handler)
+
+    const materialZone = scene.__created.zones.find(
+      (z) => z.args.x === 410 && z.args.y === 120
+    )
+    materialZone.handlers.pointerdown()
+
+    window.removeEventListener('lecture-material-popup-opened', handler)
+
     expect(handler).toHaveBeenCalledTimes(1)
   })
 })
 
 describe('setupCloset (via createRooms)', () => {
-  test('creates the closet zone, a hidden glow and an interactive dresser', () => {
+  // The green glow circle: centre (90, 500), radius 55.
+  const CIRCLE = { x: 90, y: 500, radius: 55 }
+
+  test('creates the closet zone, a hidden glow and a hit-testable click target', () => {
     const scene = makeFakeScene()
 
     createRooms(scene)
@@ -289,16 +349,37 @@ describe('setupCloset (via createRooms)', () => {
     expect(scene.closetZone).toEqual({ x: 55, y: 440, width: 80, height: 80 })
     expect(window.__gameData.closetZone).toEqual(scene.closetZone)
 
-    // The dresser sprite sits in the top-left corner and stays hidden (only a click
-    // target); the green glow is the visible element.
-    expect(scene.add.image).toHaveBeenCalledWith(90, 500, 'dresser')
-    expect(scene.closetImage.setVisible).toHaveBeenCalledWith(false)
-    expect(scene.closetImage.setInteractive).toHaveBeenCalled()
+    // The click target is an invisible zone covering the glow circle — NOT a hidden
+    // sprite, which Phaser would never hit-test.
+    expect(scene.add.zone).toHaveBeenCalledWith(
+      CIRCLE.x, CIRCLE.y, CIRCLE.radius * 2, CIRCLE.radius * 2
+    )
+    expect(scene.closetHit.interactive).toBe(true)
+    expect(scene.closetHit.visible).toBe(true)
     // The glow is created hidden until the player is near.
     expect(scene.closetGlow.setVisible).toHaveBeenCalledWith(false)
   })
 
-  test('clicking the dresser opens the closet popup when the player is inside', () => {
+  test('the click target covers the whole glow circle', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    // Centre plus each edge of the circle. The bottom edge is the telling one: it
+    // falls outside the old 40x60-at-1.5-scale dresser sprite bounds (y 455..545).
+    const onCircle = [
+      { x: CIRCLE.x, y: CIRCLE.y, where: 'centre' },
+      { x: CIRCLE.x, y: CIRCLE.y + 48, where: 'bottom edge' },
+      { x: CIRCLE.x, y: CIRCLE.y - 48, where: 'top edge' },
+      { x: CIRCLE.x - 48, y: CIRCLE.y, where: 'left edge' },
+      { x: CIRCLE.x + 48, y: CIRCLE.y, where: 'right edge' },
+    ]
+
+    for (const point of onCircle) {
+      expect(pointerHits(scene.closetHit, point.x, point.y)).toBe(true)
+    }
+  })
+
+  test('clicking the circle opens the closet popup when the player is inside', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
@@ -306,13 +387,13 @@ describe('setupCloset (via createRooms)', () => {
     window.addEventListener('closet-popup-opened', listener)
     scene.playerInsideDressingRoom = true
 
-    scene.closetImage.handlers.pointerdown()
+    scene.closetHit.handlers.pointerdown()
 
     window.removeEventListener('closet-popup-opened', listener)
     expect(listener).toHaveBeenCalledTimes(1)
   })
 
-  test('clicking the dresser does nothing when the player is outside', () => {
+  test('clicking the circle does nothing when the player is outside', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
@@ -320,29 +401,70 @@ describe('setupCloset (via createRooms)', () => {
     window.addEventListener('closet-popup-opened', listener)
     scene.playerInsideDressingRoom = false
 
-    scene.closetImage.handlers.pointerdown()
+    scene.closetHit.handlers.pointerdown()
 
     window.removeEventListener('closet-popup-opened', listener)
     expect(listener).not.toHaveBeenCalled()
   })
 
-  test('hovering the dresser toggles the hint only when inside', () => {
+  test('hovering the circle toggles the hint only when inside', () => {
     const scene = makeFakeScene()
     createRooms(scene)
 
     // Inside: hover shows the hint, then pointerout hides it.
     scene.playerInsideDressingRoom = true
-    scene.closetImage.handlers.pointerover()
+    scene.closetHit.handlers.pointerover()
     expect(scene.closetHint.setVisible).toHaveBeenCalledWith(true)
 
-    scene.closetImage.handlers.pointerout()
+    scene.closetHit.handlers.pointerout()
     expect(scene.closetHint.setVisible).toHaveBeenCalledWith(false)
 
     // Outside: hover does not show the hint.
     scene.closetHint.setVisible.mockClear()
     scene.playerInsideDressingRoom = false
-    scene.closetImage.handlers.pointerover()
+    scene.closetHit.handlers.pointerover()
     expect(scene.closetHint.setVisible).not.toHaveBeenCalledWith(true)
+  })
+})
+
+describe('setupUndressPoint (via createRooms)', () => {
+  test('creates a hidden glow at the dressing-room quick-undress spot', () => {
+    const scene = makeFakeScene()
+
+    createRooms(scene)
+
+    expect(scene.undressPoint).toEqual({ x: 620, y: 650 })
+    expect(scene.undressGlow.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.undressZone.setInteractive).toHaveBeenCalled()
+  })
+
+
+  test('clicking the quick-undress spot fires quick-undress when the player is inside', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('quick-undress', listener)
+    scene.playerInsideDressingRoom = true
+
+    scene.undressZone.handlers.pointerdown()
+
+    window.removeEventListener('quick-undress', listener)
+    expect(listener).toHaveBeenCalledTimes(1)
+  })
+
+  test('clicking the quick-undress spot does nothing when the player is outside', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+
+    const listener = jest.fn()
+    window.addEventListener('quick-undress', listener)
+    scene.playerInsideDressingRoom = false
+
+    scene.undressZone.handlers.pointerdown()
+
+    window.removeEventListener('quick-undress', listener)
+    expect(listener).not.toHaveBeenCalled()
   })
 })
 
@@ -379,13 +501,18 @@ describe('setupBslInteractables (via createRooms)', () => {
   test('clicking a BSL glow opens the answer popup for that room, only when inside', () => {
     const scene = makeFakeScene()
     createRooms(scene)
+    window.__lectureOpen = true
 
     const levels = []
     const listener = (e) => levels.push(e.detail.level)
     window.addEventListener('answer-popup-opened', listener)
 
-    // Hit zones are created in the same order as bslGlows: BSL-1, BSL-2, BSL-3, BSL-4.
-    const bsl2Zone = scene.__created.zones[1]
+    // Each BSL hit zone sits on its glow's centre (matched by position rather than
+    // creation order, which other interactables' zones also share).
+    const bsl2Center = scene.bslGlows[1].center
+    const bsl2Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl2Center.x && z.args.y === bsl2Center.y
+    )
 
     // Outside the room → clicking does nothing.
     scene.bslGlows[1].playerInside = false
@@ -398,6 +525,156 @@ describe('setupBslInteractables (via createRooms)', () => {
 
     window.removeEventListener('answer-popup-opened', listener)
     expect(levels).toEqual(['BSL-2'])
+    delete window.__lectureOpen
+  })
+
+  test('clicking a BSL glow asks the player to visit the lecture room first when it has not been unlocked yet', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    window.__lectureOpen = false
+
+    const answerListener = jest.fn()
+    const requiredListener = jest.fn()
+    window.addEventListener('answer-popup-opened', answerListener)
+    window.addEventListener('lecture-required', requiredListener)
+
+    // Matched by position rather than creation order, which other interactables'
+    // zones also share (see the sibling test above).
+    const bsl2Center = scene.bslGlows[1].center
+    const bsl2Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl2Center.x && z.args.y === bsl2Center.y
+    )
+    scene.bslGlows[1].playerInside = true
+    bsl2Zone.handlers.pointerdown()
+
+    window.removeEventListener('answer-popup-opened', answerListener)
+    window.removeEventListener('lecture-required', requiredListener)
+    expect(answerListener).not.toHaveBeenCalled()
+    expect(requiredListener).toHaveBeenCalledTimes(1)
+    delete window.__lectureOpen
+  })
+
+  test('clicking the BSL-4 glow asks the player to suit up first when not bsl4Ready', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    window.__lectureOpen = true
+    window.__bsl4Ready = false
+
+    const answerListener = jest.fn()
+    const notReadyListener = jest.fn()
+    window.addEventListener('answer-popup-opened', answerListener)
+    window.addEventListener('bsl4-not-ready', notReadyListener)
+
+    const bsl4Entry = scene.bslGlows.find((g) => g.key === 'BSL-4')
+    const bsl4Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl4Entry.center.x && z.args.y === bsl4Entry.center.y
+    )
+    bsl4Entry.playerInside = true
+    bsl4Zone.handlers.pointerdown()
+
+    window.removeEventListener('answer-popup-opened', answerListener)
+    window.removeEventListener('bsl4-not-ready', notReadyListener)
+    expect(answerListener).not.toHaveBeenCalled()
+    expect(notReadyListener).toHaveBeenCalledTimes(1)
+    delete window.__lectureOpen
+    delete window.__bsl4Ready
+  })
+
+  test('clicking the BSL-4 glow opens the answer popup once bsl4Ready', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    window.__lectureOpen = true
+    window.__bsl4Ready = true
+
+    const levels = []
+    const listener = (e) => levels.push(e.detail.level)
+    window.addEventListener('answer-popup-opened', listener)
+
+    const bsl4Entry = scene.bslGlows.find((g) => g.key === 'BSL-4')
+    const bsl4Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl4Entry.center.x && z.args.y === bsl4Entry.center.y
+    )
+    bsl4Entry.playerInside = true
+    bsl4Zone.handlers.pointerdown()
+
+    window.removeEventListener('answer-popup-opened', listener)
+    expect(levels).toEqual(['BSL-4'])
+    delete window.__lectureOpen
+    delete window.__bsl4Ready
+  })
+
+  test('clicking the BSL-4 glow asks the player to close the door first when it is still open', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    window.__lectureOpen = true
+    window.__bsl4Ready = true
+    scene.bsl4Door = { isOpen: true }
+
+    const answerListener = jest.fn()
+    const notReadyListener = jest.fn()
+    window.addEventListener('answer-popup-opened', answerListener)
+    window.addEventListener('bsl4-not-ready', notReadyListener)
+
+    const bsl4Entry = scene.bslGlows.find((g) => g.key === 'BSL-4')
+    const bsl4Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl4Entry.center.x && z.args.y === bsl4Entry.center.y
+    )
+    bsl4Entry.playerInside = true
+    bsl4Zone.handlers.pointerdown()
+
+    window.removeEventListener('answer-popup-opened', answerListener)
+    window.removeEventListener('bsl4-not-ready', notReadyListener)
+    expect(answerListener).not.toHaveBeenCalled()
+    expect(notReadyListener).toHaveBeenCalledTimes(1)
+    delete window.__lectureOpen
+    delete window.__bsl4Ready
+  })
+
+  test('clicking the BSL-3 glow asks the player to close the door first when it is open', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    window.__lectureOpen = true
+    scene.bsl3Door = { isOpen: true }
+
+    const answerListener = jest.fn()
+    const doorRequiredListener = jest.fn()
+    window.addEventListener('answer-popup-opened', answerListener)
+    window.addEventListener('bsl-door-required', doorRequiredListener)
+
+    const bsl3Entry = scene.bslGlows.find((g) => g.key === 'BSL-3')
+    const bsl3Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl3Entry.center.x && z.args.y === bsl3Entry.center.y
+    )
+    bsl3Entry.playerInside = true
+    bsl3Zone.handlers.pointerdown()
+
+    window.removeEventListener('answer-popup-opened', answerListener)
+    window.removeEventListener('bsl-door-required', doorRequiredListener)
+    expect(answerListener).not.toHaveBeenCalled()
+    expect(doorRequiredListener).toHaveBeenCalledTimes(1)
+    delete window.__lectureOpen
+  })
+
+  test('clicking the BSL-3 glow opens the answer popup once the door is closed', () => {
+    const scene = makeFakeScene()
+    createRooms(scene)
+    window.__lectureOpen = true
+    scene.bsl3Door = { isOpen: false }
+
+    const levels = []
+    const listener = (e) => levels.push(e.detail.level)
+    window.addEventListener('answer-popup-opened', listener)
+
+    const bsl3Entry = scene.bslGlows.find((g) => g.key === 'BSL-3')
+    const bsl3Zone = scene.__created.zones.find(
+      (z) => z.args.x === bsl3Entry.center.x && z.args.y === bsl3Entry.center.y
+    )
+    bsl3Entry.playerInside = true
+    bsl3Zone.handlers.pointerdown()
+
+    window.removeEventListener('answer-popup-opened', listener)
+    expect(levels).toEqual(['BSL-3'])
+    delete window.__lectureOpen
   })
 
   describe('createRooms — exit area', () => {
