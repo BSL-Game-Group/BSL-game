@@ -102,7 +102,8 @@
     "openCloset": "Öppna garderobsskåpet",
     "pressE": "Tryck E",
     "exitPrompt": "Tryck E för att lämna",
-    "washUp": "Tryck R eller klicka för att tvätta dig"
+    "washUp": "Tryck R eller klicka för att tvätta dig",
+    "openmicrobeInfoHint": "Tryck E för mikrobinformation"
   },
   "hud": {
     "score": "Poäng: {score}",
