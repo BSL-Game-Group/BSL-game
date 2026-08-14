@@ -277,42 +277,51 @@ function setupExitArea(scene, walls) {
 }
 
 function setupExitButton(scene) {
-    const gx = 430;
-    const gy = 115;
+    const gx = 520;
+    const gy = 45;
     const radius = 28;
 
-    // Optional: Add a picture/icon on the wall for the exit button
-    // (Ensure 'exit_button_image' or your chosen asset is loaded in loadAssets.js,
-    // or you can fallback to the glow/graphics element)
-    scene.exitButtonSprite = scene.add.image(gx, gy, 'exit_button') // Replace with your image key if available
+    // Add the picture/icon on the wall for the exit button
+    scene.exitButtonSprite = scene.add.image(gx, gy, 'exit_button')
         .setOrigin(0.5)
         .setDisplaySize(40, 40)
         .setDepth(6);
 
-    const glow = scene.add.graphics();
-    glow.fillStyle(0x0b6623, 0.8);
-    glow.fillCircle(gx, gy, radius);
-    glow.lineStyle(3, 0x0b6623);
-    glow.strokeCircle(gx, gy, radius);
-    glow.setDepth(5);
-    glow.setVisible(false); // Optional: keep hidden or set visible(true) if you want the glow permanently active
+    // Get the dimensions of the image and add larger padding (e.g., +20 pixels) so the glow is bigger than the button
+    const padding = 16;
+    const displayWidth = scene.exitButtonSprite.displayWidth + padding;
+    const displayHeight = scene.exitButtonSprite.displayHeight + padding;
 
+    // Create a permanent glowing rectangular frame centered around (gx, gy)
+    const glow = scene.add.graphics();
+    glow.lineStyle(3, 0x00ff00, 0.9); // Bright green border
+    glow.fillStyle(0x00ff00, 0.15); // Slight green background tint inside the rectangle
+
+    // Draw centered on gx, gy by subtracting half of the total width/height
+    glow.fillRect(-displayWidth / 2, -displayHeight / 2, displayWidth, displayHeight);
+    glow.strokeRect(-displayWidth / 2, -displayHeight / 2, displayWidth, displayHeight);
+
+    // Position the graphics object at the button's coordinates instead of calculating offsets manually in fill/stroke
+    glow.setPosition(gx, gy);
+    glow.setDepth(5);
+    glow.setVisible(true); // Always visible
+
+    // Pulsing animation that runs continuously
     const tween = scene.tweens.add({
         targets: glow,
-        alpha: { from: 1.0, to: 0.3 },
+        alpha: { from: 1.0, to: 0.4 },
         duration: 1000,
         yoyo: true,
         repeat: -1,
     });
-    tween.pause();
 
     scene.exitGlow = glow;
     scene.exitGlowTween = tween;
     scene.exitButtonPoint = { x: gx, y: gy };
 
-    // Always active: clicking the button triggers the exit popup regardless of room location
+    // Always active interactive zone for clicking the button
     scene.add
-        .zone(gx, gy, radius * 2.4, radius * 2.4)
+        .zone(gx, gy, displayWidth * 1.2, displayHeight * 1.2)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
             window.dispatchEvent(new Event('exit-popup-opened'));
