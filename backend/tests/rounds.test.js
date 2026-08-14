@@ -11,7 +11,7 @@ after(closeDb);
 
 const PASSWORD = 'test-password-123';
 
-const BSL1_CORRECT = ['lab_coat', 'glasses', 'gloves'];
+const BSL1_CORRECT = ['lab_coat', 'glasses', 'gloves', 'indoor_shoes'];
 
 // Real seeded microbes, so grading runs against the real rule set.
 async function microbeAtLevel(level) {
@@ -183,7 +183,7 @@ test('a level with no rules costs the level, not the equipment', async () => {
 
 // --- PATCH /api/rounds/:id ---
 
-const BSL2_CORRECT = ['lab_coat', 'gloves', 'mask'];
+const BSL2_CORRECT = ['lab_coat', 'gloves', 'mask', 'indoor_shoes'];
 
 function createRound(sessionId, answers, token) {
   const pending = request(app).post('/api/rounds');

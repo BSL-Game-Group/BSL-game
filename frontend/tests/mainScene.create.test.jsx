@@ -77,6 +77,7 @@ function fakeSprite() {
     disableInteractive: jest.fn().mockReturnThis(),
     // Restoring saved PPE swaps the player's base texture.
     setTexture: jest.fn().mockReturnThis(),
+    setAngle: jest.fn().mockReturnThis(),
     body: {
       setSize: jest.fn(),
       setOffset: jest.fn(),
@@ -198,13 +199,13 @@ test('create creates player sprite', () => {
     .toHaveBeenCalledWith(590, 150, 'player_base')
 })
 
-test('create shrinks the player collision body', () => {
+test('create shrinks the player collision body to the legs', () => {
   const scene = createScene()
 
   scene.create()
 
-  expect(scene.player.body.setSize).toHaveBeenCalledWith(60, 205)
-  expect(scene.player.body.setOffset).toHaveBeenCalledWith(23, 6)
+  expect(scene.player.body.setSize).toHaveBeenCalledWith(56, 65)
+  expect(scene.player.body.setOffset).toHaveBeenCalledWith(22, 152)
 })
 
 test('create creates equipment sprites', () => {

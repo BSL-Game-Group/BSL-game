@@ -2,10 +2,11 @@ const ItemType = 'EQUIPMENT';
 
 // The tabs, in display order. `stackable` allows 2+ equipped at once.
 const CATEGORY_CONFIG = {
-  eyewear: { id: 'eyewear', label: 'Eyewear', order: 0, stackable: false },
-  masks:   { id: 'masks',   label: 'Masks',   order: 1, stackable: false },
-  body:    { id: 'body',    label: 'Body',    order: 2, stackable: false },
-  gloves:  { id: 'gloves',  label: 'Gloves',  order: 3, stackable: true  },
+  eyewear:  { id: 'eyewear',  label: 'Eyewear',  order: 0, stackable: false },
+  masks:    { id: 'masks',    label: 'Masks',    order: 1, stackable: false },
+  body:     { id: 'body',     label: 'Body',     order: 2, stackable: false },
+  gloves:   { id: 'gloves',   label: 'Gloves',   order: 3, stackable: true  },
+  footwear: { id: 'footwear', label: 'Footwear', order: 4, stackable: false },
 };
 
 // Image paths are derived from each item's id + category, so the asset tree is
@@ -166,7 +167,22 @@ const EQUIPMENT_CONFIG = buildEquipment({
       transform: 'scale(2.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
-
+  indoor_shoes: {
+    category: 'footwear',
+    label: 'Indoor shoes',
+    equippedStyle: {
+      position: 'absolute', top: '299px', left: '86px', width: '60px', height: 'auto',
+      transform: 'scale(2.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+  disposable_foot_covers: {
+    category: 'footwear',
+    label: 'Disposable foot covers',
+    equippedStyle: {
+      position: 'absolute', top: '279px', left: '86px', width: '60px', height: 'auto',
+      transform: 'scale(2.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
 });
 
 // Pure equip rule: returns a new equipped map with `itemId` on. For a

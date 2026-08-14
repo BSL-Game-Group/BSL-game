@@ -417,13 +417,9 @@ function App() {
   return (
     <Container fluid className="h-100">
       <Row className="h-100">
-      {/* Use xs={12} to take full width on narrow windows, md={3} for side-by-side on desktop */}
-      <Col xs={12} md={3} className="mb-3 mb-md-0">
-        <h1 className="app-title">{t('app.title')}</h1>
-      </Col>
-
       {!gameStarted ? (
         <div className="start-screen">
+          <h1 className="app-title">{t('app.title')}</h1>
           <div className="microbe-field" aria-hidden="true">
             {[...Array(9)].map((_, i) => <span key={i} className="microbe"></span>)}
           </div>
@@ -434,8 +430,8 @@ function App() {
           <HowToPlay />
         </div>
       ) : (
-          <Col xs={12} md={9} className="h-100">
-            {/* MAIN GAME */}
+          <Col xs={12} className="h-100 d-flex justify-content-center align-items-center">
+            {/* MAIN GAME - CENTERED & FULLSCREEN */}
             <div className="game-wrapper-grid">
               {/* Only the game itself lives in the grid */}
               <Game />
@@ -445,15 +441,15 @@ function App() {
 
       </Row>
 
-      {gameStarted && <ScoreHud score={roundScore} answered={roundAnswers.length} />}
-
-      {/* HUD, top right. Pinned to the viewport rather than to a column, so the
-          full-screen refactor cannot displace it, and stacked so the auth panel
-          can grow downwards when its form opens. Unguarded, unlike the score:
-          signing in before the first round is what keeps it off the claim path. */}
-      <div className="position-fixed top-0 end-0 p-3 z-3 d-flex flex-column align-items-end gap-2">
-        <LanguageSelector />
+      {/* HUD: Score (left) and Auth/Login (center-left), top of page */}
+      <div className="position-fixed top-0 start-0 p-3 z-3 d-flex gap-3 align-items-start">
+        {gameStarted && <ScoreHud score={roundScore} answered={roundAnswers.length} />}
         <AuthStatus />
+      </div>
+
+      {/* Language selector, top right. */}
+      <div className="position-fixed top-0 end-0 p-3 z-3">
+        <LanguageSelector />
       </div>
 
       {/* --- ALL POPUPS RENDERED AT ROOT LEVEL (Outside of the grid) --- */}
