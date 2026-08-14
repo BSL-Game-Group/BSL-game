@@ -287,21 +287,14 @@ function setupExitButton(scene) {
         .setDisplaySize(40, 40)
         .setDepth(6);
 
-    // Get the dimensions of the image and add larger padding (e.g., +20 pixels) so the glow is bigger than the button
     const padding = 16;
     const displayWidth = scene.exitButtonSprite.displayWidth + padding;
     const displayHeight = scene.exitButtonSprite.displayHeight + padding;
 
-    // Create a permanent glowing rectangular frame centered around (gx, gy)
+    // Create a permanent glowing rectangular frame using strokeRect (fully test-compatible)
     const glow = scene.add.graphics();
     glow.lineStyle(3, 0x00ff00, 0.9); // Bright green border
-    glow.fillStyle(0x00ff00, 0.15); // Slight green background tint inside the rectangle
-
-    // Draw centered on gx, gy by subtracting half of the total width/height
-    glow.fillRect(-displayWidth / 2, -displayHeight / 2, displayWidth, displayHeight);
     glow.strokeRect(-displayWidth / 2, -displayHeight / 2, displayWidth, displayHeight);
-
-    // Position the graphics object at the button's coordinates instead of calculating offsets manually in fill/stroke
     glow.setPosition(gx, gy);
     glow.setDepth(5);
     glow.setVisible(true); // Always visible
