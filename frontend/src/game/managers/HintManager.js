@@ -6,6 +6,7 @@ export default class HintManager {
         const baseStyle = { fontSize: "14px", color: "#ffffff", padding: { x: 6, y: 3 } };
         const darkStyle = { ...baseStyle, backgroundColor: "#000000" };
         const greyStyle = { ...baseStyle, backgroundColor: "#222222" };
+        const redDarkStyle = {...baseStyle, backgroundColor: "#000000", color: "#e40e0e"};
 
         // Helper to quickly stamp out hints
         const createHint = (style) => {
@@ -16,6 +17,7 @@ export default class HintManager {
         this.pressEText = createHint(darkStyle);
         this.bslHint = createHint(darkStyle);
         this.doorHint = createHint(darkStyle);
+        this.doorFeedback = createHint(redDarkStyle);
         
         this.closetHint = createHint(greyStyle);
         this.undressHint = createHint(greyStyle);
@@ -33,6 +35,7 @@ export default class HintManager {
         this.undressHint.setText(translations.washUp || 'Press R or click to wash up');
         this.bslHint.setText(translations.pressE || 'Press E');
         this.doorHint.setText(translations.pressE || 'Press E');
+        this.doorFeedback.setText(translations.closeTheDoorBehindYouFirst || 'Close the door behind you first.');
         
         if (translations.exitPrompt) {
             this.exitPromptText = translations.exitPrompt;
@@ -54,5 +57,12 @@ export default class HintManager {
         }
         this.doorHint.setVisible(true);
         this.doorHint.setPosition(door.x, door.y);
+    }
+
+    showDoorFeedback(door) {
+        this.doorFeedback.setVisible(true).setPosition(Math.min(door.x, 1000), door.y - 25);
+        this.scene.time.delayedCall(3000, () => {
+            this.doorFeedback.setVisible(false)
+        }, [], this.scene);
     }
 }

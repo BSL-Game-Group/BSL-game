@@ -88,6 +88,7 @@ class MainScene extends Phaser.Scene {
             openCloset: window.__translations?.openCloset ?? 'Open Closet',
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
+            closeTheDoorBehindYouFirst: window.__translations?.closeTheDoorBehindYouFirst ?? 'Close the door behind you first.',
         });
 
         this.doors = this.initializeDoors(this.player);
@@ -151,13 +152,6 @@ class MainScene extends Phaser.Scene {
         ];
 
         this.seedPresenceFlags();
-
-        this.notification = this.add.text(0, 0, "", {
-            fontSize: "14px",
-            backgroundColor: "#000",
-            color: "#e40e0e",
-            padding: { x: 6, y: 3 }
-        }).setDepth(1000).setVisible(false);
     }
 
     registerEventBusListeners() {
@@ -281,8 +275,7 @@ class MainScene extends Phaser.Scene {
 
         const doorOpened = door.tryToChangeDoorState();
         if (!doorOpened) {
-            const notificationText = window.__translations?.closeTheDoorBehindYouFirst ?? 'Close the door behind you first.';
-            this.notify(Math.min(door.x, 1000), door.y - 30, notificationText);
+            this.hintManager.showDoorFeedback(door);
         }
     }
 
@@ -301,14 +294,10 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        door.tryToChangeDoorState();
-    }
-
-    notify(x, y, text) {
-        this.notification.setVisible(true).setText(text).setPosition(x, y);
-        this.time.delayedCall(3000, () => {
-            this.notification.setVisible(false)
-        }, [], this)
+        const doorOpened = door.tryToChangeDoorState();
+        if (!doorOpened) {
+            this.hintManager.showDoorFeedback(door);
+        }
     }
 }
 
