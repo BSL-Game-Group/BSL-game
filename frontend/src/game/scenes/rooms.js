@@ -277,9 +277,17 @@ function setupExitArea(scene, walls) {
 }
 
 function setupExitButton(scene) {
-    const gx = 575;
-    const gy = 180;
+    const gx = 430;
+    const gy = 115;
     const radius = 28;
+
+    // Optional: Add a picture/icon on the wall for the exit button
+    // (Ensure 'exit_button_image' or your chosen asset is loaded in loadAssets.js,
+    // or you can fallback to the glow/graphics element)
+    scene.exitButtonSprite = scene.add.image(gx, gy, 'exit_button') // Replace with your image key if available
+        .setOrigin(0.5)
+        .setDisplaySize(40, 40)
+        .setDepth(6);
 
     const glow = scene.add.graphics();
     glow.fillStyle(0x0b6623, 0.8);
@@ -287,7 +295,7 @@ function setupExitButton(scene) {
     glow.lineStyle(3, 0x0b6623);
     glow.strokeCircle(gx, gy, radius);
     glow.setDepth(5);
-    glow.setVisible(false);
+    glow.setVisible(false); // Optional: keep hidden or set visible(true) if you want the glow permanently active
 
     const tween = scene.tweens.add({
         targets: glow,
@@ -302,11 +310,11 @@ function setupExitButton(scene) {
     scene.exitGlowTween = tween;
     scene.exitButtonPoint = { x: gx, y: gy };
 
+    // Always active: clicking the button triggers the exit popup regardless of room location
     scene.add
         .zone(gx, gy, radius * 2.4, radius * 2.4)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-            if (!scene.playerInsideExitRoom) { return; }
             window.dispatchEvent(new Event('exit-popup-opened'));
         });
 }

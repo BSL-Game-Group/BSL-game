@@ -25,6 +25,7 @@ export function loadAssets(scene) {
     scene.load.image('info_desk', 'assets/game_arena_elements/info-desk.png');
     scene.load.image('door_front', 'assets/doors/door_front.png');
     scene.load.image('door_top', 'assets/doors/door_top.png');
+    scene.load.image('exit_button', 'assets/game_arena_elements/exit_button.png');
 
     // Rooms
     scene.load.image('bsl1_room', 'assets/rooms/BSL-1 ver. 4.png');
