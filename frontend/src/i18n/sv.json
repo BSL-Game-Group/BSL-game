@@ -102,6 +102,7 @@
     "openCloset": "Öppna garderobsskåpet",
     "pressE": "Tryck E",
     "exitPrompt": "Tryck E för att lämna",
+    "lectureMaterialHint": "Tryck E för att öppna kursmaterialet",
     "washUp": "Tryck R eller klicka för att tvätta dig"
   },
   "hud": {

@@ -102,6 +102,7 @@
     "openCloset": "Avaa kaappi",
     "pressE": "Paina E",
     "exitPrompt": "Paina E poistutuaksesi",
+    "lectureMaterialHint": "Paina E avataksesi luentomateriaalin",
     "washUp": "Paina R tai klikkaa peseytyäksesi"
   },
   "hud": {

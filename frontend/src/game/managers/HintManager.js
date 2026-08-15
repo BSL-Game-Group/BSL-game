@@ -19,6 +19,7 @@ export default class HintManager {
         
         this.closetHint = createHint(greyStyle);
         this.undressHint = createHint(greyStyle);
+        this.lectureMaterialHint = createHint(greyStyle);
 
         // Simple string state (not a Phaser text object)
         this.exitPromptText = 'Press E to exit';
@@ -33,6 +34,7 @@ export default class HintManager {
         this.undressHint.setText(translations.washUp || 'Press R or click to wash up');
         this.bslHint.setText(translations.pressE || 'Press E');
         this.doorHint.setText(translations.pressE || 'Press E');
+        this.lectureMaterialHint.setText(translations.lectureMaterialHint || 'Press E to open lecture material');
         
         if (translations.exitPrompt) {
             this.exitPromptText = translations.exitPrompt;

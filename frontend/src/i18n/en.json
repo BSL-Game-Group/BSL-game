@@ -102,6 +102,7 @@
     "openCloset": "Open Closet",
     "pressE": "Press E",
     "exitPrompt": "Press E to exit",
+    "lectureMaterialHint": "Press E to open lecture material",
     "washUp": "Press R or click to wash up"
   },
   "hud": {
