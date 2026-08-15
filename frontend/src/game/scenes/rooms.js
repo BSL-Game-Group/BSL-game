@@ -306,7 +306,6 @@ function setupExitButton(scene) {
         .zone(gx, gy, radius * 2.4, radius * 2.4)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-            if (!scene.playerInsideExitRoom) { return; }
             window.dispatchEvent(new Event('exit-popup-opened'));
         });
 }
