@@ -120,7 +120,7 @@ function setupCloset(scene) {
         scene.closetHint.setVisible(false);
     });
     scene.closetHit.on('pointerdown', () => {
-        if (!scene.playerInsideDressingRoom) {return;}
+        //if (!scene.playerInsideDressingRoom) {return;}
         window.dispatchEvent(new Event('closet-popup-opened'));
     });
 }
@@ -161,7 +161,6 @@ function setupUndressPoint(scene) {
     // the closet's — that way it works for keyboard players too, not just mouse
     // hover, and both R and a click trigger the same wash-up.
     scene.undressZone.on('pointerdown', () => {
-        if (!scene.playerInsideDressingRoom) {return;}
         window.dispatchEvent(new Event('quick-undress'));
     });
 }
