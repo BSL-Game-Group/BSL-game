@@ -22,6 +22,12 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          env:
+            # Without this, nginx falls back to the image's built-in default
+            # (BACKEND_SERVICE=backend) and would silently proxy production
+            # traffic to the staging backend Service instead of backend-prod.
+            - name: BACKEND_SERVICE
+              value: "backend-prod"
           resources:
             requests:
               memory: "50Mi"

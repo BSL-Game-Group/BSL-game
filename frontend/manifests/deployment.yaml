@@ -22,6 +22,9 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          env:
+            - name: BACKEND_SERVICE
+              value: "backend"
           resources:
             requests:
               memory: "50Mi"
