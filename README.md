@@ -43,6 +43,17 @@ docker compose down -v && docker compose up -d
 
 Read endpoints: `GET /api/bsl-classes`, `GET /api/microbes`, `GET /api/microbes/:id`.
 
+Production uses its own separate database and secret
+(`bsl-backend-secret-prod`), requested and created the same way as the
+staging one above but kept apart — see atk-tietokannat@helsinki.fi for
+requesting a new production database.
+
+Deploys to production are manual: pushing to main only updates staging.
+To promote a build to production, edit `from.name` in
+`backend/manifests/production/imagestream.yaml` and
+`frontend/manifests/production/imagestream.yaml` to that build's
+known-good git-sha tag, then `oc apply` and commit the change.
+
 ### `JWT_SECRET`
 
 The backend signs session tokens with `JWT_SECRET` and **refuses to start without
@@ -69,36 +80,6 @@ oc create secret generic bsl-backend-secret \
 
 That form patches the existing secret without disturbing `DB_URL`. Rotating the
 value signs everyone out; nothing else breaks.
-
-### Production
-
-Production runs in the same OKD project as staging (the course only grants one
-project per group), as a parallel set of `-prod`-suffixed objects defined in
-`backend/manifests/production/` and `frontend/manifests/production/` — see
-`kustomization.yaml`. It uses its own database (a separate `bsl_game_production`
-database on the university's production Postgres, requested from
-atk-tietokannat@helsinki.fi, kept apart from staging's test-tier database) and
-its own secret, `bsl-backend-secret-prod`:
-
-```bash
-oc create secret generic bsl-backend-secret-prod \
-  --from-literal=DB_URL='postgresql://bsl_game_production:<password>@possu.it.helsinki.fi:5432/bsl_game_production?targetServerType=primary&ssl=true' \
-  --from-literal=JWT_SECRET="$(openssl rand -base64 32)"
-```
-
-This must exist before `backend/manifests/production/deployment.yaml` rolls out
-successfully, for the same `CreateContainerConfigError` reason as staging above.
-
-Deploys to production are manual, not automatic: both production ImageStreams
-(`bsl-backend-service-prod`, `bsl-frontend-prod`) start out pointed at the same
-`:staging` Docker Hub tag as a bootstrap value, not a promoted release. Before
-treating production as truly live, point them at a specific, known-good
-`bslgame/<image>:<git-sha>` tag (CI pushes one on every push to main):
-
-```bash
-oc tag bslgame/bsl-backend:<git-sha> bsl-backend-service-prod:production --source=docker
-oc tag bslgame/bsl-frontend:<git-sha> bsl-frontend-prod:production --source=docker
-```
 
 ### Testing
 
