@@ -270,8 +270,8 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        const doorOpened = door.tryToChangeDoorState();
-        if (!doorOpened) {
+        const doorStateChanged = door.tryToChangeDoorState();
+        if (!doorStateChanged) {
             this.hintManager.showDoorFeedback(door);
         }
     }
@@ -291,8 +291,8 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        const doorOpened = door.tryToChangeDoorState();
-        if (!doorOpened) {
+        const doorStateChanged = door.tryToChangeDoorState();
+        if (!doorStateChanged) {
             this.hintManager.showDoorFeedback(door);
         }
     }
