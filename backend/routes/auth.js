@@ -33,14 +33,12 @@ const NO_SUCH_USER_HASH = '$2b$10$btzb5aCHcPW4cdUS.QC3Ie5brTLRZ6MDVPNOlbPsjo38pS
 const profanity = require('leo-profanity')
 profanity.loadDictionary('en')
 
-// Combine and flatten all languages from badWords.json
 const BLOCKED_ROOTS = [
   ...(badWordsData.english || []),
   ...(badWordsData.finnish || []),
   ...(badWordsData.swedish || [])
 ]
 
-// Register all words globally with leo-profanity
 profanity.add(BLOCKED_ROOTS)
 
 function validateCredentials(username, password) {
@@ -62,7 +60,6 @@ function validateCredentials(username, password) {
   const lowerUsername = username.toLowerCase()
   const normalizedUsername = lowerUsername.replace(/[_-]/g, '')
 
-  // 3. Check leo-profanity on both the original and stripped/normalized username
   if (profanity.check(username) || profanity.check(normalizedUsername)) {
     return {
       status: 400,
@@ -73,7 +70,6 @@ function validateCredentials(username, password) {
     }
   }
 
-  // 4. Substring/Root check: block if any forbidden root word appears anywhere inside
   const containsBlockedRoot = BLOCKED_ROOTS.some(
     (root) => lowerUsername.includes(root) || normalizedUsername.includes(root)
   )
@@ -88,7 +84,6 @@ function validateCredentials(username, password) {
     }
   }
 
-  // 5. Enforce check using decent-username
   try {
     const decent = new DecentUsername(username)
     if (typeof decent.validate === 'function') {
@@ -193,5 +188,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 router.get('/me', requireAuth, (req, res) => {
   res.json({ id: req.user.id, username: req.user.username })
 })
+
+router.validateCredentials = validateCredentials
 
 module.exports = router
