@@ -16,6 +16,7 @@ export default class HintManager {
         this.pressEText = createHint(darkStyle);
         this.bslHint = createHint(darkStyle);
         this.doorHint = createHint(darkStyle);
+        this.openmicrobeInfoHint = createHint(darkStyle);
         
         this.closetHint = createHint(greyStyle);
         this.undressHint = createHint(greyStyle);
@@ -33,6 +34,7 @@ export default class HintManager {
         this.undressHint.setText(translations.washUp || 'Press R or click to wash up');
         this.bslHint.setText(translations.pressE || 'Press E');
         this.doorHint.setText(translations.pressE || 'Press E');
+        this.openmicrobeInfoHint.setText(translations.openMicrobeInfoHint || 'Press E for microbe info');
         
         if (translations.exitPrompt) {
             this.exitPromptText = translations.exitPrompt;

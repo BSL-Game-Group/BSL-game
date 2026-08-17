@@ -24,6 +24,7 @@ function makeFakeScene() {
       }),
       setDepth: jest.fn(() => o),
       setAlpha: jest.fn(() => o),
+      setPosition: jest.fn(() => o),
       setInteractive: jest.fn(() => {
         o.interactive = true
         return o
@@ -36,6 +37,7 @@ function makeFakeScene() {
       fillCircle: jest.fn(() => o),
       lineStyle: jest.fn(() => o),
       strokeCircle: jest.fn(() => o),
+      strokeRect: jest.fn(() => o),
       on: jest.fn((event, cb) => {
         o.handlers[event] = cb
         return o

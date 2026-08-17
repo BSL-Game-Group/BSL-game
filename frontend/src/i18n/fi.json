@@ -102,7 +102,8 @@
     "openCloset": "Avaa kaappi",
     "pressE": "Paina E",
     "exitPrompt": "Paina E poistutuaksesi",
-    "washUp": "Paina R tai klikkaa peseytyäksesi"
+    "washUp": "Paina R tai klikkaa peseytyäksesi",
+    "openmicrobeInfoHint": "Paina E nähdäksesi tutkittavan mikrobin tiedot"
   },
   "hud": {
     "score": "Pisteet: {score}",
