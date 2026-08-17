@@ -9,7 +9,7 @@ const { claimRoundsForSession } = require('../services/claim')
 
 const router = express.Router()
 
-const USERNAME_PATTERN = /^[a-zA-Z0-9_-]+$/
+const USERNAME_PATTERN = /^[a-zA-Z0-9_\-ÅÄÖåäö]+$/
 const USERNAME_MIN = 3
 const USERNAME_MAX = 32
 const PASSWORD_MIN = 8
@@ -136,6 +136,22 @@ router.post('/login', loginLimiter, async (req, res) => {
 
 router.get('/me', requireAuth, (req, res) => {
   res.json({ id: req.user.id, username: req.user.username })
+})
+
+router.delete('/me', requireAuth, async (req, res) => {
+  const userId = req.user.id
+
+  await db.Round.destroy({ where: { user_id: userId } })
+
+  const deletedCount = await db.User.destroy({
+    where: { id: userId },
+  })
+
+  if (!deletedCount) {
+    return res.status(404).json({ error: 'User not found', code: 'user_not_found' })
+  }
+
+  res.status(204).json({ success: true })
 })
 
 module.exports = router

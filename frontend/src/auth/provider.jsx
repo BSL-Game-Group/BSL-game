@@ -73,11 +73,17 @@ export function AuthProvider({ children }) {
     setLoading(false)
   }, [])
 
+  const removeAccount = useCallback(async () => {
+    if (!token) {return}
+    await authService.remove(token)
+    logout()
+  }, [token, logout])
+
   const clearClaimedRounds = useCallback(() => setClaimedRounds(null), [])
 
   return (
     <AuthContext.Provider
-      value={{ user, token, loading, claimedRounds, login, register, logout, clearClaimedRounds }}
+      value={{ user, token, loading, claimedRounds, login, register, logout, removeAccount, clearClaimedRounds }}
     >
       {children}
     </AuthContext.Provider>

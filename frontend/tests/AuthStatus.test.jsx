@@ -3,6 +3,14 @@ import '@testing-library/jest-dom'
 import AuthStatus from '../src/auth/AuthStatus'
 import { AuthContext } from '../src/auth/context'
 
+beforeEach(() => {
+  jest.spyOn(window, 'confirm').mockImplementation(() => true)
+})
+
+afterEach(() => {
+  jest.restoreAllMocks()
+})
+
 function renderWithAuth(value) {
   const auth = {
     user: null,
@@ -54,4 +62,17 @@ test('a signed-in player sees their name and can log out', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Log out' }))
 
   expect(auth.logout).toHaveBeenCalled()
+})
+
+test('calls removeAccount and clears user on delete confirmation', async () => {
+  const auth = renderWithAuth({
+    user: { id: 1, username: 'testuser' },
+    removeAccount: jest.fn().mockResolvedValue(true)
+  })
+
+  const deleteButton = screen.getByRole('button', { name: /delete|poista|radera/i })
+  fireEvent.click(deleteButton)
+
+  expect(window.confirm).toHaveBeenCalled()
+  expect(auth.removeAccount).toHaveBeenCalledTimes(1)
 })
