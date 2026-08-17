@@ -1,11 +1,14 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
+const { DecentUsername } = require('decent-username')
 
 const db = require('../models')
 const { signToken } = require('../utils/token')
 const { requireAuth } = require('../middleware/auth')
 const { registerLimiter, loginLimiter } = require('../middleware/rateLimit')
 const { claimRoundsForSession } = require('../services/claim')
+
+const badWordsData = require('../data/badWords.json')
 
 const router = express.Router()
 
@@ -27,6 +30,19 @@ const BCRYPT_COST = 10
 // not pay for a hash it will usually not need.
 const NO_SUCH_USER_HASH = '$2b$10$btzb5aCHcPW4cdUS.QC3Ie5brTLRZ6MDVPNOlbPsjo38pShvM30xC'
 
+const profanity = require('leo-profanity')
+profanity.loadDictionary('en')
+
+// Combine and flatten all languages from badWords.json
+const BLOCKED_ROOTS = [
+  ...(badWordsData.english || []),
+  ...(badWordsData.finnish || []),
+  ...(badWordsData.swedish || [])
+]
+
+// Register all words globally with leo-profanity
+profanity.add(BLOCKED_ROOTS)
+
 function validateCredentials(username, password) {
   if (
     typeof username !== 'string' ||
@@ -43,6 +59,51 @@ function validateCredentials(username, password) {
     }
   }
 
+  const lowerUsername = username.toLowerCase()
+  const normalizedUsername = lowerUsername.replace(/[_-]/g, '')
+
+  // 3. Check leo-profanity on both the original and stripped/normalized username
+  if (profanity.check(username) || profanity.check(normalizedUsername)) {
+    return {
+      status: 400,
+      body: {
+        error: 'Username not allowed',
+        code: 'username_not_allowed',
+      },
+    }
+  }
+
+  // 4. Substring/Root check: block if any forbidden root word appears anywhere inside
+  const containsBlockedRoot = BLOCKED_ROOTS.some(
+    (root) => lowerUsername.includes(root) || normalizedUsername.includes(root)
+  )
+
+  if (containsBlockedRoot) {
+    return {
+      status: 400,
+      body: {
+        error: 'Username not allowed',
+        code: 'username_not_allowed',
+      },
+    }
+  }
+
+  // 5. Enforce check using decent-username
+  try {
+    const decent = new DecentUsername(username)
+    if (typeof decent.validate === 'function') {
+      decent.validate()
+    }
+  } catch (err) {
+    return {
+      status: 400,
+      body: {
+        error: 'Username not allowed',
+        code: 'username_not_allowed',
+      },
+    }
+  }
+
   if (typeof password !== 'string' || password.length < PASSWORD_MIN) {
     return {
       status: 400,
@@ -53,8 +114,6 @@ function validateCredentials(username, password) {
   return null
 }
 
-// Must match users_username_lower_unique, or a differently-cased username would
-// be rejected at registration but unusable at login.
 function whereUsernameMatches(username) {
   return db.sequelize.where(
     db.sequelize.fn('lower', db.sequelize.col('username')),
@@ -62,9 +121,6 @@ function whereUsernameMatches(username) {
   )
 }
 
-// The limiter runs first, and needs a parsed body for its username key — which it
-// has, because express.json() runs in app.js before this router is mounted. Each
-// route gets its own instance, so neither can spend the other's budget.
 router.post('/register', registerLimiter, async (req, res) => {
   const { username, password, session_id: sessionId } = req.body ?? {}
 
