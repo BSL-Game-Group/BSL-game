@@ -102,7 +102,8 @@
     "openCloset": "Open Closet",
     "pressE": "Press E",
     "exitPrompt": "Press E to exit",
-    "washUp": "Press R or click to wash up"
+    "washUp": "Press R or click to wash up",
+    "openmicrobeInfoHint": "Press E for microbe info"
   },
   "hud": {
     "score": "Score: {score}",
