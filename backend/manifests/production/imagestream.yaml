@@ -1,3 +1,10 @@
+# NOTE (production promotion): `from.name` below deliberately mirrors
+# :staging as a bootstrap value, not a promoted release — the team chose
+# manual production deploys, so no CI step pushes a distinct :production
+# tag. Before treating this as "really in production", re-point
+# `from.name` at a specific, known-good bslgame/bsl-backend:<git-sha> tag
+# (CI already pushes these on every push to main) and re-apply, or run:
+#   oc tag bslgame/bsl-backend:<git-sha> bsl-backend-service-prod:production --source=docker
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:

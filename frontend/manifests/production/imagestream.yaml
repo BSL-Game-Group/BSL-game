@@ -1,3 +1,7 @@
+# NOTE (production promotion): `from.name` below deliberately mirrors
+# :staging as a bootstrap value, not a promoted release — see the matching
+# note in backend/manifests/production/imagestream.yaml for why, and how
+# to promote a specific known-good tag when you're ready.
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
