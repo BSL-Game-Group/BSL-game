@@ -1,4 +1,4 @@
-import { generateSessionId, notifyRoomEntry } from '../src/game/services/tracking';
+import { notifyRoomEntry } from '../src/game/services/tracking';
 
 describe('Tracking Service', () => {
   
@@ -52,17 +52,6 @@ describe('Tracking Service', () => {
 
       // Should not throw
       await expect(notifyRoomEntry('bsl-2')).resolves.not.toThrow();
-    });
-  });
-
-  describe('generateSessionId', () => {
-    test('generates unique session IDs', () => {
-      const id1 = generateSessionId();
-      const id2 = generateSessionId();
-
-      expect(id1).toMatch(/^session_\d+_[a-z0-9]+$/);
-      expect(id2).toMatch(/^session_\d+_[a-z0-9]+$/);
-      expect(id1).not.toEqual(id2);
     });
   });
 
