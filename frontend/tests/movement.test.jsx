@@ -120,6 +120,7 @@ function createScene(overrides = {}) {
   scene.pressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
   scene.doorHint = { setVisible: jest.fn(), setPosition: jest.fn() };
   scene.closetHint = { visible: false, setPosition: jest.fn() };
+  scene.openmicrobeInfoHint = { setVisible: jest.fn(), setPosition: jest.fn() };
 
   scene.closetHit = {
     setVisible: jest.fn(),
@@ -779,7 +780,7 @@ test('hides the press E hint when inside the lecture room but too far from the i
   window.removeEventListener('microbe-info-popup-opened', handler)
 
   expect(scene.lectureGlow.setVisible).toHaveBeenCalledWith(true)
-  expect(scene.pressEText.setVisible).toHaveBeenCalledWith(false)
+  expect(scene.openmicrobeInfoHint.setVisible).toHaveBeenCalledWith(false)
   expect(handler).not.toHaveBeenCalled()
 })
 
