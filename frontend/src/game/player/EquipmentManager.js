@@ -43,8 +43,10 @@ export default class EquipmentManager {
 
         if (equipped.pressurized_suit) {
             this.player.setTexture("head_only");
-        } else if (equipped.wow_helmet || equipped.disposable_overall) {
+        } else if (equipped.wow_helmet) {
             this.player.setTexture("no_hair");
+        } else if (equipped.disposable_overall) {
+            this.player.setTexture("no_hair_disposable_overall");
         } else {
             this.player.setTexture("player_base");
         }
