@@ -10,7 +10,7 @@ export default class EquipmentManager {
             face_shield: { scale: 0.03, offsetX: -0.5, offsetY: -28, depth: 14 },
             bsl3_respirator: { scale: 0.04, offsetX: -1, offsetY: -25, depth: 15 },
             sunglasses: { scale: 0.07, offsetX: -0.85, offsetY: -27.5, depth: 16 },
-            disposable_overall: { scale: 0.065, offsetX: -0.95, offsetY: 5, depth: 13 },
+            disposable_overall: { scale: 0.085, offsetX: -0.5, offsetY: 0, depth: 13 },
             gloves: { scale: 0.085, offsetX: -1.5, offsetY: 14, depth: 12 },
             gloves_2: { scale: 0.085, offsetX: -1.5, offsetY: 14, depth: 13 },
             closable_lab_coat: { scale: 0.33, offsetX: -1, offsetY: 7, depth: 11 },
