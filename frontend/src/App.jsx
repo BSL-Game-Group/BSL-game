@@ -331,17 +331,17 @@ function App() {
   // 2. Client-side scoring matching your table breakdown
   const calculateClientScore = (bsl, roomCorrect, eqCount) => {
     let eqScore = 0
-    let rmScore = roomCorrect ? 30 : 0
+    const rmScore = roomCorrect ? 30 : 0
 
     if (bsl === 1) {
       const points = [60, 15, 15, 15, 15]
-      for (let i = 0; i <= eqCount && i < points.length; i++) eqScore += points[i]
+      for (let i = 0; i <= eqCount && i < points.length; i++) {eqScore += points[i]}
     } else if (bsl === 2 || bsl === 3) {
       const points = [60, 12, 12, 12, 12, 12]
-      for (let i = 0; i <= eqCount && i < points.length; i++) eqScore += points[i]
+      for (let i = 0; i <= eqCount && i < points.length; i++) {eqScore += points[i]}
     } else if (bsl === 4) {
       const points = [60, 30, 30]
-      for (let i = 0; i <= eqCount && i < points.length; i++) eqScore += points[i]
+      for (let i = 0; i <= eqCount && i < points.length; i++) {eqScore += points[i]}
     }
     return rmScore + eqScore
   }
