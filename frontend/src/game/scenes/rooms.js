@@ -469,7 +469,10 @@ export function createRooms(scene) {
     // to the corridor is now closed — it's only reachable via the lecture room.
     hWall(scene, 0, 700, 290, [[220, 310]], walls);
     // Corridor bottom = Dressing room top (one narrower door)
-    hWall(scene, 0, 700, 430, [[315, 375]], walls);
+    hWall(scene, 0, 700, 430, [[325, 377], [425, 480]], walls);
+
+    // ---- BIG DIVIDER (Lobby <-> Lab area) ----
+    vWall(scene, 400, 290, 430, [], walls);
 
     // ---- BIG DIVIDER x:700 (Corridor <-> Labs door, opening nudged: top up, bottom down) ----
     vWall(scene, 700, 0, 720, [[292, 435]], walls);
