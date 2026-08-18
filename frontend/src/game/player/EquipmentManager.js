@@ -41,9 +41,9 @@ export default class EquipmentManager {
             this.sprites[key].setVisible(Boolean(equipped[key]));
         });
 
-        if (equipped.pressurized_suit || equipped.disposable_overall) {
+        if (equipped.pressurized_suit) {
             this.player.setTexture("head_only");
-        } else if (equipped.wow_helmet) {
+        } else if (equipped.wow_helmet || equipped.disposable_overall) {
             this.player.setTexture("no_hair");
         } else {
             this.player.setTexture("player_base");
