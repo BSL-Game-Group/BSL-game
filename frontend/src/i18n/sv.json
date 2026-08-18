@@ -132,7 +132,8 @@
       "username_taken": "Användarnamnet är redan i bruk.",
       "invalid_credentials": "Fel användarnamn eller lösenord.",
       "rate_limited": "För många försök för användarnamnet. Försök igen om 15 minuter.",
-      "network": "Kunde inte nå servern. Försök igen."
+      "network": "Kunde inte nå servern. Försök igen.",
+      "username_not_allowed": "Användarnamnet är inte tillåtet"
     },
     "rounds": {
       "title": "Dina rundor",

@@ -16,3 +16,18 @@ resources:
   - frontend/manifests/service.yaml
   - frontend/manifests/deployment.yaml
   - frontend/manifests/route.yaml
+
+  # Backend (production)
+  # NOTE: the backend-prod deployment references bsl-backend-secret-prod, which
+  # must be created directly on the cluster (DB_URL + JWT_SECRET) before this
+  # rolls out successfully. Not created yet — see README.md.
+  - backend/manifests/production/imagestream.yaml
+  - backend/manifests/production/service.yaml
+  - backend/manifests/production/deployment.yaml
+  - backend/manifests/production/route.yaml
+
+  # Frontend (production)
+  - frontend/manifests/production/imagestream.yaml
+  - frontend/manifests/production/service.yaml
+  - frontend/manifests/production/deployment.yaml
+  - frontend/manifests/production/route.yaml
