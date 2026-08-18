@@ -123,6 +123,7 @@
     "switchToLogin": "Onko sinulla jo tili? Kirjaudu",
     "noRecovery": "Salasanaa ei voi palauttaa — kirjoita se talteen.",
     "working": "Odota…",
+    "confirmDeleteButton": "Vahvista",
     "deleteButton": "Poista",
     "confirmDelete": "Haluatko varmasti poistaa tilisi?",
     "errors": {

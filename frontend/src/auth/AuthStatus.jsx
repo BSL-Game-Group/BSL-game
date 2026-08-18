@@ -13,11 +13,9 @@ function AuthStatus() {
 
   const [formOpen, setFormOpen] = useState(false)
   const [deleteError, setDeleteError] = useState(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const handleDeleteAccount = async () => {
-    if (!window.confirm(t('auth.confirmDelete') || 'Are you sure you want to delete your account?')) {
-      return
-    }
     try {
       setDeleteError(null)
       await removeAccount()
@@ -60,8 +58,8 @@ function AuthStatus() {
         <button className="btn btn-sm btn-outline-secondary" onClick={logout}>
           {t('auth.logoutButton')}
         </button>
-        <button className="btn btn-sm btn-outline-danger" onClick={handleDeleteAccount}>
-          {t('auth.deleteButton') || 'Delete Account'}
+        <button className="btn btn-sm btn-outline-danger" onClick={() => setShowDeleteModal(true)}>
+          {t('auth.deleteButton')}
         </button>
       </div>
       {deleteError && <div className="text-danger small mt-1">{deleteError}</div>}
@@ -79,6 +77,35 @@ function AuthStatus() {
           {t('auth.leaderboard.openButton')}
         </button>
       </div>
+
+      {showDeleteModal && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content p-3">
+              <div className="modal-body">
+                <p>{t('auth.confirmDelete')}</p>
+              </div>
+              <div className="modal-footer border-0 d-flex justify-content-end gap-2">
+                <button
+                  className="btn btn-sm btn-secondary"
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  {t('auth.cancel')}
+                </button>
+                <button
+                  className="btn btn-sm btn-danger"
+                  onClick={async () => {
+                    setShowDeleteModal(false)
+                    await handleDeleteAccount()
+                  }}
+                >
+                  {t('auth.confirmDeleteButton')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

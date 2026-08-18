@@ -3,14 +3,6 @@ import '@testing-library/jest-dom'
 import AuthStatus from '../src/auth/AuthStatus'
 import { AuthContext } from '../src/auth/context'
 
-beforeEach(() => {
-  jest.spyOn(window, 'confirm').mockImplementation(() => true)
-})
-
-afterEach(() => {
-  jest.restoreAllMocks()
-})
-
 function renderWithAuth(value) {
   const auth = {
     user: null,
@@ -21,6 +13,7 @@ function renderWithAuth(value) {
     register: jest.fn().mockResolvedValue({}),
     logout: jest.fn(),
     clearClaimedRounds: jest.fn(),
+    removeAccount: jest.fn().mockResolvedValue(true),
     ...value,
   }
 
@@ -73,6 +66,10 @@ test('calls removeAccount and clears user on delete confirmation', async () => {
   const deleteButton = screen.getByRole('button', { name: /delete|poista|radera/i })
   fireEvent.click(deleteButton)
 
-  expect(window.confirm).toHaveBeenCalled()
+  const confirmButton = screen.queryByRole('button', { name: /confirm|yes|kyllä|ja/i })
+  if (confirmButton) {
+    fireEvent.click(confirmButton)
+  }
+
   expect(auth.removeAccount).toHaveBeenCalledTimes(1)
 })

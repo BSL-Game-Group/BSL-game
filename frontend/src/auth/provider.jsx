@@ -77,6 +77,7 @@ export function AuthProvider({ children }) {
     if (!token) {return}
     await authService.remove(token)
     logout()
+    window.dispatchEvent(new Event('game-reset-state'))
   }, [token, logout])
 
   const clearClaimedRounds = useCallback(() => setClaimedRounds(null), [])
