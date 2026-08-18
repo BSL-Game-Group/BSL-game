@@ -43,6 +43,17 @@ docker compose down -v && docker compose up -d
 
 Read endpoints: `GET /api/bsl-classes`, `GET /api/microbes`, `GET /api/microbes/:id`.
 
+Production uses its own separate database and secret
+(`bsl-backend-secret-prod`), requested and created the same way as the
+staging one above but kept apart — see atk-tietokannat@helsinki.fi for
+requesting a new production database.
+
+Deploys to production are manual: pushing to main only updates staging.
+To promote a build to production, edit `from.name` in
+`backend/manifests/production/imagestream.yaml` and
+`frontend/manifests/production/imagestream.yaml` to that build's
+known-good git-sha tag, then `oc apply` and commit the change.
+
 ### `JWT_SECRET`
 
 The backend signs session tokens with `JWT_SECRET` and **refuses to start without
