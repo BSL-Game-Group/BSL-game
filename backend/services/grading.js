@@ -44,13 +44,12 @@ function evaluateEquipmentRules(rules, chosenEquipment) {
   return requiredSatisfied && anyOfSatisfied
 }
 
-// `rules` is the requirement set for the level the player CHOSE, matching what the
-// client shows them while they play (App.jsx grades the same way). Picking the
-// wrong room and dressing correctly for it costs the level, not the equipment.
 function gradeAnswer(answer, microbe, rules) {
   return {
     level_correct: Number(answer.chosen_level) === Number(microbe.bsl_level),
     equipment_correct: evaluateEquipmentRules(rules, answer.chosen_equipment),
+    room_attempt: Number(answer.room_attempt || 1),
+    equipment_attempt: Number(answer.equipment_attempt || 1),
   }
 }
 

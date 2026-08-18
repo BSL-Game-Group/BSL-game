@@ -311,41 +311,73 @@ function App() {
     window.dispatchEvent(new Event('popup-closed'))
   }
 
-  // --- LOGIC ---
+// --- LOGIC ---
   const correctLevel = currentMicrobe?.bsl_level
   const chosenLevel = Number(String(answerLevel).replace('BSL-', ''))
   const isLevelCorrect = typeof correctLevel === 'number' && chosenLevel === correctLevel
+
   const equipmentRules = getEquipmentRulesForBslLevel(chosenLevel)
   const chosenEquipment = Object.keys(equipped).filter((item) => equipped[item])
+
+  // 1. Safely handle equipment rules (convert keys/values to an array if it's an object)
+  const rulesArray = Array.isArray(equipmentRules)
+    ? equipmentRules
+    : Object.keys(equipmentRules || {}).filter(item => equipmentRules[item])
+
+  const correctEquipmentCount = chosenEquipment.filter(item => rulesArray.includes(item)).length
   const isEquipmentCorrect = evaluateEquipmentRules(equipmentRules, chosenEquipment)
   const isCorrect = isLevelCorrect && isEquipmentCorrect
 
-  const roundScore = roundAnswers.filter((answer) => answer.correct).length
+  // 2. Client-side scoring matching your table breakdown
+  const calculateClientScore = (bsl, roomCorrect, eqCount) => {
+    let eqScore = 0
+    let rmScore = roomCorrect ? 30 : 0
+
+    if (bsl === 1) {
+      const points = [60, 15, 15, 15, 15]
+      for (let i = 0; i <= eqCount && i < points.length; i++) eqScore += points[i]
+    } else if (bsl === 2 || bsl === 3) {
+      const points = [60, 12, 12, 12, 12, 12]
+      for (let i = 0; i <= eqCount && i < points.length; i++) eqScore += points[i]
+    } else if (bsl === 4) {
+      const points = [60, 30, 30]
+      for (let i = 0; i <= eqCount && i < points.length; i++) eqScore += points[i]
+    }
+    return rmScore + eqScore
+  }
+
+  const currentAnswerScore = calculateClientScore(chosenLevel, isLevelCorrect, correctEquipmentCount)
+
+  // 3. Sum up total score for the HUD
+  const roundScore = roundAnswers.reduce((sum, ans) => sum + (ans.pointsEarned || 0), 0)
 
   // Handling a microbe always requires a trip to the dressing room's wash-up
   // spot afterward — whether or not any PPE was actually worn — before the
   // next microbe is handed out.
   const handleAnswerClose = () => {
-    if (Number.isInteger(currentMicrobe?.id) && Number.isInteger(chosenLevel)) {
-      setRoundAnswers((answers) =>
-        answers.length >= MAX_ROUND_ANSWERS
-          ? answers
-          : [
-              ...answers,
-              {
-                microbe_id: currentMicrobe.id,
-                chosen_level: chosenLevel,
-                chosen_equipment: chosenEquipment,
-                correct: isCorrect,
-              },
-            ]
-      )
-    }
+      if (Number.isInteger(currentMicrobe?.id) && Number.isInteger(chosenLevel)) {
+        setRoundAnswers((answers) =>
+          answers.length >= MAX_ROUND_ANSWERS
+            ? answers
+            : [
+                ...answers,
+                {
+                  microbe_id: currentMicrobe.id,
+                  chosen_level: chosenLevel,
+                  chosen_equipment: chosenEquipment,
+                  correct_equipment_count: correctEquipmentCount,
+                  room_correct: isLevelCorrect,
+                  correct: isCorrect,
+                  pointsEarned: currentAnswerScore,
+                },
+              ]
+        )
+      }
 
-    setAnswerOpen(false)
-    setAwaitingUndress(true)
-    EventBus.emit('undress-required')
-  }
+      setAnswerOpen(false)
+      setAwaitingUndress(true)
+      EventBus.emit('undress-required')
+    }
 
   const saveRoundSoFar = useCallback(async () => {
     if (roundAnswers.length === 0) {

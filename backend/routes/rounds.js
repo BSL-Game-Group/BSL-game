@@ -35,7 +35,9 @@ function isWellFormedAnswer(answer) {
     Number.isInteger(answer.microbe_id) &&
     isStorableInteger(answer.chosen_level) &&
     Array.isArray(answer.chosen_equipment) &&
-    answer.chosen_equipment.every((item) => typeof item === 'string')
+    answer.chosen_equipment.every((item) => typeof item === 'string') &&
+    (answer.room_attempt === undefined || (Number.isInteger(answer.room_attempt) && answer.room_attempt >= 1)) &&
+    (answer.equipment_attempt === undefined || (Number.isInteger(answer.equipment_attempt) && answer.equipment_attempt >= 1))
   )
 }
 
