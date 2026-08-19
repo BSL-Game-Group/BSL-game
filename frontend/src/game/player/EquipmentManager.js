@@ -51,13 +51,17 @@ export default class EquipmentManager {
     }
 
     updatePositions() {
+        const flipped = Boolean(this.player.flipX);
+
         Object.entries(this.sprites).forEach(([key, sprite]) => {
             const cfg = this.config[key];
+            const offsetX = flipped ? -cfg.offsetX : cfg.offsetX;
 
             sprite.setPosition(
-                this.player.x + cfg.offsetX,
+                this.player.x + offsetX,
                 this.player.y + cfg.offsetY
             );
+            sprite.setFlipX(flipped);
         });
     }
 }
