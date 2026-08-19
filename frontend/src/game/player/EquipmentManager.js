@@ -1,3 +1,5 @@
+const NEAREST_FILTER = 1; // Phaser.Textures.FilterMode.NEAREST
+
 export default class EquipmentManager {
     constructor(scene, player) {
         this.scene = scene;
@@ -26,7 +28,11 @@ export default class EquipmentManager {
     }
 
     createSprites() {
+        // Equipment sprites are scaled down much more aggressively than the
+        // player (e.g. 0.05 vs 0.4); nearest-neighbour filtering avoids the
+        // shimmer linear filtering causes on such small textures during motion.
         Object.entries(this.config).forEach(([key, cfg]) => {
+            this.scene.textures.get(key)?.setFilter?.(NEAREST_FILTER);
             this.sprites[key] = this.scene.add
                 .sprite(700, 300, key)
                 .setScale(cfg.scale)

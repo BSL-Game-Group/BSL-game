@@ -93,7 +93,7 @@ class MainScene extends Phaser.Scene {
         this.doors = this.initializeDoors(this.player);
 
         this.equipmentManager = new EquipmentManager(this, this.player);
-        
+
         // Backward compatibility for tests expecting scene.equipment to exist
         this.equipment = this.equipmentManager.equipment || this.equipmentManager.sprites || {};
 
