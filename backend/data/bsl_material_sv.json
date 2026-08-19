@@ -89,7 +89,7 @@
       "note": "Hiv, hepatit B, hepatit C och denguefeber finns inte med i denna BSL-2-lista — de har flyttats till BSL-3 enligt finsk lagstiftning (se del 3).",
       "rows": [
         [16, "Influensa A", "Säsongsinfluensavirus", "Virus", "Vaccin finns tillgängligt"],
-        [17, "Mässling", "Morbillivirus", "Virus", "MPR-vaccin skyddar"],
+        [17, "Mässling", "Morbillivirus", "Virus", "MPR (eng. MMR)-vaccin skyddar"],
         [18, "Salmonella", "Salmonella Typhimurium", "Bakterie", "Livsmedelsburen"],
         [19, "Stafylokocker", "Staphylococcus aureus", "Bakterie", "MRSA-stammar resistenta"],
         [20, "Borrelios", "Borrelia burgdorferi", "Bakterie", "Fästingburen"],
