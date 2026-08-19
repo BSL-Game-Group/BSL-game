@@ -136,7 +136,8 @@
       "username_taken": "That username is taken.",
       "invalid_credentials": "Wrong username or password.",
       "rate_limited": "Too many attempts for this username. Try again in 15 minutes.",
-      "network": "Could not reach the server. Try again."
+      "network": "Could not reach the server. Try again.",
+      "username_not_allowed": "Username not allowed"
     },
     "rounds": {
       "title": "Your rounds",

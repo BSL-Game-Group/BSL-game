@@ -36,6 +36,6 @@ export function loadAssets(scene) {
     scene.load.image('bsl3_room', 'assets/rooms/BSL-3 ver. 2.png');
     scene.load.image('bsl4_room', 'assets/rooms/BSL-4 ver. 2.png');
     scene.load.image('air_systems', 'assets/game_arena_elements/air-systems.jpeg');
-    scene.load.image('dressing_room', 'assets/rooms/dressing-room.png');
+    scene.load.image('dressing_room', 'assets/rooms/dressing-room_2.png');
     scene.load.image('exit_area', 'assets/rooms/exit_area.png');
 }
