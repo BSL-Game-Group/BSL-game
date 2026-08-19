@@ -114,7 +114,7 @@
     "signedInAs": "Inloggad som {username}",
     "loginButton": "Logga in",
     "logoutButton": "Logga ut",
-    "cancel": "Avbryt",
+    "cancel": "Ångra",
     "usernameLabel": "Användarnamn",
     "passwordLabel": "Lösenord",
     "submitLogin": "Logga in",
@@ -123,6 +123,9 @@
     "switchToLogin": "Har du redan ett konto? Logga in",
     "noRecovery": "Det går inte att återställa lösenordet — skriv ner det på ett säkert ställe.",
     "working": "Arbetar…",
+    "confirmDeleteButton": "Bekräfta",
+    "deleteButton": "Radera",
+    "confirmDelete": "Är du säker på att du vill radera ditt konto?",
     "errors": {
       "username_invalid": "Användarnamnet måste ha 3-32 tecken: bokstäver, siffror, _ eller -.",
       "password_too_short": "Lösenordet måste ha minst 8 tecken.",

@@ -123,6 +123,9 @@
     "switchToLogin": "Onko sinulla jo tili? Kirjaudu",
     "noRecovery": "Salasanaa ei voi palauttaa — kirjoita se talteen.",
     "working": "Odota…",
+    "confirmDeleteButton": "Vahvista",
+    "deleteButton": "Poista",
+    "confirmDelete": "Haluatko varmasti poistaa tilisi?",
     "errors": {
       "username_invalid": "Käyttäjänimessä on oltava 3-32 merkkiä: kirjaimia, numeroita, _ tai -.",
       "password_too_short": "Salasanassa on oltava vähintään 8 merkkiä.",

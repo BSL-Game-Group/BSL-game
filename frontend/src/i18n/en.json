@@ -123,6 +123,9 @@
     "switchToLogin": "Already have an account? Log in",
     "noRecovery": "There is no password recovery — write it down somewhere safe.",
     "working": "Working…",
+    "confirmDeleteButton": "Confirm",
+    "deleteButton": "Delete",
+    "confirmDelete": "Are you sure you want to delete your account?",
     "errors": {
       "username_invalid": "Username must be 3-32 characters: letters, numbers, _ or -.",
       "password_too_short": "Password must be at least 8 characters.",
