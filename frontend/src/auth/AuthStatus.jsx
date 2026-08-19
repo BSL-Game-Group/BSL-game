@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from './context'
 import { useTranslation } from '../i18n/context'
 import AuthForm from './AuthForm'
@@ -12,6 +12,15 @@ function AuthStatus() {
   const { t } = useTranslation()
 
   const [formOpen, setFormOpen] = useState(false)
+
+  // The login/register inputs sit right over the game canvas, which still
+  // listens for keydown globally — typing something like "e" into a field
+  // was also triggering game interactions bound to that key. Reusing the
+  // same popup-opened/closed contract other popups use stops the game from
+  // reacting to keystrokes while the form has focus.
+  useEffect(() => {
+    window.dispatchEvent(new Event(formOpen ? 'popup-opened' : 'popup-closed'))
+  }, [formOpen])
 
   if (!user) {
     return (
