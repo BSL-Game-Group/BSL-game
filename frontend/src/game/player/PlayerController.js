@@ -31,12 +31,10 @@ export default class PlayerController {
         this.updateVisuals();
     }
 
-    // Player art is one static image (no animation frames), so "liveliness"
-    // is faked here: flip on horizontal facing and a drop shadow that
-    // reacts to speed. Deliberately not touching player.scale — equipment
-    // sprites track the player's position but not any scale change, so an
-    // animated scale (breathing, squash, pop — all removed) would visibly
-    // desync them from the body.
+    // Player art is one static image (no animation frames), so facing is
+    // faked by flipping it. Deliberately not touching player.scale —
+    // equipment sprites track the player's position but not any scale
+    // change, so an animated scale would visibly desync them from the body.
     updateVisuals() {
         const player = this.scene.player;
         const velocity = player.body.velocity;
@@ -48,21 +46,51 @@ export default class PlayerController {
         const speedRatio = Math.min(1, Math.hypot(velocity.x, velocity.y) / this.speed);
         this.shadow?.setScale?.(1 + speedRatio * 0.15);
         this.shadow?.setAlpha?.(0.25 - speedRatio * 0.08);
+    }
+
+    // Must run on the scene's POST_UPDATE, not in update(): Arcade Physics
+    // integrates the body during the UPDATE event but only writes the result
+    // back onto the sprite in Body.postUpdate (gameObject.x += dx), which
+    // fires on POST_UPDATE — after update(). Reading player.x from update()
+    // yields last frame's value, so anything positioned from it renders a
+    // frame behind (~2.7px at this speed and 60fps).
+    updateFollowers() {
+        const player = this.scene.player;
+
+        if (!player) {
+            return;
+        }
+
         this.shadow?.setPosition?.(player.x, player.y + 20);
     }
 
     handleKeyboardMovement() {
+        let dirX = 0;
+        let dirY = 0;
+
         if (this.cursors.left.isDown) {
-            this.scene.player.setVelocityX(-this.speed);
+            dirX = -1;
         } else if (this.cursors.right.isDown) {
-            this.scene.player.setVelocityX(this.speed);
+            dirX = 1;
         }
 
         if (this.cursors.up.isDown) {
-            this.scene.player.setVelocityY(-this.speed);
+            dirY = -1;
         } else if (this.cursors.down.isDown) {
-            this.scene.player.setVelocityY(this.speed);
+            dirY = 1;
         }
+
+        if (dirX === 0 && dirY === 0) {
+            return;
+        }
+
+        // Normalised, so holding two keys doesn't move the player √2 (≈41%)
+        // faster than one. moveToObject already travels at exactly this.speed
+        // in any direction, so without this the keyboard outran the mouse.
+        const length = Math.hypot(dirX, dirY);
+
+        this.scene.player.setVelocityX((dirX / length) * this.speed);
+        this.scene.player.setVelocityY((dirY / length) * this.speed);
     }
 
     handleMouseMovement() {

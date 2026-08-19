@@ -283,6 +283,20 @@ describe('Player movement', () => {
     expect(scene.player.setVelocityY).toHaveBeenCalledWith(160)
   })
 
+  test('diagonal movement is no faster than moving along one axis', () => {
+    const scene = createScene()
+    scene.cursors.left.isDown = true
+    scene.cursors.up.isDown = true
+    scene.update()
+
+    const vx = scene.player.setVelocityX.mock.calls.at(-1)[0]
+    const vy = scene.player.setVelocityY.mock.calls.at(-1)[0]
+
+    expect(Math.hypot(vx, vy)).toBeCloseTo(160)
+    expect(vx).toBeLessThan(0)
+    expect(vy).toBeLessThan(0)
+  })
+
   test('moves toward mouse click', () => {
     const scene = createScene()
     scene.input.activePointer.isDown = true
