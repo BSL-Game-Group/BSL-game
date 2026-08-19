@@ -22,9 +22,9 @@
       "title": "BSL-1 — Matala riski",
       "description": "BSL-1-organismit eivät aiheuta tauteja terveille aikuisille. Niitä käytetään perustutkimuksessa ja opetuksessa. Laboratorio ei tarvitse erityistä eristystä, ja työ tehdään avoimella pöydällä.",
       "equipment": [
-        "Laboratoriotakki",
-        "Käsineet tarvittaessa",
-        "Suojalasit roiskeilta"
+        "Laboratoriotakki (vaaditaan)",
+        "Suojalasit (vaaditaan)",
+        "Sisäkengät, kertakäyttöiset jalkasuojat tai käsineet — vähintään yksi vaaditaan"
       ],
       "examples": "Leivinhiiva, maaperäbakteerit, laboratorio-E. coli -kannat."
     },
@@ -33,9 +33,11 @@
       "title": "BSL-2 — Kohtalainen riski",
       "description": "BSL-2-organismit voivat aiheuttaa tauteja, mutta tehokas hoito tai rokote on yleensä saatavilla. Tartunta vaatii suoran kontaktin (veri, eritteet, ruoka) — ei leviä ilmateitse. Pääsy laboratorioon on rajoitettu työn aikana.",
       "equipment": [
-        "Laboratoriotakki",
-        "Käsineet aina",
-        "Suojalasit tai kasvonsuoja",
+        "Laboratoriotakki (vaaditaan)",
+        "Kasvomaski (vaaditaan)",
+        "Suojalasit tai kasvonsuoja (vaaditaan)",
+        "Käsineet (vaaditaan)",
+        "Sisäkengät tai kertakäyttöiset jalkasuojat (vaaditaan)",
         "Biosafety-kaappi aerosolien käsittelyyn"
       ],
       "examples": "Salmonella, stafylokokki, vesirokko, hepatiitti A, klamydia."
@@ -45,9 +47,11 @@
       "title": "BSL-3 — Korkea riski",
       "description": "BSL-3-organismit voivat aiheuttaa vakavan tai hengenvaarallisen taudin, ja osa leviää ilmateitse aerosoleina. Pääsy on tiukasti valvottu, ja laboratoriossa on suunnattu ilmavirtaus joka estää patogeenien pääsyn ulos.",
       "equipment": [
-        "Kertakäyttöhaalari tai suljettava kokovartalotakki",
-        "Kaksinkertaiset käsineet",
-        "Hengityssuojain (N95 tai parempi)",
+        "Kertakäyttöhaalari (vaaditaan)",
+        "Kasvomaski (vaaditaan)",
+        "Kaksinkertaiset käsineet (vaaditaan)",
+        "Suojalasit tai kasvonsuoja (vaaditaan)",
+        "Sisäkengät tai kertakäyttöiset jalkasuojat (vaaditaan)",
         "Suihku ulosmenoon"
       ],
       "examples": "Tuberkuloosi, pernarutto, COVID-19 (virusviljely), HIV, hepatiitti B ja C, dengue."
@@ -57,8 +61,8 @@
       "title": "BSL-4 — Maksimaalinen riski",
       "description": "BSL-4-organismit aiheuttavat usein kuolemaan johtavan taudin, eikä tehokasta hoitoa tai rokotetta ole saatavilla. Vaaditaan täysi eristys ympäristöstä ja erikoisrakennettu laboratorio.",
       "equipment": [
-        "Täysin suljettu positiivipaineinen suojapuku omalla ilmansyötöllä",
-        "Käsineet integroituna puvun sisään",
+        "Täysin suljettu positiivipaineinen suojapuku (vaaditaan)",
+        "Puvun kanssa puettavat käsineet (vaaditaan)",
         "Suihku ja dekontaminaatio ulosmenossa",
         "Kaikki materiaali autoklavoidaan"
       ],

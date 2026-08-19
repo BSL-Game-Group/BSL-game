@@ -22,9 +22,9 @@
       "title": "BSL-1 — Low risk",
       "description": "BSL-1 organisms do not cause disease in healthy adults. They are used in basic research and teaching. The laboratory does not require special containment, and work is carried out on an open bench.",
       "equipment": [
-        "Lab coat",
-        "Gloves when needed",
-        "Safety glasses for splashes"
+        "Lab coat (required)",
+        "Safety glasses (required)",
+        "Indoor shoes, disposable foot covers, or gloves — at least one required"
       ],
       "examples": "Baker's yeast, soil bacteria, laboratory E. coli strains."
     },
@@ -33,9 +33,11 @@
       "title": "BSL-2 — Moderate risk",
       "description": "BSL-2 organisms can cause disease, but effective treatment or a vaccine is usually available. Infection requires direct contact (blood, secretions, food) — it does not spread through the air. Access to the laboratory is restricted while work is in progress.",
       "equipment": [
-        "Lab coat",
-        "Gloves at all times",
-        "Safety glasses or face shield",
+        "Lab coat (required)",
+        "Mask (required)",
+        "Safety glasses or face shield (required)",
+        "Gloves (required)",
+        "Indoor shoes or disposable foot covers (required)",
         "Biosafety cabinet for handling aerosols"
       ],
       "examples": "Salmonella, staphylococcus, chickenpox, hepatitis A, chlamydia."
@@ -45,9 +47,11 @@
       "title": "BSL-3 — High risk",
       "description": "BSL-3 organisms can cause serious or life-threatening disease, and some spread through the air as aerosols. Access is strictly controlled, and the laboratory has directional airflow that prevents pathogens from escaping.",
       "equipment": [
-        "Disposable coverall or sealable full-body gown",
-        "Double gloves",
-        "Respirator (N95 or better)",
+        "Disposable coverall (required)",
+        "Mask (required)",
+        "Double gloves (required)",
+        "Safety glasses or face shield (required)",
+        "Indoor shoes or disposable foot covers (required)",
         "Shower on exit"
       ],
       "examples": "Tuberculosis, anthrax, COVID-19 (virus culture), HIV, hepatitis B and C, dengue."
@@ -57,8 +61,8 @@
       "title": "BSL-4 — Maximum risk",
       "description": "BSL-4 organisms often cause a fatal disease, and no effective treatment or vaccine is available. Complete isolation from the environment and a specially constructed laboratory are required.",
       "equipment": [
-        "Fully enclosed positive-pressure protective suit with its own air supply",
-        "Gloves integrated into the suit",
+        "Fully enclosed positive-pressure protective suit (required)",
+        "Gloves worn with the suit (required)",
         "Shower and decontamination on exit",
         "All material is autoclaved"
       ],
