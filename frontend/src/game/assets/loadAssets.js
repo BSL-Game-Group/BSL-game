@@ -3,6 +3,7 @@ export function loadAssets(scene) {
     scene.load.image('player_base', 'assets/player/base.png');
     scene.load.image('head_only', 'assets/player/head_only.png');
     scene.load.image('no_hair', 'assets/player/no_hair.png');
+    scene.load.image('no_hair_disposable_overall', 'assets/player/no_hair_disposable_overall.png');
 
     // Equipment
     scene.load.image('lab_coat', 'assets/equipment/on_character/body/lab_coat_on.png');
