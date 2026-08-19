@@ -1,18 +1,10 @@
 import Phaser from "phaser";
 
-const TURN_SQUASH_DURATION = 150;
-const START_POP_DURATION = 150;
-
 export default class PlayerController {
     constructor(scene) {
         this.scene = scene;
         this.cursors = scene.input.keyboard.createCursorKeys();
         this.speed = 160;
-        this.baseScale = scene.player?.scaleX ?? 1;
-        this.lastFlip = undefined;
-        this.turnSquashStart = undefined;
-        this.wasMoving = false;
-        this.startPopBegin = undefined;
 
         this.shadow = scene.add?.ellipse?.(
             scene.player?.x ?? 0,
@@ -40,47 +32,18 @@ export default class PlayerController {
     }
 
     // Player art is one static image (no animation frames), so "liveliness"
-    // is faked here: flip on horizontal facing (with a brief squash on
-    // direction change), an idle breathing pulse, a quick pop when starting
-    // to move, and a drop shadow that reacts to speed.
+    // is faked here: flip on horizontal facing and a drop shadow that
+    // reacts to speed. Deliberately not touching player.scale — equipment
+    // sprites track the player's position but not any scale change, so an
+    // animated scale (breathing, squash, pop — all removed) would visibly
+    // desync them from the body.
     updateVisuals() {
         const player = this.scene.player;
         const velocity = player.body.velocity;
-        const moving = velocity.x !== 0 || velocity.y !== 0;
-        const now = this.scene.time?.now ?? 0;
 
         if (velocity.x !== 0) {
-            const flip = velocity.x > 0;
-            if (this.lastFlip !== undefined && this.lastFlip !== flip) {
-                this.turnSquashStart = now;
-            }
-            this.lastFlip = flip;
-            player.setFlipX?.(flip);
+            player.setFlipX?.(velocity.x > 0);
         }
-
-        if (moving && !this.wasMoving) {
-            this.startPopBegin = now;
-        }
-        this.wasMoving = moving;
-
-        let scaleX = moving ? 1 : 1 + Math.sin(now / 400) * 0.015;
-        let scaleY = scaleX;
-
-        const turnElapsed = now - this.turnSquashStart;
-        if (this.turnSquashStart !== undefined && turnElapsed < TURN_SQUASH_DURATION) {
-            const t = turnElapsed / TURN_SQUASH_DURATION;
-            scaleX *= 1 - Math.sin(t * Math.PI) * 0.25;
-        }
-
-        const popElapsed = now - this.startPopBegin;
-        if (this.startPopBegin !== undefined && popElapsed < START_POP_DURATION) {
-            const t = popElapsed / START_POP_DURATION;
-            const pop = 1 - Math.sin(t * Math.PI) * 0.03;
-            scaleX *= pop;
-            scaleY *= pop;
-        }
-
-        player.setScale?.(this.baseScale * scaleX, this.baseScale * scaleY);
 
         const speedRatio = Math.min(1, Math.hypot(velocity.x, velocity.y) / this.speed);
         this.shadow?.setScale?.(1 + speedRatio * 0.15);
