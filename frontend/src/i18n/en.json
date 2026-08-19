@@ -54,7 +54,8 @@
   "closet": {
     "title": "Closet",
     "player": "Player",
-    "equipmentLabel": "Equipment"
+    "equipmentLabel": "Equipment",
+    "nothingAvailable": "Nothing available"
   },
   "answerPopup": {
     "correct": "Correct!",
@@ -64,7 +65,9 @@
     "equipmentCorrect": "Your protective equipment matched the required setup.",
     "equipmentIncorrect": "Your protective equipment did not fully match the required setup.",
     "chosenLevel": "You chose {level}.",
-    "belongs": "{name} belongs to BSL-{level}."
+    "belongs": "{name} belongs to BSL-{level}.",
+    "slotCorrect": "correct",
+    "slotIncorrect": "incorrect"
   },
   "common": {
     "close": "Close",
@@ -93,9 +96,13 @@
     "eyewashStation": "Eyewash station"
   },
   "equipment": {
-    "labCoat": "Lab coat",
-    "mask": "Mask",
-    "glasses": "Glasses"
+    "categories": {
+      "eyewear": "Eyewear",
+      "masks": "Masks",
+      "body": "Body",
+      "gloves": "Gloves",
+      "footwear": "Footwear"
+    }
   },
   "phaser": {
     "pressEToOpen": "Press E to open",

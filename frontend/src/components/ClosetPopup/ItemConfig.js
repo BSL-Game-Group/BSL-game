@@ -1,13 +1,6 @@
-const ItemType = 'EQUIPMENT';
+import { CATEGORY_CONFIG, EQUIPMENT_CATEGORIES } from '../../utils/equipmentCategories';
 
-// The tabs, in display order. `stackable` allows 2+ equipped at once.
-const CATEGORY_CONFIG = {
-  eyewear:  { id: 'eyewear',  label: 'Eyewear',  order: 0, stackable: false },
-  masks:    { id: 'masks',    label: 'Masks',    order: 1, stackable: false },
-  body:     { id: 'body',     label: 'Body',     order: 2, stackable: false },
-  gloves:   { id: 'gloves',   label: 'Gloves',   order: 3, stackable: true  },
-  footwear: { id: 'footwear', label: 'Footwear', order: 4, stackable: false },
-};
+const ItemType = 'EQUIPMENT';
 
 // Image paths are derived from each item's id + category, so the asset tree is
 // usage -> category -> file:
@@ -51,23 +44,25 @@ function buildEquipment(items) {
       });
     }
 
+    const category = EQUIPMENT_CATEGORIES[id];
+
     out[id] = {
       ...item,
       id,
+      category,
       equippedStyle: style, // Overwrite with responsive styles
-      inventorySrc: `${INVENTORY_ROOT}/${item.category}/${id}.png`,
-      equippedSrc: `${CHARACTER_ROOT}/${item.category}/${id}_on.png`,
+      inventorySrc: `${INVENTORY_ROOT}/${category}/${id}.png`,
+      equippedSrc: `${CHARACTER_ROOT}/${category}/${id}_on.png`,
     };
   }
   return out;
 }
 
-// Add new equipment here — only `category`, `label` + `equippedStyle` are
-// needed; paths are derived from the key + category above. `label` is the
-// item button's accessible name.
+// Add new equipment here — only `label` + `equippedStyle` are needed; the category comes
+// from EQUIPMENT_CATEGORIES and the paths are derived from the key + category above.
+// `label` is the item button's accessible name.
 const EQUIPMENT_CONFIG = buildEquipment({
   lab_coat: {
-    category: 'body',
     label: 'Lab coat',
     equippedStyle: {
       position: 'absolute', top: '43px', left: '54px', width: '130px', height: 'auto',
@@ -75,7 +70,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
     }
   },
   closable_lab_coat: {
-    category: 'body',
     label: 'Closable lab coat',
     equippedStyle: {
       position: 'absolute', top: '95px', left: '55px', width: '130px', height: 'auto',
@@ -83,7 +77,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
     }
   },
   pressurized_suit: {
-    category: 'body',
     label: 'Pressurized suit',
     equippedStyle: {
       position: 'absolute', top: '1px', left: '60px', width: '130px', height: 'auto',
@@ -91,7 +84,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
     }
   },
   mask: {
-    category: 'masks',
     label: 'Mask',
     equippedStyle: {
       position: 'absolute', top: '45px', left: '77px', width: '70px', height: 'auto',
@@ -99,7 +91,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
     }
   },
   glasses: {
-    category: 'eyewear',
     label: 'Glasses',
     equippedStyle: {
       position: 'absolute', top: '30px', left: '77px', width: '70px', height: 'auto',
@@ -108,7 +99,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
   },
 
   bsl3_respirator: {
-    category: 'masks',
     label: 'BSL3 respirator',
     equippedStyle: {
       position: 'absolute', top: '6px', left: '80px', width: '70px', height: 'auto',
@@ -116,7 +106,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
     }
   },
   sunglasses: {
-    category: 'eyewear',
     label: 'Sunglasses',
     equippedStyle: {
       position: 'absolute', top: '10px', left: '68px', width: '106px', height: 'auto',
@@ -125,7 +114,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
     }
   },
   disposable_overall: {
-    category: 'body',
     label: 'Disposable overall',
     equippedStyle: {
       position: 'absolute', top: '-20px', left: '53px', width: '130px', height: 'auto',
@@ -134,7 +122,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
   },
 
   face_shield: {
-    category: 'eyewear',
     label: 'Face shield',    
     equippedStyle: {
       position: 'absolute', top: '10px', left: '76px', width: '82px', height: 'auto',
@@ -143,7 +130,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
   },
   
   wow_helmet: {
-    category: 'eyewear',
     label: 'Fantasy helmet',
     equippedStyle: {
       position: 'absolute', top: '-3px', left: '61px', width: '106px', height: 'auto',
@@ -152,7 +138,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
     }
   },
   gloves: {
-    category: 'gloves',
     label: 'Gloves',
     equippedStyle: {
       position: 'absolute', top: '171px', left: '89px', width: '59px', height: '35px',
@@ -160,7 +145,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
     }
   },
   gloves_2: {
-    category: 'gloves',
     label: 'Gloves 2',
     equippedStyle: {
       position: 'absolute', top: '183px', left: '90px', width: '60px', height: 'auto',
@@ -168,7 +152,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
     }
   },
   indoor_shoes: {
-    category: 'footwear',
     label: 'Indoor shoes',
     equippedStyle: {
       position: 'absolute', top: '299px', left: '86px', width: '60px', height: 'auto',
@@ -176,7 +159,6 @@ const EQUIPMENT_CONFIG = buildEquipment({
     }
   },
   disposable_foot_covers: {
-    category: 'footwear',
     label: 'Disposable foot covers',
     equippedStyle: {
       position: 'absolute', top: '279px', left: '86px', width: '60px', height: 'auto',

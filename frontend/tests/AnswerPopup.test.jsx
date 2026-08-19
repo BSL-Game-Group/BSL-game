@@ -177,3 +177,36 @@ describe('AnswerPopup component', () => {
     spy.mockRestore()
   })
 })
+
+describe('equipment breakdown', () => {
+  const OK = { status: 'ok', missing: [], extra: [] }
+
+  test('shows a verdict for all five categories, naming no items', () => {
+    renderPopup({
+      isCorrect: false,
+      isEquipmentCorrect: false,
+      equipmentSlots: {
+        eyewear: OK,
+        masks: { status: 'wrong', missing: ['mask'], extra: ['bsl3_respirator'] },
+        body: OK,
+        gloves: OK,
+        footwear: OK,
+      },
+    })
+
+    for (const label of ['Eyewear', 'Masks', 'Body', 'Gloves', 'Footwear']) {
+      expect(screen.getByText(label)).toBeInTheDocument()
+    }
+
+    expect(screen.getByText('Masks').closest('li')).toHaveTextContent('incorrect')
+    expect(screen.getAllByText('correct')).toHaveLength(4)
+    expect(screen.getAllByText('incorrect')).toHaveLength(1)
+    expect(screen.queryByText(/bsl3_respirator|missing/i)).not.toBeInTheDocument()
+  })
+
+  test('renders no breakdown when no slots are supplied', () => {
+    renderPopup()
+
+    expect(screen.queryByText('Eyewear')).not.toBeInTheDocument()
+  })
+})

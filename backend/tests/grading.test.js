@@ -1,7 +1,11 @@
 const { test } = require('node:test');
 const assert = require('node:assert');
 
-const { evaluateEquipmentRules, gradeAnswer } = require('../services/grading');
+const {
+  evaluateEquipmentRules,
+  evaluateEquipmentSlots,
+  gradeAnswer,
+} = require('../services/grading');
 
 const BSL1 = { required: ['lab_coat', 'glasses'], anyOf: [], optional: [] };
 const BSL2 = { required: ['lab_coat', 'gloves'], anyOf: ['mask', 'face_shield'], optional: [] };
@@ -24,8 +28,9 @@ test('every required item must be worn', () => {
   assert.strictEqual(evaluateEquipmentRules(BSL1, ['lab_coat']), false);
 });
 
-test('extra equipment does not spoil a correct answer', () => {
-  assert.strictEqual(evaluateEquipmentRules(BSL1, ['lab_coat', 'glasses', 'gloves']), true);
+test('extra equipment now spoils an otherwise correct answer', () => {
+  assert.strictEqual(evaluateEquipmentRules(BSL1, ['lab_coat', 'glasses']), true);
+  assert.strictEqual(evaluateEquipmentRules(BSL1, ['lab_coat', 'glasses', 'gloves']), false);
 });
 
 test('a flat anyOf needs exactly one of its options', () => {
@@ -35,13 +40,20 @@ test('a flat anyOf needs exactly one of its options', () => {
 });
 
 test('BSL-3 accepts a respirator in place of mask-plus-eye-protection', () => {
-  const withRespirator = ['gloves', 'gloves_2', 'closable_lab_coat', 'bsl3_respirator'];
+  const withRespirator = ['gloves', 'gloves_2', 'bsl3_respirator'];
 
   assert.strictEqual(evaluateEquipmentRules(BSL3, withRespirator), true);
+
+  // Adding body covering satisfies the OTHER sibling branch, so one of the two is
+  // always redundant — and redundant gear is now wrong.
+  assert.strictEqual(
+    evaluateEquipmentRules(BSL3, [...withRespirator, 'closable_lab_coat']),
+    false
+  );
 });
 
 test('BSL-3 accepts mask plus either kind of eye protection', () => {
-  const base = ['gloves', 'gloves_2', 'disposable_overall', 'mask'];
+  const base = ['gloves', 'gloves_2', 'mask'];
 
   assert.strictEqual(evaluateEquipmentRules(BSL3, [...base, 'glasses']), true);
   assert.strictEqual(evaluateEquipmentRules(BSL3, [...base, 'face_shield']), true);
@@ -54,11 +66,11 @@ test('BSL-3 needs both pairs of gloves', () => {
 });
 
 test('sibling anyOf branches are alternatives, so a single one is enough', () => {
-  const noEyeProtection = ['gloves', 'gloves_2', 'disposable_overall', 'mask'];
-  const noBodyCovering = ['gloves', 'gloves_2', 'bsl3_respirator'];
+  const bodyOnly = ['gloves', 'gloves_2', 'disposable_overall'];
+  const respiratorOnly = ['gloves', 'gloves_2', 'bsl3_respirator'];
 
-  assert.strictEqual(evaluateEquipmentRules(BSL3, noEyeProtection), true);
-  assert.strictEqual(evaluateEquipmentRules(BSL3, noBodyCovering), true);
+  assert.strictEqual(evaluateEquipmentRules(BSL3, bodyOnly), true);
+  assert.strictEqual(evaluateEquipmentRules(BSL3, respiratorOnly), true);
 
   // Not vacuous: satisfying NEITHER branch is still wrong, so anyOf is doing work.
   assert.strictEqual(evaluateEquipmentRules(BSL3, ['gloves', 'gloves_2']), false);
@@ -112,7 +124,19 @@ test('the level is right when it matches the microbe', () => {
     BSL2
   );
 
-  assert.deepStrictEqual(graded, { level_correct: true, equipment_correct: true });
+  assert.deepStrictEqual(
+    { level_correct: graded.level_correct, equipment_correct: graded.equipment_correct },
+    { level_correct: true, equipment_correct: true }
+  );
+
+  // routes/rounds.js splits this object into stored columns and derived fields, so a
+  // key appearing here that nobody knows about is a silent gap.
+  assert.deepStrictEqual(Object.keys(graded).sort(), [
+    'equipment_correct',
+    'equipment_slots',
+    'equipment_wrong_count',
+    'level_correct',
+  ]);
 });
 
 test('the two verdicts are independent', () => {
@@ -122,7 +146,10 @@ test('the two verdicts are independent', () => {
     BSL1
   );
 
-  assert.deepStrictEqual(graded, { level_correct: false, equipment_correct: true });
+  assert.deepStrictEqual(
+    { level_correct: graded.level_correct, equipment_correct: graded.equipment_correct },
+    { level_correct: false, equipment_correct: true }
+  );
 });
 
 test('a level sent as a string still compares correctly', () => {
@@ -133,4 +160,47 @@ test('a level sent as a string still compares correctly', () => {
   );
 
   assert.strictEqual(graded.level_correct, true);
+});
+
+test('the breakdown names categories, breaks ties on the first branch, and can be unwinnable', () => {
+  const missingMask = evaluateEquipmentSlots(BSL2, ['lab_coat', 'gloves']);
+
+  assert.strictEqual(missingMask.wrongCount, 1);
+  assert.deepStrictEqual(missingMask.slots.masks, {
+    status: 'wrong',
+    missing: ['mask'],
+    extra: [],
+  });
+  assert.deepStrictEqual(missingMask.slots.body, { status: 'ok', missing: [], extra: [] });
+  assert.deepStrictEqual(
+    Object.keys(missingMask.slots).sort(),
+    ['body', 'eyewear', 'footwear', 'gloves', 'masks']
+  );
+
+  const bothWorn = evaluateEquipmentSlots(
+    { required: [], anyOf: ['mask', 'face_shield'], optional: [] },
+    ['mask', 'face_shield']
+  );
+
+  assert.deepStrictEqual(bothWorn.slots.eyewear, {
+    status: 'wrong',
+    missing: [],
+    extra: ['face_shield'],
+  });
+
+  const unwinnable = evaluateEquipmentSlots({ required: ['respirator'], anyOf: [] }, []);
+
+  assert.strictEqual(unwinnable.wrongCount, 5);
+});
+
+test('gradeAnswer carries the breakdown the scoring formula needs', () => {
+  const graded = gradeAnswer(
+    { chosen_level: 2, chosen_equipment: ['lab_coat', 'gloves'] },
+    { bsl_level: 2 },
+    BSL2
+  );
+
+  assert.strictEqual(graded.equipment_wrong_count, 1);
+  assert.strictEqual(graded.equipment_slots.masks.status, 'wrong');
+  assert.strictEqual(graded.equipment_correct, false);
 });

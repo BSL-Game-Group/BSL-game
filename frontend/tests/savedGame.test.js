@@ -288,7 +288,7 @@ describe('the round in progress', () => {
 
   test('answers and the open round id survive a round trip', () => {
     const answers = [
-      { microbe_id: 3, chosen_level: 2, chosen_equipment: ['lab_coat'], correct: true },
+      { microbe_id: 3, chosen_level: 2, chosen_equipment: ['lab_coat'], correct: true, attempt: 1 },
     ]
 
     patchSavedGame({ round: { openRoundId: 42, answers } })
@@ -311,7 +311,51 @@ describe('the round in progress', () => {
       })
     )
 
-    expect(loadSavedGame().round.answers).toEqual([good])
+    // The stored answer predates `attempt`, so it restores as a first try.
+    expect(loadSavedGame().round.answers).toEqual([{ ...good, attempt: 1 }])
+  })
+
+  // routes/rounds.js rejects a chosen_level outside INT32, so keeping one here would
+  // 400 every submit for the rest of the session.
+  test.each([
+    ['above INT32', 2147483648],
+    ['below -INT32', -2147483648],
+  ])('a chosen level the server cannot store drops the answer (%s)', (_label, chosenLevel) => {
+    window.localStorage.setItem(
+      SAVED_GAME_KEY,
+      JSON.stringify({
+        ...defaultSnapshot(),
+        savedAt: Date.now(),
+        round: {
+          openRoundId: null,
+          answers: [{ microbe_id: 1, chosen_level: chosenLevel, chosen_equipment: [] }],
+        },
+      })
+    )
+
+    expect(loadSavedGame().round.answers).toEqual([])
+  })
+
+  test.each([
+    ['a second attempt is kept', 2, [2]],
+    ['a nonsense attempt drops the answer', 7, []],
+    ['an answer from before the retry defaults to the first try', undefined, [1]],
+  ])('%s', (_label, attempt, expected) => {
+    const answer = { microbe_id: 1, chosen_level: 2, chosen_equipment: [], correct: false }
+
+    window.localStorage.setItem(
+      SAVED_GAME_KEY,
+      JSON.stringify({
+        ...defaultSnapshot(),
+        savedAt: Date.now(),
+        round: {
+          openRoundId: null,
+          answers: [attempt === undefined ? answer : { ...answer, attempt }],
+        },
+      })
+    )
+
+    expect(loadSavedGame().round.answers.map((stored) => stored.attempt)).toEqual(expected)
   })
 
   test('a nonsense open round id degrades to no open round', () => {

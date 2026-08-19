@@ -61,7 +61,8 @@
   "closet": {
     "title": "Pukukaappi",
     "player": "Pelaaja",
-    "equipmentLabel": "Varusteet"
+    "equipmentLabel": "Varusteet",
+    "nothingAvailable": "Ei mitään saatavilla"
   },
   "answerPopup": {
     "correct": "Oikein!",
@@ -71,7 +72,9 @@
     "equipmentCorrect": "Suojavarustuksesi vastasi vaadittua varustusta.",
     "equipmentIncorrect": "Suojavarustuksesi ei vastannut täysin vaadittua varustusta.",
     "chosenLevel": "Valitsit {level}.",
-    "belongs": "{name} kuuluu tasolle BSL-{level}."
+    "belongs": "{name} kuuluu tasolle BSL-{level}.",
+    "slotCorrect": "oikein",
+    "slotIncorrect": "väärin"
   },
   "common": {
     "close": "Sulje",
@@ -93,9 +96,13 @@
     "eyewashStation": "Silmänhuuhtelupiste"
   },
   "equipment": {
-    "labCoat": "Labratakki",
-    "mask": "Maski",
-    "glasses": "Silmälasit"
+    "categories": {
+      "eyewear": "Silmäsuojat",
+      "masks": "Maskit",
+      "body": "Vaatetus",
+      "gloves": "Käsineet",
+      "footwear": "Jalkineet"
+    }
   },
   "phaser": {
     "pressEToOpen": "Paina E avataksesi",

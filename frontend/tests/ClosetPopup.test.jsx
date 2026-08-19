@@ -284,6 +284,7 @@ describe('ClosetPopup component', () => {
 
     const labels = [...container.querySelectorAll('.gear-tab')].map((el) => el.textContent)
     expect(labels).toEqual(['Eyewear', 'Masks', 'Body', 'Gloves', 'Footwear'])
+    expect(labels.filter((label) => label.startsWith('equipment.'))).toEqual([])
   })
 
   test('Gloves tab shows the gloves item', () => {

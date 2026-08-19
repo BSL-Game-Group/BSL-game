@@ -61,7 +61,8 @@
   "closet": {
     "title": "Garderob",
     "player": "Spelare",
-    "equipmentLabel": "Utrustning"
+    "equipmentLabel": "Utrustning",
+    "nothingAvailable": "Inget tillgängligt"
   },
   "answerPopup": {
     "correct": "Rätt!",
@@ -71,7 +72,9 @@
     "equipmentCorrect": "Din skyddsutrustning upfyller BSL-kraven",
     "equipmentIncorrect": "Din skyddsutrustning upfyller inte BSL-kraven.",
     "chosenLevel": "Du valde {level}.",
-    "belongs": "{name} tillhör BSL-{level}."
+    "belongs": "{name} tillhör BSL-{level}.",
+    "slotCorrect": "rätt",
+    "slotIncorrect": "fel"
   },
   "common": {
     "close": "Stäng",
@@ -93,9 +96,13 @@
     "eyewashStation": "Ögonduschstation"
   },
   "equipment": {
-    "labCoat": "Vita rocken",
-    "mask": "Mask",
-    "glasses": "Glasögon"
+    "categories": {
+      "eyewear": "Ögonskydd",
+      "masks": "Masker",
+      "body": "Klädsel",
+      "gloves": "Handskar",
+      "footwear": "Skodon"
+    }
   },
   "phaser": {
     "pressEToOpen": "Tryck E för att öppna",
