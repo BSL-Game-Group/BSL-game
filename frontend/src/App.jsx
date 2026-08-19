@@ -15,7 +15,7 @@ import YourRounds from './auth/YourRounds'
 import Leaderboard from './auth/Leaderboard'
 import { EventBus } from './game/EventBus'
 import { useTranslation } from './i18n/context'
-import { evaluateEquipmentRules, getEquipmentRulesForBslLevel } from './utils/equipmentRules'
+import { evaluateEquipmentSlots, getEquipmentRulesForBslLevel } from './utils/equipmentRules'
 import { unequipAll } from './components/ClosetPopup/ItemConfig'
 import { useAuth } from './auth/context'
 import roundsService from './services/rounds'
@@ -326,7 +326,9 @@ function App() {
   const isLevelCorrect = typeof correctLevel === 'number' && chosenLevel === correctLevel
   const equipmentRules = getEquipmentRulesForBslLevel(chosenLevel)
   const chosenEquipment = Object.keys(equipped).filter((item) => equipped[item])
-  const isEquipmentCorrect = evaluateEquipmentRules(equipmentRules, chosenEquipment)
+  // One evaluation feeds both the verdict and the rows, so they cannot contradict.
+  const equipmentEvaluation = evaluateEquipmentSlots(equipmentRules, chosenEquipment)
+  const isEquipmentCorrect = equipmentEvaluation.wrongCount === 0
   const isCorrect = isLevelCorrect && isEquipmentCorrect
 
   const roundScore = roundAnswers.filter((answer) => answer.correct).length
@@ -346,6 +348,7 @@ function App() {
                 chosen_level: chosenLevel,
                 chosen_equipment: chosenEquipment,
                 correct: isCorrect,
+                attempt: 1,
               },
             ]
       )
@@ -491,7 +494,7 @@ function App() {
         microbe={currentMicrobe}
         isLevelCorrect={isLevelCorrect}
         isEquipmentCorrect={isEquipmentCorrect}
-        equipment={equipped}
+        equipmentSlots={equipmentEvaluation.slots}
       />
 
       {lectureWarningOpen && (

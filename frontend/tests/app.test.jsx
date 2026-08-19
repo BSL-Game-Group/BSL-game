@@ -969,7 +969,7 @@ test('reaching the exit saves what the player has answered so far', async () => 
   await reachExit()
 
   expect(roundsService.saveRound).toHaveBeenCalledWith(
-    [{ microbe_id: 7, chosen_level: 1, chosen_equipment: [], correct: false }],
+    [{ microbe_id: 7, chosen_level: 1, chosen_equipment: [], correct: false, attempt: 1 }],
     null,
     null
   )
@@ -1007,7 +1007,7 @@ test('the answers and the open round are written to the snapshot', () => {
   answerCurrentMicrobe('BSL-1')
 
   expect(loadSavedGame().round.answers).toEqual([
-    { microbe_id: 7, chosen_level: 1, chosen_equipment: [], correct: false },
+    { microbe_id: 7, chosen_level: 1, chosen_equipment: [], correct: false, attempt: 1 },
   ])
 })
 

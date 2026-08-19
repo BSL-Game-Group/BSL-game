@@ -31,7 +31,7 @@ function InventoryPanel({ equipped, onToggleEquip, itemFilter }) {
             className={`btn btn-sm gear-tab ${activeTab === cat.id ? 'btn-primary' : 'btn-outline-secondary'}`}
             onClick={() => setActiveTab(cat.id)}
           >
-            {cat.label}
+            {t(cat.labelKey)}
           </button>
         ))}
       </div>
@@ -50,9 +50,7 @@ function InventoryPanel({ equipped, onToggleEquip, itemFilter }) {
 
         {available.length === 0 && (
           <p style={{ color: '#888', fontStyle: 'italic', margin: 0 }}>
-            {itemsInTab.length === 0
-              ? `No ${CATEGORY_CONFIG[activeTab].label.toLowerCase()} available yet`
-              : 'All equipped.'}
+            {itemsInTab.length === 0 ? t('closet.nothingAvailable') : 'All equipped.'}
           </p>
         )}
       </div>
