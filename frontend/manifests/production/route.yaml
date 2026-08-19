@@ -1,0 +1,14 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: bsl-frontend-prod-route
+  labels:
+    router: external
+spec:
+  host: bsl-frontend-prod-route-bsl-game-ohtu-k2026.ext.okd-cs-test-0.k8s.cs.helsinki.fi
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  to:
+    kind: Service
+    name: bsl-frontend-service-prod

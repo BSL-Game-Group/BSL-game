@@ -24,6 +24,7 @@ export class LectureInteraction extends BaseInteraction {
             lectureMaterialPoint,
             lectureMaterialHint,
             pressEText,
+            openmicrobeInfoHint,
         } = this.scene;
         if (!lectureRoomZone) {
             return;
@@ -53,13 +54,13 @@ export class LectureInteraction extends BaseInteraction {
                 const closeEnough = dist < 100;
 
                 if (closeEnough) {
-                    pressEText.setVisible(true);
-                    pressEText.setPosition(lecturePoint.x - 40, lecturePoint.y + 45);
+                    openmicrobeInfoHint.setVisible(true);
+                    openmicrobeInfoHint.setPosition(lecturePoint.x - 40, lecturePoint.y + 45);
                     if (this.justPressed(this.keyE)) {
                         window.dispatchEvent(new Event('microbe-info-popup-opened'));
                     }
                 } else {
-                    pressEText.setVisible(false);
+                    openmicrobeInfoHint.setVisible(false);
                 }
             }
         }

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bsl-frontend-prod
+  annotations:
+    alpha.image.policy.openshift.io/resolve-names: "*"
+    image.openshift.io/triggers: >
+      [{"from":{"kind":"ImageStreamTag","name":"bsl-frontend-prod:production"},"fieldPath":"spec.template.spec.containers[?(@.name==\"bsl-frontend\")].image","pause":"false"}]
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bsl-frontend-prod
+  template:
+    metadata:
+      labels:
+        app: bsl-frontend-prod
+    spec:
+      containers:
+        - name: bsl-frontend
+          image: bsl-frontend-prod:production
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            # Without this, nginx falls back to the image's built-in default
+            # (BACKEND_SERVICE=backend) and would silently proxy production
+            # traffic to the staging backend Service instead of backend-prod.
+            - name: BACKEND_SERVICE
+              value: "backend-prod"
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

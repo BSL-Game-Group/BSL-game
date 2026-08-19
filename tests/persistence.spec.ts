@@ -24,8 +24,17 @@ test.describe('reloading the page', () => {
     await game.waitForSceneReady();
 
     await page.reload();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+
+    console.log('DOM loaded after reload');
+
+    await game.waitForSceneReady();
+
+    console.log('Scene ready after reload');
+
     await game.openCloset();
+
+    console.log('Closet opened');
 
     // Equipped items render on the character, not inside a tab, so the tab
     // resetting to Eyewear after the reload does not hide it.

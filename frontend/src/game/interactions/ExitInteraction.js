@@ -14,27 +14,25 @@ export class ExitInteraction extends BaseInteraction {
     }
 
     update() {
-        const { exitGlow, exitZone, exitButtonPoint, exitGlowTween, pressEText, exitPromptText } = this.scene;
-        if (!exitGlow || !exitZone || !exitButtonPoint) {
-            return;}
-
-        const inside = this.isInside(exitZone);
-        this.playerInsideExitRoom = inside;
-
-        exitGlow.setVisible(inside);
-        if (exitGlowTween) {
-            inside ? exitGlowTween.resume() : exitGlowTween.pause();
+        const { exitGlow, exitButtonPoint, exitGlowTween, pressEText, exitPromptText } = this.scene;
+        if (!exitGlow || !exitButtonPoint) {
+            return;
         }
 
-        if (!inside) {
-            return;}
-
+        // Calculate distance to the wall exit button for proximity prompt (Press E)
         const dist = Phaser.Math.Distance.Between(
             this.player.x, this.player.y,
             exitButtonPoint.x, exitButtonPoint.y
         );
 
-        if (dist < 95) {
+        // Make the glow active / pulsing when close to the button, or keep it always running
+        const closeToButton = dist < 95;
+        exitGlow.setVisible(closeToButton);
+        if (exitGlowTween) {
+            closeToButton ? exitGlowTween.resume() : exitGlowTween.pause();
+        }
+
+        if (closeToButton) {
             pressEText?.setVisible(true);
             pressEText?.setText(exitPromptText || 'Press E to exit');
             pressEText?.setPosition(exitButtonPoint.x - 50, exitButtonPoint.y - 45);
