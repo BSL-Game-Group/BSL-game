@@ -1,41 +1,40 @@
 const BSL_EQUIPMENT_RULES = {
   1: {
-    required: ['lab_coat', 'glasses', 'gloves'],
-    anyOf: ['indoor_shoes', 'disposable_foot_covers'],
-    optional: [],
-  },
-  2: {
-    required: ['lab_coat', 'gloves'],
-    anyOf: [
-      {
-        allOf: [
-          { anyOf: ['mask', 'face_shield'] },
-          { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
-        ],
-      },
-    ],
-    optional: [],
-  },
-  3: {
-    required: ['gloves', 'gloves_2'],
-    anyOf: [
-      {
-        allOf: [
-          { anyOf: ['closable_lab_coat', 'disposable_overall'] },
-          {
-            anyOf: [
-              { allOf: ['mask', { anyOf: ['glasses', 'face_shield'] }] },
-              'bsl3_respirator',
-            ],
-          },
-          { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
-        ],
-      },
-    ],
-    optional: [],
-  },
-  4: { required: ['pressurized_suit', 'gloves'], anyOf: [], optional: [] },
-}
+      required: ['lab_coat', 'glasses'],
+      anyOf: [
+        'indoor_shoes',
+        'disposable_foot_covers',
+        { anyOf: ['gloves', 'gloves_2'] }
+      ],
+      optional: [],
+    },
+    2: {
+      required: ['lab_coat', 'mask'],
+      anyOf: [
+        {
+          allOf: [
+            { anyOf: ['glasses', 'face_shield'] },
+            { anyOf: ['gloves', 'gloves_2'] },
+            { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
+          ],
+        },
+      ],
+      optional: [],
+    },
+    3: {
+      required: ['disposable_overall', 'mask', 'gloves', 'gloves_2'],
+      anyOf: [
+        {
+          allOf: [
+            { anyOf: ['glasses', 'face_shield'] },
+            { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
+          ],
+        },
+      ],
+      optional: [],
+    },
+    4: { required: ['pressurized_suit'], anyOf: ['gloves', 'gloves_2'], optional: [] },
+  }
 
 export function getEquipmentRulesForBslLevel(level) {
   return BSL_EQUIPMENT_RULES[level] ?? { required: [], anyOf: [], optional: [] }
