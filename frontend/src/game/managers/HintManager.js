@@ -29,6 +29,11 @@ export default class HintManager {
         if (!translations) {
           return;}
 
+        // DEFENSIVE GUARD: Abort if the Text objects have been destroyed by Phaser
+        if (!this.pressEText || !this.pressEText.active) {
+            return;
+        }
+
         this.pressEText.setText(translations.pressEToOpen || 'Press E to open');
         this.closetHint.setText(translations.openCloset || 'Open Closet');
         this.undressHint.setText(translations.washUp || 'Press R or click to wash up');
