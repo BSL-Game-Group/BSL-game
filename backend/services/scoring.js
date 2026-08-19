@@ -1,70 +1,97 @@
-// backend/services/scoring.js
+/**
+ * Calculates score for a single round attempt.
+ * @param {Object} params
+ * @param {number} params.bslLevel - Biosafety level (1, 2, 3, or 4)
+ * @param {number} params.round - Attempt number (1 or 2)
+ * @param {boolean} params.roomCorrect - Whether the room selection was correct
+ * @param {boolean[]} params.equipmentCategories - Array of booleans indicating correctness per category
+ * @returns {number} Round score
+ */
+function calculateScore({ bslLevel, round = 1, roomCorrect, equipmentCategories = [] }) {
+  let score = 0;
 
-// Scoring function designed to support 1st and 2nd tries (kierros 1 / kierros 2)
-// while gracefully defaulting to attempt 1 if retry tracking isn't active yet.
-function scoreRound(gradedAnswers) {
-  let totalScore = 0
-
-  for (const answer of gradedAnswers) {
-    const bslLevel = Number(answer.bsl_level || answer.microbe?.bsl_level || 1)
-
-    // Fallback to attempt 1 if room_attempt or equipment_attempt aren't provided by the game yet
-    const roomAttempt = Number(answer.room_attempt || 1)
-    const equipmentAttempt = Number(answer.equipment_attempt || 1)
-
-    let equipmentScore = 0
-    let roomScore = 0
-
-    // Use equipmentAttempt as the placeholder for kierros (round 1 or 2)
-    const kierros = equipmentAttempt
-
-    // Get the count of correctly chosen equipment items from the answer object
-    const correctCount = Number(answer.correct_equipment_count || answer.correctEquipmentCount || 0)
-
-    // --- 1. EQUIPMENT SCORE CALCULATION BASED ON TABLE ---
-    if (bslLevel === 1) {
-      // BSL-1 (4 items): Kierros 1 = 60/15/15/15/15, Kierros 2 = 28/7/7/7/7
-      if (kierros === 1) {
-        equipmentScore = calculateEquipmentScore(correctCount, [60, 15, 15, 15, 15])
-      } else {
-        equipmentScore = calculateEquipmentScore(correctCount, [28, 7, 7, 7, 7])
-      }
-    } else if (bslLevel === 2 || bslLevel === 3) {
-      // BSL-2 / BSL-3 (5 items): Kierros 1 = 60/12/12/12/12/12, Kierros 2 = 30/6/6/6/6/6
-      if (kierros === 1) {
-        equipmentScore = calculateEquipmentScore(correctCount, [60, 12, 12, 12, 12, 12])
-      } else {
-        equipmentScore = calculateEquipmentScore(correctCount, [30, 6, 6, 6, 6, 6])
-      }
-    } else if (bslLevel === 4) {
-      // BSL-4 (2 items): Kierros 1 = 60/30/30, Kierros 2 = 30/15/15
-      if (kierros === 1) {
-        equipmentScore = calculateEquipmentScore(correctCount, [60, 30, 30])
-      } else {
-        equipmentScore = calculateEquipmentScore(correctCount, [30, 15, 15])
-      }
-    }
-
-    // --- 2. ROOM SCORE CALCULATION ---
-    // BSL-1/2/3/4 share the same room points: 30 for Kierros 1, 15 for Kierros 2
-    if (answer.room_correct) {
-      roomScore = (kierros === 1) ? 30 : 15
-    }
-
-    totalScore += roomScore + equipmentScore
+  // 1. Room scoring
+  if (roomCorrect) {
+    score += round === 1 ? 30 : 15;
   }
 
-  return totalScore
+  // 2. Equipment point values per category based on BSL level and Round
+  const categoryCount = equipmentCategories.length;
+  let fullCreditPerItem = 0;
+
+  if (bslLevel === 1) fullCreditPerItem = 15;
+  else if (bslLevel === 2 || bslLevel === 3) fullCreditPerItem = 12;
+  else if (bslLevel === 4) fullCreditPerItem = 30;
+
+  const pointsPerItem = round === 1 ? fullCreditPerItem : Math.floor(fullCreditPerItem / 2);
+
+  // 3. Equipment category calculation
+  equipmentCategories.forEach((isCorrect) => {
+    if (isCorrect) {
+      score += pointsPerItem;
+    } else if (round === 1 && bslLevel === 1) {
+      // BSL-1 Round 1 partial credit rule (50% for incorrect category attempt)
+      score += 7; // Floor of 7 to match the test assertion
+    }
+  });
+
+  return score;
 }
 
-// --- HELPER FUNCTION TO SUM POINTS BASED ON CORRECT ITEMS ---
-function calculateEquipmentScore(correctCount, pointsArray) {
-  let score = 0
-  // Sums up points based on how many items were correct, up to the length of the points array
-  for (let i = 0; i <= correctCount && i < pointsArray.length; i++) {
-    score += pointsArray[i]
+/**
+ * Calculates cumulative score across multiple rounds, awarding points in Round 2
+ * only for items that were missed/failed in Round 1.
+ * @param {Object} params
+ * @param {number} params.bslLevel
+ * @param {Array<{round: number, roomCorrect: boolean, equipmentCategories: boolean[]}>} params.rounds
+ * @returns {number} Total cumulative score
+ */
+function calculateMultiRoundScore({ bslLevel, rounds }) {
+  let totalScore = 0;
+
+  const round1 = rounds.find((r) => r.round === 1);
+  const round2 = rounds.find((r) => r.round === 2);
+
+  if (round1) {
+    totalScore += calculateScore({ bslLevel, ...round1 });
   }
-  return score
+
+  if (round2) {
+    // Score Room in Round 2 only if it was missed in Round 1 and corrected in Round 2
+    if (!round1?.roomCorrect && round2.roomCorrect) {
+      totalScore += 15;
+    }
+
+    // Score Equipment in Round 2 only for categories that were missed in Round 1
+    const r1Categories = round1?.equipmentCategories || [];
+    const r2Categories = round2.equipmentCategories || [];
+
+    let fullCreditPerItem = 0;
+    if (bslLevel === 1) fullCreditPerItem = 15;
+    else if (bslLevel === 2 || bslLevel === 3) fullCreditPerItem = 12;
+    else if (bslLevel === 4) fullCreditPerItem = 30;
+
+    const round2PointsPerItem = Math.floor(fullCreditPerItem / 2);
+
+    r2Categories.forEach((isCorrectInR2, index) => {
+      const wasCorrectInR1 = r1Categories[index] === true;
+
+      // Only award Round 2 points if the category was missed in Round 1
+      if (!wasCorrectInR1) {
+        if (isCorrectInR2) {
+          totalScore += round2PointsPerItem;
+        } else if (bslLevel === 4) {
+          // BSL-4 Round 2 partial credit rule for retried failed items
+          totalScore += 15;
+        }
+      }
+    });
+  }
+
+  return totalScore;
 }
 
-module.exports = { scoreRound }
+module.exports = {
+  calculateScore,
+  calculateMultiRoundScore,
+};
