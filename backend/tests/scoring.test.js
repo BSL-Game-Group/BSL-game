@@ -1,19 +1,95 @@
 const { test } = require('node:test');
 const assert = require('node:assert');
 
-const { scoreRound } = require('../services/scoring');
+const { calculateScore } = require('../services/scoring');
 
-test('an answer scores only when the level and the equipment are both right', () => {
-  const score = scoreRound([
-    { level_correct: true, equipment_correct: true },
-    { level_correct: true, equipment_correct: false },
-    { level_correct: false, equipment_correct: true },
-    { level_correct: false, equipment_correct: false },
-  ]);
+test('BSL 1 Equipment & Room Scoring', async (t) => {
+  await t.test('Round 1: Perfect score (Room + All Equipment)', () => {
+    // BSL 1 has 4 equipment categories
+    const categories = [true, true, true, true];
+    const score = calculateScore({ bslLevel: 1, round: 1, roomCorrect: true, equipmentCategories: categories });
+    // 30 (Room) + 60 (Equipment) = 90
+    assert.strictEqual(score, 90);
+  });
 
-  assert.strictEqual(score, 1);
+  await t.test('Round 1: Room correct + 1 incorrect equipment category (Partial Credit)', () => {
+    // 3 correct (15 each), 1 incorrect (50% partial = 7.5)
+    const categories = [true, true, true, false];
+    const score = calculateScore({ bslLevel: 1, round: 1, roomCorrect: true, equipmentCategories: categories });
+    // 30 (Room) + (15 + 15 + 15 + 7) = 82
+    assert.strictEqual(score, 82);
+  });
 });
 
-test('an empty round scores zero', () => {
-  assert.strictEqual(scoreRound([]), 0);
+test('BSL 2 & 3 Equipment Scoring (5 Categories)', async (t) => {
+  await t.test('BSL 2 Round 1: Perfect equipment score', () => {
+    const categories = [true, true, true, true, true];
+    const score = calculateScore({ bslLevel: 2, round: 1, roomCorrect: false, equipmentCategories: categories });
+    // 0 (Room) + 60 (Equipment: 12/12/12/12/12) = 60
+    assert.strictEqual(score, 60);
+  });
+
+  await t.test('BSL 3 Round 1: 1 incorrect category', () => {
+    const categories = [true, true, true, true, false];
+    const score = calculateScore({ bslLevel: 3, round: 1, roomCorrect: false, equipmentCategories: categories });
+    // 0 (Room) + (12 * 4) = 48
+    assert.strictEqual(score, 48);
+  });
+});
+
+test('BSL 4 Equipment Scoring (2 Categories)', async (t) => {
+  await t.test('BSL 4 Round 1: Perfect score', () => {
+    const categories = [true, true];
+    const score = calculateScore({ bslLevel: 4, round: 1, roomCorrect: true, equipmentCategories: categories });
+    // 30 (Room) + 60 (Equipment: 30/30) = 90
+    assert.strictEqual(score, 90);
+  });
+
+  await t.test('BSL 4 Round 1: 1 incorrect category (15 partial credit)', () => {
+    const categories = [true, false];
+    const score = calculateScore({ bslLevel: 4, round: 1, roomCorrect: true, equipmentCategories: categories });
+    // 30 (Room) + 15 = 45
+    assert.strictEqual(score, 45);
+  });
+});
+
+test('Multi-Round Cumulative Scoring (Round 2 targets only failed items from Round 1)', async (t) => {
+  await t.test('BSL 1: Room wrong in Round 1, fixed in Round 2; Equipment 3/4 correct in Round 1, 4th fixed in Round 2', () => {
+    const rounds = [
+      { round: 1, roomCorrect: false, equipmentCategories: [true, true, true, false] },
+      { round: 2, roomCorrect: true, equipmentCategories: [true, true, true, true] },
+    ];
+
+    // Round 1: 0 (Room) + (15 + 15 + 15) = 45
+    // Round 2: 15 (Room) + 7 (Only category #4 awarded) = 22
+    // Total Cumulative: 67
+    const score = calculateMultiRoundScore({ bslLevel: 1, rounds });
+    assert.strictEqual(score, 67);
+  });
+
+  await t.test('BSL 2: Room correct in Round 1; Equipment 2/5 correct in Round 1, remaining 3 fixed in Round 2', () => {
+    const rounds = [
+      { round: 1, roomCorrect: true, equipmentCategories: [true, true, false, false, false] },
+      { round: 2, roomCorrect: true, equipmentCategories: [true, true, true, true, true] },
+    ];
+
+    // Round 1: 30 (Room) + (12 + 12) = 54
+    // Round 2: 0 (Room already scored) + 18 (6 pts * 3 retried categories) = 18
+    // Total Cumulative: 72
+    const score = calculateMultiRoundScore({ bslLevel: 2, rounds });
+    assert.strictEqual(score, 72);
+  });
+
+  await t.test('BSL 4: Room correct in Round 1; Equipment 1/2 correct in Round 1, failed again in Round 2', () => {
+    const rounds = [
+      { round: 1, roomCorrect: true, equipmentCategories: [true, false] },
+      { round: 2, roomCorrect: true, equipmentCategories: [true, false] },
+    ];
+
+    // Round 1: 30 (Room) + 30 = 60
+    // Round 2: 0 (Room already scored) + 15 (partial credit on 2nd attempt) = 15
+    // Total Cumulative: 75
+    const score = calculateMultiRoundScore({ bslLevel: 4, rounds });
+    assert.strictEqual(score, 75);
+  });
 });
