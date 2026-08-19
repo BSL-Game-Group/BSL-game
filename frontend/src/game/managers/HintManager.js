@@ -18,6 +18,7 @@ export default class HintManager {
         this.bslHint = createHint(darkStyle);
         this.doorHint = createHint(darkStyle);
         this.doorFeedback = createHint(redDarkStyle);
+        this.openmicrobeInfoHint = createHint(darkStyle);
         
         this.closetHint = createHint(greyStyle);
         this.undressHint = createHint(greyStyle);
@@ -36,6 +37,7 @@ export default class HintManager {
         this.bslHint.setText(translations.pressE || 'Press E');
         this.doorHint.setText(translations.pressE || 'Press E');
         this.doorFeedback.setText(translations.closeTheDoorBehindYouFirst || 'Close the door behind you first.');
+        this.openmicrobeInfoHint.setText(translations.openMicrobeInfoHint || 'Press E for microbe info');
         
         if (translations.exitPrompt) {
             this.exitPromptText = translations.exitPrompt;

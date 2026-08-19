@@ -6,6 +6,7 @@ const KNOWN_ERROR_CODES = [
   'username_invalid',
   'password_too_short',
   'username_taken',
+  'username_not_allowed',
   'invalid_credentials',
   'rate_limited',
 ]
@@ -45,7 +46,7 @@ function AuthForm({ idPrefix, onSuccess }) {
 
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
-      <label className="form-label mb-0" htmlFor={`${idPrefix}-username`}>
+      <label className="form-label mb-0" htmlFor={`${idPrefix}-username`} style={{ color: '#212529' }}>
         {t('auth.usernameLabel')}
       </label>
       <input
@@ -56,7 +57,7 @@ function AuthForm({ idPrefix, onSuccess }) {
         onChange={(event) => setUsername(event.target.value)}
       />
 
-      <label className="form-label mb-0" htmlFor={`${idPrefix}-password`}>
+      <label className="form-label mb-0" htmlFor={`${idPrefix}-password`} style={{ color: '#212529' }}>
         {t('auth.passwordLabel')}
       </label>
       <input
@@ -68,7 +69,7 @@ function AuthForm({ idPrefix, onSuccess }) {
         onChange={(event) => setPassword(event.target.value)}
       />
 
-      {!isLogin && <p className="auth-form__note">{t('auth.noRecovery')}</p>}
+      {!isLogin && <p className="auth-form__note" style={{ color: '#212529' }}>{t('auth.noRecovery')}</p>}
 
       {errorCode && (
         <p className="auth-form__error" role="alert">

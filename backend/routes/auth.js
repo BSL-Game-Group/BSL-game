@@ -1,5 +1,6 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
+const { DecentUsername } = require('decent-username')
 
 const db = require('../models')
 const { signToken } = require('../utils/token')
@@ -7,9 +8,11 @@ const { requireAuth } = require('../middleware/auth')
 const { registerLimiter, loginLimiter } = require('../middleware/rateLimit')
 const { claimRoundsForSession } = require('../services/claim')
 
+const badWordsData = require('../data/badWords.json')
+
 const router = express.Router()
 
-const USERNAME_PATTERN = /^[a-zA-Z0-9_-]+$/
+const USERNAME_PATTERN = /^[a-zA-Z0-9_\-ÅÄÖåäö]+$/
 const USERNAME_MIN = 3
 const USERNAME_MAX = 32
 const PASSWORD_MIN = 8
@@ -27,6 +30,17 @@ const BCRYPT_COST = 10
 // not pay for a hash it will usually not need.
 const NO_SUCH_USER_HASH = '$2b$10$btzb5aCHcPW4cdUS.QC3Ie5brTLRZ6MDVPNOlbPsjo38pShvM30xC'
 
+const profanity = require('leo-profanity')
+profanity.loadDictionary('en')
+
+const BLOCKED_ROOTS = [
+  ...(badWordsData.english || []),
+  ...(badWordsData.finnish || []),
+  ...(badWordsData.swedish || [])
+]
+
+profanity.add(BLOCKED_ROOTS)
+
 function validateCredentials(username, password) {
   if (
     typeof username !== 'string' ||
@@ -39,6 +53,48 @@ function validateCredentials(username, password) {
       body: {
         error: 'Username must be 3-32 characters, letters, numbers, _ or - only',
         code: 'username_invalid',
+      },
+    }
+  }
+
+  const lowerUsername = username.toLowerCase()
+  const normalizedUsername = lowerUsername.replace(/[_-]/g, '')
+
+  if (profanity.check(username) || profanity.check(normalizedUsername)) {
+    return {
+      status: 400,
+      body: {
+        error: 'Username not allowed',
+        code: 'username_not_allowed',
+      },
+    }
+  }
+
+  const containsBlockedRoot = BLOCKED_ROOTS.some(
+    (root) => lowerUsername.includes(root) || normalizedUsername.includes(root)
+  )
+
+  if (containsBlockedRoot) {
+    return {
+      status: 400,
+      body: {
+        error: 'Username not allowed',
+        code: 'username_not_allowed',
+      },
+    }
+  }
+
+  try {
+    const decent = new DecentUsername(username)
+    if (typeof decent.validate === 'function') {
+      decent.validate()
+    }
+  } catch (err) {
+    return {
+      status: 400,
+      body: {
+        error: 'Username not allowed',
+        code: 'username_not_allowed',
       },
     }
   }
@@ -138,4 +194,21 @@ router.get('/me', requireAuth, (req, res) => {
   res.json({ id: req.user.id, username: req.user.username })
 })
 
+router.delete('/me', requireAuth, async (req, res) => {
+  const userId = req.user.id
+
+  await db.Round.destroy({ where: { user_id: userId } })
+
+  const deletedCount = await db.User.destroy({
+    where: { id: userId },
+  })
+
+  if (!deletedCount) {
+    return res.status(404).json({ error: 'User not found', code: 'user_not_found' })
+  }
+
+  res.status(204).json({ success: true })
+})
+
+router.validateCredentials = validateCredentials
 module.exports = router

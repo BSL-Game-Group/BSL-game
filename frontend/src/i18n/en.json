@@ -103,7 +103,8 @@
     "pressE": "Press E",
     "closeTheDoorBehindYouFirst": "Close the door behind you first.",
     "exitPrompt": "Press E to exit",
-    "washUp": "Press R or click to wash up"
+    "washUp": "Press R or click to wash up",
+    "openmicrobeInfoHint": "Press E for microbe info"
   },
   "hud": {
     "score": "Score: {score}",
@@ -123,13 +124,17 @@
     "switchToLogin": "Already have an account? Log in",
     "noRecovery": "There is no password recovery — write it down somewhere safe.",
     "working": "Working…",
+    "confirmDeleteButton": "Confirm",
+    "deleteButton": "Delete",
+    "confirmDelete": "Are you sure you want to delete your account?",
     "errors": {
       "username_invalid": "Username must be 3-32 characters: letters, numbers, _ or -.",
       "password_too_short": "Password must be at least 8 characters.",
       "username_taken": "That username is taken.",
       "invalid_credentials": "Wrong username or password.",
       "rate_limited": "Too many attempts for this username. Try again in 15 minutes.",
-      "network": "Could not reach the server. Try again."
+      "network": "Could not reach the server. Try again.",
+      "username_not_allowed": "Username not allowed"
     },
     "rounds": {
       "title": "Your rounds",

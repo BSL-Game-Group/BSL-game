@@ -103,7 +103,8 @@
     "pressE": "Paina E",
     "closeTheDoorBehindYouFirst": "Sulje takanasi oleva ovi ensin.",
     "exitPrompt": "Paina E poistutuaksesi",
-    "washUp": "Paina R tai klikkaa peseytyäksesi"
+    "washUp": "Paina R tai klikkaa peseytyäksesi",
+    "openmicrobeInfoHint": "Paina E nähdäksesi tutkittavan mikrobin tiedot"
   },
   "hud": {
     "score": "Pisteet: {score}",
@@ -123,13 +124,17 @@
     "switchToLogin": "Onko sinulla jo tili? Kirjaudu",
     "noRecovery": "Salasanaa ei voi palauttaa — kirjoita se talteen.",
     "working": "Odota…",
+    "confirmDeleteButton": "Vahvista",
+    "deleteButton": "Poista",
+    "confirmDelete": "Haluatko varmasti poistaa tilisi?",
     "errors": {
       "username_invalid": "Käyttäjänimessä on oltava 3-32 merkkiä: kirjaimia, numeroita, _ tai -.",
       "password_too_short": "Salasanassa on oltava vähintään 8 merkkiä.",
       "username_taken": "Käyttäjänimi on jo käytössä.",
       "invalid_credentials": "Väärä käyttäjänimi tai salasana.",
       "rate_limited": "Liian monta yritystä tällä käyttäjänimellä. Yritä uudelleen 15 minuutin kuluttua.",
-      "network": "Palvelimeen ei saada yhteyttä. Yritä uudelleen."
+      "network": "Palvelimeen ei saada yhteyttä. Yritä uudelleen.",
+      "username_not_allowed": "Käyttäjätunnus ei sallittu"
     },
     "rounds": {
       "title": "Kierroksesi",

@@ -225,10 +225,47 @@ function App() {
       closeTheDoorBehindYouFirst: t('phaser.closeTheDoorBehindYouFirst'),
       exitPrompt: t('phaser.exitPrompt'),
       washUp: t('phaser.washUp'),
+      openMicrobeInfoHint: t('phaser.openmicrobeInfoHint'),
     }
     window.__translations = translations
     EventBus.emit('translations-updated', translations)
   }, [language, t])
+
+  // TEMPORARY (for testing the saved-game work): throw away the snapshot and put
+  // every piece of state back to its start-screen value. Dropping gameStarted
+  // unmounts the Phaser game, so restarting builds a fresh scene.
+  const resetGameState = useCallback(() => {
+    clearSavedGame()
+    setGameStarted(false)
+    setPopupOpen(false)
+    setMicrobeInfoOpen(false)
+    setLectureMaterialOpen(false)
+    setAnswerOpen(false)
+    setAnswerLevel('')
+    setCurrentMicrobe(null)
+    setInfoOpen(false)
+    setLectureWarningOpen(false)
+    setEquipped(unequipAll())
+    setAwaitingUndress(false)
+    setVentilationConnected(false)
+    setExitConfirmOpen(false)
+    setRoundAnswers([])
+    setOpenRoundId(null)
+    setRoundResult(null)
+    setBsl4NotReadyOpen(false)
+    setBsl4GearOpen(false)
+    setBslDoorRequiredOpen(false)
+    window.dispatchEvent(new Event('popup-closed'))
+  }, [])
+
+  // Listen for account deletion reset event
+  useEffect(() => {
+    const handleGameResetEvent = () => {
+      resetGameState()
+    }
+    window.addEventListener('game-reset-state', handleGameResetEvent)
+    return () => window.removeEventListener('game-reset-state', handleGameResetEvent)
+  }, [resetGameState])
 
   // One writer for all of App's persisted state. Gated on gameStarted: a valid
   // snapshot means "started", so writing one while a first-time visitor sits on
@@ -283,33 +320,6 @@ function App() {
     window.addEventListener('pagehide', flush)
     return () => window.removeEventListener('pagehide', flush)
   }, [])
-
-  // TEMPORARY (for testing the saved-game work): throw away the snapshot and put
-  // every piece of state back to its start-screen value. Dropping gameStarted
-  // unmounts the Phaser game, so restarting builds a fresh scene.
-  const resetGameState = () => {
-    clearSavedGame()
-    setGameStarted(false)
-    setPopupOpen(false)
-    setMicrobeInfoOpen(false)
-    setLectureMaterialOpen(false)
-    setAnswerOpen(false)
-    setAnswerLevel('')
-    setCurrentMicrobe(null)
-    setInfoOpen(false)
-    setLectureWarningOpen(false)
-    setEquipped(unequipAll())
-    setAwaitingUndress(false)
-    setVentilationConnected(false)
-    setExitConfirmOpen(false)
-    setRoundAnswers([])
-    setOpenRoundId(null)
-    setRoundResult(null)
-    setBsl4NotReadyOpen(false)
-    setBsl4GearOpen(false)
-    setBslDoorRequiredOpen(false)
-    window.dispatchEvent(new Event('popup-closed'))
-  }
 
   // --- LOGIC ---
   const correctLevel = currentMicrobe?.bsl_level

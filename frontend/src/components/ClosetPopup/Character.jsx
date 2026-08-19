@@ -9,12 +9,16 @@ export default function Character({ equipped, onToggleEquip }) {
   }))
 
   const getBaseImageSrc = () => {
-      if (equipped.pressurized_suit || equipped.disposable_overall) {
+      if (equipped.pressurized_suit) {
         return "/assets/player/head_only.png";
       }
 
       if (equipped.wow_helmet) {
         return "/assets/player/no_hair.png"; 
+      }
+
+      if (equipped.disposable_overall) {
+        return "/assets/player/no_hair_disposable_overall.png"; 
       }
 
       return "/assets/player/base.png";

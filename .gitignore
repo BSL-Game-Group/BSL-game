@@ -5,6 +5,7 @@
 infra/rolebinding.yaml
 backend/manifests/secret.yaml
 backend/manifests/configmap.yaml
+backend/manifests/production/secret.yaml
 
 # Playwright
 node_modules/

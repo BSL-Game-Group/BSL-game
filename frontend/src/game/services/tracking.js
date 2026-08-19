@@ -1,18 +1,3 @@
-export const getBackendUrl = () => {
-    if (process.env.VITE_API_URL) {
-        return process.env.VITE_API_URL;
-    }
-    if (typeof window !== 'undefined') {
-        const protocol = window.location.protocol;
-        const hostname = window.location.hostname;
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            return 'http://localhost:3001';
-        }
-        return `${protocol}//backend:3001`;
-    }
-    return 'http://localhost:3001';
-};
-
 export const notifyRoomEntry = async (roomKey) => {
     try {
         const sessionId = window.__gameData?.sessionId;
@@ -20,8 +5,7 @@ export const notifyRoomEntry = async (roomKey) => {
             return;
         }
 
-        const backendUrl = getBackendUrl();
-        const response = await fetch(`${backendUrl}/api/rooms/enter`, {
+        const response = await fetch('/api/rooms/enter', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
