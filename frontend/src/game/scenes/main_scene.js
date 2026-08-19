@@ -9,6 +9,7 @@ import DoorGroup from '../groups/DoorGroup.js';
 import { loadSavedGame, savePlayerPosition } from '../../state/savedGame';
 import { getOrCreateSessionId } from '../../state/session';
 import { loadAssets } from '../assets/loadAssets.js';
+import { isTypingInField } from '../utils/isTypingInField';
 import EquipmentManager from "../player/EquipmentManager";
 import PlayerController from "../player/PlayerController";
 import { PLAYER_CONFIG, DOORS_CONFIG } from '../config/constants';
@@ -126,8 +127,12 @@ class MainScene extends Phaser.Scene {
             }
         });
 
-        this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-        this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+        // enableCapture defaults to true, which calls preventDefault() on the
+        // native keydown for this key globally, regardless of DOM focus —
+        // that silently ate "e"/"r" keystrokes typed into any text field on
+        // the page (e.g. the login form's username input).
+        this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E, false);
+        this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R, false);
         
         this.physics.add.collider(this.player, walls);
         
@@ -200,7 +205,7 @@ class MainScene extends Phaser.Scene {
             }
         }
 
-        if (this.player && this.doors) {
+        if (this.player && this.doors && !this.isPopupOpen) {
             this.physics.overlap(
                 this.player,
                 this.doors,
@@ -218,7 +223,7 @@ class MainScene extends Phaser.Scene {
             this.equipmentManager.updatePositions();
         }
 
-        if (this.interactions) {
+        if (this.interactions && !this.isPopupOpen) {
             this.interactions.forEach(interaction => interaction.update());
         }
 
@@ -263,7 +268,8 @@ class MainScene extends Phaser.Scene {
         this.doorHint.setPosition(door.x, door.y);
 
         if (!(this.keyE && Phaser.Input.Keyboard.JustDown(this.keyE) &&
-            !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey)) {
+            !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey) ||
+            isTypingInField()) {
             return;
         }
 
