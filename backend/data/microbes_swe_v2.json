@@ -165,7 +165,7 @@
     "scientific_name": "Measles morbillivirus",
     "type": "Virus",
     "bsl_level": 2,
-    "lecture_text": "Ett av de mest smittsamma människovirusen — sprids via luftburna droppar och aerosoler. Orsakar utslag, feber och kan leda till lunginflammation. Ett effektivt MMR-vaccin ger skydd.",
+    "lecture_text": "Ett av de mest smittsamma människovirusen — sprids via luftburna droppar och aerosoler. Orsakar utslag, feber och kan leda till lunginflammation. Ett effektivt MPR-vaccin ger skydd.",
     "feedback_correct": "Rätt! Mässlingsvirus är BSL-2 — vaccin finns tillgängligt.",
     "feedback_incorrect": "Fel! Mässlingsvirus är BSL-2 eftersom ett effektivt vaccin finns."
   },
