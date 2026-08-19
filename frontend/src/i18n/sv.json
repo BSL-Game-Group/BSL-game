@@ -44,7 +44,7 @@
     "title": "BSL-spelets material (biosäkerhetsnivåer)",
     "protectiveEquipment": "Skyddsutrustning:",
     "exampleOrganisms": "Exempelorganismer:",
-    "tableHeaders": ["#", "Vanligt namn", "Vetenskapligt namn", "Typ", "Anmärkning"],
+    "tableHeaders": ["#", "Allmänt namn", "Vetenskapligt namn", "Typ", "Anmärkning"],
     "sources": "Källor"
   },
   "task": {
@@ -53,7 +53,7 @@
   },
   "microbeInfoPopup": {
     "title": "Mikrobinformation",
-    "commonName": "Vanligt namn",
+    "commonName": "Allmänt namn",
     "scientificName": "Vetenskapligt namn",
     "type": "Typ",
     "description": "Beskrivning"
