@@ -35,11 +35,7 @@ export default class HintManager {
         this.undressHint.setText(translations.washUp || 'Press R or click to wash up');
         this.bslHint.setText(translations.pressE || 'Press E');
         this.doorHint.setText(translations.pressE || 'Press E');
-<<<<<<< HEAD
-        this.lectureMaterialHint.setText(translations.lectureMaterialHint || 'Press E to open lecture material');
-=======
         this.openmicrobeInfoHint.setText(translations.openMicrobeInfoHint || 'Press E for microbe info');
->>>>>>> main
         
         if (translations.exitPrompt) {
             this.exitPromptText = translations.exitPrompt;
