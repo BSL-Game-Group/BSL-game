@@ -9,7 +9,6 @@ export default class PlayerController {
         this.cursors = scene.input.keyboard.createCursorKeys();
         this.speed = 160;
         this.baseScale = scene.player?.scaleX ?? 1;
-        this.bounceOffset = 0;
         this.lastFlip = undefined;
         this.turnSquashStart = undefined;
         this.wasMoving = false;
@@ -42,14 +41,8 @@ export default class PlayerController {
 
     // Player art is one static image (no animation frames), so "liveliness"
     // is faked here: flip on horizontal facing (with a brief squash on
-    // direction change), a tiny walking bounce, an idle breathing pulse, a
-    // quick pop when starting to move, and a drop shadow that tracks the
-    // sprite and reacts to speed.
-    //
-    // The bounce is applied as a delta (new offset minus last offset) so it
-    // always nets to zero instead of permanently drifting the player's y —
-    // Arcade Physics picks up manual position changes into the body on the
-    // next step, so an un-reversed offset would accumulate.
+    // direction change), an idle breathing pulse, a quick pop when starting
+    // to move, and a drop shadow that reacts to speed.
     updateVisuals() {
         const player = this.scene.player;
         const velocity = player.body.velocity;
@@ -69,10 +62,6 @@ export default class PlayerController {
             this.startPopBegin = now;
         }
         this.wasMoving = moving;
-
-        const targetBounce = moving ? Math.sin(now / 90) * 1.5 : 0;
-        player.y += targetBounce - this.bounceOffset;
-        this.bounceOffset = targetBounce;
 
         let scaleX = moving ? 1 : 1 + Math.sin(now / 400) * 0.015;
         let scaleY = scaleX;
@@ -96,7 +85,7 @@ export default class PlayerController {
         const speedRatio = Math.min(1, Math.hypot(velocity.x, velocity.y) / this.speed);
         this.shadow?.setScale?.(1 + speedRatio * 0.15);
         this.shadow?.setAlpha?.(0.25 - speedRatio * 0.08);
-        this.shadow?.setPosition?.(player.x, player.y - targetBounce + 20);
+        this.shadow?.setPosition?.(player.x, player.y + 20);
     }
 
     handleKeyboardMovement() {
