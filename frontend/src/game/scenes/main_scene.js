@@ -205,10 +205,10 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    update() {
+    update(time, delta) {
         // Guarded for isolated unit tests that bypass create()
         if (this.playerController) {
-            this.playerController.update();
+            this.playerController.update(time, delta);
         }
 
         if (

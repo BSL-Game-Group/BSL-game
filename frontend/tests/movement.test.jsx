@@ -4,6 +4,7 @@ import Phaser from 'phaser'
 import { SAVED_GAME_KEY, clearSavedGame } from '../src/state/savedGame'
 
 import PlayerController from '../src/game/player/PlayerController'
+import { PLAYER_CONFIG } from '../src/game/config/constants'
 // (If you haven't extracted one of these yet, just comment it out here and in the interactions array below)
 import { DressingRoomInteraction } from '../src/game/interactions/DressingRoomInteraction';
 import { BslInteraction } from '../src/game/interactions/BslInteraction'
@@ -250,63 +251,116 @@ function createScene(overrides = {}) {
 }
 
 // MOVEMENT TESTS
+
+// Speed ramps up over ACCELERATION_MS rather than being applied outright, so
+// a single frame only ever applies a fraction of it — run enough frames for
+// the throttle to reach full.
+function runFrames(scene, frames = 10) {
+  for (let i = 0; i < frames; i += 1) {
+    scene.update()
+  }
+}
+
+function lastVelocity(scene) {
+  return {
+    x: scene.player.setVelocityX.mock.calls.at(-1)?.[0] ?? 0,
+    y: scene.player.setVelocityY.mock.calls.at(-1)?.[0] ?? 0,
+  }
+}
+
 describe('Player movement', () => {
   test('moves left with keyboard', () => {
     const scene = createScene()
     scene.cursors.left.isDown = true
-    scene.update()
+    runFrames(scene)
 
-    expect(scene.player.setVelocityX).toHaveBeenCalledWith(-160)
+    expect(scene.player.setVelocityX).toHaveBeenCalledWith(-PLAYER_CONFIG.speed)
   })
 
   test('moves right with keyboard', () => {
     const scene = createScene()
     scene.cursors.right.isDown = true
-    scene.update()
+    runFrames(scene)
 
-    expect(scene.player.setVelocityX).toHaveBeenCalledWith(160)
+    expect(scene.player.setVelocityX).toHaveBeenCalledWith(PLAYER_CONFIG.speed)
   })
 
   test('moves up with keyboard', () => {
     const scene = createScene()
     scene.cursors.up.isDown = true
-    scene.update()
+    runFrames(scene)
 
-    expect(scene.player.setVelocityY).toHaveBeenCalledWith(-160)
+    expect(scene.player.setVelocityY).toHaveBeenCalledWith(-PLAYER_CONFIG.speed)
   })
 
   test('moves down with keyboard', () => {
     const scene = createScene()
     scene.cursors.down.isDown = true
-    scene.update()
+    runFrames(scene)
 
-    expect(scene.player.setVelocityY).toHaveBeenCalledWith(160)
+    expect(scene.player.setVelocityY).toHaveBeenCalledWith(PLAYER_CONFIG.speed)
+  })
+
+  test('builds up to full speed instead of applying it on the first frame', () => {
+    const scene = createScene()
+    scene.cursors.right.isDown = true
+
+    scene.update()
+    const first = lastVelocity(scene).x
+
+    runFrames(scene)
+    const settled = lastVelocity(scene).x
+
+    expect(first).toBeGreaterThan(0)
+    expect(first).toBeLessThan(PLAYER_CONFIG.speed)
+    expect(settled).toBeCloseTo(PLAYER_CONFIG.speed)
+  })
+
+  test('coasts to a stop after the key is released', () => {
+    const scene = createScene()
+    scene.cursors.right.isDown = true
+    runFrames(scene)
+
+    scene.cursors.right.isDown = false
+    scene.update()
+    const coasting = lastVelocity(scene).x
+
+    expect(coasting).toBeGreaterThan(0)
+    expect(coasting).toBeLessThan(PLAYER_CONFIG.speed)
+
+    // Once stopped, no velocity is applied at all — update()'s setVelocity(0)
+    // is what holds the player still — so assert on the absence of new calls
+    // rather than on a final value.
+    runFrames(scene)
+    scene.player.setVelocityX.mockClear()
+    runFrames(scene)
+
+    expect(scene.player.setVelocityX).not.toHaveBeenCalled()
   })
 
   test('diagonal movement is no faster than moving along one axis', () => {
     const scene = createScene()
     scene.cursors.left.isDown = true
     scene.cursors.up.isDown = true
-    scene.update()
+    runFrames(scene)
 
-    const vx = scene.player.setVelocityX.mock.calls.at(-1)[0]
-    const vy = scene.player.setVelocityY.mock.calls.at(-1)[0]
+    const { x, y } = lastVelocity(scene)
 
-    expect(Math.hypot(vx, vy)).toBeCloseTo(160)
-    expect(vx).toBeLessThan(0)
-    expect(vy).toBeLessThan(0)
+    expect(Math.hypot(x, y)).toBeCloseTo(PLAYER_CONFIG.speed)
+    expect(x).toBeLessThan(0)
+    expect(y).toBeLessThan(0)
   })
 
   test('moves toward mouse click', () => {
     const scene = createScene()
     scene.input.activePointer.isDown = true
-    scene.update()
+    runFrames(scene)
 
-    expect(scene.physics.moveToObject).toHaveBeenCalledWith(
-      scene.player,
-      scene.input.activePointer,
-      160
-    )
+    // Pointer sits at (700, 500), the player at (640, 500) — due right.
+    const { x, y } = lastVelocity(scene)
+
+    expect(x).toBeCloseTo(PLAYER_CONFIG.speed)
+    expect(y).toBeCloseTo(0)
   })
 
   test('does not move if mouse click is too close', () => {
@@ -316,9 +370,10 @@ describe('Player movement', () => {
     scene.input.activePointer.y = 505
     scene.input.activePointer.isDown = true
 
-    scene.update()
+    runFrames(scene)
 
-    expect(scene.physics.moveToObject).not.toHaveBeenCalled()
+    expect(scene.player.setVelocityX).not.toHaveBeenCalled()
+    expect(scene.player.setVelocityY).not.toHaveBeenCalled()
   })
 })
 
@@ -546,7 +601,7 @@ describe('Scene state logic', () => {
 
     scene.update()
 
-    expect(scene.player.setVelocityX).not.toHaveBeenCalledWith(-160)
+    expect(scene.player.setVelocityX).not.toHaveBeenCalledWith(-PLAYER_CONFIG.speed)
   })
 
   test('player inside zone returns true', () => {
