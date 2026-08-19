@@ -30,11 +30,11 @@ function MicrobeInfoPopup({ open, onClose, microbe }) {
         </button>
         <h2>{t('microbeInfoPopup.title')}</h2>
         <dl>
-          <dt>{t('microbeInfoPopup.commonName')}</dt>
-          <dd>{localized('common_name')}</dd>
-
           <dt>{t('microbeInfoPopup.scientificName')}</dt>
           <dd>{microbe.scientific_name}</dd>
+
+          <dt>{t('microbeInfoPopup.commonName')}</dt>
+          <dd>{localized('common_name')}</dd>
 
           <dt>{t('microbeInfoPopup.type')}</dt>
           <dd>{localized('type')}</dd>
