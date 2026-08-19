@@ -11,7 +11,12 @@ jest.mock('phaser', () => ({
       Group: class MockGroup {},
     },
   },
-  Scene: class {}
+  Input: {
+    Keyboard: {
+      JustDown: jest.fn(),
+    },
+  },
+  Scene: class {},
 }))
 
 jest.mock('../src/services/microbes', () => ({
@@ -94,5 +99,158 @@ describe('request-new-microbe listener', () => {
     EventBus.emit('request-new-microbe')
 
     expect(spy).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('handleDoorInteraction', () => {
+  let scene
+  let player
+  let door
+  let zone
+  let Phaser
+
+  beforeEach(() => {
+    Phaser = require('phaser')
+
+    Phaser.Input.Keyboard.JustDown.mockReset()
+
+    player = {}
+
+    door = {
+      tryToChangeDoorState: jest.fn(),
+    }
+
+    zone = {
+      parentDoor: door,
+    }
+
+    scene = {
+      hintManager: {
+        showDoorHint: jest.fn(),
+        showDoorFeedback: jest.fn(),
+      },
+      keyE: {
+        ctrlKey: false,
+        metaKey: false,
+        altKey: false,
+      },
+      bsl4Door: null,
+      handleBsl4DoorPress: jest.fn(),
+    }
+  })
+
+  test('shows the door hint when player is near a door', () => {
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(false)
+
+    MainScene.prototype.handleDoorInteraction.call(
+      scene,
+      player,
+      zone
+    )
+
+    expect(scene.hintManager.showDoorHint)
+      .toHaveBeenCalledWith(door)
+  })
+
+  test('does nothing if E is not pressed', () => {
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(false)
+
+    MainScene.prototype.handleDoorInteraction.call(
+      scene,
+      player,
+      zone
+    )
+
+    expect(door.tryToChangeDoorState).not.toHaveBeenCalled()
+    expect(scene.handleBsl4DoorPress).not.toHaveBeenCalled()
+  })
+
+  test('changes door state when E is pressed', () => {
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+
+    door.tryToChangeDoorState.mockReturnValue(true)
+
+    MainScene.prototype.handleDoorInteraction.call(
+      scene,
+      player,
+      zone
+    )
+
+    expect(door.tryToChangeDoorState).toHaveBeenCalledTimes(1)
+    expect(scene.hintManager.showDoorFeedback).not.toHaveBeenCalled()
+  })
+
+  test('shows feedback when the door cannot be opened', () => {
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+
+    door.tryToChangeDoorState.mockReturnValue(false)
+
+    MainScene.prototype.handleDoorInteraction.call(
+      scene,
+      player,
+      zone
+    )
+
+    expect(scene.hintManager.showDoorFeedback)
+      .toHaveBeenCalledWith(door)
+  })
+
+  test('delegates BSL4 doors to handleBsl4DoorPress', () => {
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+
+    scene.bsl4Door = door
+
+    MainScene.prototype.handleDoorInteraction.call(
+      scene,
+      player,
+      zone
+    )
+
+    expect(scene.handleBsl4DoorPress)
+      .toHaveBeenCalledWith(door)
+
+    expect(door.tryToChangeDoorState).not.toHaveBeenCalled()
+  })
+
+  test('ignores Ctrl+E', () => {
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+
+    scene.keyE.ctrlKey = true
+
+    MainScene.prototype.handleDoorInteraction.call(
+      scene,
+      player,
+      zone
+    )
+
+    expect(door.tryToChangeDoorState).not.toHaveBeenCalled()
+  })
+
+  test('ignores Meta+E', () => {
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+
+    scene.keyE.metaKey = true
+
+    MainScene.prototype.handleDoorInteraction.call(
+      scene,
+      player,
+      zone
+    )
+
+    expect(door.tryToChangeDoorState).not.toHaveBeenCalled()
+  })
+
+  test('ignores Alt+E', () => {
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+
+    scene.keyE.altKey = true
+
+    MainScene.prototype.handleDoorInteraction.call(
+      scene,
+      player,
+      zone
+    )
+
+    expect(door.tryToChangeDoorState).not.toHaveBeenCalled()
   })
 })
