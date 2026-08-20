@@ -21,18 +21,6 @@ import { useAuth } from './auth/context'
 import roundsService from './services/rounds'
 import { loadSavedGame, patchSavedGame, flushSavedGame, clearSavedGame, MAX_ROUND_ANSWERS } from './state/savedGame'
 
-const initialEquipment = {
-  mask: false,
-  gloves: false,
-  closable_lab_coat: false,
-  disposable_overall: false,
-  respirator: false,
-  face_shield: false,
-  lab_coat: false,
-  glasses: false,
-  sunglasses: false,
-  pressurized_suit: false,
-}
 
 function App() {
   const { t, language } = useTranslation()
@@ -77,7 +65,8 @@ function App() {
 
   const [roundAnswers, setRoundAnswers] = useState(restored?.round.answers ?? [])
   const [openRoundId, setOpenRoundId] = useState(restored?.round.openRoundId ?? null)
-  const [roundResult, setRoundResult] = useState(null)
+  // 1. Initialize roundResult from restored saved game if it exists
+  const [roundResult, setRoundResult] = useState(restored?.round.roundResult ?? null)
 
 
   // --- HOOKS (Preserved from original) ---
@@ -233,29 +222,29 @@ function App() {
   // TEMPORARY (for testing the saved-game work): throw away the snapshot and put
   // every piece of state back to its start-screen value. Dropping gameStarted
   // unmounts the Phaser game, so restarting builds a fresh scene.
-  const resetGameState = useCallback(() => {
-    clearSavedGame()
-    setGameStarted(false)
-    setPopupOpen(false)
-    setMicrobeInfoOpen(false)
-    setLectureMaterialOpen(false)
-    setAnswerOpen(false)
-    setAnswerLevel('')
-    setCurrentMicrobe(null)
-    setInfoOpen(false)
-    setLectureWarningOpen(false)
-    setEquipped(unequipAll())
-    setAwaitingUndress(false)
-    setVentilationConnected(false)
-    setExitConfirmOpen(false)
-    setRoundAnswers([])
-    setOpenRoundId(null)
-    setRoundResult(null)
-    setBsl4NotReadyOpen(false)
-    setBsl4GearOpen(false)
-    setBslDoorRequiredOpen(false)
-    window.dispatchEvent(new Event('popup-closed'))
-  }, [])
+    const resetGameState = useCallback(() => {
+      clearSavedGame()
+      setGameStarted(false)
+      setPopupOpen(false)
+      setMicrobeInfoOpen(false)
+      setLectureMaterialOpen(false)
+      setAnswerOpen(false)
+      setAnswerLevel('')
+      setCurrentMicrobe(null)
+      setInfoOpen(false)
+      setLectureWarningOpen(false)
+      setEquipped(unequipAll())
+      setAwaitingUndress(false)
+      setVentilationConnected(false)
+      setExitConfirmOpen(false)
+      setRoundAnswers([])
+      setOpenRoundId(null)
+      setRoundResult(null)
+      setBsl4NotReadyOpen(false)
+      setBsl4GearOpen(false)
+      setBslDoorRequiredOpen(false)
+      window.dispatchEvent(new Event('popup-closed'))
+    }, [])
 
   // Listen for account deletion reset event
   useEffect(() => {
@@ -270,47 +259,49 @@ function App() {
   // snapshot means "started", so writing one while a first-time visitor sits on
   // the start screen would make the start screen unreachable forever.
   useEffect(() => {
-    if (!gameStarted) {
-      return
-    }
-    patchSavedGame({
+      if (!gameStarted) {
+        return
+      }
+      patchSavedGame({
+        equipped,
+        microbe: currentMicrobe,
+        progress: {
+          lectureVisited: lectureOpen,
+          awaitingUndress,
+          ventilationConnected,
+        },
+        popups: {
+          closet: isPopupOpen,
+          lectureMaterial: LectureMaterialOpen,
+          info: infoOpen,
+          microbeInfo: microbeInfoOpen,
+          answer: answerOpen,
+          answerLevel,
+          lectureWarning: lectureWarningOpen,
+        },
+        round: {
+          openRoundId,
+          answers: roundAnswers,
+          roundResult,
+        },
+      })
+    }, [
+      gameStarted,
       equipped,
-      microbe: currentMicrobe,
-      progress: {
-        lectureVisited: lectureOpen,
-        awaitingUndress,
-        ventilationConnected,
-      },
-      popups: {
-        closet: isPopupOpen,
-        lectureMaterial: LectureMaterialOpen,
-        info: infoOpen,
-        microbeInfo: microbeInfoOpen,
-        answer: answerOpen,
-        answerLevel,
-        lectureWarning: lectureWarningOpen,
-      },
-      round: {
-        openRoundId,
-        answers: roundAnswers,
-      },
-    })
-  }, [
-    gameStarted,
-    equipped,
-    currentMicrobe,
-    awaitingUndress,
-    ventilationConnected,
-    isPopupOpen,
-    LectureMaterialOpen,
-    infoOpen,
-    microbeInfoOpen,
-    answerOpen,
-    answerLevel,
-    lectureWarningOpen,
-    openRoundId,
-    roundAnswers,
-  ])
+      currentMicrobe,
+      awaitingUndress,
+      ventilationConnected,
+      isPopupOpen,
+      LectureMaterialOpen,
+      infoOpen,
+      microbeInfoOpen,
+      answerOpen,
+      answerLevel,
+      lectureWarningOpen,
+      openRoundId,
+      roundAnswers,
+      roundResult,
+    ])
 
   // The scene's position writes are throttled, so make sure a pending one lands
   // before the page goes away.
@@ -337,27 +328,52 @@ function App() {
   // spot afterward — whether or not any PPE was actually worn — before the
   // next microbe is handed out.
   const handleAnswerClose = () => {
-    if (Number.isInteger(currentMicrobe?.id) && Number.isInteger(chosenLevel)) {
-      setRoundAnswers((answers) =>
-        answers.length >= MAX_ROUND_ANSWERS
-          ? answers
-          : [
-              ...answers,
-              {
-                microbe_id: currentMicrobe.id,
-                chosen_level: chosenLevel,
-                chosen_equipment: chosenEquipment,
-                correct: isCorrect,
-                attempt: 1,
-              },
-            ]
-      )
+      if (Number.isInteger(currentMicrobe?.id) && Number.isInteger(chosenLevel)) {
+        setRoundAnswers((answers) => {
+          const nextAnswers =
+            answers.length >= MAX_ROUND_ANSWERS
+              ? answers
+              : [
+                  ...answers,
+                  {
+                    microbe_id: currentMicrobe.id,
+                    chosen_level: chosenLevel,
+                    chosen_equipment: chosenEquipment,
+                    correct: isCorrect,
+                    attempt: 1,
+                  },
+                ];
+
+          // Trigger the save right away so the backend calculates the score immediately
+          saveRoundSoFarWithAnswers(nextAnswers);
+
+          return nextAnswers;
+        });
+      }
+
+      setAnswerOpen(false);
+      setAwaitingUndress(true);
+      EventBus.emit('undress-required');
     }
 
-    setAnswerOpen(false)
-    setAwaitingUndress(true)
-    EventBus.emit('undress-required')
-  }
+  const saveRoundSoFarWithAnswers = useCallback(async (answersToSave) => {
+    if (!answersToSave || answersToSave.length === 0) {
+      return
+    }
+
+    try {
+      const result = await roundsService.saveRound(answersToSave, token, openRoundId)
+
+      // --- DEBUG LOGS TO CHECK BACKEND RESPONSE ---
+      console.log('--- DEBUG: roundsService response ---', result)
+      console.log('--- DEBUG: extracted score ---', result?.score)
+
+      setOpenRoundId(result.id)
+      setRoundResult(result)
+    } catch (err) {
+      console.error('--- DEBUG: Error saving round ---', err)
+    }
+  }, [token, openRoundId])
 
   const saveRoundSoFar = useCallback(async () => {
     if (roundAnswers.length === 0) {
@@ -370,8 +386,6 @@ function App() {
       setOpenRoundId(result.id)
       setRoundResult(result)
     } catch {
-      // A failed save must not keep the player at the door. The answers stay in
-      // the buffer and the next visit to the exit tries again.
       setRoundResult(null)
     }
   }, [roundAnswers, token, openRoundId])
@@ -395,10 +409,6 @@ function App() {
     resetGameState()
   }
 
-  // Taking the suit off also unplugs the ventilation — same as walking away
-  // from it would mean physically. Note this does NOT hand out the next
-  // microbe: BSL4 still requires a separate trip to the dressing room's
-  // wash-up point afterward, same as everyone else.
   const handleToggleSuit = () => {
     if (equipped.pressurized_suit) {
       setEquipped((prev) => ({ ...prev, pressurized_suit: false }))
@@ -426,6 +436,9 @@ function App() {
     window.addEventListener('quick-undress', handleWashUp)
     return () => window.removeEventListener('quick-undress', handleWashUp)
   }, [awaitingUndress])
+
+  // --- DEBUG LOGS BEFORE RENDER ---
+  console.log('--- DEBUG RENDER STATE ---', { roundResult, scoreBeingPassed: roundResult?.score ?? 0 })
 
   return (
     <Container fluid className="h-100">
@@ -456,7 +469,12 @@ function App() {
 
       {/* HUD: Score (left) and Auth/Login (center-left), top of page */}
       <div className="position-fixed top-0 start-0 p-3 z-3 d-flex gap-3 align-items-start">
-        {gameStarted && <ScoreHud score={roundScore} answered={roundAnswers.length} />}
+        {gameStarted && (
+          <ScoreHud
+              score={roundResult?.score ?? 0}
+              answered={roundAnswers.length}
+          />
+        )}
         <AuthStatus />
       </div>
 

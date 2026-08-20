@@ -3,7 +3,7 @@ const express = require('express')
 const db = require('../models')
 const { optionalAuth, requireAuth } = require('../middleware/auth')
 const { gradeAnswer } = require('../services/grading')
-const { scoreRound } = require('../services/scoring')
+const { scoreRound, calculateScore } = require('../services/scoring')
 
 const router = express.Router()
 
@@ -28,8 +28,6 @@ function isStorableInteger(value) {
   return Number.isInteger(value) && Math.abs(value) <= INT32_MAX
 }
 
-// There is exactly one retry, so a tampered client cannot claim a third attempt. Absent
-// means a client that predates the retry.
 function isWellFormedAttempt(value) {
   return value === undefined || value === 1 || value === 2
 }
@@ -91,36 +89,49 @@ async function validateAndGrade(body) {
     bslClasses.map((bslClass) => [bslClass.class_number, bslClass.required_equipment])
   )
 
-  // Graded here, never taken from the request: score, correct_count and every
-  // verdict are the server's answer, not the client's claim.
-  //
-  // A level with no rules row falls back to EMPTY_RULES, which nothing violates —
-  // the same fallback getEquipmentRulesForBslLevel makes on the client. Choosing a
-  // level that does not exist therefore costs the level, not the equipment.
-  const graded = answers.map((answer) => ({
-    microbe_id: answer.microbe_id,
-    chosen_level: Number(answer.chosen_level),
-    chosen_equipment: answer.chosen_equipment,
-    attempt: answer.attempt ?? 1,
-    ...gradeAnswer(
+  let totalScore = 0
+
+  const graded = answers.map((answer) => {
+    const chosenLevelNum = Number(answer.chosen_level)
+    const grade = gradeAnswer(
       answer,
       microbeById.get(answer.microbe_id),
-      rulesByLevel.get(Number(answer.chosen_level)) ?? EMPTY_RULES
-    ),
-  }))
+      rulesByLevel.get(chosenLevelNum) ?? EMPTY_RULES
+    )
+
+    // Extract category correctness array from grade.equipment_slots
+    const slots = grade.equipment_slots || {}
+    const categoryIds = Object.keys(slots)
+    const equipmentCategories = categoryIds.map((id) => slots[id].status === 'ok')
+
+    // Calculate points using your scoring.js calculateScore engine with proper data parameters
+    const answerScore = calculateScore({
+      bslLevel: chosenLevelNum,
+      round: answer.attempt ?? 1,
+      roomCorrect: grade.level_correct,
+      equipmentCategories: equipmentCategories,
+    })
+
+    totalScore += answerScore
+
+    return {
+      microbe_id: answer.microbe_id,
+      chosen_level: chosenLevelNum,
+      chosen_equipment: answer.chosen_equipment,
+      attempt: answer.attempt ?? 1,
+      ...grade,
+    }
+  })
 
   return {
     sessionId,
     graded,
-    score: scoreRound(graded),
+    score: totalScore,
     correctCount: graded.filter((answer) => answer.level_correct && answer.equipment_correct)
       .length,
   }
 }
 
-// Names its columns rather than spreading the graded answer. Sequelize would drop the
-// derived equipment_slots / equipment_wrong_count on its own; listing the columns is so
-// that what reaches the table is readable here instead of inferred from the model.
 function storableAnswer(answer, roundId) {
   return {
     round_id: roundId,
@@ -155,8 +166,6 @@ router.post('/rounds', optionalAuth, async (req, res) => {
     return res.status(result.error.status).json(result.error.body)
   }
 
-  // One transaction, so a round never exists without the answers that justify its
-  // score — which is what makes a stored round re-scorable.
   const round = await db.sequelize.transaction(async (transaction) => {
     const created = await db.Round.create(
       {
@@ -245,7 +254,4 @@ router.get('/me/rounds', requireAuth, async (req, res) => {
 })
 
 module.exports = router
-
-// Exported for the test that pins this column list to the model. The router stays the
-// module's shape, so app.js is unchanged.
 module.exports.storableAnswer = storableAnswer
