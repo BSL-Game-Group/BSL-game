@@ -34,6 +34,11 @@ services:
       - "3001:3001"
     environment:
       DB_URL: postgresql://bsluser:bslpassword@postgres:5432/bsldb
+      # The backend refuses to start without this — there is no built-in default,
+      # because one living in the repo could forge a token for any account. This
+      # line is what keeps local play working; override it by exporting
+      # JWT_SECRET before `docker compose up`.
+      JWT_SECRET: ${JWT_SECRET:-bsl-game-local-development-secret}
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -43,6 +48,8 @@ services:
     build: ./frontend
     ports:
       - "5173:8080"
+    environment:
+      BACKEND_SERVICE: backend
     depends_on:
       - backend
 

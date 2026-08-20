@@ -4,7 +4,8 @@
   },
   "startScreen": {
     "subtitle": "Hantera mikrober på ett säkert sätt — välj rätt skyddsutrustning och rätt laboratorium.",
-    "startButton": "Starta spelet"
+    "startButton": "Starta spelet",
+    "quitButton": "Avsluta spelet (rensa tillstånd)"
   },
   "howToPlay": {
     "title": "Hur man spelar",
@@ -28,10 +29,6 @@
   "title": "Besök föreläsningsrummet först",
   "message": "Innan du hanterar en mikrob måste du först besöka föreläsningsrummet för att läsa om mikroben och ta reda på dess biosäkerhetsnivå (BSL)."
 },
-  "airlockWashRequired": {
-    "title": "OBS",
-    "message": "Sanera dig alltid vid slussens dekontamineringsplats när du lämnar BSL4-laboratoriet."
-  },
   "lecturePanel": {
     "title": "Kursmaterial",
     "description": "Klicka på en länk nedan för att öppna föreläsningsmaterialet i en ny flik.",
@@ -54,10 +51,18 @@
     "title": "Mikroben du kommer att hantera",
     "undressRequired": "Gå till påklädningsrummet och tvätta dig innan du får nästa mikrob."
   },
+  "microbeInfoPopup": {
+    "title": "Mikrobinformation",
+    "commonName": "Vanligt namn",
+    "scientificName": "Vetenskapligt namn",
+    "type": "Typ",
+    "description": "Beskrivning"
+  },
   "closet": {
     "title": "Garderob",
     "player": "Spelare",
-    "equipmentLabel": "Utrustning"
+    "equipmentLabel": "Utrustning",
+    "nothingAvailable": "Inget tillgängligt"
   },
   "answerPopup": {
     "correct": "Rätt!",
@@ -67,10 +72,13 @@
     "equipmentCorrect": "Din skyddsutrustning upfyller BSL-kraven",
     "equipmentIncorrect": "Din skyddsutrustning upfyller inte BSL-kraven.",
     "chosenLevel": "Du valde {level}.",
-    "belongs": "{name} tillhör BSL-{level}."
+    "belongs": "{name} tillhör BSL-{level}.",
+    "slotCorrect": "rätt",
+    "slotIncorrect": "fel"
   },
   "common": {
-    "close": "Stäng"
+    "close": "Stäng",
+    "loading": "Laddar..."
   },
   "rooms": {
     "exit": "Utgång",
@@ -88,15 +96,105 @@
     "eyewashStation": "Ögonduschstation"
   },
   "equipment": {
-    "labCoat": "Vita rocken",
-    "mask": "Mask",
-    "glasses": "Glasögon"
+    "categories": {
+      "eyewear": "Ögonskydd",
+      "masks": "Masker",
+      "body": "Klädsel",
+      "gloves": "Handskar",
+      "footwear": "Skodon"
+    }
   },
   "phaser": {
     "pressEToOpen": "Tryck E för att öppna",
     "openCloset": "Öppna garderobsskåpet",
     "pressE": "Tryck E",
+    "exitPrompt": "Tryck E för att lämna",
     "washUp": "Tryck R eller klicka för att tvätta dig",
-    "airlockWash": "Tryck R eller klicka för att dekontaminera"
+    "openmicrobeInfoHint": "Tryck E för mikrobinformation"
+  },
+  "hud": {
+    "score": "Poäng: {score}",
+    "microbes": "Mikrober: {count}"
+  },
+  "auth": {
+    "guest": "Du spelar som gäst",
+    "signedInAs": "Inloggad som {username}",
+    "loginButton": "Logga in",
+    "logoutButton": "Logga ut",
+    "cancel": "Ångra",
+    "usernameLabel": "Användarnamn",
+    "passwordLabel": "Lösenord",
+    "submitLogin": "Logga in",
+    "submitRegister": "Skapa konto",
+    "switchToRegister": "Har du inget konto? Skapa ett",
+    "switchToLogin": "Har du redan ett konto? Logga in",
+    "noRecovery": "Det går inte att återställa lösenordet — skriv ner det på ett säkert ställe.",
+    "working": "Arbetar…",
+    "confirmDeleteButton": "Bekräfta",
+    "deleteButton": "Radera",
+    "confirmDelete": "Är du säker på att du vill radera ditt konto?",
+    "errors": {
+      "username_invalid": "Användarnamnet måste ha 3-32 tecken: bokstäver, siffror, _ eller -.",
+      "password_too_short": "Lösenordet måste ha minst 8 tecken.",
+      "username_taken": "Användarnamnet är redan i bruk.",
+      "invalid_credentials": "Fel användarnamn eller lösenord.",
+      "rate_limited": "För många försök för användarnamnet. Försök igen om 15 minuter.",
+      "network": "Kunde inte nå servern. Försök igen.",
+      "username_not_allowed": "Användarnamnet är inte tillåtet"
+    },
+    "rounds": {
+      "title": "Dina rundor",
+      "empty": "Inga rundor.",
+      "score": "Poäng",
+      "correct": "Rätt",
+      "played": "Spelad",
+      "openButton": "Mina rundor"
+    },
+    "leaderboard": {
+      "title": "Bästa resultaten",
+      "empty": "Ingen spelade rundor.",
+      "rank": "#",
+      "player": "Spelare",
+      "score": "Poäng",
+      "openButton": "Bästa resultaten"
+    },
+    "claim": {
+      "title": "Rundan är slut",
+      "scoreLine": "Du fick {score} av {total} poäng.",
+      "guestWarning": "Resultatet finns bara i den här webbläsaren tills du sparar det.",
+      "keepScore": "Spara mitt resultat",
+      "savedToAccount": "Sparat på ditt konto.",
+      "roundsSaved": "Rundor sparade på ditt konto: {count}"
+    }
+  },
+  "exitConfirm": {
+    "title": "Avsluta",
+    "message": "Vill du lämna spelet och gå tillbaka till startsidan?",
+    "yes": "JA",
+    "no": "NEJ"
+  },
+  "bsl4NotReady": {
+    "title": "Inte redo för BSL4",
+    "message": "Ta på dig den trycksatta dräkten, koppla den till den externa ventilationen och stäng slussdörren innan du hanterar en mikrob här inne."
+  },
+  "bsl4SuitRequired": {
+    "title": "Du är i BSL4",
+    "message": "Ta på dig den trycksatta dräkten och koppla den till den externa ventilationen — du måste ha dräkten på hela tiden du är här inne."
+  },
+  "bslDoorRequired": {
+    "title": "Stäng slussdörren först",
+    "message": "Stäng den lufttäta dörren innan du hanterar en mikrob här inne."
+  },
+  "bsl4UndressRequired": {
+    "title": "Dekontaminera innan du lämnar",
+    "message": "Ta av den trycksatta dräkten och koppla ur den externa ventilationen innan dörren öppnas."
+  },
+  "bsl4Gear": {
+    "wearSuitButton": "Ta på dräkten",
+    "removeSuitButton": "Ta av dräkten",
+    "wearGlovesButton": "Ta på handskarna",
+    "removeGlovesButton": "Ta av handskarna",
+    "connectVentilationButton": "Koppla ventilationen",
+    "disconnectVentilationButton": "Koppla ur ventilationen"
   }
 }

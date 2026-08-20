@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { DndProvider, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip, unequipAll } from './ItemConfig'
+import { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip } from './ItemConfig'
 import Character from './Character'
 import DraggableItem from './DragFunctionality'
 import { useTranslation } from '../../i18n/context'
 
 const CATEGORIES = Object.values(CATEGORY_CONFIG).sort((a, b) => a.order - b.order)
 
-function InventoryPanel({ equipped, onToggleEquip }) {
+function InventoryPanel({ equipped, onToggleEquip, itemFilter }) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState(CATEGORIES[0].id)
 
@@ -17,7 +17,9 @@ function InventoryPanel({ equipped, onToggleEquip }) {
     drop: (item) => onToggleEquip(item.id, false)
   }))
 
-  const itemsInTab = Object.values(EQUIPMENT_CONFIG).filter((c) => c.category === activeTab)
+  const itemsInTab = Object.values(EQUIPMENT_CONFIG)
+    .filter((c) => c.category === activeTab)
+    .filter((c) => itemFilter(c.id))
   const available = itemsInTab.filter((c) => !equipped[c.id])
 
   return (
@@ -29,7 +31,7 @@ function InventoryPanel({ equipped, onToggleEquip }) {
             className={`btn btn-sm gear-tab ${activeTab === cat.id ? 'btn-primary' : 'btn-outline-secondary'}`}
             onClick={() => setActiveTab(cat.id)}
           >
-            {cat.label}
+            {t(cat.labelKey)}
           </button>
         ))}
       </div>
@@ -48,9 +50,7 @@ function InventoryPanel({ equipped, onToggleEquip }) {
 
         {available.length === 0 && (
           <p style={{ color: '#888', fontStyle: 'italic', margin: 0 }}>
-            {itemsInTab.length === 0
-              ? `No ${CATEGORY_CONFIG[activeTab].label.toLowerCase()} available yet`
-              : 'All equipped.'}
+            {itemsInTab.length === 0 ? t('closet.nothingAvailable') : 'All equipped.'}
           </p>
         )}
       </div>
@@ -58,23 +58,11 @@ function InventoryPanel({ equipped, onToggleEquip }) {
   )
 }
 
-function ClosetPopup({ open, onClose, onEquipmentChange }) {
+// `itemFilter` restricts which items an instance of the closet offers — e.g. the
+// dressing room excludes the BSL4 pressurized suit (it can only be put on inside
+// BSL4's own suiting station). Defaults to offering every item.
+function ClosetPopup({ open, onClose, equipped, setEquipped, itemFilter = () => true, title }) {
   const { t } = useTranslation()
-  const [equipped, setEquipped] = useState({
-    mask: false,
-    gloves: false,
-    gloves_2: false,
-    closable_lab_coat: false,
-    disposable_overall: false,
-    respirator: false,
-    face_shield: false,
-    lab_coat: false,
-    glasses: false,
-    bsl3_respirator: false,
-    wow_helmet: false,
-    sunglasses: false,
-    pressurized_suit: false,
-  })
   const dialogRef = useRef(null)
 
   const pendingFocusRef = useRef(null)
@@ -87,28 +75,9 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
     pendingFocusRef.current = itemId
   }
 
-  // The quick-undress interactable lives in the dressing room (Phaser), not in
-  // this popup, so it must work whether or not the popup is currently open.
-  useEffect(() => {
-    const handleQuickUndress = () => setEquipped(unequipAll())
-    window.addEventListener('quick-undress', handleQuickUndress)
-    return () => window.removeEventListener('quick-undress', handleQuickUndress)
-  }, [])
-
-  // The BSL4 airlock decon point resets worn PPE too, but on its own event —
-  // unlike quick-undress, it must NOT satisfy App's "go wash up at the
-  // dressing room" requirement, so it's kept separate from quick-undress.
-  useEffect(() => {
-    const handleAirlockDecon = () => setEquipped(unequipAll())
-    window.addEventListener('airlock-decon', handleAirlockDecon)
-    return () => window.removeEventListener('airlock-decon', handleAirlockDecon)
-  }, [])
-
-  // Effect to handle external broadcasts
-  useEffect(() => {
-    if (onEquipmentChange) {onEquipmentChange(equipped);}
-    window.dispatchEvent(new CustomEvent('equipment-changed', { detail: equipped }));
-  }, [equipped, onEquipmentChange]);
+  // Stripping PPE (the dressing-room wash-up and the BSL4 airlock decon) and
+  // broadcasting the worn kit both live in App now: it owns this state, and both
+  // must keep working while this popup is closed.
 
   useEffect(() => {
     window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'));
@@ -189,13 +158,13 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
           className="popup-box bg-white p-4 h-100 w-100 d-flex flex-column"
           role="dialog"
           aria-modal="true"
-          aria-label={t('closet.title')}
+          aria-label={title ?? t('closet.title')}
           ref={dialogRef}
           tabIndex={-1}
         >
           {/* Header */}
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h2>{t('closet.title')}</h2>
+            <h2>{title ?? t('closet.title')}</h2>
             <button className="btn btn-danger" onClick={onClose}>
               {t('common.close')}
             </button>
@@ -213,6 +182,7 @@ function ClosetPopup({ open, onClose, onEquipmentChange }) {
               <InventoryPanel
                 equipped={equipped}
                 onToggleEquip={handleToggleEquip}
+                itemFilter={itemFilter}
               />
             </div>
           </div>

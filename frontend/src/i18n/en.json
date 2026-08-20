@@ -4,7 +4,8 @@
   },
   "startScreen": {
     "subtitle": "Handle microbes safely — choose the right protective gear and the right laboratory.",
-    "startButton": "Start Game"
+    "startButton": "Start Game",
+    "quitButton": "Quit game (reset state)"
   },
   "howToPlay": {
     "title": "How to play",
@@ -28,10 +29,6 @@
   "title": "Visit the lecture room first",
   "message": "Before handling a microbe, you must first visit the lecture room to read about the microbe and learn its Biosafety Level (BSL)."
 },
-  "airlockWashRequired": {
-    "title": "ATTENTION",
-    "message": "Always sanitize yourself at the airlock decon spot whenever you leave the BSL4 laboratory."
-  },
   "lecturePanel": {
     "title": "Lecture Materials",
     "description": "Click a link below to open the lecture material in a new tab.",
@@ -57,7 +54,8 @@
   "closet": {
     "title": "Closet",
     "player": "Player",
-    "equipmentLabel": "Equipment"
+    "equipmentLabel": "Equipment",
+    "nothingAvailable": "Nothing available"
   },
   "answerPopup": {
     "correct": "Correct!",
@@ -67,10 +65,20 @@
     "equipmentCorrect": "Your protective equipment matched the required setup.",
     "equipmentIncorrect": "Your protective equipment did not fully match the required setup.",
     "chosenLevel": "You chose {level}.",
-    "belongs": "{name} belongs to BSL-{level}."
+    "belongs": "{name} belongs to BSL-{level}.",
+    "slotCorrect": "correct",
+    "slotIncorrect": "incorrect"
   },
   "common": {
-    "close": "Close"
+    "close": "Close",
+    "loading": "Loading..."
+  },
+  "microbeInfoPopup": {
+    "title": "Microbe Information",
+    "commonName": "Common name",
+    "scientificName": "Scientific name",
+    "type": "Type",
+    "description": "Description"
   },
   "rooms": {
     "exit": "Exit",
@@ -88,15 +96,105 @@
     "eyewashStation": "Eyewash station"
   },
   "equipment": {
-    "labCoat": "Lab coat",
-    "mask": "Mask",
-    "glasses": "Glasses"
+    "categories": {
+      "eyewear": "Eyewear",
+      "masks": "Masks",
+      "body": "Body",
+      "gloves": "Gloves",
+      "footwear": "Footwear"
+    }
   },
   "phaser": {
     "pressEToOpen": "Press E to open",
     "openCloset": "Open Closet",
     "pressE": "Press E",
+    "exitPrompt": "Press E to exit",
     "washUp": "Press R or click to wash up",
-    "airlockWash": "Press R or click to decontaminate"
+    "openmicrobeInfoHint": "Press E for microbe info"
+  },
+  "hud": {
+    "score": "Score: {score}",
+    "microbes": "Microbes: {count}"
+  },
+  "auth": {
+    "guest": "Playing as a guest",
+    "signedInAs": "Signed in as {username}",
+    "loginButton": "Log in",
+    "logoutButton": "Log out",
+    "cancel": "Cancel",
+    "usernameLabel": "Username",
+    "passwordLabel": "Password",
+    "submitLogin": "Log in",
+    "submitRegister": "Create account",
+    "switchToRegister": "No account yet? Create one",
+    "switchToLogin": "Already have an account? Log in",
+    "noRecovery": "There is no password recovery — write it down somewhere safe.",
+    "working": "Working…",
+    "confirmDeleteButton": "Confirm",
+    "deleteButton": "Delete",
+    "confirmDelete": "Are you sure you want to delete your account?",
+    "errors": {
+      "username_invalid": "Username must be 3-32 characters: letters, numbers, _ or -.",
+      "password_too_short": "Password must be at least 8 characters.",
+      "username_taken": "That username is taken.",
+      "invalid_credentials": "Wrong username or password.",
+      "rate_limited": "Too many attempts for this username. Try again in 15 minutes.",
+      "network": "Could not reach the server. Try again.",
+      "username_not_allowed": "Username not allowed"
+    },
+    "rounds": {
+      "title": "Your rounds",
+      "empty": "No rounds.",
+      "score": "Score",
+      "correct": "Correct",
+      "played": "Played",
+      "openButton": "My rounds"
+    },
+    "leaderboard": {
+      "title": "Leaderboard",
+      "empty": "No rounds played.",
+      "rank": "#",
+      "player": "Player",
+      "score": "Score",
+      "openButton": "Leaderboard"
+    },
+    "claim": {
+      "title": "Round finished",
+      "scoreLine": "You scored {score} out of {total}.",
+      "guestWarning": "This score only lives in this browser until you keep it.",
+      "keepScore": "Keep my score",
+      "savedToAccount": "Saved to your account.",
+      "roundsSaved": "Rounds saved to your account: {count}"
+    }
+  },
+  "exitConfirm": {
+    "title": "Exit",
+    "message": "Do you want to leave the game and return to the start page?",
+    "yes": "YES",
+    "no": "NO"
+  },
+  "bsl4NotReady": {
+    "title": "Not ready for BSL4",
+    "message": "Put on the pressurized suit, connect it to the external ventilation, and close the airlock door before handling a microbe in here."
+  },
+  "bsl4SuitRequired": {
+    "title": "You're in BSL4",
+    "message": "Put on the pressurized suit and connect it to the external ventilation — you must be fully suited up the entire time you're in here."
+  },
+  "bslDoorRequired": {
+    "title": "Close the airlock door first",
+    "message": "Close the airtight door before handling a microbe in here."
+  },
+  "bsl4UndressRequired": {
+    "title": "Decontaminate before leaving",
+    "message": "Take off the pressurized suit and disconnect the external ventilation before the door will open."
+  },
+  "bsl4Gear": {
+    "wearSuitButton": "Put on suit",
+    "removeSuitButton": "Take off suit",
+    "wearGlovesButton": "Put on gloves",
+    "removeGlovesButton": "Take off gloves",
+    "connectVentilationButton": "Connect ventilation",
+    "disconnectVentilationButton": "Disconnect ventilation"
   }
 }

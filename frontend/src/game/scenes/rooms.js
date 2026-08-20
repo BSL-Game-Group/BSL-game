@@ -166,45 +166,6 @@ function setupUndressPoint(scene) {
     });
 }
 
-// Wash-up point in airlock2's bottom-right corner. Same look/click as the
-// dressing room's quick-undress spot and resets PPE the same way. App.jsx's
-// dressing-room gate doesn't listen for this event, so it still doesn't
-// replace the real checkout — it's just a reminder/decon step on the way out
-// of BSL4 (main_scene fires it as soon as the player arrives in airlock2).
-function setupAirlockWashPoint(scene) {
-    const wx = 1250;
-    const wy = 335;
-    const radius = 16;
-
-    scene.airlockWashPoint = { x: wx, y: wy };
-
-    scene.airlockWashGlow = scene.add.graphics();
-    scene.airlockWashGlow.fillStyle(0x0b6623, 0.8);
-    scene.airlockWashGlow.fillCircle(wx, wy, radius);
-    scene.airlockWashGlow.lineStyle(3, 0x0b6623);
-    scene.airlockWashGlow.strokeCircle(wx, wy, radius);
-    scene.airlockWashGlow.setDepth(5);
-    scene.airlockWashGlow.setVisible(false);
-
-    scene.airlockWashGlowTween = scene.tweens.add({
-        targets: scene.airlockWashGlow,
-        alpha: { from: 1.0, to: 0.3 },
-        duration: 1000,
-        yoyo: true,
-        repeat: -1,
-    });
-    scene.airlockWashGlowTween.pause();
-
-    scene.airlockWashZone = scene.add
-        .zone(wx, wy, radius * 2.4, radius * 2.4)
-        .setInteractive({ useHandCursor: true });
-
-    scene.airlockWashZone.on('pointerdown', () => {
-        if (!scene.playerInsideAirlock2) {return;}
-        window.dispatchEvent(new Event('airlock-decon'));
-    });
-}
-
 // Dark green glow interactable inside each BSL room. Placeholder for the real element
 // (image TBD with the team) — pressing E or clicking it opens the answer popup.
 // Position per room: BSL-1/2/4 top-left, BSL-3 top-centre.
@@ -260,6 +221,14 @@ function setupBslInteractables(scene) {
                 window.dispatchEvent(new Event('lecture-required'));
                 return;
             }
+            if (entry.key === 'BSL-4' && (!window.__bsl4Ready || scene.bsl4Door?.isOpen)) {
+                window.dispatchEvent(new Event('bsl4-not-ready'));
+                return;
+            }
+            if (entry.key === 'BSL-3' && scene.bsl3Door?.isOpen) {
+                window.dispatchEvent(new Event('bsl-door-required'));
+                return;
+            }
             window.dispatchEvent(
                 new CustomEvent('answer-popup-opened', { detail: { level: entry.key } })
             );
@@ -278,6 +247,10 @@ function setupLectureRoom(scene, walls) {
         .setDisplaySize(480, 290)
         .setDepth(-5);
 
+    // Thicker visible wall across the room's top edge (24px, vs. the default
+    // 6px outer boundary elsewhere on the map).
+    walls.push(wallRect(scene, 0, 0, 480, 24));
+
     // Back wall
     solidBox(scene, 0, 0, 480, 60, walls);
 
@@ -287,8 +260,8 @@ function setupLectureRoom(scene, walls) {
     // Left workstation
     solidBox(scene, 40, 132, 214, 236, walls);
 
-    // Right workstation
-    solidBox(scene, 266, 132, 440, 236, walls);
+    // New collider: x 200-290, y:77.5-146.25.
+    solidBox(scene, 200, 77.5, 290, 146.25, walls);
 
     // No bookshelf colliders anymore
     scene.lectureShelves = [];
@@ -303,13 +276,58 @@ function setupExitArea(scene, walls) {
     solidBox(scene, 480, 0, 700, 60, walls);
 }
 
+function setupExitButton(scene) {
+    const gx = 520;
+    const gy = 45;
+    const radius = 28;
+
+    // Add the picture/icon on the wall for the exit button
+    scene.exitButtonSprite = scene.add.image(gx, gy, 'exit_button')
+        .setOrigin(0.5)
+        .setDisplaySize(40, 40)
+        .setDepth(6);
+
+    const padding = 16;
+    const displayWidth = scene.exitButtonSprite.displayWidth + padding;
+    const displayHeight = scene.exitButtonSprite.displayHeight + padding;
+
+    // Create a permanent glowing rectangular frame using strokeRect (fully test-compatible)
+    const glow = scene.add.graphics();
+    glow.lineStyle(3, 0x00ff00, 0.9); // Bright green border
+    glow.strokeRect(-displayWidth / 2, -displayHeight / 2, displayWidth, displayHeight);
+    glow.setPosition(gx, gy);
+    glow.setDepth(5);
+    glow.setVisible(true); // Always visible
+
+    // Pulsing animation that runs continuously
+    const tween = scene.tweens.add({
+        targets: glow,
+        alpha: { from: 1.0, to: 0.4 },
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+    });
+
+    scene.exitGlow = glow;
+    scene.exitGlowTween = tween;
+    scene.exitButtonPoint = { x: gx, y: gy };
+
+    // Always active interactive zone for clicking the button
+    scene.add
+        .zone(gx, gy, displayWidth * 1.2, displayHeight * 1.2)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+            window.dispatchEvent(new Event('exit-popup-opened'));
+        });
+}
+
 // Info point in the lecture room: a green pulsing glow (same look as the corridor
 // info desk) that opens the lecture-materials panel on E, instead of it opening
-// automatically when the player enters the room. Placed past the right workstation
-// on open floor (y:236+), since the display wall (y:0-110) and both workstations
-// (x:40-214 and x:266-440, y:132-236) are solid.
+// automatically when the player enters the room. Mirrored to the left workstation
+// side, on open floor (y:236+), since the display wall (y:0-110) and both
+// workstations (x:40-214 and x:266-440, y:132-236) are solid.
 function setupLectureInfoPoint(scene) {
-    const gx = 300;
+    const gx = 180;
     const gy = 240;
     const radius = 35;
 
@@ -338,7 +356,41 @@ function setupLectureInfoPoint(scene) {
         .zone(gx, gy, radius * 2.4, radius * 2.4)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-            window.dispatchEvent(new Event('lecture-materials-unlocked'));
+            window.dispatchEvent(new Event('microbe-info-popup-opened'));
+        });
+}
+
+function setupLectureMaterialButton(scene) {
+    const gx = 410;
+    const gy = 120;
+    const radius = 25;
+
+    const glow = scene.add.graphics();
+    glow.fillStyle(0x0b6623, 0.8);
+    glow.fillCircle(gx, gy, radius);
+    glow.lineStyle(3, 0x0b6623);
+    glow.strokeCircle(gx, gy, radius);
+    glow.setDepth(5);
+    glow.setVisible(false);
+
+    const tween = scene.tweens.add({
+        targets: glow,
+        alpha: { from: 1.0, to: 0.3 },
+        duration: 1000,
+        yoyo: true,
+        repeat: -1,
+    });
+    tween.pause();
+
+    scene.lectureMaterialGlow = glow;
+    scene.lectureMaterialGlowTween = tween;
+    scene.lectureMaterialPoint = { x: gx, y: gy };
+
+    scene.add
+        .zone(gx, gy, radius * 2.4, radius * 2.4)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+            window.dispatchEvent(new Event('lecture-material-popup-opened'));
         });
 }
 
@@ -409,12 +461,18 @@ export function createRooms(scene) {
     vSeg(scene, 1280 - T / 2, 0, 720, walls);    // right
 
     // ---- LEFT SIDE ----
-    // Lecture | Exit divider (no door)
-    vWall(scene, 480, 0, 290, [], walls);
-    // Lecture/Exit bottom = Corridor top (doors to both)
-    hWall(scene, 0, 700, 290, [[180, 270], [540, 630]], walls);
+    // Lecture | Exit divider — door here now, so the exit room is reached from
+    // the lecture room instead of straight down from the corridor. Door sits
+    // right at the bottom edge of the divider (y:290 = corridor line).
+    vWall(scene, 480, 0, 290, [[200, 290]], walls);
+    // Lecture bottom = Corridor top (door). Exit room's old down-facing door
+    // to the corridor is now closed — it's only reachable via the lecture room.
+    hWall(scene, 0, 700, 290, [[220, 310]], walls);
     // Corridor bottom = Dressing room top (one narrower door)
-    hWall(scene, 0, 700, 430, [[315, 375]], walls);
+    hWall(scene, 0, 700, 430, [[325, 377], [425, 480]], walls);
+
+    // ---- BIG DIVIDER (Lobby <-> Lab area) ----
+    vWall(scene, 400, 290, 430, [], walls);
 
     // ---- BIG DIVIDER x:700 (Corridor <-> Labs door, opening nudged: top up, bottom down) ----
     vWall(scene, 700, 0, 720, [[292, 435]], walls);
@@ -433,10 +491,15 @@ export function createRooms(scene) {
     hWall(scene, 960, 1280, 470, [[970, 1040]], walls);  // BSL3 airlock <-> BSL 3 only
 
     // ---- LABELS ----
-    label(scene, 830, 125, 'BSL 2', 16, true);
-    label(scene, 830, 595, 'BSL 1', 16, true);
-    label(scene, 1120, 125, 'BSL 4', 16, true);
-    label(scene, 1120, 595, 'BSL 3', 16, true);
+    // BSL 2/4 (top rooms) sit below the player (depth 1). BSL 1/3 (bottom rooms)
+    // have a front-wall image that occludes the player at depth 20 while
+    // approaching from above (see bsl1Image/bsl3Image in main_scene.js) — their
+    // labels need to sit above that occluding image (depth 21) or they'd be
+    // hidden until the player walks down into the room.
+    label(scene, 830, 125, 'BSL 2', 16, true, 1);
+    label(scene, 830, 595, 'BSL 1', 16, true, 21);
+    label(scene, 1120, 125, 'BSL 4', 16, true, 1);
+    label(scene, 1120, 595, 'BSL 3', 16, true, 21);
 
     // ---- ZONES (game logic) ----
     scene.lectureRoomZone = { x: 0, y: 0, width: 480, height: 290 };
@@ -518,12 +581,13 @@ export function createRooms(scene) {
     setupCloset(scene);
     setupBslInteractables(scene);
     setupUndressPoint(scene);
-    setupAirlockWashPoint(scene);
     setupLectureRoom(scene, walls);
     setupLectureInfoPoint(scene);
+    setupLectureMaterialButton(scene);
     setupDressingRoomDeadzones(scene, walls);
     setupInfoDesk(scene, walls);
     setupExitArea(scene, walls);
+    setupExitButton(scene);
 
     return walls;
 }

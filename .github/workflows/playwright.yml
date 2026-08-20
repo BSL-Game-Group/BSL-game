@@ -3,6 +3,41 @@ on:
   pull_request:
     branches: [ main, master ]
 jobs:
+  # main.yml only triggers on push to main, so without this job the backend suite
+  # would never run before a merge.
+  backend-tests:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: bsluser
+          POSTGRES_PASSWORD: bslpassword
+          POSTGRES_DB: bsldb_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U bsluser -d bsldb_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Run backend tests
+        working-directory: ./backend
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5433
+          DB_NAME_TEST: bsldb_test
+        run: |
+          npm ci
+          npm run test:db:prepare
+          npm test
+
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest

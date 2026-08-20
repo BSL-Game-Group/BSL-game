@@ -29,12 +29,16 @@ body {
 .game-wrapper-grid {
   width: 100%;
   max-width: 1280px;
+  height: 100%;
+  max-height: 100vh;
   margin: 0 auto;
-  aspect-ratio: 16 / 9;
+  padding: 16px;
+  /*aspect-ratio: 16 / 9;*/
   background: #000;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
+  box-sizing: border-box;
 }
 
 /* Ensure the Phaser canvas fills the grid wrapper */
@@ -44,11 +48,22 @@ body {
   display: block;
 }
 
+/* Desktop: larger padding for borders */
+@media (min-width: 768px) {
+  .game-wrapper-grid {
+    padding: 32px;
+    max-height: calc(100vh - 64px);
+  }
+}
+
 /* Mobile responsive override */
 @media (max-width: 767px) {
   .game-wrapper-grid {
-    aspect-ratio: auto;
-    height: 300px;
+    /* Let it inherit the 16/9 aspect ratio from the base class */
+    /*aspect-ratio: 16 / 9;*/
+    padding: 8px;
+    max-height: calc(100vh - 60px);
+    border-radius: 8px; /* Optional: slightly smaller corners on mobile */
   }
 }
 
@@ -317,4 +332,92 @@ body {
   outline: 3px solid #0b6623;
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* =========================================================
+   HUD
+   ========================================================= */
+.score-hud {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #0b6623;
+  color: #0b6623;
+}
+
+.score-hud__score {
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.score-hud__count {
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+/* =========================================================
+   AUTH
+   ========================================================= */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 220px;
+  max-width: 100%;
+}
+
+.auth-form__note {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.auth-form__error {
+  color: #c51a1a;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.auth-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.auth-status__label {
+  font-size: 0.85rem;
+  color: #444;
+}
+
+.end-popup {
+  max-width: 480px;
+}
+
+.end-popup__score {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.end-popup__warning {
+  color: #8a6d00;
+}
+
+.end-popup__saved {
+  color: #0b6623;
+  font-weight: 600;
+}
+
+.rounds-panel {
+  max-width: 520px;
 }

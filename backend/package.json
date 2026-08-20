@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "c8 --reporter=lcov --reporter=text node --test",
+    "test": "NODE_ENV=test DB_URL= c8 --reporter=lcov --reporter=text node --test --test-concurrency=1",
+    "test:db:prepare": "NODE_ENV=test DB_URL= sequelize-cli db:migrate && NODE_ENV=test DB_URL= sequelize-cli db:seed:all",
     "lint": "eslint .",
     "db:migrate": "sequelize-cli db:migrate",
     "db:seed": "sequelize-cli db:seed:all",
@@ -14,8 +15,13 @@
   "license": "MIT",
   "description": "",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
+    "decent-username": "^2.1.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.6.2",
+    "jsonwebtoken": "^9.0.3",
+    "leo-profanity": "^1.9.0",
     "pg": "^8.22.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.8"
@@ -25,6 +31,7 @@
     "c8": "^11.0.0",
     "eslint": "^10.4.1",
     "globals": "^17.6.0",
-    "sequelize-cli": "^6.6.5"
+    "sequelize-cli": "^6.6.5",
+    "supertest": "^7.2.2"
   }
 }

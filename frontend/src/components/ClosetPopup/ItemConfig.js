@@ -1,12 +1,6 @@
-const ItemType = 'EQUIPMENT';
+import { CATEGORY_CONFIG, EQUIPMENT_CATEGORIES } from '../../utils/equipmentCategories';
 
-// The tabs, in display order. `stackable` allows 2+ equipped at once.
-const CATEGORY_CONFIG = {
-  eyewear: { id: 'eyewear', label: 'Eyewear', order: 0, stackable: false },
-  masks:   { id: 'masks',   label: 'Masks',   order: 1, stackable: false },
-  body:    { id: 'body',    label: 'Body',    order: 2, stackable: false },
-  gloves:  { id: 'gloves',  label: 'Gloves',  order: 3, stackable: true  },
-};
+const ItemType = 'EQUIPMENT';
 
 // Image paths are derived from each item's id + category, so the asset tree is
 // usage -> category -> file:
@@ -41,31 +35,41 @@ function buildEquipment(items) {
     style.width = pxToPercent(style.width, BASE_W);
     style.height = pxToPercent(style.height, BASE_H);
 
+    // NEW: Convert any remaining fixed 'px' inside the CSS transforms 
+    // (like translateY or perspective) into container height percentages (cqh)
+    if (style.transform) {
+      style.transform = style.transform.replace(/([-0-9.]+)px/g, (match, val) => {
+        const percentageOfHeight = (parseFloat(val) / BASE_H) * 100;
+        return `${percentageOfHeight}cqh`;
+      });
+    }
+
+    const category = EQUIPMENT_CATEGORIES[id];
+
     out[id] = {
       ...item,
       id,
+      category,
       equippedStyle: style, // Overwrite with responsive styles
-      inventorySrc: `${INVENTORY_ROOT}/${item.category}/${id}.png`,
-      equippedSrc: `${CHARACTER_ROOT}/${item.category}/${id}_on.png`,
+      inventorySrc: `${INVENTORY_ROOT}/${category}/${id}.png`,
+      equippedSrc: `${CHARACTER_ROOT}/${category}/${id}_on.png`,
     };
   }
   return out;
 }
 
-// Add new equipment here — only `category`, `label` + `equippedStyle` are
-// needed; paths are derived from the key + category above. `label` is the
-// item button's accessible name.
+// Add new equipment here — only `label` + `equippedStyle` are needed; the category comes
+// from EQUIPMENT_CATEGORIES and the paths are derived from the key + category above.
+// `label` is the item button's accessible name.
 const EQUIPMENT_CONFIG = buildEquipment({
   lab_coat: {
-    category: 'body',
     label: 'Lab coat',
     equippedStyle: {
-      position: 'absolute', top: '45px', left: '52px', width: '130px', height: 'auto',
-      transform: 'scale(1.63) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '43px', left: '54px', width: '130px', height: 'auto',
+      transform: 'scale(1.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   closable_lab_coat: {
-    category: 'body',
     label: 'Closable lab coat',
     equippedStyle: {
       position: 'absolute', top: '95px', left: '55px', width: '130px', height: 'auto',
@@ -73,91 +77,94 @@ const EQUIPMENT_CONFIG = buildEquipment({
     }
   },
   pressurized_suit: {
-    category: 'body',
     label: 'Pressurized suit',
     equippedStyle: {
-      position: 'absolute', top: '5px', left: '60px', width: '130px', height: 'auto',
-      transform: 'scale(1.9) rotate(0deg) translateY(0px)', transformOrigin: 'top center',
+      position: 'absolute', top: '1px', left: '60px', width: '130px', height: 'auto',
+      transform: 'scale(1.3) rotate(0deg) translateY(0px)', transformOrigin: 'top center',
     }
   },
   mask: {
-    category: 'masks',
     label: 'Mask',
     equippedStyle: {
-      position: 'absolute', top: '53px', left: '73px', width: '70px', height: 'auto',
-      transform: 'scale(1.6) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '45px', left: '77px', width: '70px', height: 'auto',
+      transform: 'scale(1.2) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   glasses: {
-    category: 'eyewear',
     label: 'Glasses',
     equippedStyle: {
-      position: 'absolute', top: '37px', left: '71px', width: '70px', height: 'auto',
-      transform: 'scale(1.7) rotate(-1.5deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '30px', left: '77px', width: '70px', height: 'auto',
+      transform: 'scale(1.3) rotate(-1.5deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
 
   bsl3_respirator: {
-    category: 'masks',
     label: 'BSL3 respirator',
     equippedStyle: {
-      position: 'absolute', top: '19px', left: '73px', width: '70px', height: 'auto',
-      transform: 'scale(2.7) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '6px', left: '80px', width: '70px', height: 'auto',
+      transform: 'scale(2.05) rotate(-1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   sunglasses: {
-    category: 'eyewear',
     label: 'Sunglasses',
     equippedStyle: {
-      position: 'absolute', top: '29px', left: '68px', width: '106px', height: 'auto',
-      transform: 'perspective(360px) rotateY(20deg) rotate(1deg) scale(1.6) translateY(5px)',
+      position: 'absolute', top: '10px', left: '68px', width: '106px', height: 'auto',
+      transform: 'perspective(360px) rotateY(20deg) rotate(1deg) scale(1.2) translateY(5px)',
       transformOrigin: 'center center',
     }
   },
   disposable_overall: {
-    category: 'body',
     label: 'Disposable overall',
     equippedStyle: {
-      position: 'absolute', top: '-20px', left: '53px', width: '130px', height: 'auto',
-      transform: 'scale(3.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '-12px', left: '64px', width: '130px', height: 'auto',
+      transform: 'scale(1.35) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
 
   face_shield: {
-    category: 'eyewear',
     label: 'Face shield',    
     equippedStyle: {
-      position: 'absolute', top: '19px', left: '70px', width: '82px', height: 'auto',
-      transform: 'scale(1.9) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '10px', left: '76px', width: '82px', height: 'auto',
+      transform: 'scale(1.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   
   wow_helmet: {
-    category: 'eyewear',
     label: 'Fantasy helmet',
     equippedStyle: {
-      position: 'absolute', top: '20px', left: '57px', width: '106px', height: 'auto',
-      transform: 'perspective(360px) rotateY(20deg) rotate(0deg) scale(1.95) translateY(5px)',
+      position: 'absolute', top: '-3px', left: '61px', width: '106px', height: 'auto',
+      transform: 'perspective(360px) rotateY(20deg) rotate(0deg) scale(1.32) translateY(5px)',
       transformOrigin: 'center center',
     }
   },
   gloves: {
-    category: 'gloves',
     label: 'Gloves',
     equippedStyle: {
-      position: 'absolute', top: '160px', left: '84px', width: '59px', height: '35px',
-      transform: 'scale(3.3) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '171px', left: '89px', width: '59px', height: '35px',
+      transform: 'scale(2.25) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   gloves_2: {
-    category: 'gloves',
     label: 'Gloves 2',
     equippedStyle: {
-      position: 'absolute', top: '189px', left: '87px', width: '60px', height: 'auto',
-      transform: 'scale(3.5) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '183px', left: '90px', width: '60px', height: 'auto',
+      transform: 'scale(2.4) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
-
+  indoor_shoes: {
+    label: 'Indoor shoes',
+    equippedStyle: {
+      position: 'absolute', top: '299px', left: '86px', width: '60px', height: 'auto',
+      transform: 'scale(2.1) rotate(-1deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
+  disposable_foot_covers: {
+    label: 'Disposable foot covers',
+    equippedStyle: {
+      position: 'absolute', top: '279px', left: '86px', width: '60px', height: 'auto',
+      transform: 'scale(2.1) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+    }
+  },
 });
 
 // Pure equip rule: returns a new equipped map with `itemId` on. For a

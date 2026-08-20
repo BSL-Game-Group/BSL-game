@@ -46,6 +46,25 @@ jest.mock('../src/services/microbes', () => ({
 }))
 
 import MainScene from '../src/game/scenes/main_scene'
+import microbeService from '../src/services/microbes'
+import { EventBus } from '../src/game/EventBus'
+import {
+  SAVED_GAME_KEY,
+  defaultSnapshot,
+  clearSavedGame,
+} from '../src/state/savedGame'
+import { resetSessionIdCache } from '../src/state/session'
+
+// create() reads the session id, so without this a snapshot written by one
+// test would have the next test restoring a saved game it never asked for.
+// session.js caches the id in module state, which localStorage.clear() cannot
+// reach — reset it too or the first minted id leaks into every later test.
+beforeEach(() => {
+  clearSavedGame()
+  localStorage.clear()
+  resetSessionIdCache()
+  window.__gameData = undefined
+})
 
 function fakeSprite() {
   return {
@@ -56,6 +75,9 @@ function fakeSprite() {
     setCollideWorldBounds: jest.fn().mockReturnThis(),
     setInteractive: jest.fn().mockReturnThis(),
     disableInteractive: jest.fn().mockReturnThis(),
+    // Restoring saved PPE swaps the player's base texture.
+    setTexture: jest.fn().mockReturnThis(),
+    setAngle: jest.fn().mockReturnThis(),
     body: {
       setSize: jest.fn(),
       setOffset: jest.fn(),
@@ -66,6 +88,7 @@ function fakeSprite() {
 // NEW: mock Phaser Text object
 function fakeText() {
   return {
+    active: true,
     setText: jest.fn().mockReturnThis(),
     setDepth: jest.fn().mockReturnThis(),
     setScrollFactor: jest.fn().mockReturnThis(),
@@ -143,6 +166,7 @@ function createScene() {
 
   scene.events = {
     on: jest.fn(),
+    once: jest.fn(),
   }
 
   scene.initializeDoors = jest.fn()
@@ -159,13 +183,13 @@ test('create sets world bounds', () => {
     .toHaveBeenCalledWith(0, 0, 1280, 720)
 })
 
-test('create tiles the labs side with the lab floor', () => {
+test('create tiles the whole map with the stone floor', () => {
   const scene = createScene()
 
   scene.create()
 
   expect(scene.add.tileSprite)
-    .toHaveBeenCalledWith(700, 0, 580, 720, 'labs_floor')
+    .toHaveBeenCalledWith(0, 0, 1280, 720, 'labs_floor')
 })
 
 test('create creates player sprite', () => {
@@ -177,13 +201,13 @@ test('create creates player sprite', () => {
     .toHaveBeenCalledWith(590, 150, 'player_base')
 })
 
-test('create shrinks the player collision body', () => {
+test('create shrinks the player collision body to the legs', () => {
   const scene = createScene()
 
   scene.create()
 
-  expect(scene.player.body.setSize).toHaveBeenCalledWith(60, 205)
-  expect(scene.player.body.setOffset).toHaveBeenCalledWith(23, 6)
+  expect(scene.player.body.setSize).toHaveBeenCalledWith(56, 65)
+  expect(scene.player.body.setOffset).toHaveBeenCalledWith(22, 152)
 })
 
 test('create creates equipment sprites', () => {
@@ -266,8 +290,123 @@ test('create registers shutdown handler', () => {
 
   scene.create()
 
-  expect(scene.events.on).toHaveBeenCalledWith(
+  expect(scene.events.once).toHaveBeenCalledWith(
     'shutdown',
     expect.any(Function)
   )
+
+  // Add an assertion for the new destroy listener as well
+  expect(scene.events.once).toHaveBeenCalledWith(
+    'destroy',
+    expect.any(Function)
+  )
+})
+
+// -----------------------------
+// RESTORING A SAVED GAME
+// -----------------------------
+// EventBus is a Phaser EventEmitter, and this file's phaser mock already makes
+// its on/off/emit jest.fn()s, so no extra mock is needed to assert on it.
+function seedSavedGame(overrides = {}) {
+  const snapshot = {
+    ...defaultSnapshot(),
+    savedAt: Date.now(),
+    ...overrides,
+  }
+  localStorage.setItem(SAVED_GAME_KEY, JSON.stringify(snapshot))
+  return snapshot
+}
+
+describe('restoring a saved game', () => {
+  beforeEach(() => {
+    clearSavedGame()
+    localStorage.clear()
+    window.__gameData = undefined
+    jest.clearAllMocks()
+  })
+
+  test('spawns the player at the saved position instead of the corridor', () => {
+    seedSavedGame({ player: { x: 1040, y: 600 } })
+
+    const scene = createScene()
+    scene.create()
+
+    expect(scene.physics.add.sprite).toHaveBeenCalledWith(1040, 600, 'player_base')
+  })
+
+  test('spawns in the corridor when there is no saved game', () => {
+    const scene = createScene()
+    scene.create()
+
+    expect(scene.physics.add.sprite).toHaveBeenCalledWith(590, 150, 'player_base')
+  })
+
+  test('adopts the stored session id instead of minting a new one', () => {
+    localStorage.setItem('bsl-game.session.v1', 'stored-session-id')
+
+    const scene = createScene()
+    scene.create()
+
+    expect(window.__gameData.sessionId).toBe('stored-session-id')
+  })
+
+  test('mints a uuid session id when the browser has none', () => {
+    const scene = createScene()
+    scene.create()
+
+    expect(window.__gameData.sessionId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    )
+  })
+
+  test('adopts the saved microbe without asking the API for a new one', () => {
+    const microbe = { id: 7, common_name: 'Saved Microbe', bsl_level: 3 }
+    seedSavedGame({ microbe })
+
+    const scene = createScene()
+    scene.create()
+
+    expect(microbeService.getRandom).not.toHaveBeenCalled()
+    expect(scene.currentMicrobe).toEqual(microbe)
+    expect(EventBus.emit).toHaveBeenCalledWith('current-microbe-updated', microbe)
+  })
+
+  test('rerolls a microbe when the saved game has none', () => {
+    seedSavedGame({ microbe: null })
+
+    const scene = createScene()
+    scene.create()
+
+    expect(microbeService.getRandom).toHaveBeenCalled()
+  })
+
+  test('restores worn PPE onto the character', () => {
+    seedSavedGame({ equipped: { ...defaultSnapshot().equipped, mask: true } })
+
+    const scene = createScene()
+    scene.create()
+
+    expect(scene.equipment.mask.setVisible).toHaveBeenCalledWith(true)
+    expect(scene.equipment.lab_coat.setVisible).toHaveBeenCalledWith(false)
+  })
+
+  test('locks movement when the closet was open before the reload', () => {
+    seedSavedGame({ popups: { ...defaultSnapshot().popups, closet: true } })
+
+    const scene = createScene()
+    scene.create()
+
+    // popup-opened fired long before the scene existed, so create() cannot wait
+    // to be told: it has to read the saved popup state itself.
+    expect(scene.isPopupOpen).toBe(true)
+  })
+
+  test('movement is unlocked when no popup was open', () => {
+    seedSavedGame()
+
+    const scene = createScene()
+    scene.create()
+
+    expect(scene.isPopupOpen).toBe(false)
+  })
 })

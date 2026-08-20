@@ -43,6 +43,44 @@ docker compose down -v && docker compose up -d
 
 Read endpoints: `GET /api/bsl-classes`, `GET /api/microbes`, `GET /api/microbes/:id`.
 
+Production uses its own separate database and secret
+(`bsl-backend-secret-prod`), requested and created the same way as the
+staging one above but kept apart — see atk-tietokannat@helsinki.fi for
+requesting a new production database.
+
+Deploys to production are manual: pushing to main only updates staging.
+To promote a build to production, edit `from.name` in
+`backend/manifests/production/imagestream.yaml` and
+`frontend/manifests/production/imagestream.yaml` to that build's
+known-good git-sha tag, then `oc apply` and commit the change.
+
+### `JWT_SECRET`
+
+The backend signs session tokens with `JWT_SECRET` and **refuses to start without
+it**. There is deliberately no built-in default: a secret living in this repository
+could be used to forge a session token for any account. The only exception is
+`NODE_ENV=test`, so the backend suite runs unconfigured.
+
+`docker compose up` sets it for you. Running `npm start` straight from `backend/`
+needs it in your environment:
+
+```bash
+JWT_SECRET=anything-local npm start
+```
+
+**On OpenShift it comes from the `bsl-backend-secret` secret, and must be added
+once before the next deploy** — `backend/manifests/deployment.yaml` requires the
+key, so without it the pod fails with `CreateContainerConfigError`:
+
+```bash
+oc create secret generic bsl-backend-secret \
+  --from-literal=JWT_SECRET="$(openssl rand -base64 32)" \
+  --dry-run=client -o yaml | oc apply -f -
+```
+
+That form patches the existing secret without disturbing `DB_URL`. Rotating the
+value signs everyone out; nothing else breaks.
+
 ### Testing
 
 Install dependencies:
@@ -68,10 +106,22 @@ npm --prefix frontend test
 ```
 
 
-Backend unit tests (run from the repo root, no database required):
+Backend unit tests. **These talk to a real Postgres**, so start the database and
+create the test database once:
 ```bash
-npm --prefix backend test
+docker compose up -d postgres
+docker compose exec -T postgres psql -U bsluser -d bsldb -c "CREATE DATABASE bsldb_test"
 ```
+
+Then, from `backend/`:
+```bash
+npm run test:db:prepare   # migrate + seed bsldb_test (re-run after new migrations)
+npm test
+```
+
+`npm test` sets `NODE_ENV=test` and blanks `DB_URL`, so it can never touch the
+development database — `bsldb_test` is separate from `bsldb` and is safe to drop
+and rebuild at any time.
 
 ## Work Management
 [Backlog](https://docs.google.com/spreadsheets/d/1bEsBqh-Pxz0nya1yIio4sEbJgoIu545pj67PdxWBZqk/edit?pli=1&gid=215085718#gid=215085718)

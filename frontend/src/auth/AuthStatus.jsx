@@ -1,0 +1,113 @@
+import { useState } from 'react'
+import { useAuth } from './context'
+import { useTranslation } from '../i18n/context'
+import AuthForm from './AuthForm'
+
+// The only placement-dependent piece of the auth UI. It is an inline panel rather
+// than a popup on purpose: with the sidebar gone and the game full-screen, the one
+// thing that has to stay reachable at all times is a corner of the viewport, and a
+// panel that expands in place never covers the game to ask for a password.
+function AuthStatus() {
+  const { user, logout, removeAccount } = useAuth()
+  const { t } = useTranslation()
+
+  const [formOpen, setFormOpen] = useState(false)
+  const [deleteError, setDeleteError] = useState(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+  const handleDeleteAccount = async () => {
+    try {
+      setDeleteError(null)
+      await removeAccount()
+    } catch (err) {
+      setDeleteError(err.message)
+    }
+  }
+
+  if (!user) {
+    return (
+      <div className="auth-status">
+        <div className="d-flex align-items-center gap-2">
+          <span className="auth-status__label">{t('auth.guest')}</span>
+          <button
+            className="btn btn-sm btn-outline-primary"
+            onClick={() => setFormOpen((open) => !open)}
+          >
+            {formOpen ? t('auth.cancel') : t('auth.loginButton')}
+          </button>
+        </div>
+
+        {formOpen && <AuthForm idPrefix="hud-auth" onSuccess={() => setFormOpen(false)} />}
+
+        <button
+          className="btn btn-sm btn-outline-secondary"
+          onClick={() => window.dispatchEvent(new Event('leaderboard-opened'))}
+        >
+          {t('auth.leaderboard.openButton')}
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="auth-status">
+      <div className="d-flex align-items-center gap-2">
+        <span className="auth-status__label">
+          {t('auth.signedInAs').replace('{username}', user.username)}
+        </span>
+        <button className="btn btn-sm btn-outline-secondary" onClick={logout}>
+          {t('auth.logoutButton')}
+        </button>
+        <button className="btn btn-sm btn-outline-danger" onClick={() => setShowDeleteModal(true)}>
+          {t('auth.deleteButton')}
+        </button>
+      </div>
+      {deleteError && <div className="text-danger small mt-1">{deleteError}</div>}
+      <div className="d-flex gap-2 mt-2">
+        <button
+          className="btn btn-sm btn-outline-secondary"
+          onClick={() => window.dispatchEvent(new Event('your-rounds-opened'))}
+        >
+          {t('auth.rounds.openButton')}
+        </button>
+        <button
+          className="btn btn-sm btn-outline-secondary"
+          onClick={() => window.dispatchEvent(new Event('leaderboard-opened'))}
+        >
+          {t('auth.leaderboard.openButton')}
+        </button>
+      </div>
+
+      {showDeleteModal && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content p-3">
+              <div className="modal-body">
+                <p>{t('auth.confirmDelete')}</p>
+              </div>
+              <div className="modal-footer border-0 d-flex justify-content-end gap-2">
+                <button
+                  className="btn btn-sm btn-secondary"
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  {t('auth.cancel')}
+                </button>
+                <button
+                  className="btn btn-sm btn-danger"
+                  onClick={async () => {
+                    setShowDeleteModal(false)
+                    await handleDeleteAccount()
+                  }}
+                >
+                  {t('auth.confirmDeleteButton')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default AuthStatus
