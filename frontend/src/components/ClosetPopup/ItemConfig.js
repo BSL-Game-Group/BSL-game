@@ -116,8 +116,8 @@ const EQUIPMENT_CONFIG = buildEquipment({
   disposable_overall: {
     label: 'Disposable overall',
     equippedStyle: {
-      position: 'absolute', top: '-20px', left: '53px', width: '130px', height: 'auto',
-      transform: 'scale(2) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
+      position: 'absolute', top: '-12px', left: '64px', width: '130px', height: 'auto',
+      transform: 'scale(1.35) rotate(1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
 
@@ -155,7 +155,7 @@ const EQUIPMENT_CONFIG = buildEquipment({
     label: 'Indoor shoes',
     equippedStyle: {
       position: 'absolute', top: '299px', left: '86px', width: '60px', height: 'auto',
-      transform: 'scale(2.1) rotate(-2deg) translateY(5px)', transformOrigin: 'top center',
+      transform: 'scale(2.1) rotate(-1deg) translateY(5px)', transformOrigin: 'top center',
     }
   },
   disposable_foot_covers: {
