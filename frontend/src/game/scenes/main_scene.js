@@ -69,16 +69,14 @@ class MainScene extends Phaser.Scene {
         this.hintManager = new HintManager(this);
 
         // Temporary Backwards Compatibility:
-        this.pressEText = this.hintManager.pressEText;
+        this.closetPressEText = this.hintManager.closetPressEText;
+        this.infoPressEText = this.hintManager.infoPressEText;
+        this.exitPressEText = this.hintManager.exitPressEText;
         this.closetHint = this.hintManager.closetHint;
         this.undressHint = this.hintManager.undressHint;
         this.bslHint = this.hintManager.bslHint;
         this.doorHint = this.hintManager.doorHint;
         this.openmicrobeInfoHint = this.hintManager.openmicrobeInfoHint;
-        
-        Object.defineProperty(this, 'exitPromptText', {
-            get: () => this.hintManager.exitPromptText
-        });
 
         // Apply initial translations
         this.hintManager.updateTranslations({
@@ -87,6 +85,7 @@ class MainScene extends Phaser.Scene {
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
             openmicrobeInfoHint: window.__translations?.openMicrobeInfo ?? 'Press E for microbe info',
+            exitPrompt: window.__translations?.exitPrompt ?? 'Press E to exit',
         });
 
         this.doors = this.initializeDoors(this.player);

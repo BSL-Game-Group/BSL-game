@@ -117,7 +117,9 @@ function createScene(overrides = {}) {
     contains: jest.fn(() => true),
   };
 
-  scene.pressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
+  scene.closetPressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
+  scene.infoPressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
+  scene.exitPressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
   scene.doorHint = { setVisible: jest.fn(), setPosition: jest.fn() };
   scene.closetHint = { visible: false, setPosition: jest.fn() };
   scene.openmicrobeInfoHint = { setVisible: jest.fn(), setPosition: jest.fn() };
@@ -595,7 +597,7 @@ describe('Closet behavior', () => {
 
     scene.update()
 
-    expect(scene.pressEText.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.closetPressEText.setVisible).toHaveBeenCalledWith(false)
   })
 
   test('shows press E hint at the closet when close enough to it', () => {
@@ -610,8 +612,8 @@ describe('Closet behavior', () => {
 
     scene.update()
 
-    expect(scene.pressEText.setVisible).toHaveBeenCalledWith(true)
-    expect(scene.pressEText.setPosition).toHaveBeenCalledWith(50, 20)
+    expect(scene.closetPressEText.setVisible).toHaveBeenCalledWith(true)
+    expect(scene.closetPressEText.setPosition).toHaveBeenCalledWith(50, 20)
   })
 
   test('shows the wash-up hint when close enough to the quick-undress spot', () => {

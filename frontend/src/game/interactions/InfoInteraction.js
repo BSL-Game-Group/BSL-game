@@ -2,7 +2,7 @@ import { BaseInteraction } from './BaseInteraction';
 
 export class InfoInteraction extends BaseInteraction {
     update() {
-        const { infoGlow, corridorZone, infoPoint, infoGlowTween, pressEText } = this.scene;
+        const { infoGlow, corridorZone, infoPoint, infoGlowTween, infoPressEText } = this.scene;
         if (!infoGlow || !corridorZone || !infoPoint) {
           return;}
 
@@ -14,11 +14,13 @@ export class InfoInteraction extends BaseInteraction {
         }
 
         if (inCorridor) {
-            pressEText.setVisible(true);
-            pressEText.setPosition(infoPoint.x - 40, infoPoint.y - 45);
+            infoPressEText.setVisible(true);
+            infoPressEText.setPosition(infoPoint.x - 40, infoPoint.y - 45);
             if (this.justPressed(this.keyE)) {
                 window.dispatchEvent(new Event('info-popup-opened'));
             }
+        } else {
+            infoPressEText.setVisible(false);
         }
     }
 }
