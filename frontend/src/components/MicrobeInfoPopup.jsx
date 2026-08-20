@@ -1,12 +1,9 @@
-import { useEffect } from 'react'
 import { useTranslation } from '../i18n/context'
+import { useModalDialog } from '../hooks/useModalDialog'
 
 function MicrobeInfoPopup({ open, onClose, microbe }) {
   const { t, language } = useTranslation()
-
-  useEffect(() => {
-    window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
-  }, [open])
+  const dialogRef = useModalDialog(open, onClose)
 
   if (!open || !microbe) {
     return null
@@ -24,11 +21,18 @@ function MicrobeInfoPopup({ open, onClose, microbe }) {
 
   return (
     <div className="popup-overlay">
-      <div className="popup-box">
+      <div
+        className="popup-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="microbe-info-title"
+        ref={dialogRef}
+        tabIndex={-1}
+      >
         <button className="popup-close-button" onClick={onClose}>
           {t('common.close')}
         </button>
-        <h2>{t('microbeInfoPopup.title')}</h2>
+        <h2 id="microbe-info-title">{t('microbeInfoPopup.title')}</h2>
         <dl>
           <dt>{t('microbeInfoPopup.scientificName')}</dt>
           <dd>{microbe.scientific_name}</dd>

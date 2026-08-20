@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from './context'
 import { useTranslation } from '../i18n/context'
 import roundsService from '../services/rounds'
+import { useModalDialog } from '../hooks/useModalDialog'
 
 function YourRounds() {
   const { token } = useAuth()
@@ -9,6 +10,9 @@ function YourRounds() {
 
   const [open, setOpen] = useState(false)
   const [rounds, setRounds] = useState([])
+
+  const close = useCallback(() => setOpen(false), [])
+  const dialogRef = useModalDialog(open, close)
 
   useEffect(() => {
     const handler = () => setOpen(true)
@@ -48,8 +52,14 @@ function YourRounds() {
 
   return (
     <div className="popup-overlay">
-      <div className="popup-box rounds-panel">
-        <button className="popup-close-button" onClick={() => setOpen(false)}>
+      <div
+        className="popup-box rounds-panel"
+        role="dialog"
+        aria-modal="true"
+        ref={dialogRef}
+        tabIndex={-1}
+      >
+        <button className="popup-close-button" onClick={close}>
           {t('common.close')}
         </button>
 

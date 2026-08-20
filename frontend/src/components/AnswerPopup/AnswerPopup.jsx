@@ -1,10 +1,8 @@
-import { useEffect } from 'react'
 import { useTranslation } from '../../i18n/context'
+import { useModalDialog } from '../../hooks/useModalDialog'
 
 function AnswerPopup({ open, onClose, isLevelCorrect, isEquipmentCorrect, isCorrect, level, microbe }) {
-  useEffect(() => {
-    window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
-  }, [open])
+  const dialogRef = useModalDialog(open, onClose)
 
   const { t, language } = useTranslation()
 
@@ -34,7 +32,7 @@ function AnswerPopup({ open, onClose, isLevelCorrect, isEquipmentCorrect, isCorr
 
   return (
     <div className="popup-overlay">
-      <div className={boxClass}>
+      <div className={boxClass} role="dialog" aria-modal="true" ref={dialogRef} tabIndex={-1}>
         <button onClick={onClose} className="popup-close-button position-absolute top-0 end-0 m-3">
           {t('common.close')}
         </button>

@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from '../i18n/context'
 import roundsService from '../services/rounds'
+import { useModalDialog } from '../hooks/useModalDialog'
 
 function Leaderboard() {
   const { t } = useTranslation()
 
   const [open, setOpen] = useState(false)
   const [entries, setEntries] = useState([])
+
+  const close = useCallback(() => setOpen(false), [])
+  const dialogRef = useModalDialog(open, close)
 
   useEffect(() => {
     const handler = () => setOpen(true)
@@ -46,8 +50,14 @@ function Leaderboard() {
 
   return (
     <div className="popup-overlay">
-      <div className="popup-box rounds-panel">
-        <button className="popup-close-button" onClick={() => setOpen(false)}>
+      <div
+        className="popup-box rounds-panel"
+        role="dialog"
+        aria-modal="true"
+        ref={dialogRef}
+        tabIndex={-1}
+      >
+        <button className="popup-close-button" onClick={close}>
           {t('common.close')}
         </button>
 

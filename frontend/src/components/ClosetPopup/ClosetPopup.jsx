@@ -5,6 +5,7 @@ import { ItemType, EQUIPMENT_CONFIG, CATEGORY_CONFIG, applyEquip } from './ItemC
 import Character from './Character'
 import DraggableItem from './DragFunctionality'
 import { useTranslation } from '../../i18n/context'
+import { useModalDialog } from '../../hooks/useModalDialog'
 
 const CATEGORIES = Object.values(CATEGORY_CONFIG).sort((a, b) => a.order - b.order)
 
@@ -65,7 +66,7 @@ function InventoryPanel({ equipped, onToggleEquip, itemFilter }) {
 // BSL4's own suiting station). Defaults to offering every item.
 function ClosetPopup({ open, onClose, equipped, setEquipped, itemFilter = () => true, title }) {
   const { t } = useTranslation()
-  const dialogRef = useRef(null)
+  const dialogRef = useModalDialog(open, onClose)
 
   const pendingFocusRef = useRef(null)
 
@@ -82,74 +83,13 @@ function ClosetPopup({ open, onClose, equipped, setEquipped, itemFilter = () => 
   // must keep working while this popup is closed.
 
   useEffect(() => {
-    window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'));
-  }, [open]);
-
-  // Escape closes the closet. Declared before the early return to respect the
-  // rules of hooks; only active while the popup is open.
-  useEffect(() => {
-    if (!open) {
-      return
-    }
-    const onKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        onClose()
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [open, onClose])
-
-  useEffect(() => {
-    if (open) {
-      dialogRef.current?.focus()
-    }
-  }, [open])
-
-  // Keep Tab inside the modal. Every focusable child is a plain <button>, so
-  // one selector covers them all; the list is read on each keypress because
-  // items come and go as they are equipped.
-  useEffect(() => {
-    if (!open) {
-      return
-    }
-    const onKeyDown = (e) => {
-      if (e.key !== 'Tab') {
-        return
-      }
-      const dialog = dialogRef.current
-      if (!dialog) {
-        return
-      }
-      const focusable = [...dialog.querySelectorAll('button:not([disabled])')]
-      if (focusable.length === 0) {
-        return
-      }
-      const first = focusable[0]
-      const last = focusable[focusable.length - 1]
-      const active = document.activeElement
-
-      const outside = !dialog.contains(active)
-      if (e.shiftKey && (active === first || active === dialog || outside)) {
-        e.preventDefault()
-        last.focus()
-      } else if (!e.shiftKey && (active === last || outside)) {
-        e.preventDefault()
-        first.focus()
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [open])
-
-  useEffect(() => {
     const itemId = pendingFocusRef.current
     if (!itemId) {
       return
     }
     pendingFocusRef.current = null
     dialogRef.current?.querySelector(`[data-item-id="${itemId}"]`)?.focus()
-  }, [equipped])
+  }, [equipped, dialogRef])
 
   if (!open) {return;}
 
