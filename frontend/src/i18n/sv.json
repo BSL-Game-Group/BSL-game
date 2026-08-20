@@ -18,8 +18,10 @@
       "Gå till motsvarande BSL-rum (1–4).",
       "Tryck E vid den mörkt gröna ringen för att hantera mikroben.",
       "Spelet kontrollerar ditt arbete — var utrustningen och rummet rätt för denna mikrobе?",
-      "Tvätta dig vid duschen eller ögonduschstationen för att dekontaminera innan du lämnar.",
-      "En ny mikrobе ritas — prova igen!",
+      "Resultatet delar upp din utrustning per kategori — ögonskydd, masker, klädsel, handskar och skodon — och markerar var och en som rätt eller fel. Det namnger inte den enskilda utrustning du missade.",
+      "Om rummet eller utrustningen var fel får du ett nytt försök på samma mikrob. Fram till ditt sista försök hålls mikrobens egen återkoppling och dess BSL-nivå dolda.",
+      "Tvätta dig vid duschen eller ögonduschstationen — BSL-rummen är stängda till dess, oavsett om du gör ett nytt försök eller går vidare.",
+      "Efter ditt sista försök dras en ny mikrob.",
       "Efter flera rundor, se din sammanfattning: poäng, rätt vs. fel, och de nivåer du behärskade.",
       "Du kan lämna när som helst genom utgången — spelet avslutas."
     ],
@@ -67,14 +69,16 @@
   "answerPopup": {
     "correct": "Rätt!",
     "incorrect": "Inte riktigt",
-    "correctFallback": "Det är rätt rum.",
-    "incorrectFallback": "Det är inte rätt rum.",
+    "correctFallback": "BSL-rummet du valde var rätt.",
+    "incorrectFallback": "BSL-rummet du valde var inte korrekt",
     "equipmentCorrect": "Din skyddsutrustning upfyller BSL-kraven",
     "equipmentIncorrect": "Din skyddsutrustning upfyller inte BSL-kraven.",
     "chosenLevel": "Du valde {level}.",
     "belongs": "{name} tillhör BSL-{level}.",
     "slotCorrect": "rätt",
-    "slotIncorrect": "fel"
+    "slotIncorrect": "fel",
+    "tryAgain": "Försök igen",
+    "lastAttempt": "Det var ditt sista försök för den här mikroben."
   },
   "common": {
     "close": "Stäng",

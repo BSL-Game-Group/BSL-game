@@ -31,8 +31,8 @@ function renderPopupWithLanguage(language, props = {}) {
   const translations = {
     'answerPopup.correct': 'Correct!',
     'answerPopup.incorrect': 'Not quite',
-    'answerPopup.correctFallback': "That's the right room.",
-    'answerPopup.incorrectFallback': "That isn't the right room.",
+    'answerPopup.correctFallback': 'The BSL room you chose was correct.',
+    'answerPopup.incorrectFallback': 'The BSL room you chose was not correct.',
     'answerPopup.chosenLevel': 'You chose {level}.',
     'answerPopup.belongs': '{name} belongs to BSL-{level}.',
     'common.close': 'Close',
@@ -208,5 +208,109 @@ describe('equipment breakdown', () => {
     renderPopup()
 
     expect(screen.queryByText('Eyewear')).not.toBeInTheDocument()
+  })
+})
+
+describe('retry affordance', () => {
+  test('offers a focused retry when the answer is wrong and a retry is left', () => {
+    const onRetry = jest.fn()
+
+    renderPopup({ isCorrect: false, attempt: 1, onRetry })
+
+    const button = screen.getByRole('button', { name: /try again/i })
+
+    expect(button).toHaveFocus()
+
+    fireEvent.click(button)
+
+    expect(onRetry).toHaveBeenCalledTimes(1)
+  })
+
+  test('a re-render does not drag focus back off Close', () => {
+    const props = { open: true, onClose: jest.fn(), isCorrect: false, isLevelCorrect: false,
+      isEquipmentCorrect: true, level: 'BSL-2', attempt: 1, onRetry: jest.fn() }
+
+    const { rerender } = render(<AnswerPopup {...props} />)
+
+    const close = screen.getByRole('button', { name: /^close$/i })
+
+    close.focus()
+    rerender(<AnswerPopup {...props} />)
+
+    expect(close).toHaveFocus()
+  })
+
+  test.each([
+    ['no retry is left', { isCorrect: false, attempt: 2 }, true],
+    ['the answer was correct', { isCorrect: true, attempt: 1 }, false],
+  ])('offers no retry when %s', (_label, props, saysWhy) => {
+    renderPopup(props)
+
+    expect(screen.queryByRole('button', { name: /try again/i })).not.toBeInTheDocument()
+    expect(Boolean(screen.queryByText(/last try/i))).toBe(saysWhy)
+  })
+})
+
+// Every microbe feedback string names the correct level, so the prose gives the
+// answer away just as much as the "belongs to" line. Both have to wait until the
+// player has nothing left to retry, or the retry is pointless.
+describe('the answer is withheld while a retry is on offer', () => {
+  const microbe = {
+    common_name: 'E. coli',
+    bsl_level: 1,
+    feedback_correct: 'Great, that organism belongs at this level.',
+    feedback_incorrect: 'Careful, that organism belongs elsewhere.',
+  }
+
+  test('a retry hides the microbe feedback and the true class', () => {
+    renderPopup({
+      isCorrect: false,
+      isLevelCorrect: false,
+      level: 'BSL-3',
+      microbe,
+      attempt: 1,
+      onRetry: jest.fn(),
+    })
+
+    expect(screen.queryByText(/that organism belongs elsewhere/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/E\. coli belongs to BSL-1/i)).not.toBeInTheDocument()
+    expect(screen.getByText(/the BSL room you chose was not correct/i)).toBeInTheDocument()
+  })
+
+  test('the last attempt reveals both', () => {
+    renderPopup({
+      isCorrect: false,
+      isLevelCorrect: false,
+      level: 'BSL-3',
+      microbe,
+      attempt: 2,
+    })
+
+    expect(screen.getByText(/that organism belongs elsewhere/i)).toBeInTheDocument()
+    expect(screen.getByText(/E\. coli belongs to BSL-1/i)).toBeInTheDocument()
+  })
+
+  test('getting it right first try still reveals both', () => {
+    renderPopup({ isCorrect: true, isLevelCorrect: true, level: 'BSL-1', microbe, attempt: 1 })
+
+    expect(screen.getByText(/that organism belongs at this level/i)).toBeInTheDocument()
+    expect(screen.getByText(/E\. coli belongs to BSL-1/i)).toBeInTheDocument()
+  })
+
+  // The withheld line describes the ROOM, so the right room with the wrong gear
+  // must not be told it picked the wrong room.
+  test('the right room with the wrong gear is not told the room was wrong', () => {
+    renderPopup({
+      isCorrect: false,
+      isLevelCorrect: true,
+      isEquipmentCorrect: false,
+      level: 'BSL-1',
+      microbe,
+      attempt: 1,
+      onRetry: jest.fn(),
+    })
+
+    expect(screen.getByText(/the BSL room you chose was correct/i)).toBeInTheDocument()
+    expect(screen.queryByText(/the BSL room you chose was not correct/i)).not.toBeInTheDocument()
   })
 })
