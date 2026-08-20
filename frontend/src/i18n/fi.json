@@ -119,6 +119,14 @@
     "score": "Pisteet: {score}",
     "microbes": "Mikrobit: {count}"
   },
+  "objective": {
+    "visit-lecture": "Seuraavaksi: käy luennolla",
+    "await-microbe": "Seuraavaksi: odota mikrobia",
+    "wash-up": "Seuraavaksi: peseydy tilassa {room}",
+    "suit-up": "Seuraavaksi: pukeudu suoja-asuun",
+    "go-to-room": "Seuraavaksi: siirry huoneeseen {room}",
+    "handle-microbe": "Seuraavaksi: käsittele mikrobi"
+  },
   "auth": {
     "guest": "Pelaat vieraana",
     "signedInAs": "Kirjautuneena: {username}",

@@ -9,6 +9,7 @@ import HowToPlay from './components/HowToPlay'
 import InfoPopup from './components/InfoPopup/InfoPopup'
 import LanguageSelector from './components/LanguageSelector'
 import ScoreHud from './components/ScoreHud'
+import ObjectiveToast from './components/ObjectiveToast'
 import AuthStatus from './auth/AuthStatus'
 import EndPopup from './components/EndPopup'
 import YourRounds from './auth/YourRounds'
@@ -20,6 +21,7 @@ import { unequipAll } from './components/ClosetPopup/ItemConfig'
 import { useAuth } from './auth/context'
 import roundsService from './services/rounds'
 import { loadSavedGame, patchSavedGame, flushSavedGame, clearSavedGame, MAX_ROUND_ANSWERS } from './state/savedGame'
+import { resolveObjective } from './utils/resolveObjective'
 
 const initialEquipment = {
   mask: false,
@@ -79,6 +81,14 @@ function App() {
   const [openRoundId, setOpenRoundId] = useState(restored?.round.openRoundId ?? null)
   const [roundResult, setRoundResult] = useState(null)
 
+  // Which BSL room (if any) the player is currently standing in — the only
+  // piece resolveObjective needs that isn't already tracked here, since the
+  // Phaser scene is the sole owner of room geometry.
+  const [bslRoom, setBslRoom] = useState(null)
+  // Mirrors MainScene's own isPopupOpen: same two events, same freeze contract.
+  // The objective toast must never appear on top of a popup.
+  const [anyPopupOpen, setAnyPopupOpen] = useState(false)
+
 
   // --- HOOKS (Preserved from original) ---
   useEffect(() => { fetch('/api/test') }, [])
@@ -96,6 +106,21 @@ function App() {
     const handler = () => setLectureOpen(true)
     window.addEventListener('lecture-room-entered', handler)
     return () => window.removeEventListener('lecture-room-entered', handler)
+  }, [])
+  useEffect(() => {
+    const handler = (e) => setBslRoom(e.detail?.key ?? null)
+    window.addEventListener('bsl-room-changed', handler)
+    return () => window.removeEventListener('bsl-room-changed', handler)
+  }, [])
+  useEffect(() => {
+    const handleOpen = () => setAnyPopupOpen(true)
+    const handleClose = () => setAnyPopupOpen(false)
+    window.addEventListener('popup-opened', handleOpen)
+    window.addEventListener('popup-closed', handleClose)
+    return () => {
+      window.removeEventListener('popup-opened', handleOpen)
+      window.removeEventListener('popup-closed', handleClose)
+    }
   }, [])
 
   // Phaser's BSL interactables gate on this (rooms.js + BslInteraction.js) and
@@ -336,6 +361,20 @@ function App() {
 
   const roundScore = roundAnswers.filter((answer) => answer.correct).length
 
+  const objective = gameStarted
+    ? resolveObjective({
+        progress: { lectureVisited: lectureOpen, awaitingUndress },
+        equipped,
+        microbe: currentMicrobe,
+        room: bslRoom,
+      })
+    : null
+  // BSL room targets (e.g. "BSL-3") are already a self-explanatory label —
+  // only the named rooms need a translation lookup.
+  const objectiveRoomLabel = objective?.target
+    ? (objective.target.startsWith('BSL-') ? objective.target : t(`rooms.${objective.target}`))
+    : ''
+
   // Handling a microbe always requires a trip to the dressing room's wash-up
   // spot afterward — whether or not any PPE was actually worn — before the
   // next microbe is handed out.
@@ -467,6 +506,18 @@ function App() {
       <div className="position-fixed top-0 end-0 p-3 z-3">
         <LanguageSelector />
       </div>
+
+      {/* Objective toast: appears briefly at top-center whenever the next
+          step changes, then fades on its own. */}
+      {gameStarted && (
+        <div className="position-fixed top-0 start-50 translate-middle-x p-3 z-3">
+          <ObjectiveToast
+            objective={objective}
+            roomLabel={objectiveRoomLabel}
+            suppressed={anyPopupOpen}
+          />
+        </div>
+      )}
 
       {/* --- ALL POPUPS RENDERED AT ROOT LEVEL (Outside of the grid) --- */}
       <ClosetPopup

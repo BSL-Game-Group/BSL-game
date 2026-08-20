@@ -47,6 +47,10 @@ const translationValue = {
       'hud.score': 'Score: {score}',
       'hud.microbes': 'Microbes: {count}',
 
+      'objective.visit-lecture': 'Next: visit the lecture',
+      'objective.suit-up': 'Next: put on your protective equipment',
+      'objective.go-to-room': 'Next: go to {room}',
+
       'auth.guest': 'Playing as a guest',
       'auth.signedInAs': 'Signed in as {username}',
       'auth.loginButton': 'Log in',

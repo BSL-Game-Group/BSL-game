@@ -361,6 +361,32 @@ body {
   line-height: 1.2;
 }
 
+.objective-toast {
+  padding: 8px 18px;
+  border-radius: 14px;
+  background: rgba(11, 102, 35, 0.92);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.objective-toast--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .objective-toast {
+    transition: opacity 0.35s ease;
+    transform: none;
+  }
+}
+
 /* =========================================================
    AUTH
    ========================================================= */

@@ -119,6 +119,14 @@
     "score": "Poäng: {score}",
     "microbes": "Mikrober: {count}"
   },
+  "objective": {
+    "visit-lecture": "Näst: besök föreläsningen",
+    "await-microbe": "Näst: väntar på en mikrob",
+    "wash-up": "Näst: tvätta dig i {room}",
+    "suit-up": "Näst: ta på skyddsutrustningen",
+    "go-to-room": "Näst: gå till {room}",
+    "handle-microbe": "Näst: hantera mikroben"
+  },
   "auth": {
     "guest": "Du spelar som gäst",
     "signedInAs": "Inloggad som {username}",
