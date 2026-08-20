@@ -10,6 +10,9 @@ import InfoPopup from './components/InfoPopup/InfoPopup'
 import LanguageSelector from './components/LanguageSelector'
 import ScoreHud from './components/ScoreHud'
 import ObjectiveToast from './components/ObjectiveToast'
+import NextStepHud from './components/NextStepHud'
+import { useStuckTimer } from './hooks/useStuckTimer'
+import { stuckStage } from './utils/stuckStage'
 import AuthStatus from './auth/AuthStatus'
 import EndPopup from './components/EndPopup'
 import YourRounds from './auth/YourRounds'
@@ -374,6 +377,8 @@ function App() {
   const objectiveRoomLabel = objective?.target
     ? (objective.target.startsWith('BSL-') ? objective.target : t(`rooms.${objective.target}`))
     : ''
+  const stuckElapsedMs = useStuckTimer(objective?.id ?? null, anyPopupOpen)
+  const stage = stuckStage(stuckElapsedMs)
 
   // Handling a microbe always requires a trip to the dressing room's wash-up
   // spot afterward — whether or not any PPE was actually worn — before the
@@ -516,6 +521,14 @@ function App() {
             roomLabel={objectiveRoomLabel}
             suppressed={anyPopupOpen}
           />
+        </div>
+      )}
+
+      {/* Persistent "Next: ..." row, bottom-center — only once the player has
+          been stuck on the same objective for a while. */}
+      {gameStarted && (
+        <div className="position-fixed bottom-0 start-50 translate-middle-x p-3 z-3">
+          <NextStepHud objective={objective} roomLabel={objectiveRoomLabel} stage={stage} />
         </div>
       )}
 

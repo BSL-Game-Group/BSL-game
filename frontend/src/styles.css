@@ -387,6 +387,17 @@ body {
   }
 }
 
+.next-step-hud {
+  padding: 8px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid #b4531b;
+  color: #b4531b;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
 /* =========================================================
    AUTH
    ========================================================= */
