@@ -110,7 +110,10 @@
     "pressE": "Paina E",
     "exitPrompt": "Paina E poistutuaksesi",
     "washUp": "Paina R tai klikkaa peseytyäksesi",
-    "openmicrobeInfoHint": "Paina E nähdäksesi tutkittavan mikrobin tiedot"
+    "openmicrobeInfoHint": "Mikrobin tiedot — paina E",
+    "lectureMaterialHint": "Luentomateriaali — paina E",
+    "closetPressE": "Vaatekaappi — paina E",
+    "infoPressE": "Info — paina E"
   },
   "hud": {
     "score": "Pisteet: {score}",

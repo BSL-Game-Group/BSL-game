@@ -786,6 +786,55 @@ test('hides the press E hint when inside the lecture room but too far from the i
   expect(handler).not.toHaveBeenCalled()
 })
 
+test('shows the lecture material hint, and opens materials on E when close to it', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 400, height: 400 },
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
+    lectureMaterialPoint: { x: 300, y: 100 },
+    lectureMaterialGlow: { setVisible: jest.fn() },
+    lectureMaterialGlowTween: { pause: jest.fn(), resume: jest.fn() },
+    lectureMaterialHint: { setVisible: jest.fn(), setPosition: jest.fn() },
+  })
+
+  scene.player.x = 300
+  scene.player.y = 100
+  Phaser.Input.Keyboard.JustDown.mockReturnValueOnce(true)
+
+  const handler = jest.fn()
+  window.addEventListener('lecture-material-popup-opened', handler)
+  scene.update()
+  window.removeEventListener('lecture-material-popup-opened', handler)
+
+  expect(scene.lectureMaterialHint.setVisible).toHaveBeenCalledWith(true)
+  expect(handler).toHaveBeenCalledTimes(1)
+})
+
+test('hides the lecture material hint when too far from it', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 400, height: 400 },
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
+    lectureMaterialPoint: { x: 300, y: 100 },
+    lectureMaterialGlow: { setVisible: jest.fn() },
+    lectureMaterialGlowTween: { pause: jest.fn(), resume: jest.fn() },
+    lectureMaterialHint: { setVisible: jest.fn(), setPosition: jest.fn() },
+  })
+
+  scene.player.x = 10
+  scene.player.y = 10
+
+  const handler = jest.fn()
+  window.addEventListener('lecture-material-popup-opened', handler)
+  scene.update()
+  window.removeEventListener('lecture-material-popup-opened', handler)
+
+  expect(scene.lectureMaterialHint.setVisible).toHaveBeenCalledWith(false)
+  expect(handler).not.toHaveBeenCalled()
+})
+
 // DRESSING-ROOM DEPTH SWITCH
 describe('Dressing-room depth switch', () => {
   test('room image is drawn in front of the player at the door (y < 465)', () => {

@@ -110,7 +110,10 @@
     "pressE": "Press E",
     "exitPrompt": "Press E to exit",
     "washUp": "Press R or click to wash up",
-    "openmicrobeInfoHint": "Press E for microbe info"
+    "openmicrobeInfoHint": "Microbe info — press E",
+    "lectureMaterialHint": "Lecture material — press E",
+    "closetPressE": "Locker — press E",
+    "infoPressE": "Info — press E"
   },
   "hud": {
     "score": "Score: {score}",

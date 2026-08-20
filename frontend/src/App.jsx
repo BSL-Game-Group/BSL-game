@@ -225,6 +225,9 @@ function App() {
       exitPrompt: t('phaser.exitPrompt'),
       washUp: t('phaser.washUp'),
       openMicrobeInfoHint: t('phaser.openmicrobeInfoHint'),
+      lectureMaterialHint: t('phaser.lectureMaterialHint'),
+      closetPressE: t('phaser.closetPressE'),
+      infoPressE: t('phaser.infoPressE'),
     }
     window.__translations = translations
     EventBus.emit('translations-updated', translations)

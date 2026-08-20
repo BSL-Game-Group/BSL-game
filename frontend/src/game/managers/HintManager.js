@@ -22,6 +22,11 @@ export default class HintManager {
         this.bslHint = createHint(darkStyle);
         this.doorHint = createHint(darkStyle);
         this.openmicrobeInfoHint = createHint(darkStyle);
+        this.lectureMaterialHint = createHint(darkStyle);
+        // Base "press E" label, kept separately so BslInteraction can prefix it
+        // with the room key (e.g. "BSL-3 — Press E") without a translation
+        // entry per BSL level.
+        this.pressELabel = 'Press E';
 
         this.closetHint = createHint(greyStyle);
         this.undressHint = createHint(greyStyle);
@@ -36,14 +41,16 @@ export default class HintManager {
             return;
         }
 
-        this.closetPressEText.setText(translations.pressEToOpen || 'Press E to open');
-        this.infoPressEText.setText(translations.pressEToOpen || 'Press E to open');
+        this.closetPressEText.setText(translations.closetPressE || 'Locker — press E');
+        this.infoPressEText.setText(translations.infoPressE || 'Info — press E');
         this.exitPressEText.setText(translations.exitPrompt || 'Press E to exit');
         this.closetHint.setText(translations.openCloset || 'Open Closet');
         this.undressHint.setText(translations.washUp || 'Press R or click to wash up');
-        this.bslHint.setText(translations.pressE || 'Press E');
         this.doorHint.setText(translations.pressE || 'Press E');
-        this.openmicrobeInfoHint.setText(translations.openMicrobeInfoHint || 'Press E for microbe info');
+        this.openmicrobeInfoHint.setText(translations.openMicrobeInfoHint || 'Microbe info — press E');
+        this.lectureMaterialHint.setText(translations.lectureMaterialHint || 'Lecture material — press E');
+
+        this.pressELabel = translations.pressE || 'Press E';
     }
 
     // Handles logic that needs to run every frame (like mouse following)

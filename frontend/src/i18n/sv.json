@@ -110,7 +110,10 @@
     "pressE": "Tryck E",
     "exitPrompt": "Tryck E för att lämna",
     "washUp": "Tryck R eller klicka för att tvätta dig",
-    "openmicrobeInfoHint": "Tryck E för mikrobinformation"
+    "openmicrobeInfoHint": "Mikrobinformation — tryck E",
+    "lectureMaterialHint": "Föreläsningsmaterial — tryck E",
+    "closetPressE": "Garderobsskåp — tryck E",
+    "infoPressE": "Info — tryck E"
   },
   "hud": {
     "score": "Poäng: {score}",

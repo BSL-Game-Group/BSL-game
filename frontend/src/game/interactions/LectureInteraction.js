@@ -20,8 +20,10 @@ export class LectureInteraction extends BaseInteraction {
             lecturePoint,
             lectureGlowTween,
             lectureMaterialGlow,
+            lectureMaterialPoint,
             lectureMaterialGlowTween,
             openmicrobeInfoHint,
+            lectureMaterialHint,
         } = this.scene;
         if (!lectureRoomZone) {
             return;
@@ -67,6 +69,25 @@ export class LectureInteraction extends BaseInteraction {
             lectureMaterialGlow.setVisible(inside);
             if (lectureMaterialGlowTween) {
                 inside ? lectureMaterialGlowTween.resume() : lectureMaterialGlowTween.pause();
+            }
+
+            if (inside && lectureMaterialPoint && lectureMaterialHint) {
+                const materialDist = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y, lectureMaterialPoint.x, lectureMaterialPoint.y
+                );
+                const closeToMaterial = materialDist < 80;
+
+                if (closeToMaterial) {
+                    lectureMaterialHint.setVisible(true);
+                    lectureMaterialHint.setPosition(lectureMaterialPoint.x - 55, lectureMaterialPoint.y + 35);
+                    if (this.justPressed(this.keyE)) {
+                        window.dispatchEvent(new Event('lecture-material-popup-opened'));
+                    }
+                } else {
+                    lectureMaterialHint.setVisible(false);
+                }
+            } else if (lectureMaterialHint) {
+                lectureMaterialHint.setVisible(false);
             }
         }
     }

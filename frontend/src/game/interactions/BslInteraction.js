@@ -22,6 +22,7 @@ export class BslInteraction extends BaseInteraction {
           return;}
 
         let activeCenter = null;
+        let activeKey = null;
 
         for (const entry of bslGlows) {
             const inside = this.isInside(entry.zone);
@@ -56,6 +57,7 @@ export class BslInteraction extends BaseInteraction {
 
             if (inside) {
                 activeCenter = entry.center;
+                activeKey = entry.key;
 
                 if (this.justPressed(this.keyE)) {
                     if (!window.__lectureOpen) {
@@ -80,6 +82,8 @@ export class BslInteraction extends BaseInteraction {
                 const hintY = activeCenter.y > 80
                     ? activeCenter.y - 48
                     : activeCenter.y + 36;
+                const pressELabel = this.scene.hintManager?.pressELabel || 'Press E';
+                bslHint.setText(activeKey ? `${activeKey} — ${pressELabel}` : pressELabel);
                 bslHint.setVisible(true);
                 bslHint.setPosition(activeCenter.x - 28, hintY);
             } else {

@@ -77,6 +77,7 @@ class MainScene extends Phaser.Scene {
         this.bslHint = this.hintManager.bslHint;
         this.doorHint = this.hintManager.doorHint;
         this.openmicrobeInfoHint = this.hintManager.openmicrobeInfoHint;
+        this.lectureMaterialHint = this.hintManager.lectureMaterialHint;
 
         // Apply initial translations
         this.hintManager.updateTranslations({
@@ -84,7 +85,10 @@ class MainScene extends Phaser.Scene {
             openCloset: window.__translations?.openCloset ?? 'Open Closet',
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
-            openmicrobeInfoHint: window.__translations?.openMicrobeInfo ?? 'Press E for microbe info',
+            openmicrobeInfoHint: window.__translations?.openMicrobeInfoHint ?? 'Microbe info — press E',
+            lectureMaterialHint: window.__translations?.lectureMaterialHint ?? 'Lecture material — press E',
+            closetPressE: window.__translations?.closetPressE ?? 'Locker — press E',
+            infoPressE: window.__translations?.infoPressE ?? 'Info — press E',
             exitPrompt: window.__translations?.exitPrompt ?? 'Press E to exit',
         });
 
