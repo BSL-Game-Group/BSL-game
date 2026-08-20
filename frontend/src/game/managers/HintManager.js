@@ -41,7 +41,7 @@ export default class HintManager {
             return;
         }
 
-        this.closetPressEText.setText(translations.closetPressE || 'Locker — press E');
+        this.closetPressEText.setText(translations.closetPressE || 'Equipment closet — press E');
         this.infoPressEText.setText(translations.infoPressE || 'Info — press E');
         this.exitPressEText.setText(translations.exitPrompt || 'Press E to exit');
         this.closetHint.setText(translations.openCloset || 'Open Closet');

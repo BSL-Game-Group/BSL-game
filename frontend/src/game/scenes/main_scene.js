@@ -87,7 +87,7 @@ class MainScene extends Phaser.Scene {
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
             openmicrobeInfoHint: window.__translations?.openMicrobeInfoHint ?? 'Microbe info — press E',
             lectureMaterialHint: window.__translations?.lectureMaterialHint ?? 'Lecture material — press E',
-            closetPressE: window.__translations?.closetPressE ?? 'Locker — press E',
+            closetPressE: window.__translations?.closetPressE ?? 'Equipment closet — press E',
             infoPressE: window.__translations?.infoPressE ?? 'Info — press E',
             exitPrompt: window.__translations?.exitPrompt ?? 'Press E to exit',
         });
