@@ -1,6 +1,11 @@
 import { BaseInteraction } from './BaseInteraction';
 
 export class BslInteraction extends BaseInteraction {
+    constructor(scene) {
+        super(scene);
+        this.lastActiveKey = null;
+    }
+
     seedPresence() {
         if (this.scene.bslGlows) {
             for (const entry of this.scene.bslGlows) {
@@ -75,6 +80,11 @@ export class BslInteraction extends BaseInteraction {
                     }
                 }
             }
+        }
+
+        if (activeKey !== this.lastActiveKey) {
+            this.lastActiveKey = activeKey;
+            window.dispatchEvent(new CustomEvent('bsl-room-changed', { detail: { key: activeKey } }));
         }
 
         if (bslHint) {
