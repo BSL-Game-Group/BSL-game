@@ -41,3 +41,20 @@ Backend unit tests (run from the repo root, no database required):
 ```bash
 npm --prefix backend test
 ```
+
+Backend unit tests. **These talk to a real Postgres**, so start the database and
+create the test database once:
+```bash
+docker compose up -d postgres
+docker compose exec -T postgres psql -U bsluser -d bsldb -c "CREATE DATABASE bsldb_test"
+```
+
+Then, from `backend/`:
+```bash
+npm run test:db:prepare   # migrate + seed bsldb_test (re-run after new migrations)
+npm test
+```
+
+`npm test` sets `NODE_ENV=test` and blanks `DB_URL`, so it can never touch the
+development database — `bsldb_test` is separate from `bsldb` and is safe to drop
+and rebuild at any time.
