@@ -8,10 +8,21 @@ import AuthForm from './AuthForm'
 // thing that has to stay reachable at all times is a corner of the viewport, and a
 // panel that expands in place never covers the game to ask for a password.
 function AuthStatus() {
-  const { user, logout } = useAuth()
+  const { user, logout, removeAccount } = useAuth()
   const { t } = useTranslation()
 
   const [formOpen, setFormOpen] = useState(false)
+  const [deleteError, setDeleteError] = useState(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+  const handleDeleteAccount = async () => {
+    try {
+      setDeleteError(null)
+      await removeAccount()
+    } catch (err) {
+      setDeleteError(err.message)
+    }
+  }
 
   // The login/register inputs sit right over the game canvas, which still
   // listens for keydown globally — typing something like "e" into a field
@@ -56,8 +67,12 @@ function AuthStatus() {
         <button className="btn btn-sm btn-outline-secondary" onClick={logout}>
           {t('auth.logoutButton')}
         </button>
+        <button className="btn btn-sm btn-outline-danger" onClick={() => setShowDeleteModal(true)}>
+          {t('auth.deleteButton')}
+        </button>
       </div>
-      <div className="d-flex gap-2">
+      {deleteError && <div className="text-danger small mt-1">{deleteError}</div>}
+      <div className="d-flex gap-2 mt-2">
         <button
           className="btn btn-sm btn-outline-secondary"
           onClick={() => window.dispatchEvent(new Event('your-rounds-opened'))}
@@ -71,6 +86,35 @@ function AuthStatus() {
           {t('auth.leaderboard.openButton')}
         </button>
       </div>
+
+      {showDeleteModal && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content p-3">
+              <div className="modal-body">
+                <p>{t('auth.confirmDelete')}</p>
+              </div>
+              <div className="modal-footer border-0 d-flex justify-content-end gap-2">
+                <button
+                  className="btn btn-sm btn-secondary"
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  {t('auth.cancel')}
+                </button>
+                <button
+                  className="btn btn-sm btn-danger"
+                  onClick={async () => {
+                    setShowDeleteModal(false)
+                    await handleDeleteAccount()
+                  }}
+                >
+                  {t('auth.confirmDeleteButton')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

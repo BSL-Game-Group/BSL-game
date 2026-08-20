@@ -98,6 +98,11 @@ function mergeSnapshot(base, partial) {
   return next
 }
 
+// routes/rounds.js caps chosen_level at what a Postgres INTEGER holds. Mirroring it
+// here matters more than it looks: an answer this predicate keeps but the server
+// rejects 400s the submit and stays in the buffer, so every later exit re-sends it.
+const INT32_MAX = 2147483647
+
 function isNumber(value) {
   return typeof value === 'number' && Number.isFinite(value)
 }
@@ -111,8 +116,10 @@ function isStoredAnswer(answer) {
     typeof answer === 'object' &&
     Number.isInteger(answer.microbe_id) &&
     Number.isInteger(answer.chosen_level) &&
+    Math.abs(answer.chosen_level) <= INT32_MAX &&
     Array.isArray(answer.chosen_equipment) &&
-    answer.chosen_equipment.every((item) => typeof item === 'string')
+    answer.chosen_equipment.every((item) => typeof item === 'string') &&
+    (answer.attempt === undefined || answer.attempt === 1 || answer.attempt === 2)
   )
 }
 
@@ -191,6 +198,7 @@ function validate(raw, now) {
               chosen_level: answer.chosen_level,
               chosen_equipment: answer.chosen_equipment,
               correct: answer.correct === true,
+              attempt: answer.attempt ?? 1,
             }))
         : [],
     },

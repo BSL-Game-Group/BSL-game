@@ -12,7 +12,7 @@ const badWordsData = require('../data/badWords.json')
 
 const router = express.Router()
 
-const USERNAME_PATTERN = /^[a-zA-Z0-9_-]+$/
+const USERNAME_PATTERN = /^[a-zA-Z0-9_\-ÅÄÖåäö]+$/
 const USERNAME_MIN = 3
 const USERNAME_MAX = 32
 const PASSWORD_MIN = 8
@@ -109,6 +109,8 @@ function validateCredentials(username, password) {
   return null
 }
 
+// Must match users_username_lower_unique, or a differently-cased username would
+// be rejected at registration but unusable at login.
 function whereUsernameMatches(username) {
   return db.sequelize.where(
     db.sequelize.fn('lower', db.sequelize.col('username')),
@@ -116,6 +118,9 @@ function whereUsernameMatches(username) {
   )
 }
 
+// The limiter runs first, and needs a parsed body for its username key — which it
+// has, because express.json() runs in app.js before this router is mounted. Each
+// route gets its own instance, so neither can spend the other's budget.
 router.post('/register', registerLimiter, async (req, res) => {
   const { username, password, session_id: sessionId } = req.body ?? {}
 
@@ -189,6 +194,21 @@ router.get('/me', requireAuth, (req, res) => {
   res.json({ id: req.user.id, username: req.user.username })
 })
 
-router.validateCredentials = validateCredentials
+router.delete('/me', requireAuth, async (req, res) => {
+  const userId = req.user.id
 
+  await db.Round.destroy({ where: { user_id: userId } })
+
+  const deletedCount = await db.User.destroy({
+    where: { id: userId },
+  })
+
+  if (!deletedCount) {
+    return res.status(404).json({ error: 'User not found', code: 'user_not_found' })
+  }
+
+  res.status(204).json({ success: true })
+})
+
+router.validateCredentials = validateCredentials
 module.exports = router
