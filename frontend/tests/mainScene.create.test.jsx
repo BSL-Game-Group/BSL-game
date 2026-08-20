@@ -88,6 +88,7 @@ function fakeSprite() {
 // NEW: mock Phaser Text object
 function fakeText() {
   return {
+    active: true,
     setText: jest.fn().mockReturnThis(),
     setDepth: jest.fn().mockReturnThis(),
     setScrollFactor: jest.fn().mockReturnThis(),
@@ -165,6 +166,7 @@ function createScene() {
 
   scene.events = {
     on: jest.fn(),
+    once: jest.fn(),
   }
 
   scene.initializeDoors = jest.fn()
@@ -288,8 +290,14 @@ test('create registers shutdown handler', () => {
 
   scene.create()
 
-  expect(scene.events.on).toHaveBeenCalledWith(
+  expect(scene.events.once).toHaveBeenCalledWith(
     'shutdown',
+    expect.any(Function)
+  )
+
+  // Add an assertion for the new destroy listener as well
+  expect(scene.events.once).toHaveBeenCalledWith(
+    'destroy',
     expect.any(Function)
   )
 })

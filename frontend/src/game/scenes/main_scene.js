@@ -114,17 +114,27 @@ class MainScene extends Phaser.Scene {
         window.addEventListener('popup-opened', this.handlePopupOpen);
         window.addEventListener('popup-closed', this.handlePopupClosed);
 
-        this.events.on('shutdown', () => {
+        const cleanupListeners = () => {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
             window.removeEventListener('popup-opened', this.handlePopupOpen);
             window.removeEventListener('popup-closed', this.handlePopupClosed);
+
+            // FIX: Match the correct event name for handleNewMicrobeRequest
             if (this.handleNewMicrobeRequest) {
-                EventBus.off('request-new-microbe', this.handleNewMicrobeRequest);
+                EventBus.off('request-current-microbe', this.handleNewMicrobeRequest);
             }
+            
+            // FIX: Clean up the random microbe listener that was previously missing
+            EventBus.off('request-new-microbe', this.replaceCurrentMicrobeRandomly);
+
             if (this.handleTranslationsUpdate) {
                 EventBus.off('translations-updated', this.handleTranslationsUpdate);
             }
-        });
+        };
+
+        // Ensure listeners are cleaned up whether the scene is just stopped or completely destroyed
+        this.events.once('shutdown', cleanupListeners);
+        this.events.once('destroy', cleanupListeners);
 
         this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
         this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
