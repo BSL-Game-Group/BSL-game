@@ -108,14 +108,13 @@ function setupCloset(scene) {
 
     // Stays interactive for the whole scene — the handlers gate on the player being
     // in the room, so nothing needs to toggle this target on room entry/exit.
-    scene.add
+    scene.closetHit = scene.add
         .zone(closetX, closetY, radius * 2, radius * 2)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-        if (!scene.playerInsideDressingRoom) return;
+        if (!scene.playerInsideDressingRoom) {return};
         window.dispatchEvent(new Event('closet-popup-opened'));
-    });
-        
+    });    
 }
 
 // Quick-undress interactable inside the dressing room: a green glow, same look as
@@ -146,11 +145,11 @@ function setupUndressPoint(scene) {
     });
     scene.undressGlowTween.pause();
 
-    scene.add
+    scene.undressZone = scene.add
         .zone(ux, uy, radius * 2.4, radius * 2.4)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-        if (!scene.playerInsideDressingRoom) return;
+        if (!scene.playerInsideDressingRoom) {return};
         window.dispatchEvent(new Event('quick-undress'));
     });    
 }
