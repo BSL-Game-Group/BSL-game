@@ -12,8 +12,10 @@ import ScoreHud from './components/ScoreHud'
 import ObjectiveToast from './components/ObjectiveToast'
 import NextStepHud from './components/NextStepHud'
 import BslChecklist from './components/BslChecklist'
+import BslAirlockStatus from './components/BslAirlockStatus'
 import { useStuckTimer } from './hooks/useStuckTimer'
 import { stuckStage } from './utils/stuckStage'
+import { useEventPulse } from './hooks/useEventPulse'
 import AuthStatus from './auth/AuthStatus'
 import EndPopup from './components/EndPopup'
 import YourRounds from './auth/YourRounds'
@@ -89,6 +91,9 @@ function App() {
   // piece resolveObjective needs that isn't already tracked here, since the
   // Phaser scene is the sole owner of room geometry.
   const [bslRoom, setBslRoom] = useState(null)
+  // Which BSL-3/BSL-4 airlock doors are currently open — the interlock in
+  // Door.js already blocks movement on this, but nothing surfaced it.
+  const [bslDoorOpen, setBslDoorOpen] = useState({})
   // Mirrors MainScene's own isPopupOpen: same two events, same freeze contract.
   // The objective toast must never appear on top of a popup.
   const [anyPopupOpen, setAnyPopupOpen] = useState(false)
@@ -115,6 +120,16 @@ function App() {
     const handler = (e) => setBslRoom(e.detail?.key ?? null)
     window.addEventListener('bsl-room-changed', handler)
     return () => window.removeEventListener('bsl-room-changed', handler)
+  }, [])
+  useEffect(() => {
+    const handler = (e) => {
+      const { key, isOpen } = e.detail ?? {}
+      if (key) {
+        setBslDoorOpen((prev) => ({ ...prev, [key]: isOpen }))
+      }
+    }
+    window.addEventListener('bsl-door-changed', handler)
+    return () => window.removeEventListener('bsl-door-changed', handler)
   }, [])
   useEffect(() => {
     const handleOpen = () => setAnyPopupOpen(true)
@@ -380,6 +395,11 @@ function App() {
     : ''
   const stuckElapsedMs = useStuckTimer(objective?.id ?? null, anyPopupOpen)
   const stage = stuckStage(stuckElapsedMs)
+  // The objective toast is a first-round courtesy: once the player has
+  // handled a microbe, repeating it every objective change for the rest of
+  // the session would just be noise for someone who already knows the loop.
+  const isFirstRound = roundAnswers.length === 0
+  const airlockInterlockBlocked = useEventPulse('airlock-interlock-blocked', 3000)
 
   // Handling a microbe always requires a trip to the dressing room's wash-up
   // spot afterward — whether or not any PPE was actually worn — before the
@@ -514,8 +534,9 @@ function App() {
       </div>
 
       {/* Objective toast: appears briefly at top-center whenever the next
-          step changes, then fades on its own. */}
-      {gameStarted && (
+          step changes, then fades on its own. First round only — see
+          isFirstRound above. */}
+      {gameStarted && isFirstRound && (
         <div className="position-fixed top-0 start-50 translate-middle-x p-3 z-3">
           <ObjectiveToast
             objective={objective}
@@ -539,6 +560,28 @@ function App() {
       {gameStarted && (
         <div className="position-fixed bottom-0 end-0 p-3 z-3">
           <BslChecklist roomKey={bslRoom} equipped={equipped} suppressed={anyPopupOpen} />
+        </div>
+      )}
+
+      {/* BSL airlock/ventilation status, mid-right — deliberately not in the
+          same panel as the equipment checklist above (see BslAirlockStatus). */}
+      {gameStarted && (
+        <div className="position-fixed top-50 end-0 translate-middle-y p-3 z-3">
+          <BslAirlockStatus
+            roomKey={bslRoom}
+            doorOpen={bslDoorOpen}
+            ventilationConnected={ventilationConnected}
+            suppressed={anyPopupOpen}
+          />
+        </div>
+      )}
+
+      {/* Airlock interlock notice: pulses for a few seconds whenever the
+          player tries to open a door whose paired door is already open —
+          the interlock itself gives no other feedback. */}
+      {gameStarted && airlockInterlockBlocked && (
+        <div className="position-fixed top-50 start-50 translate-middle p-3 z-3">
+          <div className="airlock-interlock-notice">{t('bslAirlock.interlockBlocked')}</div>
         </div>
       )}
 
