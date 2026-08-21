@@ -10,9 +10,6 @@ const materialSv = require('../data/bsl_material_sv.json');
 // — so every edit to them since that seeder first ran is still missing from any
 // database that was already seeded. This migration carries them across, since a
 // migration does run once against every database regardless of seeder history.
-//
-// On a fresh database this is a no-op: db:init migrates before it seeds, so the
-// table is still empty here and the seeder writes the same content moments later.
 const CONTENT_BY_LANGUAGE = {
   en: materialEn,
   fi: materialFi,
@@ -34,10 +31,27 @@ module.exports = {
     const [rows] = await queryInterface.sequelize.query(
       'SELECT language FROM bsl_material'
     );
+
+    // An empty table means a fresh database, not a database missing its rows:
+    // db:init migrates before it seeds, so the seeder is about to insert all
+    // three languages itself. Inserting them here would make that seeder die
+    // on a duplicate primary key and take the whole db:init down with it.
+    //
+    // The cost is that a table emptied by hand after its seeder already ran is
+    // left empty, since neither this nor the seeder will fill it. Carrying data
+    // edits across is this migration's job; repairing manual damage is not.
+    if (rows.length === 0) {
+      return;
+    }
+
     const present = new Set(rows.map((row) => row.language));
 
     for (const [language, content] of Object.entries(CONTENT_BY_LANGUAGE)) {
       if (present.has(language)) {
+        // The two calls serialize differently on purpose, not by oversight:
+        // bulkUpdate takes the object as-is, while bulkInsert rejects it with
+        // "Invalid value" and only accepts a JSON string. Both end up stored as
+        // a jsonb object, which tests/seededContent.test.js asserts.
         await queryInterface.bulkUpdate('bsl_material', { content }, { language });
       } else {
         await queryInterface.bulkInsert('bsl_material', [
