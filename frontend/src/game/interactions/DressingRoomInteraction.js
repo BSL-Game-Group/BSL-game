@@ -26,7 +26,9 @@ export class DressingRoomInteraction extends BaseInteraction {
         if (!ppeRoomZone) {
           return;}
 
-        const inside = this.isInside(ppeRoomZone);
+        // The new y value is hardcoded in the movement.test.jsx. If you change this value, remember to update the test too!
+        const ppeRoomZoneModified = { ...ppeRoomZone, y: 480}
+        const inside = this.isInside(ppeRoomZoneModified);
 
         if (inside && !this.playerInsideDressingRoom) {
             closetGlow?.setVisible(true);

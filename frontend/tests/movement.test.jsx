@@ -351,7 +351,8 @@ test('pressing E triggers closet popup event when inside dressing room', () => {
   })
 
   scene.player.x = 50
-  scene.player.y = 50
+  // New y value that takes the changes in the DressingroomInteraction.js file into account.
+  scene.player.y = 500
 
   Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
 
@@ -374,7 +375,8 @@ test('pressing R triggers quick-undress from anywhere in the dressing room', () 
   })
 
   scene.player.x = 50
-  scene.player.y = 50
+  // New y value that takes the changes in the DressingroomInteraction.js file into account.
+  scene.player.y = 500
 
   Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
 
@@ -567,7 +569,8 @@ describe('Closet behavior', () => {
     })
 
     scene.player.x = 100
-    scene.player.y = 100
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
 
     scene.update()
 
@@ -606,17 +609,20 @@ describe('Closet behavior', () => {
   test('shows press E hint at the closet when close enough to it', () => {
     const scene = createScene({
       ppeRoomZone: { x: 0, y: 0, width: 1000, height: 1000 },
-      closetZone: { x: 55, y: 40, width: 80, height: 80 },
+      // New y value that takes the changes in the DressingroomInteraction.js file into account.
+      closetZone: { x: 55, y: 440, width: 80, height: 80 },
     })
 
     // closetCenter = (55+35, 40+60) = (90, 100)
     scene.player.x = 90
-    scene.player.y = 100
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
 
     scene.update()
 
     expect(scene.pressEText.setVisible).toHaveBeenCalledWith(true)
-    expect(scene.pressEText.setPosition).toHaveBeenCalledWith(50, 20)
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    expect(scene.pressEText.setPosition).toHaveBeenCalledWith(50, 420)
   })
 
   test('shows the wash-up hint when close enough to the quick-undress spot', () => {
@@ -641,7 +647,8 @@ describe('Closet behavior', () => {
     })
 
     scene.player.x = 10
-    scene.player.y = 10
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 490
 
     scene.update()
 
@@ -654,7 +661,8 @@ describe('Closet behavior', () => {
     })
 
     scene.player.x = 100
-    scene.player.y = 100
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
 
     scene.update()
 
@@ -681,7 +689,8 @@ describe('Closet behavior', () => {
     })
 
     scene.player.x = 100
-    scene.player.y = 100
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
 
     scene.update()
 
@@ -1062,7 +1071,8 @@ describe('modified keypresses are ignored', () => {
   function sceneInDressingRoom(keyOverrides) {
     const scene = createScene({ ppeRoomZone: dressingRoom })
     scene.player.x = 50
-    scene.player.y = 50
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
     scene.keyR = { ...scene.keyR, ...keyOverrides }
     scene.keyE = { ...scene.keyE, ...keyOverrides }
     Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
