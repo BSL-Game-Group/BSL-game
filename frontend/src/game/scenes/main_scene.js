@@ -134,7 +134,7 @@ class MainScene extends Phaser.Scene {
 
         this.events.on('postupdate', this.handleScenePostUpdate);
 
-        this.events.on('shutdown', () => {
+        const cleanupListeners = () => {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
             window.removeEventListener('popup-opened', this.handlePopupOpen);
             window.removeEventListener('popup-closed', this.handlePopupClosed);

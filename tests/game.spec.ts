@@ -37,7 +37,7 @@ test('lecture material popup opens via event and shows the fetched material', as
   await expect(game.lectureMaterialPopup).toBeVisible();
   // The title renders while the material is still loading too, so assert on a
   // section that only exists once /api/bsl-material has answered.
-  await expect(game.page.getByRole('heading', { name: /^sources$/i })).toBeVisible();
+  await expect(game.lectureMaterialSources).toBeVisible();
 });
 
 test('lecture material popup closes via button', async ({ game }) => {
@@ -45,6 +45,11 @@ test('lecture material popup closes via button', async ({ game }) => {
 
   await game.openLectureMaterial();
   await expect(game.lectureMaterialPopup).toBeVisible();
+  // The popup grows from its 320px loading size to 85vh when the material
+  // lands, which moves the absolutely-positioned close button ~146px up. A
+  // click issued before that happens is dispatched at the old coordinates and
+  // lands on the text that has taken their place, leaving the popup open.
+  await expect(game.lectureMaterialSources).toBeVisible();
 
   await game.closeButton.click();
 

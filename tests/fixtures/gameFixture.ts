@@ -54,6 +54,12 @@ class Game {
     });
   }
 
+  // Only rendered once /api/bsl-material has answered — the popup's title is
+  // already on screen during the loading state, so it can't stand in for this.
+  get lectureMaterialSources() {
+    return this.page.getByRole('heading', { name: /^sources$/i });
+  }
+
   get closetPopup() {
     return this.page.getByRole('heading', { level: 2, name: /closet/i });
   }
