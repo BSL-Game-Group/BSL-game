@@ -21,48 +21,41 @@ after(closeDb);
 // the seeder writes the current files anyway. These two tests are the guard:
 // each refresh migration records the fingerprint of the data it copied, so
 // changing a data file without adding a migration fails here.
+// The newest refresh migration for each set of data files. Adding a migration
+// means changing the name here too — the failure message below says so, because
+// updating only the migration leaves this test comparing against the old one
+// and still failing, with no hint as to why.
+const LATEST_REFRESH_MIGRATIONS = [
+  {
+    label: 'bsl_material',
+    migration: '20260821000001-refresh-bsl-material-content',
+    files: ['bsl_material_en.json', 'bsl_material_fi.json', 'bsl_material_sv.json'],
+  },
+  {
+    label: 'microbe',
+    migration: '20260821000002-refresh-microbe-texts',
+    files: ['microbes_eng_v2.json', 'microbes_fin_v2.json', 'microbes_swe_v2.json'],
+  },
+];
+
 describe('data files cannot change without a migration', () => {
-  test('bsl_material data matches the last migration that copied it', () => {
-    const {
-      DATA_FINGERPRINT,
-    } = require('../migrations/20260821000001-refresh-bsl-material-content');
+  for (const { label, migration, files } of LATEST_REFRESH_MIGRATIONS) {
+    test(`${label} data matches the last migration that copied it`, () => {
+      const { DATA_FINGERPRINT } = require(`../migrations/${migration}`);
+      const actual = fingerprintOf(files);
 
-    const actual = fingerprintOf([
-      'bsl_material_en.json',
-      'bsl_material_fi.json',
-      'bsl_material_sv.json',
-    ]);
-
-    assert.strictEqual(
-      actual,
-      DATA_FINGERPRINT,
-      'backend/data/bsl_material_*.json changed without a migration to carry it ' +
-        'into already-seeded databases. Add a migration like ' +
-        '20260821000001-refresh-bsl-material-content.js and set its ' +
-        `DATA_FINGERPRINT to:\n  ${actual}`
-    );
-  });
-
-  test('microbe data matches the last migration that copied it', () => {
-    const {
-      DATA_FINGERPRINT,
-    } = require('../migrations/20260821000002-refresh-microbe-texts');
-
-    const actual = fingerprintOf([
-      'microbes_eng_v2.json',
-      'microbes_fin_v2.json',
-      'microbes_swe_v2.json',
-    ]);
-
-    assert.strictEqual(
-      actual,
-      DATA_FINGERPRINT,
-      'backend/data/microbes_*_v2.json changed without a migration to carry it ' +
-        'into already-seeded databases. Add a migration like ' +
-        '20260821000002-refresh-microbe-texts.js and set its ' +
-        `DATA_FINGERPRINT to:\n  ${actual}`
-    );
-  });
+      assert.strictEqual(
+        actual,
+        DATA_FINGERPRINT,
+        `${files.join(', ')} changed, but ${migration} is still the last ` +
+          'migration that copied them into already-seeded databases. Two steps:\n' +
+          `  1. add a migration modelled on ${migration}.js, with\n` +
+          `     DATA_FINGERPRINT = '${actual}'\n` +
+          '  2. name it in LATEST_REFRESH_MIGRATIONS in this file, or this test\n' +
+          '     keeps comparing against the old migration and stays red.'
+      );
+    });
+  }
 });
 
 // The three language files are joined on id. A duplicate or missing id used to
@@ -140,14 +133,22 @@ describe('the database holds what the data files say', () => {
     assert.strictEqual(microbes.length, microbesEn.length, 'all microbes should be seeded');
 
     for (const microbe of microbes) {
+      // Looked up rather than dereferenced inline: a missing id would otherwise
+      // throw a TypeError that says nothing about which microbe is at fault.
+      const sv = svById.get(microbe.id);
+      const fi = fiById.get(microbe.id);
+
+      assert.ok(sv, `microbes_swe_v2.json has no microbe with id ${microbe.id}`);
+      assert.ok(fi, `microbes_fin_v2.json has no microbe with id ${microbe.id}`);
+
       assert.strictEqual(
         microbe.common_name_sv,
-        svById.get(microbe.id).common_name,
+        sv.common_name,
         `microbe ${microbe.id} (${microbe.common_name}) has the wrong Swedish name`
       );
       assert.strictEqual(
         microbe.common_name_fi,
-        fiById.get(microbe.id).common_name,
+        fi.common_name,
         `microbe ${microbe.id} (${microbe.common_name}) has the wrong Finnish name`
       );
     }
