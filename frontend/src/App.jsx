@@ -222,6 +222,7 @@ function App() {
       pressEToOpen: t('phaser.pressEToOpen'),
       openCloset: t('phaser.openCloset'),
       pressE: t('phaser.pressE'),
+      closeTheDoorBehindYouFirst: t('phaser.closeTheDoorBehindYouFirst'),
       exitPrompt: t('phaser.exitPrompt'),
       washUp: t('phaser.washUp'),
       openMicrobeInfoHint: t('phaser.openmicrobeInfoHint'),

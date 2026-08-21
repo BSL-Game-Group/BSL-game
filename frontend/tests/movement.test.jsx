@@ -246,6 +246,11 @@ function createScene(overrides = {}) {
 
   scene.handleDoorInteraction = MainScene.prototype.handleDoorInteraction.bind(scene);
 
+  scene.hintManager = {
+    showDoorHint: jest.fn(),
+    showDoorFeedback: jest.fn(),
+  };
+
   return scene;
 }
 

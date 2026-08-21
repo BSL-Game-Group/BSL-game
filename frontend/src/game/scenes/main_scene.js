@@ -86,6 +86,7 @@ class MainScene extends Phaser.Scene {
             openCloset: window.__translations?.openCloset ?? 'Open Closet',
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
+            closeTheDoorBehindYouFirst: window.__translations?.closeTheDoorBehindYouFirst ?? 'Close the door behind you first.',
             openmicrobeInfoHint: window.__translations?.openMicrobeInfo ?? 'Press E for microbe info',
         });
 
@@ -269,8 +270,7 @@ class MainScene extends Phaser.Scene {
 
     handleDoorInteraction(player, zone) {
         const door = zone.parentDoor;
-        this.doorHint.setVisible(true);
-        this.doorHint.setPosition(door.x, door.y);
+        this.hintManager.showDoorHint(door);
 
         if (!(this.keyE && Phaser.Input.Keyboard.JustDown(this.keyE) &&
             !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey)) {
@@ -282,7 +282,10 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        door.tryToChangeDoorState();
+        const doorStateChanged = door.tryToChangeDoorState();
+        if (!doorStateChanged) {
+            this.hintManager.showDoorFeedback(door);
+        }
     }
 
     // Entering BSL-4 is unrestricted — the suiting-up prompt fires once the
@@ -300,7 +303,10 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        door.tryToChangeDoorState();
+        const doorStateChanged = door.tryToChangeDoorState();
+        if (!doorStateChanged) {
+            this.hintManager.showDoorFeedback(door);
+        }
     }
 }
 
