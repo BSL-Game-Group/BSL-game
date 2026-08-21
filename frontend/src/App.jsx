@@ -395,6 +395,16 @@ function App() {
     : ''
   const stuckElapsedMs = useStuckTimer(objective?.id ?? null, anyPopupOpen)
   const stage = stuckStage(stuckElapsedMs)
+  // Mirrored onto window for ObjectiveArrow (Phaser), same pattern as
+  // __lectureOpen/__bsl4Ready below — React owns the objective and the
+  // stuck stage, Phaser only reads them to draw.
+  useEffect(() => {
+    window.__objective = objective
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [objective?.id, objective?.target])
+  useEffect(() => {
+    window.__stuckStage = stage
+  }, [stage])
   // The objective toast is a first-round courtesy: once the player has
   // handled a microbe, repeating it every objective change for the rest of
   // the session would just be noise for someone who already knows the loop.
