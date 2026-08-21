@@ -34,7 +34,9 @@ describe('Door', () => {
                     x,
                     y,
                     width,
-                    height
+                    height,
+                    setInteractive: jest.fn(),
+                    on: jest.fn()
                 }))
             },
             physics: {
