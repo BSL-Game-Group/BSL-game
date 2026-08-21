@@ -129,6 +129,14 @@ function createScene() {
       setOrigin: jest.fn().mockReturnThis(),
       setDepth: jest.fn().mockReturnThis(),
     })),
+
+    graphics: jest.fn(() => ({
+      setDepth: jest.fn().mockReturnThis(),
+      setVisible: jest.fn().mockReturnThis(),
+      clear: jest.fn().mockReturnThis(),
+      fillStyle: jest.fn().mockReturnThis(),
+      fillTriangle: jest.fn().mockReturnThis(),
+    })),
   }
 
   scene.input = {
