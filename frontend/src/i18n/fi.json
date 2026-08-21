@@ -127,6 +127,9 @@
     "go-to-room": "Seuraavaksi: siirry huoneeseen {room}",
     "handle-microbe": "Seuraavaksi: käsittele mikrobi"
   },
+  "bslChecklist": {
+    "title": "{room} — puuttuu:"
+  },
   "auth": {
     "guest": "Pelaat vieraana",
     "signedInAs": "Kirjautuneena: {username}",

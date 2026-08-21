@@ -11,6 +11,7 @@ import LanguageSelector from './components/LanguageSelector'
 import ScoreHud from './components/ScoreHud'
 import ObjectiveToast from './components/ObjectiveToast'
 import NextStepHud from './components/NextStepHud'
+import BslChecklist from './components/BslChecklist'
 import { useStuckTimer } from './hooks/useStuckTimer'
 import { stuckStage } from './utils/stuckStage'
 import AuthStatus from './auth/AuthStatus'
@@ -529,6 +530,15 @@ function App() {
       {gameStarted && (
         <div className="position-fixed bottom-0 start-50 translate-middle-x p-3 z-3">
           <NextStepHud objective={objective} roomLabel={objectiveRoomLabel} stage={stage} />
+        </div>
+      )}
+
+      {/* BSL checklist, bottom-right — visible the moment the player is
+          standing in a BSL room while under-equipped for it, before they
+          press E and fail. */}
+      {gameStarted && (
+        <div className="position-fixed bottom-0 end-0 p-3 z-3">
+          <BslChecklist roomKey={bslRoom} equipped={equipped} suppressed={anyPopupOpen} />
         </div>
       )}
 

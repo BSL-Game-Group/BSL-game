@@ -127,6 +127,9 @@
     "go-to-room": "Next: go to {room}",
     "handle-microbe": "Next: handle the microbe"
   },
+  "bslChecklist": {
+    "title": "{room} — missing:"
+  },
   "auth": {
     "guest": "Playing as a guest",
     "signedInAs": "Signed in as {username}",

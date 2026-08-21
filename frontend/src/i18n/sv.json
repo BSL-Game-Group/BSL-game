@@ -127,6 +127,9 @@
     "go-to-room": "Näst: gå till {room}",
     "handle-microbe": "Näst: hantera mikroben"
   },
+  "bslChecklist": {
+    "title": "{room} — saknas:"
+  },
   "auth": {
     "guest": "Du spelar som gäst",
     "signedInAs": "Inloggad som {username}",
