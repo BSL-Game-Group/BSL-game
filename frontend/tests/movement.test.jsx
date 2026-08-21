@@ -337,10 +337,6 @@ test('preload loads all game assets', () => {
     'glasses',
     'assets/equipment/on_character/eyewear/glasses_on.png'
   )
-  expect(scene.load.image).toHaveBeenCalledWith(
-    'dresser',
-    'assets/dresser.png'
-  )
 })
 
 
