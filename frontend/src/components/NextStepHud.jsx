@@ -5,7 +5,7 @@ import { useTranslation } from '../i18n/context'
 // later), per the decision that this row must not compete for attention
 // during normal play. Pinned to the bottom of the screen so it never
 // overlaps the toast at the top.
-function NextStepHud({ objective, roomLabel, stage }) {
+function NextStepHud({ objective, roomLabel, stage, onSkipGuide }) {
   const { t } = useTranslation()
 
   if (!objective || (stage !== 'verbal' && stage !== 'directional')) {
@@ -16,7 +16,17 @@ function NextStepHud({ objective, roomLabel, stage }) {
 
   return (
     <div className="next-step-hud" data-testid="next-step-hud" role="status" aria-live="polite">
-      {text}
+      <span>{text}</span>
+      {onSkipGuide && (
+        <button
+          type="button"
+          className="next-step-hud__skip"
+          data-testid="next-step-hud-skip"
+          onClick={onSkipGuide}
+        >
+          {t('objective.skipGuide')}
+        </button>
+      )}
     </div>
   )
 }

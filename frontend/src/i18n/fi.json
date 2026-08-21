@@ -125,7 +125,8 @@
     "wash-up": "Seuraavaksi: peseydy tilassa {room}",
     "suit-up": "Seuraavaksi: pukeudu suoja-asuun",
     "go-to-room": "Seuraavaksi: siirry huoneeseen {room}",
-    "handle-microbe": "Seuraavaksi: käsittele mikrobi"
+    "handle-microbe": "Seuraavaksi: käsittele mikrobi",
+    "skipGuide": "Ohita opastus"
   },
   "bslChecklist": {
     "title": "{room} — puuttuu:"

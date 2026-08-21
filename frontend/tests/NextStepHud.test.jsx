@@ -34,3 +34,17 @@ test('renders nothing without an objective', () => {
   render(<NextStepHud objective={null} stage="verbal" />)
   expect(screen.queryByTestId('next-step-hud')).not.toBeInTheDocument()
 })
+
+test('has no skip button when onSkipGuide is not provided', () => {
+  render(<NextStepHud objective={{ id: 'suit-up' }} stage="verbal" />)
+  expect(screen.queryByTestId('next-step-hud-skip')).not.toBeInTheDocument()
+})
+
+test('clicking the skip button calls onSkipGuide', () => {
+  const onSkipGuide = jest.fn()
+  render(
+    <NextStepHud objective={{ id: 'suit-up' }} stage="verbal" onSkipGuide={onSkipGuide} />
+  )
+  screen.getByTestId('next-step-hud-skip').click()
+  expect(onSkipGuide).toHaveBeenCalledTimes(1)
+})

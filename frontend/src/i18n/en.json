@@ -125,7 +125,8 @@
     "wash-up": "Next: wash up in the {room}",
     "suit-up": "Next: put on your protective equipment",
     "go-to-room": "Next: go to {room}",
-    "handle-microbe": "Next: handle the microbe"
+    "handle-microbe": "Next: handle the microbe",
+    "skipGuide": "Skip guidance"
   },
   "bslChecklist": {
     "title": "{room} — missing:"

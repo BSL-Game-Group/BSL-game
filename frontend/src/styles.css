@@ -396,6 +396,25 @@ body {
   font-weight: 600;
   font-size: 0.95rem;
   text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.next-step-hud__skip {
+  padding: 2px 10px;
+  border-radius: 10px;
+  border: 1px solid #b4531b;
+  background: transparent;
+  color: #b4531b;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.next-step-hud__skip:hover {
+  background: #b4531b;
+  color: #fff;
 }
 
 .bsl-checklist {

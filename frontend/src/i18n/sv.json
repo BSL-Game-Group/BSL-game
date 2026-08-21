@@ -125,7 +125,8 @@
     "wash-up": "Näst: tvätta dig i {room}",
     "suit-up": "Näst: ta på skyddsutrustningen",
     "go-to-room": "Näst: gå till {room}",
-    "handle-microbe": "Näst: hantera mikroben"
+    "handle-microbe": "Näst: hantera mikroben",
+    "skipGuide": "Hoppa över vägledningen"
   },
   "bslChecklist": {
     "title": "{room} — saknas:"
