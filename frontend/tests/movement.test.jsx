@@ -246,6 +246,11 @@ function createScene(overrides = {}) {
 
   scene.handleDoorInteraction = MainScene.prototype.handleDoorInteraction.bind(scene);
 
+  scene.hintManager = {
+    showDoorHint: jest.fn(),
+    showDoorFeedback: jest.fn(),
+  };
+
   return scene;
 }
 
@@ -346,7 +351,8 @@ test('pressing E triggers closet popup event when inside dressing room', () => {
   })
 
   scene.player.x = 50
-  scene.player.y = 50
+  // New y value that takes the changes in the DressingroomInteraction.js file into account.
+  scene.player.y = 500
 
   Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
 
@@ -369,7 +375,8 @@ test('pressing R triggers quick-undress from anywhere in the dressing room', () 
   })
 
   scene.player.x = 50
-  scene.player.y = 50
+  // New y value that takes the changes in the DressingroomInteraction.js file into account.
+  scene.player.y = 500
 
   Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
 
@@ -562,7 +569,8 @@ describe('Closet behavior', () => {
     })
 
     scene.player.x = 100
-    scene.player.y = 100
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
 
     scene.update()
 
@@ -601,17 +609,20 @@ describe('Closet behavior', () => {
   test('shows press E hint at the closet when close enough to it', () => {
     const scene = createScene({
       ppeRoomZone: { x: 0, y: 0, width: 1000, height: 1000 },
-      closetZone: { x: 55, y: 40, width: 80, height: 80 },
+      // New y value that takes the changes in the DressingroomInteraction.js file into account.
+      closetZone: { x: 55, y: 440, width: 80, height: 80 },
     })
 
     // closetCenter = (55+35, 40+60) = (90, 100)
     scene.player.x = 90
-    scene.player.y = 100
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
 
     scene.update()
 
     expect(scene.pressEText.setVisible).toHaveBeenCalledWith(true)
-    expect(scene.pressEText.setPosition).toHaveBeenCalledWith(50, 20)
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    expect(scene.pressEText.setPosition).toHaveBeenCalledWith(50, 420)
   })
 
   test('shows the wash-up hint when close enough to the quick-undress spot', () => {
@@ -636,7 +647,8 @@ describe('Closet behavior', () => {
     })
 
     scene.player.x = 10
-    scene.player.y = 10
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 490
 
     scene.update()
 
@@ -649,7 +661,8 @@ describe('Closet behavior', () => {
     })
 
     scene.player.x = 100
-    scene.player.y = 100
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
 
     scene.update()
 
@@ -676,7 +689,8 @@ describe('Closet behavior', () => {
     })
 
     scene.player.x = 100
-    scene.player.y = 100
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
 
     scene.update()
 
@@ -1057,7 +1071,8 @@ describe('modified keypresses are ignored', () => {
   function sceneInDressingRoom(keyOverrides) {
     const scene = createScene({ ppeRoomZone: dressingRoom })
     scene.player.x = 50
-    scene.player.y = 50
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
     scene.keyR = { ...scene.keyR, ...keyOverrides }
     scene.keyE = { ...scene.keyE, ...keyOverrides }
     Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
@@ -1105,5 +1120,56 @@ describe('modified keypresses are ignored', () => {
     )
 
     dispatchSpy.mockRestore()
+  })
+})
+describe('a BSL room stays shut while a wash-up is owed', () => {
+  const bsl2Zone = { key: 'BSL-2', x: 320, y: 0, width: 320, height: 250 }
+
+  function sceneInBsl2() {
+    const entry = {
+      key: bsl2Zone.key,
+      zone: bsl2Zone,
+      center: { x: bsl2Zone.x + 30, y: bsl2Zone.y + 30 },
+      glow: { setVisible: jest.fn() },
+      tween: { resume: jest.fn(), pause: jest.fn() },
+      playerInside: false,
+    }
+    const scene = createScene({ bslGlows: [entry] })
+
+    // BslInteraction calls this unconditionally on room entry.
+    scene.notifyRoomEntry = jest.fn()
+    scene.player.x = bsl2Zone.x + 30
+    scene.player.y = bsl2Zone.y + 30
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+
+    return scene
+  }
+
+  test('E answers when nothing is owed, and asks for a wash-up when one is', () => {
+    window.__lectureOpen = true
+    window.__awaitingUndress = false
+
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+    sceneInBsl2().update()
+
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'answer-popup-opened' })
+    )
+
+    dispatchSpy.mockClear()
+    window.__awaitingUndress = true
+
+    sceneInBsl2().update()
+
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'wash-up-required' })
+    )
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'answer-popup-opened' })
+    )
+
+    dispatchSpy.mockRestore()
+    window.__awaitingUndress = false
   })
 })

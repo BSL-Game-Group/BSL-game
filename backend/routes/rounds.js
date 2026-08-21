@@ -3,8 +3,7 @@ const express = require('express')
 const db = require('../models')
 const { optionalAuth, requireAuth } = require('../middleware/auth')
 const { gradeAnswer } = require('../services/grading')
-const { scoreRound, calculateScore } = require('../services/scoring')
-
+const { scoreRound, calculateScore, calculateMultiRoundScore } = require('../services/scoring')
 const router = express.Router()
 
 const MAX_ANSWERS = 100

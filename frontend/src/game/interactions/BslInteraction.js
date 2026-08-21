@@ -60,6 +60,8 @@ export class BslInteraction extends BaseInteraction {
                 if (this.justPressed(this.keyE)) {
                     if (!window.__lectureOpen) {
                         window.dispatchEvent(new Event('lecture-required'));
+                    } else if (window.__awaitingUndress) {
+                        window.dispatchEvent(new Event('wash-up-required'));
                     } else if (entry.key === 'BSL-4' && (!window.__bsl4Ready || this.scene.bsl4Door?.isOpen)) {
                         window.dispatchEvent(new Event('bsl4-not-ready'));
                     } else if (entry.key === 'BSL-3' && this.scene.bsl3Door?.isOpen) {

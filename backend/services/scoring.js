@@ -58,13 +58,23 @@ function calculateMultiRoundScore({ bslLevel, rounds }) {
 
   rounds.forEach((rd, index) => {
     let roundScore = 0;
+    // Attempt 1 gives 30 for room, Attempt 2 gives 15
+    const roomPointsValue = index === 0 ? 30 : 15;
 
     if (rd.roomCorrect && !previouslyCorrectRoom) {
-      roundScore += 30;
+      roundScore += roomPointsValue;
       previouslyCorrectRoom = true;
     }
 
-    const categoryPointsTotal = 60;
+    // Determine equipment total based on attempt and BSL level rule adjustments
+    let categoryPointsTotal;
+    if (index === 0) {
+      categoryPointsTotal = 60; // Always 60 on round 1
+    } else {
+      // Round 2: BSL level 1 totals 28 (7/7/7/7), others half of 60 = 30
+      categoryPointsTotal = (Number(bslLevel) === 1) ? 28 : 30;
+    }
+
     const numCategories = rd.equipmentCategories ? rd.equipmentCategories.length : 1;
     const pointsPerCategory = categoryPointsTotal / (numCategories || 1);
 
@@ -81,7 +91,7 @@ function calculateMultiRoundScore({ bslLevel, rounds }) {
         if (wasWrongBefore) {
           if (isCorrect) {
             roundScore += pointsPerCategory;
-            previouslyCorrectCategories[idx] = true;
+            previouslyCorrectCategories[idx] = true; // Mark as now correctly resolved
           }
         }
       });

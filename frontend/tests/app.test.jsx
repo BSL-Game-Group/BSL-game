@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from './test-utils'
+import { render, screen, fireEvent, act, cleanup } from './test-utils'
 import '@testing-library/jest-dom'
 import App from '../src/App'
 import { TranslationProvider } from '../src/i18n'
@@ -420,7 +420,11 @@ test('answer popup says Not quite when chosen room does not match the microbe cl
   openAnswerPopupWithMicrobe('BSL-3')
 
   expect(screen.getByText(/not quite/i)).toBeInTheDocument()
-  expect(screen.getByText(/wrong containment for this one/i)).toBeInTheDocument()
+
+  // The microbe's own feedback names the correct level, so it is withheld while the
+  // retry is still on offer. The last attempt gets it — see the retry describe below.
+  expect(screen.getByText(/the BSL room you chose was not correct/i)).toBeInTheDocument()
+  expect(screen.queryByText(/wrong containment for this one/i)).not.toBeInTheDocument()
 })
 
 // -----------------------------
@@ -1071,4 +1075,172 @@ test('the exit popup reports the round it just saved', async () => {
   expect(screen.getByRole('heading', { name: 'Round finished' })).toBeInTheDocument()
   expect(screen.getByText('You scored 0 out of 1.')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Keep my score' })).toBeInTheDocument()
+})
+
+describe('one retry per microbe', () => {
+  // testMicrobe has no id, and an answer is only recorded for a microbe with an integer id.
+  // It is BSL-1, so answering BSL-3 is wrong on the level.
+  const retryMicrobe = { ...testMicrobe, id: 1 }
+
+  function answerWrongly() {
+    openAnswerPopupWithMicrobe('BSL-3', retryMicrobe)
+  }
+
+  function washUp() {
+    act(() => {
+      window.dispatchEvent(new Event('quick-undress'))
+    })
+  }
+
+  function reopenPopup() {
+    act(() => {
+      window.dispatchEvent(new CustomEvent('answer-popup-opened', { detail: { level: 'BSL-3' } }))
+    })
+  }
+
+  test('recording counts the answer and washing up hands out a new microbe', () => {
+    answerWrongly()
+    EventBus.emit.mockClear()
+
+    fireEvent.click(screen.getByRole('button', { name: /^close$/i }))
+
+    expect(screen.getByText(/microbes: 1/i)).toBeInTheDocument()
+    expect(loadSavedGame().round.answers[0].attempt).toBe(1)
+
+    washUp()
+
+    expect(EventBus.emit).toHaveBeenCalledWith('request-new-microbe')
+  })
+
+  test('retrying records nothing and keeps the same microbe', () => {
+    answerWrongly()
+    EventBus.emit.mockClear()
+
+    fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+
+    expect(screen.getByText(/microbes: 0/i)).toBeInTheDocument()
+    expect(loadSavedGame().round.answers).toEqual([])
+
+    washUp()
+
+    expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
+
+    reopenPopup()
+
+    expect(screen.queryByRole('button', { name: /try again/i })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /^close$/i }))
+
+    expect(loadSavedGame().round.answers[0].attempt).toBe(2)
+  })
+
+  test('the last attempt reveals the microbe feedback and its true class', () => {
+    answerWrongly()
+    fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+    washUp()
+    reopenPopup()
+
+    expect(screen.getByText(/wrong containment for this one/i)).toBeInTheDocument()
+    expect(screen.getByText(/E\. coli belongs to BSL-1/i)).toBeInTheDocument()
+  })
+
+  test('a new microbe restores the retry', () => {
+    answerWrongly()
+    fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+    washUp()
+
+    // The second try has to be spent and recorded: the wash-up that follows it is
+    // what asks for the next microbe, and that request is what hands the retry back.
+    reopenPopup()
+    fireEvent.click(screen.getByRole('button', { name: /^close$/i }))
+    washUp()
+
+    act(() => {
+      EventBus.emit('current-microbe-updated', { ...retryMicrobe, id: 2 })
+    })
+    reopenPopup()
+
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument()
+  })
+})
+
+test('the wash-up prompt appears and the flag is visible to Phaser', () => {
+  openAnswerPopupWithMicrobe('BSL-3', { ...testMicrobe, id: 1 })
+  fireEvent.click(screen.getByRole('button', { name: /^close$/i }))
+
+  expect(window.__awaitingUndress).toBe(true)
+
+  act(() => {
+    window.dispatchEvent(new Event('wash-up-required'))
+  })
+
+  expect(screen.getByText(/wash up before you get the next microbe/i)).toBeInTheDocument()
+
+  act(() => {
+    window.dispatchEvent(new Event('quick-undress'))
+  })
+
+  expect(window.__awaitingUndress).toBe(false)
+})
+
+// main_scene re-emits current-microbe-updated with the RESTORED microbe on every
+// scene create, so a page load looks exactly like a new microbe being handed out.
+// Resetting the attempt on that event handed the player unlimited retries.
+describe('a refresh does not hand back a spent retry', () => {
+  const retryMicrobe = { ...testMicrobe, id: 1 }
+
+  function boot() {
+    renderApp()
+    const start = screen.queryByRole('button', { name: /start game/i })
+    if (start) {
+      fireEvent.click(start)
+    }
+    act(() => {
+      EventBus.emit('current-microbe-updated', retryMicrobe)
+    })
+  }
+
+  function answerWrongly() {
+    act(() => {
+      window.dispatchEvent(new CustomEvent('answer-popup-opened', { detail: { level: 'BSL-3' } }))
+    })
+  }
+
+  function reload() {
+    cleanup()
+    boot()
+  }
+
+  function washUp() {
+    act(() => {
+      window.dispatchEvent(new Event('quick-undress'))
+    })
+  }
+
+  test('refreshing on the last try does not bring the button back', () => {
+    boot()
+    answerWrongly()
+    fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+    washUp()
+    answerWrongly()
+
+    expect(screen.queryByRole('button', { name: /try again/i })).not.toBeInTheDocument()
+
+    reload()
+
+    expect(screen.queryByRole('button', { name: /try again/i })).not.toBeInTheDocument()
+    expect(screen.getByText(/last try/i)).toBeInTheDocument()
+  })
+
+  test('refreshing mid-retry still owes the same microbe, not a new one', () => {
+    boot()
+    answerWrongly()
+    fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+
+    reload()
+    EventBus.emit.mockClear()
+    washUp()
+
+    expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
+  })
 })
