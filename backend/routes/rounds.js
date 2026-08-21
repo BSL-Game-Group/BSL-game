@@ -90,12 +90,15 @@ async function validateAndGrade(body) {
 
   let totalScore = 0
 
+  // The rules come from the microbe's own level, not the room the player chose — the
+  // organism on the bench decides what has to be worn, and App.jsx grades the same way.
   const graded = answers.map((answer) => {
     const chosenLevelNum = Number(answer.chosen_level)
+    const microbe = microbeById.get(answer.microbe_id)
     const grade = gradeAnswer(
       answer,
-      microbeById.get(answer.microbe_id),
-      rulesByLevel.get(chosenLevelNum) ?? EMPTY_RULES
+      microbe,
+      rulesByLevel.get(Number(microbe.bsl_level)) ?? EMPTY_RULES
     )
 
     // Extract category correctness array from grade.equipment_slots

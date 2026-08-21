@@ -43,7 +43,7 @@ test('an anonymous round is stored with no owner and graded on the server', asyn
     });
 
   assert.strictEqual(response.status, 201);
-  assert.strictEqual(response.body.score, 144);
+  assert.strictEqual(response.body.score, 132);
   assert.strictEqual(response.body.correct_count, 1);
   assert.strictEqual(response.body.answer_count, 2);
   assert.strictEqual(response.body.owned, false);
@@ -69,7 +69,7 @@ test('the client cannot assert its own score', async () => {
       answers: [{ microbe_id: bsl1.id, chosen_level: 4, chosen_equipment: [] }],
     });
 
-  assert.strictEqual(response.body.score, 36);
+  assert.strictEqual(response.body.score, 12);
   assert.strictEqual(response.body.correct_count, 0);
 });
 
@@ -165,14 +165,14 @@ test('empty, oversized and malformed answer lists are 400s', async () => {
   assert.strictEqual(await db.Round.count(), 0);
 });
 
-test('a level with no rules costs the level, not the equipment', async () => {
+test('the equipment is graded against the microbe, not the room the player chose', async () => {
   const bsl1 = await microbeAtLevel(1);
 
   const response = await request(app)
     .post('/api/rounds')
     .send({
       session_id: 'session-a',
-      answers: [{ microbe_id: bsl1.id, chosen_level: 7, chosen_equipment: [] }],
+      answers: [{ microbe_id: bsl1.id, chosen_level: 4, chosen_equipment: BSL1_CORRECT }],
     });
 
   assert.strictEqual(response.status, 201);
@@ -184,7 +184,7 @@ test('a level with no rules costs the level, not the equipment', async () => {
 
 // --- PATCH /api/rounds/:id ---
 
-const BSL2_CORRECT = ['lab_coat', 'gloves', 'mask', 'indoor_shoes'];
+const BSL2_CORRECT = ['lab_coat', 'mask', 'glasses', 'gloves', 'indoor_shoes'];
 
 function createRound(sessionId, answers, token) {
   const pending = request(app).post('/api/rounds');
@@ -247,7 +247,7 @@ test('the stored answers are replaced, not appended to', async () => {
     { microbe_id: bsl1.id, chosen_level: 4, chosen_equipment: [] },
   ]);
 
-  assert.strictEqual(created.body.score, 36);
+  assert.strictEqual(created.body.score, 12);
 
   const updated = await updateRound(created.body.id, 'session-a', [
     { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT },
@@ -292,7 +292,7 @@ test('only the round s owner may update it', async () => {
 
   assert.strictEqual(otherBrowser.status, 403);
   assert.strictEqual(otherBrowser.body.code, 'not_your_round');
-  assert.strictEqual((await db.Round.findByPk(created.body.id)).score, 36);
+  assert.strictEqual((await db.Round.findByPk(created.body.id)).score, 12);
 
   // Registering claims every unclaimed round for session-a, this one included.
   const { token } = (await registerAs('owner_user', 'session-a')).body;
