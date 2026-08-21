@@ -26,8 +26,24 @@ const DATA_FINGERPRINT =
 
 module.exports = {
   async up(queryInterface) {
+    // Insert, not just update: the Swedish row can be missing entirely. The
+    // seeder shipped with only 'en' and 'fi' (d37f749) and gained 'sv' hours
+    // later in bd87637 — a database seeded in between has no 'sv' row at all,
+    // and bulkUpdate alone would leave it that way. /api/bsl-material silently
+    // falls back to English for a missing language, so nobody would notice.
+    const [rows] = await queryInterface.sequelize.query(
+      'SELECT language FROM bsl_material'
+    );
+    const present = new Set(rows.map((row) => row.language));
+
     for (const [language, content] of Object.entries(CONTENT_BY_LANGUAGE)) {
-      await queryInterface.bulkUpdate('bsl_material', { content }, { language });
+      if (present.has(language)) {
+        await queryInterface.bulkUpdate('bsl_material', { content }, { language });
+      } else {
+        await queryInterface.bulkInsert('bsl_material', [
+          { language, content: JSON.stringify(content) },
+        ]);
+      }
     }
   },
 
