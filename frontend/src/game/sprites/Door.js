@@ -23,6 +23,11 @@ export default class Door extends Phaser.Physics.Arcade.Sprite {
         this.isOpen = false;
         this.triggerZone = scene.add.zone(triggerZoneX, triggerZoneY, triggerZoneWidth, triggerZoneHeight);
         this.triggerZone.parentDoor = this;
+        this.triggerZone.setInteractive();
+        this.wasClicked = false;
+        this.triggerZone.on('pointerdown', () => {
+            this.wasClicked = true;
+        });
         this.airlockDoorPairs = airlockDoorPairs;
     }
 

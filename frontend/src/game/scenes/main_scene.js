@@ -272,10 +272,20 @@ class MainScene extends Phaser.Scene {
         const door = zone.parentDoor;
         this.hintManager.showDoorHint(door);
 
-        if (!(this.keyE && Phaser.Input.Keyboard.JustDown(this.keyE) &&
-            !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey)) {
+        const ePressed =
+            this.keyE &&
+            Phaser.Input.Keyboard.JustDown(this.keyE) &&
+            !this.keyE.ctrlKey &&
+            !this.keyE.metaKey &&
+            !this.keyE.altKey;
+
+        const mouseClicked = door.wasClicked;
+
+        if (!ePressed && !mouseClicked) {
             return;
         }
+
+        door.wasClicked = false;
 
         if (door === this.bsl4Door) {
             this.handleBsl4DoorPress(door);
