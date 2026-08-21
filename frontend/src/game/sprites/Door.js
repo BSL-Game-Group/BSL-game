@@ -28,6 +28,9 @@ export default class Door extends Phaser.Physics.Arcade.Sprite {
 
     tryToChangeDoorState() {
         if (this.airlockDoorPairs.some((pair) => pair.isOpen)) {
+            // The interlock silently refuses otherwise — nothing else ever
+            // told the player why the door didn't move.
+            window.dispatchEvent(new Event('airlock-interlock-blocked'));
             return false;
         }
         this.isOpen = !this.isOpen;
