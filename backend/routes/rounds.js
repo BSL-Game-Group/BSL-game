@@ -89,48 +89,82 @@ async function validateAndGrade(body) {
   )
 
   let totalScore = 0
+  let correctCount = 0
+
+  // Group answers by microbe_id so we can track multi-round attempts per microbe
+  const answersByMicrobe = new Map()
+  for (const answer of answers) {
+    if (!answersByMicrobe.has(answer.microbe_id)) {
+      answersByMicrobe.set(answer.microbe_id, [])
+    }
+    answersByMicrobe.get(answer.microbe_id).push(answer)
+  }
+
+  const graded = []
 
   // The rules come from the microbe's own level, not the room the player chose — the
   // organism on the bench decides what has to be worn, and App.jsx grades the same way.
-  const graded = answers.map((answer) => {
-    const chosenLevelNum = Number(answer.chosen_level)
-    const microbe = microbeById.get(answer.microbe_id)
-    const grade = gradeAnswer(
-      answer,
-      microbe,
-      rulesByLevel.get(Number(microbe.bsl_level)) ?? EMPTY_RULES
-    )
+  for (const [microbeId, microbeAnswers] of answersByMicrobe.entries()) {
+    const microbe = microbeById.get(microbeId)
+    const rules = rulesByLevel.get(Number(microbe.bsl_level)) ?? EMPTY_RULES
 
-    // Extract category correctness array from grade.equipment_slots
-    const slots = grade.equipment_slots || {}
-    const categoryIds = Object.keys(slots)
-    const equipmentCategories = categoryIds.map((id) => slots[id].status === 'ok')
+    // Sort attempts chronologically (attempt 1 first, then attempt 2)
+    microbeAnswers.sort((a, b) => (a.attempt ?? 1) - (b.attempt ?? 1))
 
-    // Calculate points using your scoring.js calculateScore engine with proper data parameters
-    const answerScore = calculateScore({
-      bslLevel: chosenLevelNum,
-      round: answer.attempt ?? 1,
-      roomCorrect: grade.level_correct,
-      equipmentCategories: equipmentCategories,
+    const roundsData = microbeAnswers.map((answer) => {
+      const chosenLevelNum = Number(answer.chosen_level)
+      const grade = gradeAnswer(answer, microbe, rules)
+
+      // Extract category correctness array from grade.equipment_slots
+      const slots = grade.equipment_slots || {}
+      const categoryIds = Object.keys(slots)
+      const equipmentCategories = categoryIds.map((id) => slots[id].status === 'ok')
+
+      return {
+        round: answer.attempt ?? 1,
+        roomCorrect: grade.level_correct,
+        equipmentCategories: equipmentCategories,
+        _rawAnswer: answer,
+        _chosenLevelNum: chosenLevelNum,
+        _grade: grade,
+      }
     })
 
-    totalScore += answerScore
+    // Calculate cumulative score across attempts using calculateMultiRoundScore
+    const microbeMultiRoundScore = calculateMultiRoundScore({
+      bslLevel: Number(microbe.bsl_level),
+      rounds: roundsData.map((r) => ({
+        round: r.round,
+        roomCorrect: r.roomCorrect,
+        equipmentCategories: r.equipmentCategories,
+      })),
+    })
 
-    return {
-      microbe_id: answer.microbe_id,
-      chosen_level: chosenLevelNum,
-      chosen_equipment: answer.chosen_equipment,
-      attempt: answer.attempt ?? 1,
-      ...grade,
+    totalScore += microbeMultiRoundScore
+
+    // Determine final correctness based on the last attempt for this microbe
+    const finalRound = roundsData[roundsData.length - 1]
+    if (finalRound._grade.level_correct && finalRound._grade.equipment_correct) {
+      correctCount += 1
     }
-  })
+
+    // Format individual graded response records back out
+    for (const r of roundsData) {
+      graded.push({
+        microbe_id: microbeId,
+        chosen_level: r._chosenLevelNum,
+        chosen_equipment: r._rawAnswer.chosen_equipment,
+        attempt: r.round,
+        ...r._grade,
+      })
+    }
+  }
 
   return {
     sessionId,
     graded,
     score: totalScore,
-    correctCount: graded.filter((answer) => answer.level_correct && answer.equipment_correct)
-      .length,
+    correctCount,
   }
 }
 

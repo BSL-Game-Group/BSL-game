@@ -53,7 +53,7 @@ test('BSL 4 Equipment Scoring (2 Categories)', async (t) => {
   });
 });
 
-/*
+
 test('Multi-Round Cumulative Scoring (Round 2 targets only failed items from Round 1)', async (t) => {
   await t.test('BSL 1: Room wrong in Round 1, fixed in Round 2; Equipment 3/4 correct in Round 1, 4th fixed in Round 2', () => {
     const rounds = [
@@ -85,4 +85,3 @@ test('Multi-Round Cumulative Scoring (Round 2 targets only failed items from Rou
     assert.strictEqual(score, 75);
   });
 });
-*/

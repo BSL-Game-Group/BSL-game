@@ -397,6 +397,29 @@ function App() {
   // The wash-up is still owed, which is what forces the full redo: the dressing room
   // strips the player before they can dress again and re-enter a room.
   const handleAnswerRetry = () => {
+    if (Number.isInteger(currentMicrobe?.id) && Number.isInteger(chosenLevel)) {
+      setRoundAnswers((answers) => {
+        const nextAnswers =
+          answers.length >= MAX_ROUND_ANSWERS
+            ? answers
+            : [
+                ...answers,
+                {
+                  microbe_id: currentMicrobe.id,
+                  chosen_level: chosenLevel,
+                  chosen_equipment: chosenEquipment,
+                  correct: isCorrect,
+                  attempt,
+                },
+              ];
+
+        // Send attempt 1 to the backend immediately so the score updates on screen
+        saveRoundSoFarWithAnswers(nextAnswers);
+
+        return nextAnswers;
+      });
+    }
+
     setAttempt(2)
     setRetryPending(true)
     setAnswerOpen(false)
