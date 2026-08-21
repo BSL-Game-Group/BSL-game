@@ -4,7 +4,7 @@
 # BSL-game
 Laboratories are classified into different biosafety levels depending on the types of organisms handled there. These different levels also require different types of clothing and protective gear. The idea is to develop a game in which users can practice which clothing and protective gear should be used.
 
-The game is available in [BSL-game]([https://bsl-frontend-prod-route-bsl-game-ohtu-k2026.ext.okd-cs-test-0.k8s.cs.helsinki.fi])
+The game is available in [BSL-game](https://bsl-frontend-prod-route-bsl-game-ohtu-k2026.ext.okd-cs-test-0.k8s.cs.helsinki.fi)
 
 ## Instructions
 
