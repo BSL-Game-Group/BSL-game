@@ -1,4 +1,8 @@
-import { stuckStage, STUCK_THRESHOLDS_MS } from '../src/utils/stuckStage'
+import {
+  stuckStage,
+  STUCK_THRESHOLDS_MS,
+  FIRST_ROUND_STUCK_THRESHOLDS_MS,
+} from '../src/utils/stuckStage'
 
 describe('stuckStage', () => {
   test('is silent right after the objective changes', () => {
@@ -26,5 +30,11 @@ describe('stuckStage', () => {
 
     expect(stuckStage(0, firstRoundThresholds)).toBe('verbal')
     expect(stuckStage(8_000, firstRoundThresholds)).toBe('directional')
+  })
+
+  test('the exported guided-first-round thresholds skip straight to verbal, then go directional at 8s', () => {
+    expect(stuckStage(0, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('verbal')
+    expect(stuckStage(7_999, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('verbal')
+    expect(stuckStage(8_000, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('directional')
   })
 })
