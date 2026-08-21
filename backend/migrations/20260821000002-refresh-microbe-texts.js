@@ -12,29 +12,20 @@ const { buildRows } = require('../seeders/20260622000002-seed-microbes');
 //     files by array index and the Swedish file had a duplicate entry.
 //
 // Rows come from the seeder's own buildRows(), so a database repaired here and
-// a database seeded fresh end up with identical text by construction.
+// a database seeded fresh end up with identical text by construction. That is
+// worth the coupling it buys: an applied migration is normally self-contained,
+// and this one breaks if that seeder is renamed or stops exporting buildRows.
+// Duplicating the row building instead would let the two drift apart silently,
+// which is the failure this migration exists to repair.
 //
 // On a fresh database this is a no-op: db:init migrates before it seeds, so the
 // table is still empty and every update matches zero rows.
-const COLUMNS = [
-  'common_name',
-  'scientific_name',
-  'type',
-  'bsl_level',
-  'lecture_text',
-  'feedback_correct',
-  'feedback_incorrect',
-  'common_name_sv',
-  'type_sv',
-  'lecture_text_sv',
-  'feedback_correct_sv',
-  'feedback_incorrect_sv',
-  'common_name_fi',
-  'type_fi',
-  'lecture_text_fi',
-  'feedback_correct_fi',
-  'feedback_incorrect_fi',
-];
+// Every column the seeder writes except the one identifying the row. Derived
+// rather than listed, so a column added to the seeder later cannot be silently
+// left out of the repair — the same kind of drift this migration exists to fix.
+function columnsOf(row) {
+  return Object.keys(row).filter((column) => column !== 'id');
+}
 
 // Guards against another data edit landing without its own migration — see
 // tests/helpers/contentFingerprint.js and tests/seededContent.test.js.
@@ -46,7 +37,7 @@ module.exports = {
     for (const row of buildRows()) {
       const values = {};
 
-      for (const column of COLUMNS) {
+      for (const column of columnsOf(row)) {
         values[column] = row[column];
       }
 
