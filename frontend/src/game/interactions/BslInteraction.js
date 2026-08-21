@@ -4,6 +4,10 @@ export class BslInteraction extends BaseInteraction {
     constructor(scene) {
         super(scene);
         this.lastActiveKey = null;
+        // null (not undefined) so the very first frame always reports the
+        // door's real state, whatever it restored to.
+        this.lastBsl3DoorOpen = null;
+        this.lastBsl4DoorOpen = null;
     }
 
     seedPresence() {
@@ -85,6 +89,19 @@ export class BslInteraction extends BaseInteraction {
         if (activeKey !== this.lastActiveKey) {
             this.lastActiveKey = activeKey;
             window.dispatchEvent(new CustomEvent('bsl-room-changed', { detail: { key: activeKey } }));
+        }
+
+        if (this.scene.bsl3Door && this.scene.bsl3Door.isOpen !== this.lastBsl3DoorOpen) {
+            this.lastBsl3DoorOpen = this.scene.bsl3Door.isOpen;
+            window.dispatchEvent(new CustomEvent('bsl-door-changed', {
+                detail: { key: 'BSL-3', isOpen: this.lastBsl3DoorOpen }
+            }));
+        }
+        if (this.scene.bsl4Door && this.scene.bsl4Door.isOpen !== this.lastBsl4DoorOpen) {
+            this.lastBsl4DoorOpen = this.scene.bsl4Door.isOpen;
+            window.dispatchEvent(new CustomEvent('bsl-door-changed', {
+                detail: { key: 'BSL-4', isOpen: this.lastBsl4DoorOpen }
+            }));
         }
 
         if (bslHint) {
