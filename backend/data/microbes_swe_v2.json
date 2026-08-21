@@ -310,16 +310,6 @@
     "feedback_incorrect": "Fel! Toxoplasmos är en BSL-2 parasit — sprids inte person till person."
   },
   {
-    "id": 31,
-    "common_name": "Toxoplasmos",
-    "scientific_name": "Toxoplasma gondii",
-    "type": "Parasit",
-    "bsl_level": 2,
-    "lecture_text": "Katter är de primära värdarna. Infektion sker via kontaminerat kött eller kattavföring. Farligt för gravida kvinnor. Sprids inte mellan människor.",
-    "feedback_correct": "Rätt! Toxoplasma gondii är en BSL-2-parasit.",
-    "feedback_incorrect": "Fel! Toxoplasmos är en BSL-2-parasit – sprids inte mellan människor."
-  },
-  {
     "id": 32,
     "common_name": "Kryptosporidiose",
     "scientific_name": "Cryptosporidium parvum",
