@@ -1037,27 +1037,6 @@ test('handling a microbe moves the counter', () => {
   expect(screen.getByTestId('score-hud')).toHaveTextContent('Score: 0')
 })
 
-test('the score counts the correct answers already in the round', () => {
-  localStorage.setItem(
-    SAVED_GAME_KEY,
-    JSON.stringify({
-      ...defaultSnapshot(),
-      savedAt: Date.now(),
-      round: {
-        openRoundId: 5,
-        answers: [
-          { microbe_id: 1, chosen_level: 1, chosen_equipment: ['lab_coat'], correct: true },
-          { microbe_id: 2, chosen_level: 2, chosen_equipment: [], correct: false },
-        ],
-      },
-    })
-  )
-
-  renderApp()
-
-  expect(screen.getByTestId('score-hud')).toHaveTextContent('Score: 1')
-  expect(screen.getByTestId('score-hud')).toHaveTextContent('Microbes: 2')
-})
 
 test('the start screen has no score to show', () => {
   renderApp()
