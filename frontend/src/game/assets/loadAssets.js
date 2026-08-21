@@ -39,4 +39,6 @@ export function loadAssets(scene) {
     scene.load.image('air_systems', 'assets/game_arena_elements/air-systems.jpeg');
     scene.load.image('dressing_room', 'assets/rooms/dressing-room_2.png');
     scene.load.image('exit_area', 'assets/rooms/exit_area.png');
+    scene.load.image('airlock_room_(empty)', 'assets/rooms/airlock_room_(empty).png');
+    scene.load.image('airlock_room_with_shower', 'assets/rooms/airlock_room_with_shower.png');
 }

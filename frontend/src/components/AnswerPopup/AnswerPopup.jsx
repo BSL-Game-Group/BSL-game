@@ -1,7 +1,17 @@
 import { useEffect } from 'react'
 import { useTranslation } from '../../i18n/context'
+import { CATEGORY_CONFIG, CATEGORY_IDS } from '../../utils/equipmentCategories'
 
-function AnswerPopup({ open, onClose, isLevelCorrect, isEquipmentCorrect, isCorrect, level, microbe }) {
+function AnswerPopup({
+  open,
+  onClose,
+  isLevelCorrect,
+  isEquipmentCorrect,
+  isCorrect,
+  level,
+  microbe,
+  equipmentSlots,
+}) {
   useEffect(() => {
     window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
   }, [open])
@@ -42,6 +52,24 @@ function AnswerPopup({ open, onClose, isLevelCorrect, isEquipmentCorrect, isCorr
         <h2 style={{ margin: '0 0 12px', color: headlineColor }}>{headline}</h2>
         <p style={{ margin: 0, fontSize: '1.05rem' }}>{feedback}</p>
         <p style={{ margin: '8px 0 0', fontSize: '0.95rem' }}>{equipmentFeedback}</p>
+        {equipmentSlots && (
+          <ul className="list-unstyled" style={{ margin: '8px 0 0', fontSize: '0.95rem' }}>
+            {CATEGORY_IDS.map((id) => {
+              const ok = equipmentSlots[id]?.status === 'ok'
+
+              return (
+                <li key={id} style={{ color: ok ? '#1a8a34' : '#c51a1a' }}>
+                  <span aria-hidden="true">{ok ? '✓' : '✗'}</span>{' '}
+                  {t(CATEGORY_CONFIG[id].labelKey)}
+                  <span className="visually-hidden">
+                    {' '}
+                    {ok ? t('answerPopup.slotCorrect') : t('answerPopup.slotIncorrect')}
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+        )}
         <p style={{ margin: '12px 0 0', fontSize: '0.95rem' }}>{t('answerPopup.chosenLevel').replace('{level}', level)}</p>
         {microbe && (
           <p style={{ margin: '4px 0 0', fontSize: '0.95rem' }}>

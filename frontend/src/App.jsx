@@ -15,7 +15,7 @@ import YourRounds from './auth/YourRounds'
 import Leaderboard from './auth/Leaderboard'
 import { EventBus } from './game/EventBus'
 import { useTranslation } from './i18n/context'
-import { evaluateEquipmentRules, getEquipmentRulesForBslLevel } from './utils/equipmentRules'
+import { evaluateEquipmentSlots, getEquipmentRulesForBslLevel } from './utils/equipmentRules'
 import { unequipAll } from './components/ClosetPopup/ItemConfig'
 import { useAuth } from './auth/context'
 import roundsService from './services/rounds'
@@ -222,6 +222,7 @@ function App() {
       pressEToOpen: t('phaser.pressEToOpen'),
       openCloset: t('phaser.openCloset'),
       pressE: t('phaser.pressE'),
+      closeTheDoorBehindYouFirst: t('phaser.closeTheDoorBehindYouFirst'),
       exitPrompt: t('phaser.exitPrompt'),
       washUp: t('phaser.washUp'),
       lectureMaterialHint: t('phaser.lectureMaterialHint'),
@@ -230,6 +231,42 @@ function App() {
     window.__translations = translations
     EventBus.emit('translations-updated', translations)
   }, [language, t])
+
+  // TEMPORARY (for testing the saved-game work): throw away the snapshot and put
+  // every piece of state back to its start-screen value. Dropping gameStarted
+  // unmounts the Phaser game, so restarting builds a fresh scene.
+  const resetGameState = useCallback(() => {
+    clearSavedGame()
+    setGameStarted(false)
+    setPopupOpen(false)
+    setMicrobeInfoOpen(false)
+    setLectureMaterialOpen(false)
+    setAnswerOpen(false)
+    setAnswerLevel('')
+    setCurrentMicrobe(null)
+    setInfoOpen(false)
+    setLectureWarningOpen(false)
+    setEquipped(unequipAll())
+    setAwaitingUndress(false)
+    setVentilationConnected(false)
+    setExitConfirmOpen(false)
+    setRoundAnswers([])
+    setOpenRoundId(null)
+    setRoundResult(null)
+    setBsl4NotReadyOpen(false)
+    setBsl4GearOpen(false)
+    setBslDoorRequiredOpen(false)
+    window.dispatchEvent(new Event('popup-closed'))
+  }, [])
+
+  // Listen for account deletion reset event
+  useEffect(() => {
+    const handleGameResetEvent = () => {
+      resetGameState()
+    }
+    window.addEventListener('game-reset-state', handleGameResetEvent)
+    return () => window.removeEventListener('game-reset-state', handleGameResetEvent)
+  }, [resetGameState])
 
   // One writer for all of App's persisted state. Gated on gameStarted: a valid
   // snapshot means "started", so writing one while a first-time visitor sits on
@@ -285,40 +322,15 @@ function App() {
     return () => window.removeEventListener('pagehide', flush)
   }, [])
 
-  // TEMPORARY (for testing the saved-game work): throw away the snapshot and put
-  // every piece of state back to its start-screen value. Dropping gameStarted
-  // unmounts the Phaser game, so restarting builds a fresh scene.
-  const resetGameState = () => {
-    clearSavedGame()
-    setGameStarted(false)
-    setPopupOpen(false)
-    setMicrobeInfoOpen(false)
-    setLectureMaterialOpen(false)
-    setAnswerOpen(false)
-    setAnswerLevel('')
-    setCurrentMicrobe(null)
-    setInfoOpen(false)
-    setLectureWarningOpen(false)
-    setEquipped(unequipAll())
-    setAwaitingUndress(false)
-    setVentilationConnected(false)
-    setExitConfirmOpen(false)
-    setRoundAnswers([])
-    setOpenRoundId(null)
-    setRoundResult(null)
-    setBsl4NotReadyOpen(false)
-    setBsl4GearOpen(false)
-    setBslDoorRequiredOpen(false)
-    window.dispatchEvent(new Event('popup-closed'))
-  }
-
   // --- LOGIC ---
   const correctLevel = currentMicrobe?.bsl_level
   const chosenLevel = Number(String(answerLevel).replace('BSL-', ''))
   const isLevelCorrect = typeof correctLevel === 'number' && chosenLevel === correctLevel
   const equipmentRules = getEquipmentRulesForBslLevel(chosenLevel)
   const chosenEquipment = Object.keys(equipped).filter((item) => equipped[item])
-  const isEquipmentCorrect = evaluateEquipmentRules(equipmentRules, chosenEquipment)
+  // One evaluation feeds both the verdict and the rows, so they cannot contradict.
+  const equipmentEvaluation = evaluateEquipmentSlots(equipmentRules, chosenEquipment)
+  const isEquipmentCorrect = equipmentEvaluation.wrongCount === 0
   const isCorrect = isLevelCorrect && isEquipmentCorrect
 
   const roundScore = roundAnswers.filter((answer) => answer.correct).length
@@ -338,6 +350,7 @@ function App() {
                 chosen_level: chosenLevel,
                 chosen_equipment: chosenEquipment,
                 correct: isCorrect,
+                attempt: 1,
               },
             ]
       )
@@ -483,7 +496,7 @@ function App() {
         microbe={currentMicrobe}
         isLevelCorrect={isLevelCorrect}
         isEquipmentCorrect={isEquipmentCorrect}
-        equipment={equipped}
+        equipmentSlots={equipmentEvaluation.slots}
       />
 
       {lectureWarningOpen && (

@@ -51,5 +51,16 @@ const me = async (token) => {
     throw asAuthError(error)
   }
 }
+const remove = async (token) => {
+  try {
+    const response = await axios.delete(`${rootURL}/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    return response.data
+  } catch (error) {
+    throw asAuthError(error)
+  }
+}
 
-export default { register, login, me }
+export default { register, login, me, remove }
+

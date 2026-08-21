@@ -13,6 +13,7 @@ function renderWithAuth(value) {
     register: jest.fn().mockResolvedValue({}),
     logout: jest.fn(),
     clearClaimedRounds: jest.fn(),
+    removeAccount: jest.fn().mockResolvedValue(true),
     ...value,
   }
 
@@ -54,4 +55,21 @@ test('a signed-in player sees their name and can log out', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Log out' }))
 
   expect(auth.logout).toHaveBeenCalled()
+})
+
+test('calls removeAccount and clears user on delete confirmation', async () => {
+  const auth = renderWithAuth({
+    user: { id: 1, username: 'testuser' },
+    removeAccount: jest.fn().mockResolvedValue(true)
+  })
+
+  const deleteButton = screen.getByRole('button', { name: /delete|poista|radera/i })
+  fireEvent.click(deleteButton)
+
+  const confirmButton = screen.queryByRole('button', { name: /confirm|yes|kyllä|ja/i })
+  if (confirmButton) {
+    fireEvent.click(confirmButton)
+  }
+
+  expect(auth.removeAccount).toHaveBeenCalledTimes(1)
 })

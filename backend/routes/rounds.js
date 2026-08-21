@@ -28,6 +28,12 @@ function isStorableInteger(value) {
   return Number.isInteger(value) && Math.abs(value) <= INT32_MAX
 }
 
+// There is exactly one retry, so a tampered client cannot claim a third attempt. Absent
+// means a client that predates the retry.
+function isWellFormedAttempt(value) {
+  return value === undefined || value === 1 || value === 2
+}
+
 function isWellFormedAnswer(answer) {
   return (
     answer !== null &&
@@ -35,7 +41,8 @@ function isWellFormedAnswer(answer) {
     Number.isInteger(answer.microbe_id) &&
     isStorableInteger(answer.chosen_level) &&
     Array.isArray(answer.chosen_equipment) &&
-    answer.chosen_equipment.every((item) => typeof item === 'string')
+    answer.chosen_equipment.every((item) => typeof item === 'string') &&
+    isWellFormedAttempt(answer.attempt)
   )
 }
 
@@ -94,6 +101,7 @@ async function validateAndGrade(body) {
     microbe_id: answer.microbe_id,
     chosen_level: Number(answer.chosen_level),
     chosen_equipment: answer.chosen_equipment,
+    attempt: answer.attempt ?? 1,
     ...gradeAnswer(
       answer,
       microbeById.get(answer.microbe_id),
@@ -107,6 +115,21 @@ async function validateAndGrade(body) {
     score: scoreRound(graded),
     correctCount: graded.filter((answer) => answer.level_correct && answer.equipment_correct)
       .length,
+  }
+}
+
+// Names its columns rather than spreading the graded answer. Sequelize would drop the
+// derived equipment_slots / equipment_wrong_count on its own; listing the columns is so
+// that what reaches the table is readable here instead of inferred from the model.
+function storableAnswer(answer, roundId) {
+  return {
+    round_id: roundId,
+    microbe_id: answer.microbe_id,
+    chosen_level: answer.chosen_level,
+    chosen_equipment: answer.chosen_equipment,
+    attempt: answer.attempt,
+    level_correct: answer.level_correct,
+    equipment_correct: answer.equipment_correct,
   }
 }
 
@@ -148,7 +171,7 @@ router.post('/rounds', optionalAuth, async (req, res) => {
     )
 
     await db.RoundAnswer.bulkCreate(
-      result.graded.map((answer) => ({ ...answer, round_id: created.id })),
+      result.graded.map((answer) => storableAnswer(answer, created.id)),
       { transaction }
     )
 
@@ -200,7 +223,7 @@ router.patch('/rounds/:id', optionalAuth, async (req, res) => {
     await db.RoundAnswer.destroy({ where: { round_id: round.id }, transaction })
 
     await db.RoundAnswer.bulkCreate(
-      result.graded.map((answer) => ({ ...answer, round_id: round.id })),
+      result.graded.map((answer) => storableAnswer(answer, round.id)),
       { transaction }
     )
   })
@@ -222,3 +245,7 @@ router.get('/me/rounds', requireAuth, async (req, res) => {
 })
 
 module.exports = router
+
+// Exported for the test that pins this column list to the model. The router stays the
+// module's shape, so app.js is unchanged.
+module.exports.storableAnswer = storableAnswer

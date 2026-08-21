@@ -25,8 +25,17 @@ const translationValue = {
       'answerPopup.belongs': '{name} belongs to BSL-{level}.',
       'answerPopup.equipmentCorrect': 'Your protective equipment matched the required setup.',
       'answerPopup.equipmentIncorrect': 'Your protective equipment did not fully match the required setup.',
+      'answerPopup.slotCorrect': 'correct',
+      'answerPopup.slotIncorrect': 'incorrect',
 
       'closet.title': 'Closet',
+      'closet.nothingAvailable': 'Nothing available',
+
+      'equipment.categories.eyewear': 'Eyewear',
+      'equipment.categories.masks': 'Masks',
+      'equipment.categories.body': 'Body',
+      'equipment.categories.gloves': 'Gloves',
+      'equipment.categories.footwear': 'Footwear',
 
       'common.close': 'Close',
       'microbeInfoPopup.title': 'Microbe Information',

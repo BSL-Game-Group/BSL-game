@@ -88,6 +88,7 @@ class MainScene extends Phaser.Scene {
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
             lectureMaterialHint: window.__translations?.lectureMaterialHint ?? 'Press E to open lecture material',
+            closeTheDoorBehindYouFirst: window.__translations?.closeTheDoorBehindYouFirst ?? 'Close the door behind you first.',
             openmicrobeInfoHint: window.__translations?.openMicrobeInfo ?? 'Press E for microbe info',
         });
 
@@ -116,17 +117,27 @@ class MainScene extends Phaser.Scene {
         window.addEventListener('popup-opened', this.handlePopupOpen);
         window.addEventListener('popup-closed', this.handlePopupClosed);
 
-        this.events.on('shutdown', () => {
+        const cleanupListeners = () => {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
             window.removeEventListener('popup-opened', this.handlePopupOpen);
             window.removeEventListener('popup-closed', this.handlePopupClosed);
+
+            // FIX: Match the correct event name for handleNewMicrobeRequest
             if (this.handleNewMicrobeRequest) {
-                EventBus.off('request-new-microbe', this.handleNewMicrobeRequest);
+                EventBus.off('request-current-microbe', this.handleNewMicrobeRequest);
             }
+            
+            // FIX: Clean up the random microbe listener that was previously missing
+            EventBus.off('request-new-microbe', this.replaceCurrentMicrobeRandomly);
+
             if (this.handleTranslationsUpdate) {
                 EventBus.off('translations-updated', this.handleTranslationsUpdate);
             }
-        });
+        };
+
+        // Ensure listeners are cleaned up whether the scene is just stopped or completely destroyed
+        this.events.once('shutdown', cleanupListeners);
+        this.events.once('destroy', cleanupListeners);
 
         this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
         this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
@@ -261,8 +272,7 @@ class MainScene extends Phaser.Scene {
 
     handleDoorInteraction(player, zone) {
         const door = zone.parentDoor;
-        this.doorHint.setVisible(true);
-        this.doorHint.setPosition(door.x, door.y);
+        this.hintManager.showDoorHint(door);
 
         if (!(this.keyE && Phaser.Input.Keyboard.JustDown(this.keyE) &&
             !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey)) {
@@ -274,7 +284,10 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        door.tryToChangeDoorState();
+        const doorStateChanged = door.tryToChangeDoorState();
+        if (!doorStateChanged) {
+            this.hintManager.showDoorFeedback(door);
+        }
     }
 
     // Entering BSL-4 is unrestricted — the suiting-up prompt fires once the
@@ -292,7 +305,10 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        door.tryToChangeDoorState();
+        const doorStateChanged = door.tryToChangeDoorState();
+        if (!doorStateChanged) {
+            this.hintManager.showDoorFeedback(door);
+        }
     }
 }
 

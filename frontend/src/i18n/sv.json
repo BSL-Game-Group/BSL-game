@@ -61,7 +61,8 @@
   "closet": {
     "title": "Garderob",
     "player": "Spelare",
-    "equipmentLabel": "Utrustning"
+    "equipmentLabel": "Utrustning",
+    "nothingAvailable": "Inget tillgängligt"
   },
   "answerPopup": {
     "correct": "Rätt!",
@@ -71,7 +72,9 @@
     "equipmentCorrect": "Din skyddsutrustning upfyller BSL-kraven",
     "equipmentIncorrect": "Din skyddsutrustning upfyller inte BSL-kraven.",
     "chosenLevel": "Du valde {level}.",
-    "belongs": "{name} tillhör BSL-{level}."
+    "belongs": "{name} tillhör BSL-{level}.",
+    "slotCorrect": "rätt",
+    "slotIncorrect": "fel"
   },
   "common": {
     "close": "Stäng",
@@ -93,14 +96,19 @@
     "eyewashStation": "Ögonduschstation"
   },
   "equipment": {
-    "labCoat": "Vita rocken",
-    "mask": "Mask",
-    "glasses": "Glasögon"
+    "categories": {
+      "eyewear": "Ögonskydd",
+      "masks": "Masker",
+      "body": "Klädsel",
+      "gloves": "Handskar",
+      "footwear": "Skodon"
+    }
   },
   "phaser": {
     "pressEToOpen": "Tryck E för att öppna",
     "openCloset": "Öppna garderobsskåpet",
     "pressE": "Tryck E",
+    "closeTheDoorBehindYouFirst": "Stäng dörren bakom dig först.",
     "exitPrompt": "Tryck E för att lämna",
     "lectureMaterialHint": "Tryck E för att öppna kursmaterialet",
     "washUp": "Tryck R eller klicka för att tvätta dig",
@@ -115,7 +123,7 @@
     "signedInAs": "Inloggad som {username}",
     "loginButton": "Logga in",
     "logoutButton": "Logga ut",
-    "cancel": "Avbryt",
+    "cancel": "Ångra",
     "usernameLabel": "Användarnamn",
     "passwordLabel": "Lösenord",
     "submitLogin": "Logga in",
@@ -124,6 +132,9 @@
     "switchToLogin": "Har du redan ett konto? Logga in",
     "noRecovery": "Det går inte att återställa lösenordet — skriv ner det på ett säkert ställe.",
     "working": "Arbetar…",
+    "confirmDeleteButton": "Bekräfta",
+    "deleteButton": "Radera",
+    "confirmDelete": "Är du säker på att du vill radera ditt konto?",
     "errors": {
       "username_invalid": "Användarnamnet måste ha 3-32 tecken: bokstäver, siffror, _ eller -.",
       "password_too_short": "Lösenordet måste ha minst 8 tecken.",

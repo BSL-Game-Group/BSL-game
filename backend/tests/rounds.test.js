@@ -3,6 +3,7 @@ const assert = require('node:assert');
 const request = require('supertest');
 
 const app = require('../app');
+const { storableAnswer } = require('../routes/rounds');
 const db = require('../models');
 const { resetGameTables, closeDb } = require('./helpers/db');
 
@@ -337,4 +338,68 @@ test('an update is validated exactly like a create', async () => {
   const round = await db.Round.findByPk(created.body.id);
   assert.strictEqual(round.answer_count, 1);
   assert.strictEqual(round.score, 1);
+});
+
+test('every column of round_answers is written by the insert', () => {
+  // routes/rounds.js names the insert's columns by hand. Comparing the two key sets
+  // is the only thing that catches a column added to the model and not to that list:
+  // Sequelize fills the model's defaultValue for an omitted key, so such a column
+  // stores a value the request never asked for instead of failing.
+  const columns = Object.keys(db.RoundAnswer.rawAttributes).filter(
+    (column) => !['id', 'createdAt', 'updatedAt'].includes(column)
+  );
+
+  const inserted = storableAnswer(
+    {
+      microbe_id: 1,
+      chosen_level: 1,
+      chosen_equipment: BSL1_CORRECT,
+      attempt: 1,
+      level_correct: true,
+      equipment_correct: true,
+    },
+    1
+  );
+
+  assert.deepStrictEqual(Object.keys(inserted).sort(), columns.sort());
+});
+
+test('an attempt is stored, defaults to the first try, and is bounded', async () => {
+  const bsl1 = await microbeAtLevel(1);
+
+  const stored = await request(app)
+    .post('/api/rounds')
+    .send({
+      session_id: 'session-attempt',
+      // Two rows for one microbe is not a sequence the client sends — a retry replaces
+      // the answer in place and stores one row with attempt 2. This is the cheapest way
+      // to see both the default and an explicit value survive the same insert.
+      answers: [
+        { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT },
+        { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT, attempt: 2 },
+      ],
+    });
+
+  assert.strictEqual(stored.status, 201);
+
+  const answers = await db.RoundAnswer.findAll({
+    where: { round_id: stored.body.id },
+    order: [['id', 'ASC']],
+  });
+
+  assert.deepStrictEqual(answers.map((answer) => answer.attempt), [1, 2]);
+
+  for (const attempt of [0, 3, 1.5, '1', null]) {
+    const rejected = await request(app)
+      .post('/api/rounds')
+      .send({
+        session_id: 'session-bad-attempt',
+        answers: [
+          { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT, attempt },
+        ],
+      });
+
+    assert.strictEqual(rejected.status, 400, `attempt ${JSON.stringify(attempt)} was accepted`);
+    assert.strictEqual(rejected.body.code, 'answers_invalid');
+  }
 });
