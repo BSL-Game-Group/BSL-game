@@ -14,7 +14,7 @@ import NextStepHud from './components/NextStepHud'
 import BslChecklist from './components/BslChecklist'
 import BslAirlockStatus from './components/BslAirlockStatus'
 import { useStuckTimer } from './hooks/useStuckTimer'
-import { stuckStage } from './utils/stuckStage'
+import { stuckStage, FIRST_ROUND_STUCK_THRESHOLDS_MS } from './utils/stuckStage'
 import { useEventPulse } from './hooks/useEventPulse'
 import AuthStatus from './auth/AuthStatus'
 import EndPopup from './components/EndPopup'
@@ -84,6 +84,10 @@ function App() {
   )
 
   const [roundAnswers, setRoundAnswers] = useState(restored?.round.answers ?? [])
+  // "Ohitettavissa yhdellä painalluksella" — a player who already knows the
+  // loop shouldn't be forced through the guided first round. Deliberately
+  // not persisted to savedGame: it's a per-session courtesy, not progress.
+  const [guidanceSkipped, setGuidanceSkipped] = useState(false)
   const [openRoundId, setOpenRoundId] = useState(restored?.round.openRoundId ?? null)
   const [roundResult, setRoundResult] = useState(null)
 
@@ -393,8 +397,20 @@ function App() {
   const objectiveRoomLabel = objective?.target
     ? (objective.target.startsWith('BSL-') ? objective.target : t(`rooms.${objective.target}`))
     : ''
+  // The objective toast is a first-round courtesy: once the player has
+  // handled a microbe, repeating it every objective change for the rest of
+  // the session would just be noise for someone who already knows the loop.
+  const isFirstRound = roundAnswers.length === 0
+  // Same objective system, shorter fuse — not a separate tutorial mode (see
+  // plan section "Matalan kynnyksen aloitus"). A player who already knows
+  // the loop can dismiss it; guidanceSkipped then stays true for the rest of
+  // the round even if isFirstRound is still technically true.
+  const isGuidedFirstRound = isFirstRound && !guidanceSkipped
   const stuckElapsedMs = useStuckTimer(objective?.id ?? null, anyPopupOpen)
-  const stage = stuckStage(stuckElapsedMs)
+  const stage = stuckStage(
+    stuckElapsedMs,
+    isGuidedFirstRound ? FIRST_ROUND_STUCK_THRESHOLDS_MS : undefined
+  )
   // Mirrored onto window for ObjectiveArrow (Phaser), same pattern as
   // __lectureOpen/__bsl4Ready below — React owns the objective and the
   // stuck stage, Phaser only reads them to draw.
@@ -405,10 +421,6 @@ function App() {
   useEffect(() => {
     window.__stuckStage = stage
   }, [stage])
-  // The objective toast is a first-round courtesy: once the player has
-  // handled a microbe, repeating it every objective change for the rest of
-  // the session would just be noise for someone who already knows the loop.
-  const isFirstRound = roundAnswers.length === 0
   const airlockInterlockBlocked = useEventPulse('airlock-interlock-blocked', 3000)
 
   // Handling a microbe always requires a trip to the dressing room's wash-up
@@ -560,7 +572,12 @@ function App() {
           been stuck on the same objective for a while. */}
       {gameStarted && (
         <div className="position-fixed bottom-0 start-50 translate-middle-x p-3 z-3">
-          <NextStepHud objective={objective} roomLabel={objectiveRoomLabel} stage={stage} />
+          <NextStepHud
+            objective={objective}
+            roomLabel={objectiveRoomLabel}
+            stage={stage}
+            onSkipGuide={isGuidedFirstRound ? () => setGuidanceSkipped(true) : undefined}
+          />
         </div>
       )}
 
