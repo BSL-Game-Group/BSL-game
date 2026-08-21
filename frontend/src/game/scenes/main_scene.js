@@ -43,7 +43,6 @@ class MainScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, gameWidth, gameHeight);
         this.playArea = new Phaser.Geom.Rectangle(0, 0, gameWidth, gameHeight);
 
-        createWoodFloor(this);
         createLabFloor(this);
 
         // The id is owned by state/session.js so the login UI can read it before
