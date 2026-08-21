@@ -234,6 +234,7 @@ function App() {
       closeTheDoorBehindYouFirst: t('phaser.closeTheDoorBehindYouFirst'),
       exitPrompt: t('phaser.exitPrompt'),
       washUp: t('phaser.washUp'),
+      lectureMaterialHint: t('phaser.lectureMaterialHint'),
       openMicrobeInfoHint: t('phaser.openmicrobeInfoHint'),
     }
     window.__translations = translations

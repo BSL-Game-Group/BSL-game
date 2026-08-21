@@ -114,6 +114,7 @@
     "pressE": "Press E",
     "closeTheDoorBehindYouFirst": "Close the door behind you first.",
     "exitPrompt": "Press E to exit",
+    "lectureMaterialHint": "Press E to open lecture material",
     "washUp": "Press R or click to wash up",
     "openmicrobeInfoHint": "Press E for microbe info"
   },

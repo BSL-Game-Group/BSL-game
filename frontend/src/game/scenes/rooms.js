@@ -110,19 +110,11 @@ function setupCloset(scene) {
     // in the room, so nothing needs to toggle this target on room entry/exit.
     scene.closetHit = scene.add
         .zone(closetX, closetY, radius * 2, radius * 2)
-        .setInteractive({ useHandCursor: true });
-
-    scene.closetHit.on('pointerover', () => {
-        if (!scene.playerInsideDressingRoom) {return;}
-        scene.closetHint.setVisible(true);
-    });
-    scene.closetHit.on('pointerout', () => {
-        scene.closetHint.setVisible(false);
-    });
-    scene.closetHit.on('pointerdown', () => {
-        if (!scene.playerInsideDressingRoom) {return;}
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+        if (!scene.playerInsideDressingRoom) {return};
         window.dispatchEvent(new Event('closet-popup-opened'));
-    });
+    });    
 }
 
 // Quick-undress interactable inside the dressing room: a green glow, same look as
@@ -155,15 +147,11 @@ function setupUndressPoint(scene) {
 
     scene.undressZone = scene.add
         .zone(ux, uy, radius * 2.4, radius * 2.4)
-        .setInteractive({ useHandCursor: true });
-
-    // The "press R" hint is proximity-driven (main_scene's update loop), same as
-    // the closet's — that way it works for keyboard players too, not just mouse
-    // hover, and both R and a click trigger the same wash-up.
-    scene.undressZone.on('pointerdown', () => {
-        if (!scene.playerInsideDressingRoom) {return;}
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+        if (!scene.playerInsideDressingRoom) {return};
         window.dispatchEvent(new Event('quick-undress'));
-    });
+    });    
 }
 
 // Dark green glow interactable inside each BSL room. Placeholder for the real element
