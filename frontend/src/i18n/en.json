@@ -20,7 +20,7 @@
       "The game checks your work — were the equipment and room correct for this microbe?",
       "The result breaks your equipment down by category — eyewear, masks, body, gloves and footwear — marking each one right or wrong. It won't name the individual item you missed.",
       "If the room or the equipment was wrong, you get one retry on the same microbe. Until your last try, the microbe's own feedback and its BSL level stay hidden.",
-      "Wash up at the shower or eyewash station — the BSL rooms stay shut until you do, whether you're retrying or moving on.",
+      "Wash up at the shower or eyewash station — the BSL rooms stay shut until you do.",
       "After your last try, a new microbe is drawn.",
       "After several rounds, see your summary: score, correct vs. wrong, and the levels you mastered.",
       "You can leave any time through the Exit — the game shuts down."
