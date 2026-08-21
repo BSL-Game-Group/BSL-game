@@ -21,16 +21,24 @@
 // equipment answer as correct.
 const REQUIRED_EQUIPMENT = {
   1: {
-    required: ['lab_coat', 'glasses', 'gloves'],
-    anyOf: ['indoor_shoes', 'disposable_foot_covers'],
-    optional: [],
-  },
-  2: {
-    required: ['lab_coat', 'gloves'],
+    required: ['lab_coat', 'glasses'],
     anyOf: [
       {
         allOf: [
-          { anyOf: ['mask', 'face_shield'] },
+          { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
+          { anyOf: ['gloves', 'gloves_2'] },
+        ],
+      },
+    ],
+    optional: [],
+  },
+  2: {
+    required: ['lab_coat', 'mask'],
+    anyOf: [
+      {
+        allOf: [
+          { anyOf: ['glasses', 'face_shield'] },
+          { anyOf: ['gloves', 'gloves_2'] },
           { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
         ],
       },
@@ -38,24 +46,18 @@ const REQUIRED_EQUIPMENT = {
     optional: [],
   },
   3: {
-    required: ['gloves', 'gloves_2'],
+    required: ['disposable_overall', 'mask', 'gloves', 'gloves_2'],
     anyOf: [
       {
         allOf: [
-          { anyOf: ['closable_lab_coat', 'disposable_overall'] },
-          {
-            anyOf: [
-              { allOf: ['mask', { anyOf: ['glasses', 'face_shield'] }] },
-              'bsl3_respirator',
-            ],
-          },
+          { anyOf: ['glasses', 'face_shield'] },
           { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
         ],
       },
     ],
     optional: [],
   },
-  4: { required: ['pressurized_suit', 'gloves'], anyOf: [], optional: [] },
+  4: { required: ['pressurized_suit'], anyOf: ['gloves', 'gloves_2'], optional: [] },
 };
 
 module.exports = {
@@ -90,7 +92,7 @@ module.exports = {
 };
 
 // Exported so backend/tests/requiredEquipment.test.js can assert that this seeder and
-// the latest rules migration — 20260812000001-require-footwear-in-required-equipment.js
+// the latest rules migration — 20260821000001-require-gloves-with-footwear-at-bsl1.js
 // — produce identical rules. They are duplicated on purpose: a migration must keep
 // doing the same thing forever, so it cannot import a shared module, and changing a
 // rule means editing this seeder and adding a new migration. That test is what keeps
