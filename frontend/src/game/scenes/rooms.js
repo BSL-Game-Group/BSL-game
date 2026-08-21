@@ -529,14 +529,13 @@ export function createRooms(scene) {
         .setDisplaySize(bsl4.width, bsl4.height)
         .setDepth(-5);
 
-    // Draw the air-system machine into its cell (bottom-right of the airlock block).
+    // Draw the airlock rooms and air-system machine into its cell (bottom-right of the airlock block).
     const airCell = { x: 1110, y: 360, width: 170, height: 110 };
     scene.add.image(airCell.x, airCell.y, 'air_systems')
         .setOrigin(0, 0)
         .setDisplaySize(airCell.width, airCell.height)
         .setDepth(-5);
 
-    // Draw the dressing-room background
     drawRoom(scene, 'airlock_room_with_shower', 1107, 250, 170, 110);
     drawRoom(scene, 'airlock_room_(empty)', 965, 250, 145, 110);
     drawRoom(scene, 'airlock_room_(empty)', 965, 360, 145, 110);
