@@ -1122,3 +1122,54 @@ describe('modified keypresses are ignored', () => {
     dispatchSpy.mockRestore()
   })
 })
+describe('a BSL room stays shut while a wash-up is owed', () => {
+  const bsl2Zone = { key: 'BSL-2', x: 320, y: 0, width: 320, height: 250 }
+
+  function sceneInBsl2() {
+    const entry = {
+      key: bsl2Zone.key,
+      zone: bsl2Zone,
+      center: { x: bsl2Zone.x + 30, y: bsl2Zone.y + 30 },
+      glow: { setVisible: jest.fn() },
+      tween: { resume: jest.fn(), pause: jest.fn() },
+      playerInside: false,
+    }
+    const scene = createScene({ bslGlows: [entry] })
+
+    // BslInteraction calls this unconditionally on room entry.
+    scene.notifyRoomEntry = jest.fn()
+    scene.player.x = bsl2Zone.x + 30
+    scene.player.y = bsl2Zone.y + 30
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+
+    return scene
+  }
+
+  test('E answers when nothing is owed, and asks for a wash-up when one is', () => {
+    window.__lectureOpen = true
+    window.__awaitingUndress = false
+
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+    sceneInBsl2().update()
+
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'answer-popup-opened' })
+    )
+
+    dispatchSpy.mockClear()
+    window.__awaitingUndress = true
+
+    sceneInBsl2().update()
+
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'wash-up-required' })
+    )
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'answer-popup-opened' })
+    )
+
+    dispatchSpy.mockRestore()
+    window.__awaitingUndress = false
+  })
+})

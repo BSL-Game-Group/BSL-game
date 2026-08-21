@@ -18,8 +18,10 @@
       "Go to the matching BSL room (1–4).",
       "Press E at the dark green ring to handle the microbe.",
       "The game checks your work — were the equipment and room correct for this microbe?",
-      "Wash up at the shower or eyewash station to decontaminate before leaving.",
-      "A new microbe is drawn — try again!",
+      "The result breaks your equipment down by category — eyewear, masks, body, gloves and footwear — marking each one right or wrong. It won't name the individual item you missed.",
+      "If the room or the equipment was wrong, you get one retry on the same microbe. Until your last try, the microbe's own feedback and its BSL level stay hidden.",
+      "Wash up at the shower or eyewash station — the BSL rooms stay shut until you do.",
+      "After your last try, a new microbe is drawn.",
       "After several rounds, see your summary: score, correct vs. wrong, and the levels you mastered.",
       "You can leave any time through the Exit — the game shuts down."
     ],
@@ -60,14 +62,16 @@
   "answerPopup": {
     "correct": "Correct!",
     "incorrect": "Not quite",
-    "correctFallback": "That's the right room.",
-    "incorrectFallback": "That isn't the right room.",
+    "correctFallback": "The BSL room you chose was correct.",
+    "incorrectFallback": "The BSL room you chose was not correct.",
     "equipmentCorrect": "Your protective equipment matched the required setup.",
     "equipmentIncorrect": "Your protective equipment did not fully match the required setup.",
     "chosenLevel": "You chose {level}.",
     "belongs": "{name} belongs to BSL-{level}.",
     "slotCorrect": "correct",
-    "slotIncorrect": "incorrect"
+    "slotIncorrect": "incorrect",
+    "tryAgain": "Try again",
+    "lastAttempt": "That was your last try for this microbe."
   },
   "common": {
     "close": "Close",
