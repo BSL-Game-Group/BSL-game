@@ -112,8 +112,9 @@ function setupCloset(scene) {
         .zone(closetX, closetY, radius * 2, radius * 2)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-            window.dispatchEvent(new Event('closet-popup-opened'));
-        });
+        if (!scene.playerInsideDressingRoom) return;
+        window.dispatchEvent(new Event('closet-popup-opened'));
+    });
         
 }
 
@@ -149,7 +150,8 @@ function setupUndressPoint(scene) {
         .zone(ux, uy, radius * 2.4, radius * 2.4)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-            window.dispatchEvent(new Event('quick-undress'));
+        if (!scene.playerInsideDressingRoom) return;
+        window.dispatchEvent(new Event('quick-undress'));
     });    
 }
 
