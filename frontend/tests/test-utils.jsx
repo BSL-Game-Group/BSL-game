@@ -53,6 +53,10 @@ const translationValue = {
 
       'bslChecklist.title': '{room} — missing:',
 
+      'bslAirlock.doorOpen': 'The airlock door is open — close it first',
+      'bslAirlock.ventilationOff': 'Ventilation is not connected',
+      'bslAirlock.interlockBlocked': 'The other airlock door is open — close it first',
+
       'auth.guest': 'Playing as a guest',
       'auth.signedInAs': 'Signed in as {username}',
       'auth.loginButton': 'Log in',

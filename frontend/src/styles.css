@@ -428,6 +428,32 @@ body {
   color: #b4531b;
 }
 
+.bsl-airlock-status {
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: rgba(139, 30, 30, 0.95);
+  color: #ffffff;
+  max-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bsl-airlock-status__row {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.airlock-interlock-notice {
+  padding: 8px 18px;
+  border-radius: 14px;
+  background: rgba(139, 30, 30, 0.95);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
 /* =========================================================
    AUTH
    ========================================================= */

@@ -130,6 +130,11 @@
   "bslChecklist": {
     "title": "{room} — missing:"
   },
+  "bslAirlock": {
+    "doorOpen": "The airlock door is open — close it first",
+    "ventilationOff": "Ventilation is not connected",
+    "interlockBlocked": "The other airlock door is open — close it first"
+  },
   "auth": {
     "guest": "Playing as a guest",
     "signedInAs": "Signed in as {username}",

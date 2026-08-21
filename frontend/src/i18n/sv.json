@@ -130,6 +130,11 @@
   "bslChecklist": {
     "title": "{room} — saknas:"
   },
+  "bslAirlock": {
+    "doorOpen": "Slussdörren är öppen — stäng den först",
+    "ventilationOff": "Ventilationen är inte ansluten",
+    "interlockBlocked": "Den andra slussdörren är öppen — stäng den först"
+  },
   "auth": {
     "guest": "Du spelar som gäst",
     "signedInAs": "Inloggad som {username}",

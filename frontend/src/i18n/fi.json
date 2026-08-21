@@ -130,6 +130,11 @@
   "bslChecklist": {
     "title": "{room} — puuttuu:"
   },
+  "bslAirlock": {
+    "doorOpen": "Sulkutilan ovi on auki — sulje se ensin",
+    "ventilationOff": "Ilmastointi ei ole kytketty",
+    "interlockBlocked": "Toinen sulkutilan ovi on auki — sulje se ensin"
+  },
   "auth": {
     "guest": "Pelaat vieraana",
     "signedInAs": "Kirjautuneena: {username}",
