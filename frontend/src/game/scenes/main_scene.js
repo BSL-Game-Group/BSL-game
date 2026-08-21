@@ -88,6 +88,7 @@ class MainScene extends Phaser.Scene {
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
             closeTheDoorBehindYouFirst: window.__translations?.closeTheDoorBehindYouFirst ?? 'Close the door behind you first.',
             openmicrobeInfoHint: window.__translations?.openMicrobeInfo ?? 'Press E for microbe info',
+            pressEOrClick: window.__translations?.pressEOrClick ?? 'Press E or click',
         });
 
         this.doors = this.initializeDoors(this.player);
