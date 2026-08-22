@@ -115,7 +115,8 @@
     "closeTheDoorBehindYouFirst": "Close the door behind you first.",
     "exitPrompt": "Press E to exit",
     "washUp": "Press R or click to wash up",
-    "openmicrobeInfoHint": "Press E for microbe info"
+    "openmicrobeInfoHint": "Press E for microbe info",
+    "pressEOrClick": "Press E or click"
   },
   "hud": {
     "score": "Score: {score}",

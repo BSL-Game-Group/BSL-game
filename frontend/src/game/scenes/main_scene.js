@@ -85,6 +85,7 @@ class MainScene extends Phaser.Scene {
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
             closeTheDoorBehindYouFirst: window.__translations?.closeTheDoorBehindYouFirst ?? 'Close the door behind you first.',
             openmicrobeInfoHint: window.__translations?.openMicrobeInfo ?? 'Press E for microbe info',
+            pressEOrClick: window.__translations?.pressEOrClick ?? 'Press E or click',
         });
 
         this.doors = this.initializeDoors(this.player);
@@ -289,11 +290,20 @@ class MainScene extends Phaser.Scene {
         const door = zone.parentDoor;
         this.hintManager.showDoorHint(door);
 
-        if (!(this.keyE && Phaser.Input.Keyboard.JustDown(this.keyE) &&
-            !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey) ||
-            isTypingInField()) {
+        const ePressed =
+            this.keyE &&
+            Phaser.Input.Keyboard.JustDown(this.keyE) &&
+            !this.keyE.ctrlKey &&
+            !this.keyE.metaKey &&
+            !this.keyE.altKey;
+
+        const mouseClicked = door.wasClicked;
+
+        if ((!ePressed && !mouseClicked) || isTypingInField()) {
             return;
         }
+
+        door.wasClicked = false;
 
         if (door === this.bsl4Door) {
             this.handleBsl4DoorPress(door);
