@@ -28,7 +28,11 @@ const translationValue = {
       'answerPopup.slotCorrect': 'correct',
       'answerPopup.slotIncorrect': 'incorrect',
       'answerPopup.tryAgain': 'Try again',
-      'answerPopup.lastAttempt': 'That was your last try for this microbe.',
+      'answerPopup.skipMicrobe': 'Skip this microbe',
+      'answerPopup.skipWashUp': 'Skipping means going to the wash-up point before the next microbe.',
+      'answerPopup.washUpNext': 'Go to the wash-up point before the next microbe.',
+      'answerPopup.lastAttempt':
+        'That was your last try for this microbe — go to the wash-up point before the next one.',
 
       'closet.title': 'Closet',
       'closet.nothingAvailable': 'Nothing available',
