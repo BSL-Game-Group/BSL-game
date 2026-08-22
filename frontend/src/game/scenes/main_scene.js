@@ -4,7 +4,6 @@ import microbeService from '../../services/microbes';
 import { notifyRoomEntry } from '../services/tracking';
 import { createWoodFloor, createLabFloor } from '../environment/EnvironmentBuilder';
 import HintManager from '../managers/HintManager';
-import ObjectiveArrow from '../managers/ObjectiveArrow';
 import { EventBus } from '../EventBus';
 import DoorGroup from '../groups/DoorGroup.js';
 import { loadSavedGame, savePlayerPosition } from '../../state/savedGame';
@@ -68,7 +67,6 @@ class MainScene extends Phaser.Scene {
         this.playerController = new PlayerController(this, this.player);
 
         this.hintManager = new HintManager(this);
-        this.objectiveArrow = new ObjectiveArrow(this);
 
         // Temporary Backwards Compatibility:
         this.closetPressEText = this.hintManager.closetPressEText;
@@ -227,10 +225,6 @@ class MainScene extends Phaser.Scene {
 
         if (this.hintManager && this.input && this.input.activePointer) {
             this.hintManager.update(this.input.activePointer);
-        }
-
-        if (this.objectiveArrow) {
-            this.objectiveArrow.update();
         }
 
         if (this.equipmentManager) {

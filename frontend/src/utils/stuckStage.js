@@ -1,6 +1,12 @@
 // How long the player has been sitting on the same objective before the game
 // starts nudging them, in milliseconds. A starting point, not a measured
 // result — tune these after playtesting.
+//
+// Only 'verbal' currently changes anything on screen. 'directional' used to
+// add an arrow pointing at the target, which was dropped as too much
+// hand-holding; the stage is kept because it is the natural place for a
+// stronger nudge if one is ever wanted, and removing it would mean rewriting
+// both threshold tables and every caller for no behavioural gain.
 export const STUCK_THRESHOLDS_MS = {
   subtle: 25_000,
   verbal: 60_000,

@@ -410,16 +410,6 @@ function App() {
     stuckElapsedMs,
     isGuidedFirstRound ? FIRST_ROUND_STUCK_THRESHOLDS_MS : undefined
   )
-  // Mirrored onto window for ObjectiveArrow (Phaser), same pattern as
-  // __lectureOpen/__bsl4Ready below — React owns the objective and the
-  // stuck stage, Phaser only reads them to draw.
-  useEffect(() => {
-    window.__objective = objective
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [objective?.id, objective?.target])
-  useEffect(() => {
-    window.__stuckStage = stage
-  }, [stage])
   const airlockInterlockBlocked = useEventPulse('airlock-interlock-blocked', 3000)
 
   // Handling a microbe always requires a trip to the dressing room's wash-up
