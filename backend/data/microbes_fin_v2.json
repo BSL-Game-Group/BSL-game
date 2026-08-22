@@ -131,7 +131,7 @@
     "id": 17,
     "common_name": "Tuhkarokko",
     "type": "Virus",
-    "lecture_text": "Yksi tarttuvimmista ihmisviruksista — leviää ilman kautta pisaroina ja aerosoleina. Aiheuttaa ihottumaa, kuumetta ja voi johtaa keuhkokuumeeseen. Tehokas MMR-rokote suojaa.",
+    "lecture_text": "Yksi tarttuvimmista ihmisviruksista — leviää ilman kautta pisaroina ja aerosoleina. Aiheuttaa ihottumaa, kuumetta ja voi johtaa keuhkokuumeeseen. Tehokas MPR (engl. MMR) -rokote suojaa.",
     "feedback_correct": "Oikein! Tuhkarokkovirus on BSL-2 — rokote suojaa.",
     "feedback_incorrect": "Väärin! Tuhkarokkovirus on BSL-2, koska tehokas rokote on saatavilla."
   },

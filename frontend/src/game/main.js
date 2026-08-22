@@ -26,7 +26,12 @@ const config = {
     },
     render: {
         antialias: true,
-        roundPixels: true,
+        // Off: Scale.FIT stretches the 1280x720 game by a non-integer
+        // factor to fit the window, so per-sprite pixel rounding happens on
+        // the GPU after that scale is applied — the player and its
+        // separately-positioned equipment sprites could round to different
+        // screen pixels and visibly drift apart while moving.
+        roundPixels: false,
     },
     physics: {
         default: 'arcade',
