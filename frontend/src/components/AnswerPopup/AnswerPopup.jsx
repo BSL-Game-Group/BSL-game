@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from '../../i18n/context'
 import { CATEGORY_CONFIG, CATEGORY_IDS } from '../../utils/equipmentCategories'
+import { scoreAnswer } from '../../utils/scoring'
 
 function AnswerPopup({
   open,
@@ -11,6 +12,7 @@ function AnswerPopup({
   level,
   microbe,
   equipmentSlots,
+  previousAnswer,
   onRetry,
   attempt,
 }) {
@@ -58,7 +60,27 @@ function AnswerPopup({
   const equipmentFeedback = isEquipmentCorrect
     ? t('answerPopup.equipmentCorrect')
     : t('answerPopup.equipmentIncorrect')
-    
+
+  // A category is worth the same at every level, so these numbers give nothing away
+  // about the microbe while a retry is still on offer.
+  const score = scoreAnswer({
+    attempt,
+    roomCorrect: isLevelCorrect,
+    equipmentSlots,
+    previous: previousAnswer,
+  })
+
+  const pointsColor = { earned: '#1a8a34', missed: '#c51a1a', banked: '#6c757d' }
+
+  const points = (entry) => (
+    <span style={{ color: pointsColor[entry.state], whiteSpace: 'nowrap' }}>
+      +{entry.points}
+      {entry.state === 'banked' && (
+        <span style={{ fontSize: '0.85em' }}> ({t('answerPopup.pointsBanked')})</span>
+      )}
+    </span>
+  )
+
   const boxClass = `popup-box ${!isCorrect ? 'popup-box--incorrect' : ''}`
 
   return (
@@ -72,22 +94,51 @@ function AnswerPopup({
         <p style={{ margin: 0, fontSize: '1.05rem' }}>{feedback}</p>
         <p style={{ margin: '8px 0 0', fontSize: '0.95rem' }}>{equipmentFeedback}</p>
         {equipmentSlots && (
-          <ul className="list-unstyled" style={{ margin: '8px 0 0', fontSize: '0.95rem' }}>
-            {CATEGORY_IDS.map((id) => {
-              const ok = equipmentSlots[id]?.status === 'ok'
+          <>
+            <ul className="list-unstyled" style={{ margin: '8px 0 0', fontSize: '0.95rem' }}>
+              {CATEGORY_IDS.map((id) => {
+                const ok = equipmentSlots[id]?.status === 'ok'
 
-              return (
-                <li key={id} style={{ color: ok ? '#1a8a34' : '#c51a1a' }}>
-                  <span aria-hidden="true">{ok ? '✓' : '✗'}</span>{' '}
-                  {t(CATEGORY_CONFIG[id].labelKey)}
-                  <span className="visually-hidden">
-                    {' '}
-                    {ok ? t('answerPopup.slotCorrect') : t('answerPopup.slotIncorrect')}
-                  </span>
-                </li>
-              )
-            })}
-          </ul>
+                return (
+                  <li key={id} className="d-flex justify-content-between gap-3">
+                    <span style={{ color: ok ? '#1a8a34' : '#c51a1a' }}>
+                      <span aria-hidden="true">{ok ? '✓' : '✗'}</span>{' '}
+                      {t(CATEGORY_CONFIG[id].labelKey)}
+                      <span className="visually-hidden">
+                        {' '}
+                        {ok ? t('answerPopup.slotCorrect') : t('answerPopup.slotIncorrect')}
+                      </span>
+                    </span>
+                    {points(score.categories[id])}
+                  </li>
+                )
+              })}
+            </ul>
+            <div className="d-flex justify-content-between gap-3" style={{ fontSize: '0.95rem' }}>
+              <span style={{ color: isLevelCorrect ? '#1a8a34' : '#c51a1a' }}>
+                <span aria-hidden="true">{isLevelCorrect ? '✓' : '✗'}</span>{' '}
+                {t('answerPopup.pointsRoom')}
+                <span className="visually-hidden">
+                  {' '}
+                  {isLevelCorrect ? t('answerPopup.slotCorrect') : t('answerPopup.slotIncorrect')}
+                </span>
+              </span>
+              {points(score.room)}
+            </div>
+            <div
+              className="d-flex justify-content-between gap-3"
+              style={{
+                margin: '8px 0 0',
+                paddingTop: '8px',
+                borderTop: '1px solid rgba(0, 0, 0, 0.2)',
+                fontSize: '0.95rem',
+                fontWeight: 'bold',
+              }}
+            >
+              <span>{t('answerPopup.pointsTotal')}</span>
+              <span>+{score.total}</span>
+            </div>
+          </>
         )}
         <p style={{ margin: '12px 0 0', fontSize: '0.95rem' }}>{t('answerPopup.chosenLevel').replace('{level}', level)}</p>
         {microbe && revealsAnswer && (

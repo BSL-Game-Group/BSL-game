@@ -25,9 +25,7 @@ function EndPopup({ open, round, onKeepPlaying, onExit }) {
 
         {round && (
           <p className="end-popup__score">
-            {t('auth.claim.scoreLine')
-              .replace('{score}', round.score)
-              .replace('{total}', round.answer_count)}
+            {t('auth.claim.scoreLine').replace('{score}', round.score)}
           </p>
         )}
 

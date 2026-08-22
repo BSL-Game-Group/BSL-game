@@ -77,6 +77,9 @@
     "belongs": "{name} tillhör BSL-{level}.",
     "slotCorrect": "rätt",
     "slotIncorrect": "fel",
+    "pointsRoom": "Rum",
+    "pointsTotal": "Poäng från den här mikroben",
+    "pointsBanked": "redan intjänat",
     "tryAgain": "Försök igen",
     "lastAttempt": "Det var ditt sista försök för den här mikroben."
   },
@@ -165,7 +168,7 @@
     },
     "claim": {
       "title": "Rundan är slut",
-      "scoreLine": "Du fick {score} av {total} poäng.",
+      "scoreLine": "Du fick {score} poäng.",
       "guestWarning": "Resultatet finns bara i den här webbläsaren tills du sparar det.",
       "keepScore": "Spara mitt resultat",
       "savedToAccount": "Sparat på ditt konto.",

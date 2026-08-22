@@ -77,6 +77,9 @@
     "belongs": "{name} kuuluu tasolle BSL-{level}.",
     "slotCorrect": "oikein",
     "slotIncorrect": "väärin",
+    "pointsRoom": "Huone",
+    "pointsTotal": "Pisteet tästä mikrobista",
+    "pointsBanked": "jo ansaittu",
     "tryAgain": "Yritä uudelleen",
     "lastAttempt": "Tämä oli viimeinen yrityksesi tälle mikrobille."
   },
@@ -165,7 +168,7 @@
     },
     "claim": {
       "title": "Kierros päättyi",
-      "scoreLine": "Sait {score} pistettä {total} mahdollisesta.",
+      "scoreLine": "Sait {score} pistettä.",
       "guestWarning": "Tulos säilyy vain tässä selaimessa, ellet tallenna sitä.",
       "keepScore": "Tallenna tulokseni",
       "savedToAccount": "Tallennettu tilillesi.",
