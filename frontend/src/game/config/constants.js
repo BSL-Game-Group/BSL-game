@@ -3,6 +3,8 @@ export const PLAYER_CONFIG = {
     startY: 150,
     scale: 0.4,
     depth: 10,
+    // Walking speed in pixels per second, for both keyboard and pointer.
+    speed: 190,
     body: {
         width: 56,
         height: 65,

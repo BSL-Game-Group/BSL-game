@@ -9,6 +9,7 @@ import DoorGroup from '../groups/DoorGroup.js';
 import { loadSavedGame, savePlayerPosition } from '../../state/savedGame';
 import { getOrCreateSessionId } from '../../state/session';
 import { loadAssets } from '../assets/loadAssets.js';
+import { isTypingInField } from '../utils/isTypingInField';
 import EquipmentManager from "../player/EquipmentManager";
 import PlayerController from "../player/PlayerController";
 import { PLAYER_CONFIG, DOORS_CONFIG } from '../config/constants';
@@ -93,7 +94,7 @@ class MainScene extends Phaser.Scene {
         this.doors = this.initializeDoors(this.player);
 
         this.equipmentManager = new EquipmentManager(this, this.player);
-        
+
         // Backward compatibility for tests expecting scene.equipment to exist
         this.equipment = this.equipmentManager.equipment || this.equipmentManager.sprites || {};
 
@@ -115,12 +116,29 @@ class MainScene extends Phaser.Scene {
         window.addEventListener('popup-opened', this.handlePopupOpen);
         window.addEventListener('popup-closed', this.handlePopupClosed);
 
+        // Anything that mirrors the player's position has to run here rather
+        // than in update(). Arcade Physics integrates the body during the
+        // scene's UPDATE event but only copies the result onto the player
+        // sprite in Body.postUpdate, which runs on POST_UPDATE — i.e. after
+        // update() has already returned. Positioning equipment from update()
+        // therefore used last frame's player position, leaving it a frame
+        // (~2.7px at 160px/s and 60fps) behind the body on screen.
+        //
+        // The physics plugin registers its own POST_UPDATE handler when the
+        // scene starts, before create() runs, so this listener is called
+        // after it and sees the synced position.
+        this.handleScenePostUpdate = () => {
+            this.equipmentManager?.updatePositions();
+            this.playerController?.updateFollowers();
+        };
+
+        this.events.on('postupdate', this.handleScenePostUpdate);
+
         const cleanupListeners = () => {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
             window.removeEventListener('popup-opened', this.handlePopupOpen);
             window.removeEventListener('popup-closed', this.handlePopupClosed);
-
-            // FIX: Match the correct event name for handleNewMicrobeRequest
+            this.events.off('postupdate', this.handleScenePostUpdate);
             if (this.handleNewMicrobeRequest) {
                 EventBus.off('request-current-microbe', this.handleNewMicrobeRequest);
             }
@@ -137,8 +155,12 @@ class MainScene extends Phaser.Scene {
         this.events.once('shutdown', cleanupListeners);
         this.events.once('destroy', cleanupListeners);
 
-        this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-        this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+        // enableCapture defaults to true, which calls preventDefault() on the
+        // native keydown for this key globally, regardless of DOM focus —
+        // that silently ate "e"/"r" keystrokes typed into any text field on
+        // the page (e.g. the login form's username input).
+        this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E, false);
+        this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R, false);
         
         this.physics.add.collider(this.player, walls);
         
@@ -192,10 +214,10 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    update() {
+    update(time, delta) {
         // Guarded for isolated unit tests that bypass create()
         if (this.playerController) {
-            this.playerController.update();
+            this.playerController.update(time, delta);
         }
 
         if (
@@ -211,7 +233,7 @@ class MainScene extends Phaser.Scene {
             }
         }
 
-        if (this.player && this.doors) {
+        if (this.player && this.doors && !this.isPopupOpen) {
             this.physics.overlap(
                 this.player,
                 this.doors,
@@ -225,11 +247,10 @@ class MainScene extends Phaser.Scene {
             this.hintManager.update(this.input.activePointer);
         }
 
-        if (this.equipmentManager) {
-            this.equipmentManager.updatePositions();
-        }
+        // Equipment positioning deliberately lives in the POST_UPDATE handler
+        // registered in create(), not here — see the comment there.
 
-        if (this.interactions) {
+        if (this.interactions && !this.isPopupOpen) {
             this.interactions.forEach(interaction => interaction.update());
         }
 
@@ -273,7 +294,8 @@ class MainScene extends Phaser.Scene {
         this.hintManager.showDoorHint(door);
 
         if (!(this.keyE && Phaser.Input.Keyboard.JustDown(this.keyE) &&
-            !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey)) {
+            !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey) ||
+            isTypingInField()) {
             return;
         }
 

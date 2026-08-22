@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from '../i18n/context'
 import bslMaterialService from '../services/bslMaterial'
+import { useModalDialog } from '../hooks/useModalDialog'
 
 function LectureMaterialPopup({ open, onClose }) {
   const { t, tList, language } = useTranslation()
   const [material, setMaterial] = useState(null)
-
-  useEffect(() => {
-    window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
-  }, [open])
+  const dialogRef = useModalDialog(open, onClose)
 
   useEffect(() => {
     if (!open) {
@@ -51,6 +49,10 @@ function LectureMaterialPopup({ open, onClose }) {
           display: 'flex',
           flexDirection: 'column',
         }}
+        role="dialog"
+        aria-modal="true"
+        ref={dialogRef}
+        tabIndex={-1}
       >
         <button className="popup-close-button" onClick={onClose}>
           {t('common.close')}

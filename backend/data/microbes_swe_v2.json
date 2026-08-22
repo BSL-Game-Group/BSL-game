@@ -165,7 +165,7 @@
     "scientific_name": "Measles morbillivirus",
     "type": "Virus",
     "bsl_level": 2,
-    "lecture_text": "Ett av de mest smittsamma människovirusen — sprids via luftburna droppar och aerosoler. Orsakar utslag, feber och kan leda till lunginflammation. Ett effektivt MMR-vaccin ger skydd.",
+    "lecture_text": "Ett av de mest smittsamma människovirusen — sprids via luftburna droppar och aerosoler. Orsakar utslag, feber och kan leda till lunginflammation. Ett effektivt MPR (eng. MMR)-vaccin ger skydd.",
     "feedback_correct": "Rätt! Mässlingsvirus är BSL-2 — vaccin finns tillgängligt.",
     "feedback_incorrect": "Fel! Mässlingsvirus är BSL-2 eftersom ett effektivt vaccin finns."
   },
@@ -308,16 +308,6 @@
     "lecture_text": "Katter är de primära värdarna. Infektion sker genom förorenat kött eller kattavföring. Farligt för gravida kvinnor. Sprids inte person till person.",
     "feedback_correct": "Rätt! Toxoplasma gondii är BSL-2.",
     "feedback_incorrect": "Fel! Toxoplasmos är en BSL-2 parasit — sprids inte person till person."
-  },
-  {
-    "id": 31,
-    "common_name": "Toxoplasmos",
-    "scientific_name": "Toxoplasma gondii",
-    "type": "Parasit",
-    "bsl_level": 2,
-    "lecture_text": "Katter är de primära värdarna. Infektion sker via kontaminerat kött eller kattavföring. Farligt för gravida kvinnor. Sprids inte mellan människor.",
-    "feedback_correct": "Rätt! Toxoplasma gondii är en BSL-2-parasit.",
-    "feedback_incorrect": "Fel! Toxoplasmos är en BSL-2-parasit – sprids inte mellan människor."
   },
   {
     "id": 32,
