@@ -873,6 +873,26 @@ describe('restoring a saved game', () => {
     ).toBeInTheDocument()
   })
 
+  test('the equipment verdict follows the microbe, not the room the player chose', () => {
+    seedSavedGame({
+      microbe: testMicrobe,
+      equipped: {
+        ...unequipAll(),
+        lab_coat: true,
+        glasses: true,
+        gloves: true,
+        indoor_shoes: true,
+      },
+      popups: { ...defaultSnapshot().popups, answer: true, answerLevel: 'BSL-3' },
+    })
+
+    renderApp()
+
+    expect(
+      screen.getByText(/your protective equipment matched the required setup/i)
+    ).toBeInTheDocument()
+  })
+
   test('restores an open lecture material popup', async () => {
     seedSavedGame({
       popups: { ...defaultSnapshot().popups, lectureMaterial: true },

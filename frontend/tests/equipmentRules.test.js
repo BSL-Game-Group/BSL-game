@@ -59,14 +59,23 @@ describe('evaluateEquipmentRules', () => {
   test('derives equipment rules from the selected BSL room level', () => {
     const rules = getEquipmentRulesForBslLevel(2)
 
-    expect(evaluateEquipmentRules(rules, ['lab_coat', 'gloves', 'mask', 'indoor_shoes'])).toBe(true)
+    expect(
+      evaluateEquipmentRules(rules, ['lab_coat', 'mask', 'glasses', 'gloves', 'indoor_shoes'])
+    ).toBe(true)
     expect(evaluateEquipmentRules(rules, ['lab_coat', 'gloves'])).toBe(false)
   })
 
   test('BSL-1 requires a lab coat, glasses, gloves and footwear', () => {
     expect(getEquipmentRulesForBslLevel(1)).toEqual({
-      required: ['lab_coat', 'glasses', 'gloves'],
-      anyOf: ['indoor_shoes', 'disposable_foot_covers'],
+      required: ['lab_coat', 'glasses'],
+      anyOf: [
+        {
+          allOf: [
+            { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
+            { anyOf: ['gloves', 'gloves_2'] },
+          ],
+        },
+      ],
       optional: [],
     })
 
@@ -84,12 +93,13 @@ describe('evaluateEquipmentRules', () => {
 
   test('BSL-2 and BSL-3 need footwear on top of their other choices', () => {
     const bsl2 = getEquipmentRulesForBslLevel(2)
+    const bsl2Base = ['lab_coat', 'mask', 'glasses', 'gloves']
 
-    expect(evaluateEquipmentRules(bsl2, ['lab_coat', 'gloves', 'mask'])).toBe(false)
-    expect(evaluateEquipmentRules(bsl2, ['lab_coat', 'gloves', 'mask', 'indoor_shoes'])).toBe(true)
+    expect(evaluateEquipmentRules(bsl2, bsl2Base)).toBe(false)
+    expect(evaluateEquipmentRules(bsl2, [...bsl2Base, 'indoor_shoes'])).toBe(true)
 
     const bsl3 = getEquipmentRulesForBslLevel(3)
-    const bsl3Base = ['gloves', 'gloves_2', 'closable_lab_coat', 'bsl3_respirator']
+    const bsl3Base = ['gloves', 'gloves_2', 'disposable_overall', 'mask', 'glasses']
 
     expect(evaluateEquipmentRules(bsl3, bsl3Base)).toBe(false)
     expect(evaluateEquipmentRules(bsl3, [...bsl3Base, 'disposable_foot_covers'])).toBe(true)
@@ -100,9 +110,9 @@ describe('evaluateEquipmentRules', () => {
     const gloves = ['gloves', 'gloves_2', 'disposable_foot_covers']
 
     expect(evaluateEquipmentRules(bsl3, [...gloves, 'disposable_overall'])).toBe(false)
-    expect(evaluateEquipmentRules(bsl3, [...gloves, 'bsl3_respirator'])).toBe(false)
+    expect(evaluateEquipmentRules(bsl3, [...gloves, 'mask', 'glasses'])).toBe(false)
     expect(
-      evaluateEquipmentRules(bsl3, [...gloves, 'disposable_overall', 'bsl3_respirator'])
+      evaluateEquipmentRules(bsl3, [...gloves, 'disposable_overall', 'mask', 'glasses'])
     ).toBe(true)
   })
 
@@ -118,8 +128,8 @@ describe('evaluateEquipmentRules', () => {
 
   test('BSL-4 needs no footwear, because the suit covers the feet', () => {
     expect(getEquipmentRulesForBslLevel(4)).toEqual({
-      required: ['pressurized_suit', 'gloves'],
-      anyOf: [],
+      required: ['pressurized_suit'],
+      anyOf: ['gloves', 'gloves_2'],
       optional: [],
     })
   })

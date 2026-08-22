@@ -94,20 +94,19 @@ async function validateAndGrade(body) {
   // Graded here, never taken from the request: score, correct_count and every
   // verdict are the server's answer, not the client's claim.
   //
-  // A level with no rules row falls back to EMPTY_RULES, which nothing violates —
-  // the same fallback getEquipmentRulesForBslLevel makes on the client. Choosing a
-  // level that does not exist therefore costs the level, not the equipment.
-  const graded = answers.map((answer) => ({
-    microbe_id: answer.microbe_id,
-    chosen_level: Number(answer.chosen_level),
-    chosen_equipment: answer.chosen_equipment,
-    attempt: answer.attempt ?? 1,
-    ...gradeAnswer(
-      answer,
-      microbeById.get(answer.microbe_id),
-      rulesByLevel.get(Number(answer.chosen_level)) ?? EMPTY_RULES
-    ),
-  }))
+  // The rules come from the microbe's own level, not the room the player chose — the
+  // organism on the bench decides what has to be worn, and App.jsx grades the same way.
+  const graded = answers.map((answer) => {
+    const microbe = microbeById.get(answer.microbe_id)
+
+    return {
+      microbe_id: answer.microbe_id,
+      chosen_level: Number(answer.chosen_level),
+      chosen_equipment: answer.chosen_equipment,
+      attempt: answer.attempt ?? 1,
+      ...gradeAnswer(answer, microbe, rulesByLevel.get(Number(microbe.bsl_level)) ?? EMPTY_RULES),
+    }
+  })
 
   return {
     sessionId,

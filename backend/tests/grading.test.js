@@ -83,7 +83,7 @@ test('the shipped BSL-3 rules need body covering, face protection and footwear',
   const { REQUIRED_EQUIPMENT } = require('../seeders/20260622000001-seed-bsl-classes');
   const rules = REQUIRED_EQUIPMENT[3];
   const gloves = ['gloves', 'gloves_2'];
-  const dressed = [...gloves, 'disposable_overall', 'bsl3_respirator'];
+  const dressed = [...gloves, 'disposable_overall', 'mask', 'glasses'];
 
   assert.strictEqual(evaluateEquipmentRules(rules, [...dressed, 'indoor_shoes']), true);
   assert.strictEqual(evaluateEquipmentRules(rules, [...dressed, 'disposable_foot_covers']), true);
@@ -94,7 +94,7 @@ test('the shipped BSL-3 rules need body covering, face protection and footwear',
     false
   );
   assert.strictEqual(
-    evaluateEquipmentRules(rules, [...gloves, 'bsl3_respirator', 'indoor_shoes']),
+    evaluateEquipmentRules(rules, [...gloves, 'mask', 'glasses', 'indoor_shoes']),
     false
   );
 });
@@ -139,7 +139,7 @@ test('the level is right when it matches the microbe', () => {
   ]);
 });
 
-test('the two verdicts are independent', () => {
+test('the equipment is judged against the rules it is handed, not the chosen level', () => {
   const graded = gradeAnswer(
     { chosen_level: 1, chosen_equipment: ['lab_coat', 'glasses'] },
     { bsl_level: 3 },
