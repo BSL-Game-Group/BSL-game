@@ -63,7 +63,6 @@ function App() {
     restored?.progress.awaitingUndress ?? false
   )
   const [attempt, setAttempt] = useState(restored?.progress.attempt ?? 1)
-  const [retryPending, setRetryPending] = useState(restored?.progress.retryPending ?? false)
   const [exitConfirmOpen, setExitConfirmOpen] = useState(false)
   // None of these are persisted, same as exitConfirmOpen — a reload should not
   // leave the player stuck mid-dialog.
@@ -257,7 +256,6 @@ function App() {
     setEquipped(unequipAll())
     setAwaitingUndress(false)
     setAttempt(1)
-    setRetryPending(false)
     setWashUpRequiredOpen(false)
     setVentilationConnected(false)
     setExitConfirmOpen(false)
@@ -293,7 +291,6 @@ function App() {
         lectureVisited: lectureOpen,
         awaitingUndress,
         attempt,
-        retryPending,
         ventilationConnected,
       },
       popups: {
@@ -316,7 +313,6 @@ function App() {
     currentMicrobe,
     awaitingUndress,
     attempt,
-    retryPending,
     ventilationConnected,
     isPopupOpen,
     LectureMaterialOpen,
@@ -341,7 +337,9 @@ function App() {
   const correctLevel = currentMicrobe?.bsl_level
   const chosenLevel = Number(String(answerLevel).replace('BSL-', ''))
   const isLevelCorrect = typeof correctLevel === 'number' && chosenLevel === correctLevel
-  const equipmentRules = getEquipmentRulesForBslLevel(chosenLevel)
+  // The microbe sets the gear, not the room the player walked into — the server
+  // grades the same way, see backend/routes/rounds.js.
+  const equipmentRules = getEquipmentRulesForBslLevel(correctLevel)
   const chosenEquipment = Object.keys(equipped).filter((item) => equipped[item])
   // One evaluation feeds both the verdict and the rows, so they cannot contradict.
   const equipmentEvaluation = evaluateEquipmentSlots(equipmentRules, chosenEquipment)
@@ -350,7 +348,7 @@ function App() {
 
   const roundScore = roundAnswers.filter((answer) => answer.correct).length
 
-  // Handling a microbe always requires a trip to the dressing room's wash-up
+  // Recording an answer always requires a trip to the dressing room's wash-up
   // spot afterward — whether or not any PPE was actually worn — before the
   // next microbe is handed out.
   const handleAnswerRecord = () => {
@@ -376,14 +374,11 @@ function App() {
     EventBus.emit('undress-required')
   }
 
-  // The wash-up is still owed, which is what forces the full redo: the dressing room
-  // strips the player before they can dress again and re-enter a room.
+  // A retry owes no wash-up: the player walks straight back into a room with whatever
+  // PPE they have on, or changes it at the closet first.
   const handleAnswerRetry = () => {
     setAttempt(2)
-    setRetryPending(true)
     setAnswerOpen(false)
-    setAwaitingUndress(true)
-    EventBus.emit('undress-required')
   }
 
   const saveRoundSoFar = useCallback(async () => {
@@ -445,9 +440,7 @@ function App() {
 
   useEffect(() => {
     const handleWashUp = () => {
-      if (retryPending) {
-        setRetryPending(false)
-      } else if (awaitingUndress) {
+      if (awaitingUndress) {
         // Asking for the next microbe is the only fresh handling event, so it is the
         // only place the retry is handed back. The scene re-emits
         // current-microbe-updated for the RESTORED microbe on every page load, so
@@ -461,7 +454,7 @@ function App() {
     }
     window.addEventListener('quick-undress', handleWashUp)
     return () => window.removeEventListener('quick-undress', handleWashUp)
-  }, [awaitingUndress, retryPending])
+  }, [awaitingUndress])
 
   return (
     <Container fluid className="h-100">

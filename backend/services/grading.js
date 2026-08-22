@@ -113,9 +113,8 @@ function evaluateEquipmentRules(rules = {}, chosenEquipment = []) {
   return evaluateEquipmentSlots(rules, chosenEquipment).wrongCount === 0
 }
 
-// `rules` is the requirement set for the level the player CHOSE, matching what the
-// client shows them while they play (App.jsx grades the same way). Picking the
-// wrong room and dressing correctly for it costs the level, not the equipment.
+// `rules` is the requirement set for the MICROBE's level — the caller picks the row,
+// see routes/rounds.js. Choosing the wrong room does not change what the gear must be.
 function gradeAnswer(answer, microbe, rules) {
   const equipment = evaluateEquipmentSlots(rules, answer.chosen_equipment)
 

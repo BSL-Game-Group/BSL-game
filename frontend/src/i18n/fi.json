@@ -19,8 +19,8 @@
       "Paina E tummanvihreän renkaan kohdalla käsitelläksesi mikrobia.",
       "Peli tarkistaa työsi — olivatko varustus ja huone oikein tälle mikrobille?",
       "Tulos erittelee varustuksesi luokittain — silmäsuojat, maskit, vaatetus, käsineet ja jalkineet — ja merkitsee jokaisen oikeaksi tai vääräksi. Se ei kerro, mikä yksittäinen varuste puuttui.",
-      "Jos huone tai varustus oli väärin, saat yhden uuden yrityksen samalle mikrobille. Viimeiseen yritykseen asti mikrobin oma palaute ja sen BSL-taso pysyvät piilossa.",
-      "Peseydy suihkussa tai silmänhuuhtelupisteellä — BSL-huoneet pysyvät suljettuina siihen asti.",
+      "Jos huone tai varustus oli väärin, saat yhden uuden yrityksen samalle mikrobille — voit palata suoraan huoneeseen ilman peseytymistä. Viimeiseen yritykseen asti mikrobin oma palaute ja sen BSL-taso pysyvät piilossa.",
+      "Kun olet käsitellyt mikrobin, käy peseytymispisteellä pukuhuoneessa — BSL-huoneet pysyvät suljettuina siihen asti.",
       "Viimeisen yrityksen jälkeen arvotaan uusi mikrobi.",
       "Useamman kierroksen jälkeen näet yhteenvedon: pisteet, oikein vs. väärin, ja hallitsemasi tasot.",
       "Voit poistua milloin tahansa Exitin kautta — peli sulkeutuu."
@@ -78,7 +78,10 @@
     "slotCorrect": "oikein",
     "slotIncorrect": "väärin",
     "tryAgain": "Yritä uudelleen",
-    "lastAttempt": "Tämä oli viimeinen yrityksesi tälle mikrobille."
+    "skipMicrobe": "Ohita tämä mikrobi",
+    "skipWashUp": "Jos ohitat mikrobin, käy peseytymispisteellä ennen seuraavaa.",
+    "washUpNext": "Käy peseytymispisteellä ennen seuraavaa mikrobia.",
+    "lastAttempt": "Tämä oli viimeinen yrityksesi tälle mikrobille — käy peseytymispisteellä ennen seuraavaa."
   },
   "common": {
     "close": "Sulje",
