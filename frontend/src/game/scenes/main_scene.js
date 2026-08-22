@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { createRooms } from './rooms';
 import microbeService from '../../services/microbes';
 import { notifyRoomEntry } from '../services/tracking';
-import { createWoodFloor, createLabFloor } from '../environment/EnvironmentBuilder';
+import { createLabFloor } from '../environment/EnvironmentBuilder';
 import HintManager from '../managers/HintManager';
 import { EventBus } from '../EventBus';
 import DoorGroup from '../groups/DoorGroup.js';
@@ -29,9 +29,6 @@ class MainScene extends Phaser.Scene {
 
     preload() {
         loadAssets(this);
-        
-        // Restored for backward compatibility with tests expecting this specific call
-        this.load.image('dresser', 'assets/dresser.png');
     }
 
     create() {
@@ -44,7 +41,6 @@ class MainScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, gameWidth, gameHeight);
         this.playArea = new Phaser.Geom.Rectangle(0, 0, gameWidth, gameHeight);
 
-        createWoodFloor(this);
         createLabFloor(this);
 
         // The id is owned by state/session.js so the login UI can read it before
