@@ -1,9 +1,10 @@
 import { useTranslation } from '../i18n/context'
 
-// Deliberately separate from BslChecklist: a missing glove and an open
-// airlock door are different kinds of problem (one is "put this on", the
-// other is "this whole room is not procedurally ready yet"), and mixing them
-// into one list buried the door/ventilation blockers among equipment rows.
+// Covers only what the room itself blocks — an open airlock door or missing
+// ventilation — not the player's equipment. Missing gear is left to the
+// graded attempt: "this whole room is not procedurally ready yet" is a
+// different kind of problem from "put this on", and the equipment checklist
+// that used to sit beside this one was removed as too much hand-holding.
 function BslAirlockStatus({ roomKey, doorOpen, ventilationConnected, suppressed }) {
   const { t } = useTranslation()
 

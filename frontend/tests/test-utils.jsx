@@ -51,8 +51,6 @@ const translationValue = {
       'objective.suit-up': 'Next: put on your protective equipment',
       'objective.go-to-room': 'Next: go to {room}',
 
-      'bslChecklist.title': '{room} — missing:',
-
       'bslAirlock.doorOpen': 'The airlock door is open — close it first',
       'bslAirlock.ventilationOff': 'Ventilation is not connected',
       'bslAirlock.interlockBlocked': 'The other airlock door is open — close it first',

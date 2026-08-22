@@ -128,9 +128,6 @@
     "handle-microbe": "Next: handle the microbe",
     "skipGuide": "Skip guidance"
   },
-  "bslChecklist": {
-    "title": "{room} — missing:"
-  },
   "bslAirlock": {
     "doorOpen": "The airlock door is open — close it first",
     "ventilationOff": "Ventilation is not connected",

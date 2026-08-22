@@ -128,9 +128,6 @@
     "handle-microbe": "Näst: hantera mikroben",
     "skipGuide": "Hoppa över vägledningen"
   },
-  "bslChecklist": {
-    "title": "{room} — saknas:"
-  },
   "bslAirlock": {
     "doorOpen": "Slussdörren är öppen — stäng den först",
     "ventilationOff": "Ventilationen är inte ansluten",

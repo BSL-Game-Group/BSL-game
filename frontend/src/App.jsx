@@ -11,7 +11,6 @@ import LanguageSelector from './components/LanguageSelector'
 import ScoreHud from './components/ScoreHud'
 import ObjectiveToast from './components/ObjectiveToast'
 import NextStepHud from './components/NextStepHud'
-import BslChecklist from './components/BslChecklist'
 import BslAirlockStatus from './components/BslAirlockStatus'
 import { useStuckTimer } from './hooks/useStuckTimer'
 import { stuckStage, FIRST_ROUND_STUCK_THRESHOLDS_MS } from './utils/stuckStage'
@@ -581,17 +580,7 @@ function App() {
         </div>
       )}
 
-      {/* BSL checklist, bottom-right — visible the moment the player is
-          standing in a BSL room while under-equipped for it, before they
-          press E and fail. */}
-      {gameStarted && (
-        <div className="position-fixed bottom-0 end-0 p-3 z-3">
-          <BslChecklist roomKey={bslRoom} equipped={equipped} suppressed={anyPopupOpen} />
-        </div>
-      )}
-
-      {/* BSL airlock/ventilation status, mid-right — deliberately not in the
-          same panel as the equipment checklist above (see BslAirlockStatus). */}
+      {/* BSL airlock/ventilation status, mid-right. */}
       {gameStarted && (
         <div className="position-fixed top-50 end-0 translate-middle-y p-3 z-3">
           <BslAirlockStatus

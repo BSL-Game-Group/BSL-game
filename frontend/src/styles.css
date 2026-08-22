@@ -417,35 +417,9 @@ body {
   color: #fff;
 }
 
-.bsl-checklist {
-  padding: 10px 16px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 2px solid #b4531b;
-  color: #2b2b2b;
-  max-width: 240px;
-}
 
-.bsl-checklist__title {
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: #b4531b;
-  margin-bottom: 4px;
-}
 
-.bsl-checklist__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
 
-.bsl-checklist__row {
-  font-size: 0.85rem;
-  color: #b4531b;
-}
 
 .bsl-airlock-status {
   padding: 10px 16px;

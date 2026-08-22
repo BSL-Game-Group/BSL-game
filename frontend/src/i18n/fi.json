@@ -128,9 +128,6 @@
     "handle-microbe": "Seuraavaksi: käsittele mikrobi",
     "skipGuide": "Ohita opastus"
   },
-  "bslChecklist": {
-    "title": "{room} — puuttuu:"
-  },
   "bslAirlock": {
     "doorOpen": "Sulkutilan ovi on auki — sulje se ensin",
     "ventilationOff": "Ilmastointi ei ole kytketty",
