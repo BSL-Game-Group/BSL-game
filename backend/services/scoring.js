@@ -1,55 +1,12 @@
 'use strict';
 
 /**
- * Calculates the score for a single round / answers based on granular equipment categories and room correctness.
+ * Scores one microbe across its attempts. Every answer is graded on all five equipment
+ * categories whatever the level, so a category is worth the same everywhere and a
+ * microbe is worth 90: 30 for the room and 60 across the five. A retry is worth half,
+ * and only for what was still wrong. Mirrored by frontend/src/utils/scoring.js.
  */
-function scoreRound(gradedAnswers = []) {
-  let totalScore = 0;
-
-  for (const answer of gradedAnswers) {
-    // 1. Room points: 30 points for a correct BSL level
-    if (answer.level_correct) {
-      totalScore += 30;
-    }
-
-    // 2. Equipment points: 60 total points distributed evenly across categories
-    const slots = answer.equipment_slots || {};
-    const categoryIds = Object.keys(slots);
-
-    if (categoryIds.length > 0) {
-      const pointsPerCategory = 60 / categoryIds.length;
-
-      for (const id of categoryIds) {
-        if (slots[id].status === 'ok') {
-          totalScore += pointsPerCategory;
-        }
-      }
-    }
-  }
-
-  return Math.round(totalScore);
-}
-
-function calculateScore({ bslLevel, round = 1, roomCorrect, equipmentCategories }) {
-  // Room points: 30 for round 1 if correct[cite: 12]
-  let score = roomCorrect ? 30 : 0;
-
-  const categoryPointsTotal = 60;
-  const numCategories = equipmentCategories ? equipmentCategories.length : 1;
-  const pointsPerCategory = categoryPointsTotal / (numCategories || 1);
-
-  if (equipmentCategories && Array.isArray(equipmentCategories)) {
-    for (const isCorrect of equipmentCategories) {
-      if (isCorrect) {
-        score += pointsPerCategory;
-      }
-    }
-  }
-
-  return Math.round(score);
-}
-
-function calculateMultiRoundScore({ bslLevel, rounds }) {
+function calculateMultiRoundScore({ rounds }) {
   let totalScore = 0;
   let previouslyCorrectRoom = false;
   let previouslyCorrectCategories = [];
@@ -58,7 +15,6 @@ function calculateMultiRoundScore({ bslLevel, rounds }) {
 
   rounds.forEach((rd, index) => {
     let roundScore = 0;
-    // Attempt 1 gives 30 for room, Attempt 2 gives 15
     const roomPointsValue = index === 0 ? 30 : 15;
 
     if (rd.roomCorrect && !previouslyCorrectRoom) {
@@ -66,15 +22,7 @@ function calculateMultiRoundScore({ bslLevel, rounds }) {
       previouslyCorrectRoom = true;
     }
 
-    // Determine equipment total based on attempt and BSL level rule adjustments
-    let categoryPointsTotal;
-    if (index === 0) {
-      categoryPointsTotal = 60; // Always 60 on round 1
-    } else {
-      // Round 2: BSL level 1 totals 28 (7/7/7/7), others half of 60 = 30
-      categoryPointsTotal = (Number(bslLevel) === 1) ? 28 : 30;
-    }
-
+    const categoryPointsTotal = index === 0 ? 60 : 30;
     const numCategories = rd.equipmentCategories ? rd.equipmentCategories.length : 1;
     const pointsPerCategory = categoryPointsTotal / (numCategories || 1);
 
@@ -91,7 +39,7 @@ function calculateMultiRoundScore({ bslLevel, rounds }) {
         if (wasWrongBefore) {
           if (isCorrect) {
             roundScore += pointsPerCategory;
-            previouslyCorrectCategories[idx] = true; // Mark as now correctly resolved
+            previouslyCorrectCategories[idx] = true;
           }
         }
       });
@@ -104,7 +52,5 @@ function calculateMultiRoundScore({ bslLevel, rounds }) {
 }
 
 module.exports = {
-  scoreRound,
-  calculateScore,
   calculateMultiRoundScore,
 };

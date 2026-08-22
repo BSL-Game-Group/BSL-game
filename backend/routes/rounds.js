@@ -3,7 +3,7 @@ const express = require('express')
 const db = require('../models')
 const { optionalAuth, requireAuth } = require('../middleware/auth')
 const { gradeAnswer } = require('../services/grading')
-const { scoreRound, calculateScore, calculateMultiRoundScore } = require('../services/scoring')
+const { calculateMultiRoundScore } = require('../services/scoring')
 const router = express.Router()
 
 const MAX_ANSWERS = 100
@@ -130,11 +130,8 @@ async function validateAndGrade(body) {
       }
     })
 
-    // Calculate cumulative score across attempts using calculateMultiRoundScore
     const microbeMultiRoundScore = calculateMultiRoundScore({
-      bslLevel: Number(microbe.bsl_level),
       rounds: roundsData.map((r) => ({
-        round: r.round,
         roomCorrect: r.roomCorrect,
         equipmentCategories: r.equipmentCategories,
       })),
@@ -165,6 +162,9 @@ async function validateAndGrade(body) {
     graded,
     score: totalScore,
     correctCount,
+    // Microbes handled, not rows stored: a retried microbe grades twice but is still
+    // one microbe, and correct_count is counted the same way.
+    microbeCount: answersByMicrobe.size,
   }
 }
 
@@ -209,7 +209,7 @@ router.post('/rounds', optionalAuth, async (req, res) => {
         session_id: result.sessionId,
         score: result.score,
         correct_count: result.correctCount,
-        answer_count: result.graded.length,
+        answer_count: result.microbeCount,
         claimed_at: null,
       },
       { transaction }
@@ -260,7 +260,7 @@ router.patch('/rounds/:id', optionalAuth, async (req, res) => {
       {
         score: result.score,
         correct_count: result.correctCount,
-        answer_count: result.graded.length,
+        answer_count: result.microbeCount,
       },
       { transaction }
     )

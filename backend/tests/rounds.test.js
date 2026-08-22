@@ -364,6 +364,29 @@ test('every column of round_answers is written by the insert', () => {
   assert.deepStrictEqual(Object.keys(inserted).sort(), columns.sort());
 });
 
+test('a retried microbe counts once, however many attempts it took', async () => {
+  const bsl1 = await microbeAtLevel(1);
+
+  const response = await request(app)
+    .post('/api/rounds')
+    .send({
+      session_id: 'session-retry-count',
+      answers: [
+        { microbe_id: bsl1.id, chosen_level: 4, chosen_equipment: [], attempt: 1 },
+        { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT, attempt: 2 },
+      ],
+    });
+
+  assert.strictEqual(response.status, 201);
+  assert.strictEqual(response.body.answer_count, 1);
+  assert.strictEqual(response.body.correct_count, 1);
+
+  assert.strictEqual(
+    await db.RoundAnswer.count({ where: { round_id: response.body.id } }),
+    2
+  );
+});
+
 test('an attempt is stored, defaults to the first try, and is bounded', async () => {
   const bsl1 = await microbeAtLevel(1);
 
@@ -371,9 +394,6 @@ test('an attempt is stored, defaults to the first try, and is bounded', async ()
     .post('/api/rounds')
     .send({
       session_id: 'session-attempt',
-      // Two rows for one microbe is not a sequence the client sends — a retry replaces
-      // the answer in place and stores one row with attempt 2. This is the cheapest way
-      // to see both the default and an explicit value survive the same insert.
       answers: [
         { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT },
         { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT, attempt: 2 },

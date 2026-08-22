@@ -70,6 +70,9 @@
     "belongs": "{name} belongs to BSL-{level}.",
     "slotCorrect": "correct",
     "slotIncorrect": "incorrect",
+    "pointsRoom": "Room",
+    "pointsTotal": "Points from this microbe",
+    "pointsBanked": "already earned",
     "tryAgain": "Try again",
     "lastAttempt": "That was your last try for this microbe."
   },
@@ -165,7 +168,7 @@
     },
     "claim": {
       "title": "Round finished",
-      "scoreLine": "You scored {score} out of {total}.",
+      "scoreLine": "You scored {score} points.",
       "guestWarning": "This score only lives in this browser until you keep it.",
       "keepScore": "Keep my score",
       "savedToAccount": "Saved to your account.",

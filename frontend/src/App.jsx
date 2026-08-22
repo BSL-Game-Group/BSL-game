@@ -341,6 +341,20 @@ function App() {
   const isEquipmentCorrect = equipmentEvaluation.wrongCount === 0
   const isCorrect = isLevelCorrect && isEquipmentCorrect
 
+  // A retry only pays for what was still wrong, so the popup has to re-grade the first
+  // attempt to tell "just earned" from "already banked". findLast, not find: the draw
+  // may hand the same microbe out again later in the round.
+  const firstAttempt =
+    attempt === 2 && Number.isInteger(currentMicrobe?.id)
+      ? roundAnswers.findLast(
+          (answer) => answer.microbe_id === currentMicrobe.id && answer.attempt === 1
+        )
+      : undefined
+  const previousAnswer = firstAttempt && {
+    roomCorrect: firstAttempt.chosen_level === correctLevel,
+    equipmentSlots: evaluateEquipmentSlots(equipmentRules, firstAttempt.chosen_equipment).slots,
+  }
+
   const roundScore = roundAnswers.filter((answer) => answer.correct).length
 
   // Handling a microbe always requires a trip to the dressing room's wash-up
@@ -533,7 +547,7 @@ function App() {
         {gameStarted && (
           <ScoreHud
               score={roundResult?.score ?? 0}
-              answered={roundAnswers.length}
+              answered={new Set(roundAnswers.map((answer) => answer.microbe_id)).size}
           />
         )}
         <AuthStatus />
@@ -576,6 +590,7 @@ function App() {
         isLevelCorrect={isLevelCorrect}
         isEquipmentCorrect={isEquipmentCorrect}
         equipmentSlots={equipmentEvaluation.slots}
+        previousAnswer={previousAnswer}
       />
 
       {lectureWarningOpen && (

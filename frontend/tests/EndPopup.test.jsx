@@ -3,7 +3,7 @@ import '@testing-library/jest-dom'
 import EndPopup from '../src/components/EndPopup'
 import { AuthContext } from '../src/auth/context'
 
-const round = { id: 1, score: 3, correct_count: 3, answer_count: 5, owned: false }
+const round = { id: 1, score: 342, correct_count: 3, answer_count: 5, owned: false }
 
 function renderPopup(props = {}, authOverrides = {}) {
   const auth = {
@@ -43,7 +43,7 @@ test('a guest sees the score, the warning, and the offer', () => {
   renderPopup()
 
   expect(screen.getByRole('heading', { name: 'Round finished' })).toBeInTheDocument()
-  expect(screen.getByText('You scored 3 out of 5.')).toBeInTheDocument()
+  expect(screen.getByText('You scored 342 points.')).toBeInTheDocument()
   expect(
     screen.getByText('This score only lives in this browser until you keep it.')
   ).toBeInTheDocument()

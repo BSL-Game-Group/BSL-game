@@ -1093,7 +1093,7 @@ test('the exit popup reports the round it just saved', async () => {
   await reachExit()
 
   expect(screen.getByRole('heading', { name: 'Round finished' })).toBeInTheDocument()
-  expect(screen.getByText('You scored 0 out of 1.')).toBeInTheDocument()
+  expect(screen.getByText('You scored 0 points.')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Keep my score' })).toBeInTheDocument()
 })
 
@@ -1132,14 +1132,16 @@ describe('one retry per microbe', () => {
     expect(EventBus.emit).toHaveBeenCalledWith('request-new-microbe')
   })
 
-  test('retrying records nothing and keeps the same microbe', () => {
+  // The first attempt is recorded the moment Try again is pressed so its points reach
+  // the HUD right away, but the microbe itself has still only been handled once.
+  test('retrying banks the first attempt and keeps the same microbe', () => {
     answerWrongly()
     EventBus.emit.mockClear()
 
     fireEvent.click(screen.getByRole('button', { name: /try again/i }))
 
-    expect(screen.getByText(/microbes: 0/i)).toBeInTheDocument()
-    expect(loadSavedGame().round.answers).toEqual([])
+    expect(screen.getByText(/microbes: 1/i)).toBeInTheDocument()
+    expect(loadSavedGame().round.answers.map((answer) => answer.attempt)).toEqual([1])
 
     washUp()
 
@@ -1151,7 +1153,8 @@ describe('one retry per microbe', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /^close$/i }))
 
-    expect(loadSavedGame().round.answers[0].attempt).toBe(2)
+    expect(loadSavedGame().round.answers.map((answer) => answer.attempt)).toEqual([1, 2])
+    expect(screen.getByText(/microbes: 1/i)).toBeInTheDocument()
   })
 
   test('the last attempt reveals the microbe feedback and its true class', () => {
