@@ -4,6 +4,14 @@ import microbeService from '../src/services/microbes'
 jest.mock('axios')
 
 describe('microbeService', () => {
+  // 1. Fake the game session data before tests run
+  beforeAll(() => {
+    Object.defineProperty(window, '__gameData', {
+      value: { sessionId: 'fake-test-session-123' },
+      writable: true
+    })
+  })
+
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -29,6 +37,7 @@ describe('microbeService', () => {
         {
           params: {
             lang: 'en',
+            session_id: 'fake-test-session-123', // 2. Expect the fake session ID
           },
         }
       )
@@ -46,6 +55,7 @@ describe('microbeService', () => {
         {
           params: {
             lang: 'en',
+            session_id: 'fake-test-session-123', // 3. Expect the fake session ID here too
           },
         }
       )
