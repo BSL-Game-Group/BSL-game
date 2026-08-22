@@ -157,17 +157,26 @@ router.post('/rounds', optionalAuth, async (req, res) => {
   // One transaction, so a round never exists without the answers that justify its
   // score — which is what makes a stored round re-scorable.
   const round = await db.sequelize.transaction(async (transaction) => {
-    const created = await db.Round.create(
-      {
+// Find the round that /api/microbes/random created, or create it if missing
+    const [created] = await db.Round.findOrCreate({
+      where: { session_id: result.sessionId },
+      defaults: {
         user_id: req.user ? req.user.id : null,
-        session_id: result.sessionId,
         score: result.score,
         correct_count: result.correctCount,
         answer_count: result.graded.length,
         claimed_at: null,
       },
-      { transaction }
-    )
+      transaction
+    });
+
+    // Always update the scores with the latest graded result
+    await created.update({
+      score: result.score,
+      correct_count: result.correctCount,
+      answer_count: result.graded.length,
+      user_id: req.user ? req.user.id : null,
+    }, { transaction });
 
     await db.RoundAnswer.bulkCreate(
       result.graded.map((answer) => storableAnswer(answer, created.id)),
