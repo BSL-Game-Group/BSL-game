@@ -32,9 +32,14 @@ describe('stuckStage', () => {
     expect(stuckStage(8_000, firstRoundThresholds)).toBe('directional')
   })
 
-  test('the exported guided-first-round thresholds skip straight to verbal, then go directional at 8s', () => {
-    expect(stuckStage(0, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('verbal')
-    expect(stuckStage(7_999, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('verbal')
-    expect(stuckStage(8_000, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('directional')
+  // The zero-length 'verbal' fuse this replaces made NextStepHud a permanent
+  // bar for the whole first round, so the staying-silent case is the point of
+  // this test, not an edge case beside it.
+  test('the exported guided-first-round thresholds stay silent at first, then escalate', () => {
+    expect(stuckStage(0, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('subtle')
+    expect(stuckStage(4_999, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('subtle')
+    expect(stuckStage(5_000, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('verbal')
+    expect(stuckStage(14_999, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('verbal')
+    expect(stuckStage(15_000, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('directional')
   })
 })

@@ -8,13 +8,15 @@ export const STUCK_THRESHOLDS_MS = {
 }
 
 // Same escalation, shorter fuse — used only for the player's first round
-// (see App.jsx's isGuidedFirstRound). The 'subtle' stage is skipped entirely:
-// its only effect elsewhere is gating when 'verbal' text starts counting, so
-// setting it to 0 makes the verbal hint available immediately.
+// (see App.jsx's isGuidedFirstRound). 'subtle' starts immediately, but
+// 'verbal' must not: NextStepHud renders from 'verbal' onward, so a zero
+// threshold made the row appear on the first frame and never leave. The
+// timer resets to zero on every objective change, which put it straight
+// back at 'verbal' — a permanent bar rather than a nudge for a stuck player.
 export const FIRST_ROUND_STUCK_THRESHOLDS_MS = {
   subtle: 0,
-  verbal: 0,
-  directional: 8_000,
+  verbal: 5_000,
+  directional: 15_000,
 }
 
 // Pure step function: given how long the current objective has been active
