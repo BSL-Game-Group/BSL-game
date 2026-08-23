@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { createRooms } from './rooms';
 import microbeService from '../../services/microbes';
 import { notifyRoomEntry } from '../services/tracking';
-import { createWoodFloor, createLabFloor } from '../environment/EnvironmentBuilder';
+import { createLabFloor } from '../environment/EnvironmentBuilder';
 import HintManager from '../managers/HintManager';
 import { EventBus } from '../EventBus';
 import DoorGroup from '../groups/DoorGroup.js';
@@ -29,9 +29,6 @@ class MainScene extends Phaser.Scene {
 
     preload() {
         loadAssets(this);
-        
-        // Restored for backward compatibility with tests expecting this specific call
-        this.load.image('dresser', 'assets/dresser.png');
     }
 
     create() {
@@ -44,7 +41,6 @@ class MainScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, gameWidth, gameHeight);
         this.playArea = new Phaser.Geom.Rectangle(0, 0, gameWidth, gameHeight);
 
-        createWoodFloor(this);
         createLabFloor(this);
 
         // The id is owned by state/session.js so the login UI can read it before
@@ -89,6 +85,7 @@ class MainScene extends Phaser.Scene {
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
             closeTheDoorBehindYouFirst: window.__translations?.closeTheDoorBehindYouFirst ?? 'Close the door behind you first.',
             openmicrobeInfoHint: window.__translations?.openMicrobeInfo ?? 'Press E for microbe info',
+            pressEOrClick: window.__translations?.pressEOrClick ?? 'Press E or click',
         });
 
         this.doors = this.initializeDoors(this.player);
@@ -293,11 +290,20 @@ class MainScene extends Phaser.Scene {
         const door = zone.parentDoor;
         this.hintManager.showDoorHint(door);
 
-        if (!(this.keyE && Phaser.Input.Keyboard.JustDown(this.keyE) &&
-            !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey) ||
-            isTypingInField()) {
+        const ePressed =
+            this.keyE &&
+            Phaser.Input.Keyboard.JustDown(this.keyE) &&
+            !this.keyE.ctrlKey &&
+            !this.keyE.metaKey &&
+            !this.keyE.altKey;
+
+        const mouseClicked = door.wasClicked;
+
+        if ((!ePressed && !mouseClicked) || isTypingInField()) {
             return;
         }
+
+        door.wasClicked = false;
 
         if (door === this.bsl4Door) {
             this.handleBsl4DoorPress(door);

@@ -34,7 +34,9 @@ describe('Door', () => {
                     x,
                     y,
                     width,
-                    height
+                    height,
+                    setInteractive: jest.fn(),
+                    on: jest.fn()
                 }))
             },
             physics: {
@@ -105,6 +107,38 @@ describe('Door', () => {
             });
 
             expect(door.airlockDoorPairs).toBe(pairs);
+        });
+
+        it('registers a pointerdown handler on the trigger zone', () => {
+            const door = new Door(scene, 100, 200, 'doorTexture');
+
+            expect(door.triggerZone.on).toHaveBeenCalledWith(
+                'pointerdown',
+                expect.any(Function)
+            );
+        });
+
+        it('sets wasClicked when pointerdown is triggered', () => {
+            const handlers = {};
+
+            scene.add.zone.mockImplementation((x, y, width, height) => ({
+                x,
+                y,
+                width,
+                height,
+                setInteractive: jest.fn(),
+                on: jest.fn((event, handler) => {
+                    handlers[event] = handler;
+                })
+            }));
+
+            const door = new Door(scene, 100, 200, 'doorTexture');
+
+            expect(door.wasClicked).toBe(false);
+
+            handlers.pointerdown();
+
+            expect(door.wasClicked).toBe(true);
         });
     });
 

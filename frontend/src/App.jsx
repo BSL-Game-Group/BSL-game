@@ -236,6 +236,7 @@ function App() {
       exitPrompt: t('phaser.exitPrompt'),
       washUp: t('phaser.washUp'),
       openMicrobeInfoHint: t('phaser.openmicrobeInfoHint'),
+      pressEOrClick: t('phaser.pressEOrClick'),
     }
     window.__translations = translations
     EventBus.emit('translations-updated', translations)
@@ -344,7 +345,9 @@ function App() {
   const correctLevel = currentMicrobe?.bsl_level
   const chosenLevel = Number(String(answerLevel).replace('BSL-', ''))
   const isLevelCorrect = typeof correctLevel === 'number' && chosenLevel === correctLevel
-  const equipmentRules = getEquipmentRulesForBslLevel(chosenLevel)
+  // The microbe sets the gear, not the room the player walked into — the server
+  // grades the same way, see backend/routes/rounds.js.
+  const equipmentRules = getEquipmentRulesForBslLevel(correctLevel)
   const chosenEquipment = Object.keys(equipped).filter((item) => equipped[item])
   // One evaluation feeds both the verdict and the rows, so they cannot contradict.
   const equipmentEvaluation = evaluateEquipmentSlots(equipmentRules, chosenEquipment)

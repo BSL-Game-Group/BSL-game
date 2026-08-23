@@ -72,9 +72,9 @@ describe('evaluateEquipmentRules', () => {
         {
           allOf: [
             { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
-            { anyOf: ['gloves', 'gloves_2'] }
-          ]
-        }
+            { anyOf: ['gloves', 'gloves_2'] },
+          ],
+        },
       ],
       optional: [],
     })
