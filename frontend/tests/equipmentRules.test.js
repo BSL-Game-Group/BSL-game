@@ -65,8 +65,15 @@ describe('evaluateEquipmentRules', () => {
 
   test('BSL-1 requires a lab coat, glasses, gloves and footwear', () => {
     expect(getEquipmentRulesForBslLevel(1)).toEqual({
-      required: ['lab_coat', 'glasses', 'gloves'],
-      anyOf: ['indoor_shoes', 'disposable_foot_covers'],
+      required: ['lab_coat', 'glasses'],
+      anyOf: [
+        {
+          allOf: [
+            { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
+            { anyOf: ['gloves', 'gloves_2'] }
+          ]
+        }
+      ],
       optional: [],
     })
 
