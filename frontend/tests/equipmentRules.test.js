@@ -59,7 +59,9 @@ describe('evaluateEquipmentRules', () => {
   test('derives equipment rules from the selected BSL room level', () => {
     const rules = getEquipmentRulesForBslLevel(2)
 
-    expect(evaluateEquipmentRules(rules, ['lab_coat', 'gloves', 'mask', 'indoor_shoes'])).toBe(true)
+    expect(
+      evaluateEquipmentRules(rules, ['lab_coat', 'mask', 'glasses', 'gloves', 'indoor_shoes'])
+    ).toBe(true)
     expect(evaluateEquipmentRules(rules, ['lab_coat', 'gloves'])).toBe(false)
   })
 
@@ -126,8 +128,8 @@ describe('evaluateEquipmentRules', () => {
 
   test('BSL-4 needs no footwear, because the suit covers the feet', () => {
     expect(getEquipmentRulesForBslLevel(4)).toEqual({
-      required: ['pressurized_suit', 'gloves'],
-      anyOf: [],
+      required: ['pressurized_suit'],
+      anyOf: ['gloves', 'gloves_2'],
       optional: [],
     })
   })
