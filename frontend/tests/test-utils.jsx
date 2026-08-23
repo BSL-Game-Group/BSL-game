@@ -18,8 +18,8 @@ const translationValue = {
 
       'answerPopup.correct': 'Correct!',
       'answerPopup.incorrect': 'Not quite',
-      'answerPopup.correctFallback': "That's the right room.",
-      'answerPopup.incorrectFallback': "That isn't the right room.",
+      'answerPopup.correctFallback': 'The BSL room you chose was correct.',
+      'answerPopup.incorrectFallback': 'The BSL room you chose was not correct.',
 
       'answerPopup.chosenLevel': 'You chose {level}.',
       'answerPopup.belongs': '{name} belongs to BSL-{level}.',
@@ -27,6 +27,8 @@ const translationValue = {
       'answerPopup.equipmentIncorrect': 'Your protective equipment did not fully match the required setup.',
       'answerPopup.slotCorrect': 'correct',
       'answerPopup.slotIncorrect': 'incorrect',
+      'answerPopup.tryAgain': 'Try again',
+      'answerPopup.lastAttempt': 'That was your last try for this microbe.',
 
       'closet.title': 'Closet',
       'closet.nothingAvailable': 'Nothing available',

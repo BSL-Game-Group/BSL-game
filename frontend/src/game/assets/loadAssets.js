@@ -22,8 +22,6 @@ export function loadAssets(scene) {
     scene.load.image('disposable_foot_covers', 'assets/equipment/on_character/footwear/disposable_foot_covers_on.png');
 
     // Game area elements
-    scene.load.image('dresser', 'assets/game_arena_elements/dresser.png');
-    scene.load.image('wood', 'assets/tiles/birchwood.png');
     scene.load.image('labs_floor', 'assets/tiles/Labs-Floor.png');
     scene.load.image('info_desk', 'assets/game_arena_elements/info-desk.png');
     scene.load.image('door_front', 'assets/doors/door_front.png');
@@ -39,4 +37,6 @@ export function loadAssets(scene) {
     scene.load.image('air_systems', 'assets/game_arena_elements/air-systems.jpeg');
     scene.load.image('dressing_room', 'assets/rooms/dressing-room_2.png');
     scene.load.image('exit_area', 'assets/rooms/exit_area.png');
+    scene.load.image('airlock_room_(empty)', 'assets/rooms/airlock_room_(empty).png');
+    scene.load.image('airlock_room_with_shower', 'assets/rooms/airlock_room_with_shower.png');
 }

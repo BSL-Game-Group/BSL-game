@@ -23,11 +23,16 @@ export default class Door extends Phaser.Physics.Arcade.Sprite {
         this.isOpen = false;
         this.triggerZone = scene.add.zone(triggerZoneX, triggerZoneY, triggerZoneWidth, triggerZoneHeight);
         this.triggerZone.parentDoor = this;
+        this.triggerZone.setInteractive();
+        this.wasClicked = false;
+        this.triggerZone.on('pointerdown', () => {
+            this.wasClicked = true;
+        });
         this.airlockDoorPairs = airlockDoorPairs;
     }
 
     tryToChangeDoorState() {
-        if (this.airlockDoorPairs.some((pair) => pair.isOpen)) {
+        if (!this.isOpenable()) {
             // The interlock silently refuses otherwise — nothing else ever
             // told the player why the door didn't move.
             window.dispatchEvent(new Event('airlock-interlock-blocked'));
@@ -41,5 +46,9 @@ export default class Door extends Phaser.Physics.Arcade.Sprite {
 
     addAirlockDoorPair(pair) {
         this.airlockDoorPairs.push(pair);
+    }
+
+    isOpenable() {
+        return !this.airlockDoorPairs.some((pair) => pair.isOpen);
     }
 }

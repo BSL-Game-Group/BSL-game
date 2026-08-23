@@ -18,8 +18,10 @@
       "Mene oikeaan BSL-huoneeseen (1–4).",
       "Paina E tummanvihreän renkaan kohdalla käsitelläksesi mikrobia.",
       "Peli tarkistaa työsi — olivatko varustus ja huone oikein tälle mikrobille?",
-      "Peseydy suihkussa tai silmänhuuhtelupisteellä ennen poistumista.",
-      "Uusi mikrobi arvotaan — yritä uudelleen!",
+      "Tulos erittelee varustuksesi luokittain — silmäsuojat, maskit, vaatetus, käsineet ja jalkineet — ja merkitsee jokaisen oikeaksi tai vääräksi. Se ei kerro, mikä yksittäinen varuste puuttui.",
+      "Jos huone tai varustus oli väärin, saat yhden uuden yrityksen samalle mikrobille. Viimeiseen yritykseen asti mikrobin oma palaute ja sen BSL-taso pysyvät piilossa.",
+      "Peseydy suihkussa tai silmänhuuhtelupisteellä — BSL-huoneet pysyvät suljettuina siihen asti.",
+      "Viimeisen yrityksen jälkeen arvotaan uusi mikrobi.",
       "Useamman kierroksen jälkeen näet yhteenvedon: pisteet, oikein vs. väärin, ja hallitsemasi tasot.",
       "Voit poistua milloin tahansa Exitin kautta — peli sulkeutuu."
     ],
@@ -67,14 +69,16 @@
   "answerPopup": {
     "correct": "Oikein!",
     "incorrect": "Ei aivan",
-    "correctFallback": "Se on oikea huone.",
-    "incorrectFallback": "Se ei ole oikea huone.",
+    "correctFallback": "Valitsemasi BSL-huone oli oikea.",
+    "incorrectFallback": "Valitsemasi BSL-huone ei ollut oikea.",
     "equipmentCorrect": "Suojavarustuksesi vastasi vaadittua varustusta.",
     "equipmentIncorrect": "Suojavarustuksesi ei vastannut täysin vaadittua varustusta.",
     "chosenLevel": "Valitsit {level}.",
     "belongs": "{name} kuuluu tasolle BSL-{level}.",
     "slotCorrect": "oikein",
-    "slotIncorrect": "väärin"
+    "slotIncorrect": "väärin",
+    "tryAgain": "Yritä uudelleen",
+    "lastAttempt": "Tämä oli viimeinen yrityksesi tälle mikrobille."
   },
   "common": {
     "close": "Sulje",
@@ -108,12 +112,14 @@
     "pressEToOpen": "Paina E avataksesi",
     "openCloset": "Avaa kaappi",
     "pressE": "Paina E",
+    "closeTheDoorBehindYouFirst": "Sulje takanasi oleva ovi ensin.",
     "exitPrompt": "Paina E poistutuaksesi",
     "washUp": "Paina R tai klikkaa peseytyäksesi",
     "openmicrobeInfoHint": "Mikrobin tiedot — paina E",
     "lectureMaterialHint": "Luentomateriaali — paina E",
     "closetPressE": "Varustekaappi — paina E",
-    "infoPressE": "Info — paina E"
+    "infoPressE": "Info — paina E",
+    "pressEOrClick": "Paina E tai klikkaa"
   },
   "hud": {
     "score": "Pisteet: {score}",

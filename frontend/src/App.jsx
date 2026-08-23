@@ -69,6 +69,8 @@ function App() {
   const [awaitingUndress, setAwaitingUndress] = useState(
     restored?.progress.awaitingUndress ?? false
   )
+  const [attempt, setAttempt] = useState(restored?.progress.attempt ?? 1)
+  const [retryPending, setRetryPending] = useState(restored?.progress.retryPending ?? false)
   const [exitConfirmOpen, setExitConfirmOpen] = useState(false)
   // None of these are persisted, same as exitConfirmOpen — a reload should not
   // leave the player stuck mid-dialog.
@@ -78,6 +80,7 @@ function App() {
   // serves "put it on" (entering) and "take it off" (leaving).
   const [bsl4GearOpen, setBsl4GearOpen] = useState(false)
   const [bslDoorRequiredOpen, setBslDoorRequiredOpen] = useState(false)
+  const [washUpRequiredOpen, setWashUpRequiredOpen] = useState(false)
   const [ventilationConnected, setVentilationConnected] = useState(
     restored?.progress.ventilationConnected ?? false
   )
@@ -115,6 +118,11 @@ function App() {
     return () => window.removeEventListener('lecture-required', handler);
   }, [])
   useEffect(() => {
+    const handler = () => setWashUpRequiredOpen(true)
+    window.addEventListener('wash-up-required', handler)
+    return () => window.removeEventListener('wash-up-required', handler)
+  }, [])
+  useEffect(() => {
     const handler = () => setLectureOpen(true)
     window.addEventListener('lecture-room-entered', handler)
     return () => window.removeEventListener('lecture-room-entered', handler)
@@ -148,6 +156,7 @@ function App() {
   // Phaser's BSL interactables gate on this (rooms.js + BslInteraction.js) and
   // can't read React state, so the lecture visit has to be mirrored onto window.
   useEffect(() => { window.__lectureOpen = lectureOpen }, [lectureOpen])
+  useEffect(() => { window.__awaitingUndress = awaitingUndress }, [awaitingUndress])
 
   useEffect(() => {
     const handleClosetClick = () => setPopupOpen(true)
@@ -269,12 +278,14 @@ function App() {
       pressEToOpen: t('phaser.pressEToOpen'),
       openCloset: t('phaser.openCloset'),
       pressE: t('phaser.pressE'),
+      closeTheDoorBehindYouFirst: t('phaser.closeTheDoorBehindYouFirst'),
       exitPrompt: t('phaser.exitPrompt'),
       washUp: t('phaser.washUp'),
       openMicrobeInfoHint: t('phaser.openmicrobeInfoHint'),
       lectureMaterialHint: t('phaser.lectureMaterialHint'),
       closetPressE: t('phaser.closetPressE'),
       infoPressE: t('phaser.infoPressE'),
+      pressEOrClick: t('phaser.pressEOrClick'),
     }
     window.__translations = translations
     EventBus.emit('translations-updated', translations)
@@ -296,6 +307,9 @@ function App() {
     setLectureWarningOpen(false)
     setEquipped(unequipAll())
     setAwaitingUndress(false)
+    setAttempt(1)
+    setRetryPending(false)
+    setWashUpRequiredOpen(false)
     setVentilationConnected(false)
     setExitConfirmOpen(false)
     setRoundAnswers([])
@@ -329,6 +343,8 @@ function App() {
       progress: {
         lectureVisited: lectureOpen,
         awaitingUndress,
+        attempt,
+        retryPending,
         ventilationConnected,
       },
       popups: {
@@ -350,6 +366,8 @@ function App() {
     equipped,
     currentMicrobe,
     awaitingUndress,
+    attempt,
+    retryPending,
     ventilationConnected,
     isPopupOpen,
     LectureMaterialOpen,
@@ -374,7 +392,9 @@ function App() {
   const correctLevel = currentMicrobe?.bsl_level
   const chosenLevel = Number(String(answerLevel).replace('BSL-', ''))
   const isLevelCorrect = typeof correctLevel === 'number' && chosenLevel === correctLevel
-  const equipmentRules = getEquipmentRulesForBslLevel(chosenLevel)
+  // The microbe sets the gear, not the room the player walked into — the server
+  // grades the same way, see backend/routes/rounds.js.
+  const equipmentRules = getEquipmentRulesForBslLevel(correctLevel)
   const chosenEquipment = Object.keys(equipped).filter((item) => equipped[item])
   // One evaluation feeds both the verdict and the rows, so they cannot contradict.
   const equipmentEvaluation = evaluateEquipmentSlots(equipmentRules, chosenEquipment)
@@ -415,7 +435,7 @@ function App() {
   // Handling a microbe always requires a trip to the dressing room's wash-up
   // spot afterward — whether or not any PPE was actually worn — before the
   // next microbe is handed out.
-  const handleAnswerClose = () => {
+  const handleAnswerRecord = () => {
     if (Number.isInteger(currentMicrobe?.id) && Number.isInteger(chosenLevel)) {
       setRoundAnswers((answers) =>
         answers.length >= MAX_ROUND_ANSWERS
@@ -427,12 +447,22 @@ function App() {
                 chosen_level: chosenLevel,
                 chosen_equipment: chosenEquipment,
                 correct: isCorrect,
-                attempt: 1,
+                attempt,
               },
             ]
       )
     }
 
+    setAnswerOpen(false)
+    setAwaitingUndress(true)
+    EventBus.emit('undress-required')
+  }
+
+  // The wash-up is still owed, which is what forces the full redo: the dressing room
+  // strips the player before they can dress again and re-enter a room.
+  const handleAnswerRetry = () => {
+    setAttempt(2)
+    setRetryPending(true)
     setAnswerOpen(false)
     setAwaitingUndress(true)
     EventBus.emit('undress-required')
@@ -497,14 +527,23 @@ function App() {
 
   useEffect(() => {
     const handleWashUp = () => {
-      if (awaitingUndress) {
-        setAwaitingUndress(false)
+      if (retryPending) {
+        setRetryPending(false)
+      } else if (awaitingUndress) {
+        // Asking for the next microbe is the only fresh handling event, so it is the
+        // only place the retry is handed back. The scene re-emits
+        // current-microbe-updated for the RESTORED microbe on every page load, so
+        // resetting there would return a spent retry on refresh. The draw may hand
+        // back the same microbe; that is still a fresh handling and gets its own retry.
+        setAttempt(1)
         EventBus.emit('request-new-microbe')
       }
+
+      setAwaitingUndress(false)
     }
     window.addEventListener('quick-undress', handleWashUp)
     return () => window.removeEventListener('quick-undress', handleWashUp)
-  }, [awaitingUndress])
+  }, [awaitingUndress, retryPending])
 
   return (
     <Container fluid className="h-100">
@@ -614,7 +653,9 @@ function App() {
       />
       <AnswerPopup
         open={answerOpen}
-        onClose={handleAnswerClose}
+        onClose={handleAnswerRecord}
+        onRetry={!isCorrect && attempt === 1 ? handleAnswerRetry : undefined}
+        attempt={attempt}
         isCorrect={isCorrect}
         level={answerLevel}
         microbe={currentMicrobe}
@@ -631,6 +672,17 @@ function App() {
             </button>
             <h2>{t('lectureRequired.title')}</h2>
             <p>{t('lectureRequired.message')}</p>
+          </div>
+        </div>
+      )}
+      {washUpRequiredOpen && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <button className="popup-close-button" onClick={() => setWashUpRequiredOpen(false)}>
+              {t('common.close')}
+            </button>
+            <h2>{t('task.title')}</h2>
+            <p>{t('task.undressRequired')}</p>
           </div>
         </div>
       )}

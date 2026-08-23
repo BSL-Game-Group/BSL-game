@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from '../../i18n/context'
 import { CATEGORY_CONFIG, CATEGORY_IDS } from '../../utils/equipmentCategories'
+import { useModalDialog } from '../../hooks/useModalDialog'
 
 function AnswerPopup({
   open,
@@ -11,10 +12,19 @@ function AnswerPopup({
   level,
   microbe,
   equipmentSlots,
+  onRetry,
+  attempt,
 }) {
+  const dialogRef = useModalDialog(open, onClose)
+
+  const retryButton = useRef(null)
+  const canRetry = Boolean(onRetry)
+
+  // Keyed on whether the button exists, not on every render: an inline ref callback
+  // re-runs on each one and would drag focus back off Close.
   useEffect(() => {
-    window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
-  }, [open])
+    if (open && canRetry) { retryButton.current?.focus() }
+  }, [open, canRetry])
 
   const { t, language } = useTranslation()
 
@@ -32,9 +42,17 @@ function AnswerPopup({
     return microbe[field]
   }
 
-  const feedback = microbe
+  // Every microbe feedback string names the level, so the prose gives the answer away
+  // just as much as the "belongs to" line below it. Both wait until there is nothing
+  // left to retry, or the retry is pointless.
+  const revealsAnswer = !onRetry
+
+  // The fallback describes the room, so it turns on the room alone: the right room
+  // with the wrong gear must not be told it picked the wrong room.
+  const feedback =
+    microbe && revealsAnswer
       ? (isLevelCorrect ? localized('feedback_correct') : localized('feedback_incorrect'))
-      : (isCorrect ? t('answerPopup.correctFallback') : t('answerPopup.incorrectFallback'))
+      : (isLevelCorrect ? t('answerPopup.correctFallback') : t('answerPopup.incorrectFallback'))
 
   const equipmentFeedback = isEquipmentCorrect
     ? t('answerPopup.equipmentCorrect')
@@ -44,7 +62,7 @@ function AnswerPopup({
 
   return (
     <div className="popup-overlay">
-      <div className={boxClass}>
+      <div className={boxClass} role="dialog" aria-modal="true" ref={dialogRef} tabIndex={-1}>
         <button onClick={onClose} className="popup-close-button position-absolute top-0 end-0 m-3">
           {t('common.close')}
         </button>
@@ -71,11 +89,25 @@ function AnswerPopup({
           </ul>
         )}
         <p style={{ margin: '12px 0 0', fontSize: '0.95rem' }}>{t('answerPopup.chosenLevel').replace('{level}', level)}</p>
-        {microbe && (
+        {microbe && revealsAnswer && (
           <p style={{ margin: '4px 0 0', fontSize: '0.95rem' }}>
             {t('answerPopup.belongs')
                 .replace('{name}', localized('common_name'))
                 .replace('{level}', microbe.bsl_level)}
+          </p>
+        )}
+        {onRetry && (
+          <button
+            ref={retryButton}
+            onClick={onRetry}
+            className="btn btn-primary mt-3 align-self-start"
+          >
+            {t('answerPopup.tryAgain')}
+          </button>
+        )}
+        {!onRetry && !isCorrect && attempt === 2 && (
+          <p style={{ margin: '12px 0 0', fontSize: '0.95rem', fontStyle: 'italic' }}>
+            {t('answerPopup.lastAttempt')}
           </p>
         )}
       </div>

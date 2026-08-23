@@ -18,8 +18,10 @@
       "Gå till motsvarande BSL-rum (1–4).",
       "Tryck E vid den mörkt gröna ringen för att hantera mikroben.",
       "Spelet kontrollerar ditt arbete — var utrustningen och rummet rätt för denna mikrobе?",
-      "Tvätta dig vid duschen eller ögonduschstationen för att dekontaminera innan du lämnar.",
-      "En ny mikrobе ritas — prova igen!",
+      "Resultatet delar upp utrustningen i kategorier — ögonskydd, masker, klädsel, handskar och skor — markerar vilka karegorier gick rät eller fel. De specifika fela utrustningen namnges inte.",
+      "Om rummet eller utrustningen var fel får du ett nytt försök på samma mikrob. Mikrobens rätta BSL-nivå blir avslöjad efter ditt sista försök.",
+      "Tvätta dig vid duschen eller ögonduschstationen — BSL-rummen är stängda till dess, oavsett om du gör ett nytt försök.",
+      "Efter ditt sista försök lottas en ny mikrob.",
       "Efter flera rundor, se din sammanfattning: poäng, rätt vs. fel, och de nivåer du behärskade.",
       "Du kan lämna när som helst genom utgången — spelet avslutas."
     ],
@@ -44,7 +46,7 @@
     "title": "BSL-spelets material (biosäkerhetsnivåer)",
     "protectiveEquipment": "Skyddsutrustning:",
     "exampleOrganisms": "Exempelorganismer:",
-    "tableHeaders": ["#", "Vanligt namn", "Vetenskapligt namn", "Typ", "Anmärkning"],
+    "tableHeaders": ["#", "Allmänt namn", "Vetenskapligt namn", "Typ", "Anmärkning"],
     "sources": "Källor"
   },
   "task": {
@@ -53,7 +55,7 @@
   },
   "microbeInfoPopup": {
     "title": "Mikrobinformation",
-    "commonName": "Vanligt namn",
+    "commonName": "Allmänt namn",
     "scientificName": "Vetenskapligt namn",
     "type": "Typ",
     "description": "Beskrivning"
@@ -67,14 +69,16 @@
   "answerPopup": {
     "correct": "Rätt!",
     "incorrect": "Inte riktigt",
-    "correctFallback": "Det är rätt rum.",
-    "incorrectFallback": "Det är inte rätt rum.",
+    "correctFallback": "BSL-rummet du valde var rätt.",
+    "incorrectFallback": "BSL-rummet du valde var fel.",
     "equipmentCorrect": "Din skyddsutrustning upfyller BSL-kraven",
     "equipmentIncorrect": "Din skyddsutrustning upfyller inte BSL-kraven.",
     "chosenLevel": "Du valde {level}.",
     "belongs": "{name} tillhör BSL-{level}.",
     "slotCorrect": "rätt",
-    "slotIncorrect": "fel"
+    "slotIncorrect": "fel",
+    "tryAgain": "Försök igen",
+    "lastAttempt": "Det var ditt sista försök för den här mikroben."
   },
   "common": {
     "close": "Stäng",
@@ -108,12 +112,14 @@
     "pressEToOpen": "Tryck E för att öppna",
     "openCloset": "Öppna garderobsskåpet",
     "pressE": "Tryck E",
+    "closeTheDoorBehindYouFirst": "Stäng dörren bakom dig först.",
     "exitPrompt": "Tryck E för att lämna",
     "washUp": "Tryck R eller klicka för att tvätta dig",
     "openmicrobeInfoHint": "Mikrobinformation — tryck E",
     "lectureMaterialHint": "Föreläsningsmaterial — tryck E",
     "closetPressE": "Utrustningsskåp — tryck E",
-    "infoPressE": "Info — tryck E"
+    "infoPressE": "Info — tryck E",
+    "pressEOrClick": "Tryck E eller klicka"
   },
   "hud": {
     "score": "Poäng: {score}",
