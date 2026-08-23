@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { playerIsInsideZone } from '../utils/zoneUtils';
+import { isTypingInField } from '../utils/isTypingInField';
 
 export class BaseInteraction {
     constructor(scene) {
@@ -16,6 +17,9 @@ export class BaseInteraction {
 
     justPressed(key) {
         if (!key || !Phaser.Input.Keyboard.JustDown(key)) {
+            return false;
+        }
+        if (isTypingInField()) {
             return false;
         }
         return !key.ctrlKey && !key.metaKey && !key.altKey;

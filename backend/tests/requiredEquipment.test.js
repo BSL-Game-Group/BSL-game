@@ -8,16 +8,24 @@ after(closeDb);
 
 const CANONICAL_RULES = {
   1: {
-    required: ['lab_coat', 'glasses', 'gloves'],
-    anyOf: ['indoor_shoes', 'disposable_foot_covers'],
-    optional: [],
-  },
-  2: {
-    required: ['lab_coat', 'gloves'],
+    required: ['lab_coat', 'glasses'],
     anyOf: [
       {
         allOf: [
-          { anyOf: ['mask', 'face_shield'] },
+          { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
+          { anyOf: ['gloves', 'gloves_2'] },
+        ],
+      },
+    ],
+    optional: [],
+  },
+  2: {
+    required: ['lab_coat', 'mask'],
+    anyOf: [
+      {
+        allOf: [
+          { anyOf: ['glasses', 'face_shield'] },
+          { anyOf: ['gloves', 'gloves_2'] },
           { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
         ],
       },
@@ -25,24 +33,18 @@ const CANONICAL_RULES = {
     optional: [],
   },
   3: {
-    required: ['gloves', 'gloves_2'],
+    required: ['disposable_overall', 'mask', 'gloves', 'gloves_2'],
     anyOf: [
       {
         allOf: [
-          { anyOf: ['closable_lab_coat', 'disposable_overall'] },
-          {
-            anyOf: [
-              { allOf: ['mask', { anyOf: ['glasses', 'face_shield'] }] },
-              'bsl3_respirator',
-            ],
-          },
+          { anyOf: ['glasses', 'face_shield'] },
           { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
         ],
       },
     ],
     optional: [],
   },
-  4: { required: ['pressurized_suit', 'gloves'], anyOf: [], optional: [] },
+  4: { required: ['pressurized_suit'], anyOf: ['gloves', 'gloves_2'], optional: [] },
 };
 
 test('the database rules match the rules the game grades against', async () => {
@@ -63,7 +65,7 @@ test('the seeder and the latest rules migration produce identical rules', () => 
   const { REQUIRED_EQUIPMENT } = require('../seeders/20260622000001-seed-bsl-classes');
   const {
     CANONICAL_RULES: migrationRules,
-  } = require('../migrations/20260812000001-require-footwear-in-required-equipment');
+  } = require('../migrations/20260821000001-require-gloves-with-footwear-at-bsl1');
 
   assert.deepStrictEqual(
     REQUIRED_EQUIPMENT,

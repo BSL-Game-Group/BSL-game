@@ -165,14 +165,14 @@ test('empty, oversized and malformed answer lists are 400s', async () => {
   assert.strictEqual(await db.Round.count(), 0);
 });
 
-test('a level with no rules costs the level, not the equipment', async () => {
+test('the equipment is graded against the microbe, not the room the player chose', async () => {
   const bsl1 = await microbeAtLevel(1);
 
   const response = await request(app)
     .post('/api/rounds')
     .send({
       session_id: 'session-a',
-      answers: [{ microbe_id: bsl1.id, chosen_level: 7, chosen_equipment: [] }],
+      answers: [{ microbe_id: bsl1.id, chosen_level: 4, chosen_equipment: BSL1_CORRECT }],
     });
 
   assert.strictEqual(response.status, 201);
@@ -184,7 +184,7 @@ test('a level with no rules costs the level, not the equipment', async () => {
 
 // --- PATCH /api/rounds/:id ---
 
-const BSL2_CORRECT = ['lab_coat', 'gloves', 'mask', 'indoor_shoes'];
+const BSL2_CORRECT = ['lab_coat', 'mask', 'glasses', 'gloves', 'indoor_shoes'];
 
 function createRound(sessionId, answers, token) {
   const pending = request(app).post('/api/rounds');

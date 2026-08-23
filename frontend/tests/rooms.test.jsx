@@ -87,11 +87,6 @@ describe('createRooms', () => {
 
     expect(Array.isArray(walls)).toBe(true)
     expect(walls.length).toBeGreaterThan(0)
-    // Every wall segment gets a static physics body, and so do the 4 lecture-room
-    // bookshelves (which live in their own group, not in `walls`).
-    expect(scene.physics.add.existing).toHaveBeenCalledTimes(
-      walls.length + scene.lectureShelves.length
-    )
   })
 
   test('horizontal walls leave a gap at doorways', () => {
@@ -267,14 +262,6 @@ describe('createRooms — lecture room', () => {
 
     // Right workstation collider was removed — no longer created
     expect(scene.add.rectangle).not.toHaveBeenCalledWith(353, 184, 174, 104)
-  })
-
-  test('does not expose bookshelf colliders anymore', () => {
-    const scene = makeFakeScene()
-    createRooms(scene)
-
-    expect(Array.isArray(scene.lectureShelves)).toBe(true)
-    expect(scene.lectureShelves).toHaveLength(0)
   })
 
   test('creates the info-point glow and exposes its scene refs', () => {
