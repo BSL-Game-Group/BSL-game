@@ -54,13 +54,18 @@ export class LectureInteraction extends BaseInteraction {
 
                 if (closeEnough) {
                     openmicrobeInfoHint.setVisible(true);
-                    openmicrobeInfoHint.setPosition(lecturePoint.x - 40, lecturePoint.y + 45);
+                    openmicrobeInfoHint.setPosition(lecturePoint.x - 40, lecturePoint.y - 45);
                     if (this.justPressed(this.keyE)) {
                         window.dispatchEvent(new Event('microbe-info-popup-opened'));
                     }
                 } else {
                     openmicrobeInfoHint.setVisible(false);
                 }
+            } else if (openmicrobeInfoHint) {
+                // Leaving the room has to hide it too. Without this the hint
+                // only ever changed while the player was inside, so walking
+                // out with it showing left it on screen for good.
+                openmicrobeInfoHint.setVisible(false);
             }
         }
 

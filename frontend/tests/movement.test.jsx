@@ -865,6 +865,29 @@ test('hides the press E hint when inside the lecture room but too far from the i
   expect(handler).not.toHaveBeenCalled()
 })
 
+// The hint used to be touched only from inside the "player is in the room"
+// branch, so walking out while it showed left it on screen permanently.
+test('hides the press E hint after the player leaves the lecture room', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 400, height: 400 },
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
+  })
+
+  scene.player.x = 50
+  scene.player.y = 50
+  scene.update()
+
+  expect(scene.openmicrobeInfoHint.setVisible).toHaveBeenLastCalledWith(true)
+
+  scene.player.x = 900
+  scene.player.y = 900
+  scene.update()
+
+  expect(scene.openmicrobeInfoHint.setVisible).toHaveBeenLastCalledWith(false)
+})
+
 test('shows the lecture material hint, and opens materials on E when close to it', () => {
   const scene = createScene({
     lectureRoomZone: { x: 0, y: 0, width: 400, height: 400 },
