@@ -14,11 +14,12 @@ const BSL_EQUIPMENT_RULES = {
     optional: [],
   },
   2: {
-    required: ['lab_coat', 'gloves'],
+    required: ['lab_coat', 'mask'],
     anyOf: [
       {
         allOf: [
-          { anyOf: ['mask', 'face_shield'] },
+          { anyOf: ['glasses', 'face_shield'] },
+          { anyOf: ['gloves', 'gloves_2'] },
           { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
         ],
       },
@@ -26,24 +27,18 @@ const BSL_EQUIPMENT_RULES = {
     optional: [],
   },
   3: {
-    required: ['gloves', 'gloves_2'],
+    required: ['disposable_overall', 'mask', 'gloves', 'gloves_2'],
     anyOf: [
       {
         allOf: [
-          { anyOf: ['closable_lab_coat', 'disposable_overall'] },
-          {
-            anyOf: [
-              { allOf: ['mask', { anyOf: ['glasses', 'face_shield'] }] },
-              'bsl3_respirator',
-            ],
-          },
+          { anyOf: ['glasses', 'face_shield'] },
           { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
         ],
       },
     ],
     optional: [],
   },
-  4: { required: ['pressurized_suit', 'gloves'], anyOf: [], optional: [] },
+  4: { required: ['pressurized_suit'], anyOf: ['gloves', 'gloves_2'], optional: [] },
 }
 
 export function getEquipmentRulesForBslLevel(level) {
