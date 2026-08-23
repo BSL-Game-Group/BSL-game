@@ -32,4 +32,15 @@ const getRandom = async () => {
     }
 }
 
-export default { getRandom }
+const resetSession = async () => {
+    try {
+        const sessionId = getSessionId()
+        if (sessionId) {
+            await axios.post(`${rootURL}/reset`, { session_id: sessionId })
+        }
+    } catch (error) {
+        console.error('Failed to reset session microbes', error)
+    }
+}
+
+export default { getRandom, resetSession }

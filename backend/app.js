@@ -124,6 +124,25 @@ app.get('/api/microbes/random', async (req, res) => {
   }
 })
 
+app.post('/api/microbes/reset', async (req, res) => {
+  try {
+    const { session_id } = req.body;
+    
+    if (session_id) {
+      await db.Round.update(
+        { seen_microbes: [] },
+        { where: { session_id: session_id } }
+      );
+      console.log(`\n🧹 [RESET] Emptied microbe list for session ${session_id}\n`);
+    }
+    
+    res.status(200).json({ message: 'Session reset successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to reset session microbes' });
+  }
+});
+
 app.get('/api/microbes/:id', async (req, res) => {
   try {
     const microbe = await db.Microbe.findByPk(req.params.id, {
