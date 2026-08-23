@@ -2,8 +2,15 @@ import { CATEGORY_IDS, EQUIPMENT_CATEGORIES } from './equipmentCategories'
 
 const BSL_EQUIPMENT_RULES = {
   1: {
-    required: ['lab_coat', 'glasses', 'gloves'],
-    anyOf: ['indoor_shoes', 'disposable_foot_covers'],
+    required: ['lab_coat', 'glasses'],
+    anyOf: [
+      {
+        allOf: [
+          { anyOf: ['indoor_shoes', 'disposable_foot_covers'] },
+          { anyOf: ['gloves', 'gloves_2'] },
+        ],
+      },
+    ],
     optional: [],
   },
   2: {
