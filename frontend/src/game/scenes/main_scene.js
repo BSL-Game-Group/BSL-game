@@ -71,6 +71,7 @@ class MainScene extends Phaser.Scene {
         this.undressHint = this.hintManager.undressHint;
         this.bslHint = this.hintManager.bslHint;
         this.doorHint = this.hintManager.doorHint;
+        this.lectureMaterialHint = this.hintManager.lectureMaterialHint;
         this.openmicrobeInfoHint = this.hintManager.openmicrobeInfoHint;
         
         Object.defineProperty(this, 'exitPromptText', {
@@ -83,6 +84,7 @@ class MainScene extends Phaser.Scene {
             openCloset: window.__translations?.openCloset ?? 'Open Closet',
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
+            lectureMaterialHint: window.__translations?.lectureMaterialHint ?? 'Press E to open lecture material',
             closeTheDoorBehindYouFirst: window.__translations?.closeTheDoorBehindYouFirst ?? 'Close the door behind you first.',
             openmicrobeInfoHint: window.__translations?.openMicrobeInfo ?? 'Press E for microbe info',
             pressEOrClick: window.__translations?.pressEOrClick ?? 'Press E or click',
