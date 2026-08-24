@@ -13,7 +13,7 @@ import ObjectiveToast from './components/ObjectiveToast'
 import NextStepHud from './components/NextStepHud'
 import BslAirlockStatus from './components/BslAirlockStatus'
 import { useStuckTimer } from './hooks/useStuckTimer'
-import { stuckStage, FIRST_ROUND_STUCK_THRESHOLDS_MS } from './utils/stuckStage'
+import { stuckStage } from './utils/stuckStage'
 import AuthStatus from './auth/AuthStatus'
 import EndPopup from './components/EndPopup'
 import YourRounds from './auth/YourRounds'
@@ -435,16 +435,13 @@ function App() {
   // handled a microbe, repeating it every objective change for the rest of
   // the session would just be noise for someone who already knows the loop.
   const isFirstRound = roundAnswers.length === 0
-  // Same objective system, shorter fuse — not a separate tutorial mode (see
-  // plan section "Matalan kynnyksen aloitus"). A player who already knows
-  // the loop can dismiss it; guidanceSkipped then stays true for the rest of
-  // the round even if isFirstRound is still technically true.
+  // The first round used to get a five-second fuse on the stuck row. It had
+  // nothing to do: the toast is already walking that player through every
+  // step, so the row only arrived on top of guidance they were reading. One
+  // fuse now, for everyone.
   const isGuidedFirstRound = isFirstRound && !guidanceSkipped
   const stuckElapsedMs = useStuckTimer(objective?.id ?? null, anyPopupOpen)
-  const stage = stuckStage(
-    stuckElapsedMs,
-    isGuidedFirstRound ? FIRST_ROUND_STUCK_THRESHOLDS_MS : undefined
-  )
+  const stage = stuckStage(stuckElapsedMs)
 
   // Handling a microbe always requires a trip to the dressing room's wash-up
   // spot afterward — whether or not any PPE was actually worn — before the
