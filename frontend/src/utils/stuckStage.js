@@ -6,7 +6,7 @@
 // and its threshold is what decides when 'verbal' starts counting.
 export const STUCK_THRESHOLDS_MS = {
   subtle: 25_000,
-  verbal: 60_000,
+  verbal: 45_000,
 }
 
 // Same escalation, shorter fuse — used only for the player's first round
