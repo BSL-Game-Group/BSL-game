@@ -124,3 +124,20 @@ test('still fades out while the parent re-renders with an equal objective', () =
 
   expect(screen.getByRole('status').className).not.toContain('objective-toast--visible')
 })
+
+// A popup opening mid-display used to clear the pending hide without arming a
+// new one, so closing it on the same objective left the toast up for good.
+test('a popup opening and closing mid-display does not pin the toast', () => {
+  const objective = { id: 'suit-up' }
+  const { rerender } = render(<ObjectiveToast objective={objective} />)
+
+  act(() => jest.advanceTimersByTime(1000))
+  rerender(<ObjectiveToast objective={objective} suppressed />)
+
+  act(() => jest.advanceTimersByTime(1000))
+  rerender(<ObjectiveToast objective={objective} suppressed={false} />)
+
+  act(() => jest.advanceTimersByTime(5000))
+
+  expect(screen.getByRole('status').className).not.toContain('objective-toast--visible')
+})

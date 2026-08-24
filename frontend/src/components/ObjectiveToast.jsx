@@ -31,8 +31,14 @@ function ObjectiveToast({ objective, roomLabel, suppressed, onSkipGuide }) {
   // before setting a new one — so the toast stayed on screen for good.
   const objectiveId = objective?.id ?? null
 
+  // Deliberately not gated on `suppressed`. A popup opening mid-display used to
+  // re-run this effect: the cleanup cleared the pending hide and the guard
+  // returned before arming a new one, so closing the popup on the same
+  // objective left the toast — and its clickable skip button — pinned over the
+  // game for the rest of that objective. The clock now runs regardless, and
+  // the render below is what hides the toast while a popup is up.
   useEffect(() => {
-    if (!objectiveId || suppressed || objectiveId === lastIdRef.current) {
+    if (!objectiveId || objectiveId === lastIdRef.current) {
       return
     }
 
@@ -45,7 +51,7 @@ function ObjectiveToast({ objective, roomLabel, suppressed, onSkipGuide }) {
     )
 
     return () => clearTimeout(timer)
-  }, [objectiveId, suppressed, offersSkip])
+  }, [objectiveId, offersSkip])
 
   if (!objective) {
     return null
