@@ -220,7 +220,7 @@ router.post('/rounds', optionalAuth, async (req, res) => {
     await created.update({
       score: result.score,
       correct_count: result.correctCount,
-      answer_count: result.graded.length,
+      answer_count: result.microbeCount,
       user_id: req.user ? req.user.id : null,
     }, { transaction });
 
