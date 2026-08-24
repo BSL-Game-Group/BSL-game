@@ -21,6 +21,13 @@ export function resolveObjective({ progress, equipped, microbe, room } = {}) {
     return { id: 'wash-up', target: 'showerRoom' }
   }
 
+  // Reading the card comes before the closet on purpose. The equipment follows
+  // from the organism's BSL level, so a player who dresses first is guessing;
+  // the objective should not walk them into that.
+  if (!progress.microbeChecked) {
+    return { id: 'check-microbe', target: 'lectureRoom' }
+  }
+
   const missing = missingEquipment(microbe.bsl_level, equipped)
   if (missing.length > 0) {
     return { id: 'suit-up', target: 'dressingRoom', missing }

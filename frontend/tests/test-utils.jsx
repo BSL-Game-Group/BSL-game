@@ -55,6 +55,7 @@ const translationValue = {
       'objective.wash-up': 'Next: wash up in the {room}',
       'objective.handle-microbe': 'Next: handle the microbe',
       'objective.await-microbe': 'Next: waiting for a microbe',
+      'objective.check-microbe': 'Next: check the microbe details',
 
       'bslAirlock.doorOpen': 'The airlock door is open — close it first',
       'bslAirlock.suitOff': 'The pressurized suit is not on',

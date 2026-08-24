@@ -131,6 +131,7 @@
   "objective": {
     "visit-lecture": "Next: visit the lecture",
     "await-microbe": "Next: waiting for a microbe",
+    "check-microbe": "Next: check the microbe details",
     "wash-up": "Next: wash up in the {room}",
     "suit-up": "Next: put on your protective equipment",
     "go-to-room": "Next: go to {room}",

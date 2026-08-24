@@ -7,6 +7,9 @@ function baseState(overrides = {}) {
       lectureVisited: true,
       awaitingUndress: false,
       ventilationConnected: false,
+      // The default state is a player who has already read the card, so the
+      // equipment cases below test what they say they test.
+      microbeChecked: true,
     },
     equipped: unequipAll(),
     microbe: { id: 1, bsl_level: 1 },
@@ -34,6 +37,23 @@ describe('resolveObjective', () => {
   test('sends the player to wash up when awaitingUndress is set', () => {
     const state = baseState({
       progress: { lectureVisited: true, awaitingUndress: true },
+    })
+
+    expect(resolveObjective(state)).toEqual({ id: 'wash-up', target: 'showerRoom' })
+  })
+
+  test('asks the player to read the microbe card before the closet', () => {
+    const state = baseState({
+      progress: { lectureVisited: true, awaitingUndress: false, microbeChecked: false },
+    })
+
+    expect(resolveObjective(state)).toEqual({ id: 'check-microbe', target: 'lectureRoom' })
+  })
+
+  // Washing up is left over from the previous organism, so it comes first.
+  test('washing up outranks reading the next card', () => {
+    const state = baseState({
+      progress: { lectureVisited: true, awaitingUndress: true, microbeChecked: false },
     })
 
     expect(resolveObjective(state)).toEqual({ id: 'wash-up', target: 'showerRoom' })

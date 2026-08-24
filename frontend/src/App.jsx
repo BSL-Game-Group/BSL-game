@@ -89,6 +89,11 @@ function App() {
   // loop shouldn't be forced through the guided first round. Deliberately
   // not persisted to savedGame: it's a per-session courtesy, not progress.
   const [guidanceSkipped, setGuidanceSkipped] = useState(false)
+  // The microbe whose card the player has opened. Storing the id rather than a
+  // flag means a new organism asks to be read again without anything having to
+  // reset it. Guidance only, so it is not persisted: a reload asks once more,
+  // which costs one keypress and never blocks anything.
+  const [checkedMicrobeId, setCheckedMicrobeId] = useState(null)
   const [openRoundId, setOpenRoundId] = useState(restored?.round.openRoundId ?? null)
   const [roundResult, setRoundResult] = useState(null)
 
@@ -262,10 +267,13 @@ function App() {
     return () => window.removeEventListener('info-popup-opened', handleInfoOpen)
   }, [])
   useEffect(() => {
-    const handleMicrobeInfoOpen = () => setMicrobeInfoOpen(true)
+    const handleMicrobeInfoOpen = () => {
+      setMicrobeInfoOpen(true)
+      setCheckedMicrobeId(currentMicrobe?.id ?? null)
+    }
     window.addEventListener('microbe-info-popup-opened', handleMicrobeInfoOpen)
     return () => window.removeEventListener('microbe-info-popup-opened', handleMicrobeInfoOpen)
-  }, [])
+  }, [currentMicrobe?.id])
   useEffect(() => {
     const handleLectureMaterialOpen = () => setLectureMaterialOpen(true)
     window.addEventListener('lecture-material-popup-opened', handleLectureMaterialOpen)
@@ -420,7 +428,11 @@ function App() {
 
   const objective = gameStarted
     ? resolveObjective({
-        progress: { lectureVisited: lectureOpen, awaitingUndress },
+        progress: {
+          lectureVisited: lectureOpen,
+          awaitingUndress,
+          microbeChecked: currentMicrobe !== null && checkedMicrobeId === currentMicrobe.id,
+        },
         equipped,
         microbe: currentMicrobe,
         room: bslRoom,

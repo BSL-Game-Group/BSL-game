@@ -131,6 +131,7 @@
   "objective": {
     "visit-lecture": "Seuraavaksi: käy luennolla",
     "await-microbe": "Seuraavaksi: odota mikrobia",
+    "check-microbe": "Seuraavaksi: katso mikrobin tiedot",
     "wash-up": "Seuraavaksi: peseydy tilassa {room}",
     "suit-up": "Seuraavaksi: pukeudu suoja-asuun",
     "go-to-room": "Seuraavaksi: siirry huoneeseen {room}",

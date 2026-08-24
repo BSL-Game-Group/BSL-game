@@ -131,6 +131,7 @@
   "objective": {
     "visit-lecture": "Näst: besök föreläsningen",
     "await-microbe": "Näst: väntar på en mikrob",
+    "check-microbe": "Näst: kolla mikrobens uppgifter",
     "wash-up": "Näst: tvätta dig i {room}",
     "suit-up": "Näst: ta på skyddsutrustningen",
     "go-to-room": "Näst: gå till {room}",
