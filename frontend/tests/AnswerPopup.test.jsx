@@ -295,28 +295,43 @@ describe('retry affordance', () => {
     expect(onRetry).toHaveBeenCalledTimes(1)
   })
 
-  test('a re-render does not drag focus back off Close', () => {
+  test('a re-render does not drag focus back off the skip button', () => {
     const props = { open: true, onClose: jest.fn(), isCorrect: false, isLevelCorrect: false,
       isEquipmentCorrect: true, level: 'BSL-2', attempt: 1, onRetry: jest.fn() }
 
     const { rerender } = render(<AnswerPopup {...props} />)
 
-    const close = screen.getByRole('button', { name: /^close$/i })
+    const skip = screen.getByRole('button', { name: /skip this microbe/i })
 
-    close.focus()
+    skip.focus()
     rerender(<AnswerPopup {...props} />)
 
-    expect(close).toHaveFocus()
+    expect(skip).toHaveFocus()
+  })
+
+  // A bare "Close" alongside "Try again" gives up on the microbe without saying so.
+  test('giving up on the retry is a labelled choice that owns the wash-up', () => {
+    const onClose = jest.fn()
+
+    renderPopup({ isCorrect: false, attempt: 1, onRetry: jest.fn(), onClose })
+
+    expect(screen.queryByRole('button', { name: /^close$/i })).not.toBeInTheDocument()
+    expect(screen.getByText(/skipping means going to the wash-up point/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /skip this microbe/i }))
+
+    expect(onClose).toHaveBeenCalledTimes(1)
   })
 
   test.each([
-    ['no retry is left', { isCorrect: false, attempt: 2 }, true],
-    ['the answer was correct', { isCorrect: true, attempt: 1 }, false],
-  ])('offers no retry when %s', (_label, props, saysWhy) => {
+    ['no retry is left', { isCorrect: false, attempt: 2 }, /last try.*wash-up point/i],
+    ['the answer was correct', { isCorrect: true, attempt: 1 }, /^go to the wash-up point/i],
+  ])('offers no retry when %s, and asks for a wash-up', (_label, props, reminder) => {
     renderPopup(props)
 
     expect(screen.queryByRole('button', { name: /try again/i })).not.toBeInTheDocument()
-    expect(Boolean(screen.queryByText(/last try/i))).toBe(saysWhy)
+    expect(screen.getByRole('button', { name: /^close$/i })).toBeInTheDocument()
+    expect(screen.getByText(reminder)).toBeInTheDocument()
   })
 })
 

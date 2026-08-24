@@ -31,7 +31,6 @@ describe('defaultSnapshot', () => {
       materialsUnlocked: false,
       awaitingUndress: false,
       attempt: 1,
-      retryPending: false,
       ventilationConnected: false,
     })
     expect(snapshot.popups.answerLevel).toBe('')
@@ -384,9 +383,9 @@ describe('the round in progress', () => {
 })
 
 test.each([
-  ['a mid-retry snapshot round-trips', { attempt: 2, retryPending: true }, 2, true],
-  ['a nonsense attempt degrades to the first try', { attempt: 99 }, 1, false],
-])('%s', (_label, progress, attempt, retryPending) => {
+  ['a mid-retry snapshot round-trips', { attempt: 2 }, 2],
+  ['a nonsense attempt degrades to the first try', { attempt: 99 }, 1],
+])('%s', (_label, progress, attempt) => {
   const snapshot = defaultSnapshot()
 
   snapshot.savedAt = Date.now()
@@ -396,7 +395,6 @@ test.each([
   const restored = loadSavedGame()
 
   expect(restored.progress.attempt).toBe(attempt)
-  expect(restored.progress.retryPending).toBe(retryPending)
 })
 
 // The version must NOT be bumped for a new field: validate() throws away the whole snapshot
@@ -406,12 +404,10 @@ test('a snapshot saved before the retry existed still restores', () => {
 
   snapshot.savedAt = Date.now()
   delete snapshot.progress.attempt
-  delete snapshot.progress.retryPending
   localStorage.setItem(SAVED_GAME_KEY, JSON.stringify(snapshot))
 
   const restored = loadSavedGame()
 
   expect(restored).not.toBeNull()
   expect(restored.progress.attempt).toBe(1)
-  expect(restored.progress.retryPending).toBe(false)
 })

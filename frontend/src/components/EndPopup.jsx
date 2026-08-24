@@ -2,12 +2,17 @@ import { useState } from 'react'
 import { useAuth } from '../auth/context'
 import AuthForm from '../auth/AuthForm'
 import { useTranslation } from '../i18n/context'
+import { useModalDialog } from '../hooks/useModalDialog'
 
 function EndPopup({ open, round, onKeepPlaying, onExit }) {
   const { user, claimedRounds } = useAuth()
   const { t } = useTranslation()
 
   const [formOpen, setFormOpen] = useState(false)
+
+  // Escape means "keep playing" here — the safe half of the choice. Leaving
+  // is deliberate and stays behind its own button.
+  const dialogRef = useModalDialog(open, onKeepPlaying)
 
   if (!open) {
     return null
@@ -20,7 +25,7 @@ function EndPopup({ open, round, onKeepPlaying, onExit }) {
       aria-modal="true"
       aria-labelledby="end-popup-title"
     >
-      <div className="popup-box end-popup">
+      <div className="popup-box end-popup" ref={dialogRef} tabIndex={-1}>
         <h2 id="end-popup-title">{round ? t('auth.claim.title') : t('exitConfirm.title')}</h2>
 
         {round && (

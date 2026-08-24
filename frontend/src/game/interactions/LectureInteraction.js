@@ -21,6 +21,9 @@ export class LectureInteraction extends BaseInteraction {
             lectureGlowTween,
             lectureMaterialGlow,
             lectureMaterialGlowTween,
+            lectureMaterialPoint,
+            lectureMaterialHint,
+            pressEText,
             openmicrobeInfoHint,
         } = this.scene;
         if (!lectureRoomZone) {
@@ -37,9 +40,10 @@ export class LectureInteraction extends BaseInteraction {
             this.playerInsideLectureRoom = false;
         }
 
-        // Proximity glow & prompt
+        // Microbe info proximity glow & prompt
         if (lectureGlow && lecturePoint) {
             lectureGlow.setVisible(inside);
+            openmicrobeInfoHint.setVisible(false); // Hide the hint by default
             if (lectureGlowTween) {
                 inside ? lectureGlowTween.resume() : lectureGlowTween.pause();
             }
@@ -56,17 +60,30 @@ export class LectureInteraction extends BaseInteraction {
                     if (this.justPressed(this.keyE)) {
                         window.dispatchEvent(new Event('microbe-info-popup-opened'));
                     }
-                } else {
-                    openmicrobeInfoHint.setVisible(false);
                 }
             }
         }
 
-        // Lecture-room right-side Lecture material button glow
+        // Lecture material proximity glow & prompt
         if (lectureMaterialGlow) {
             lectureMaterialGlow.setVisible(inside);
+            lectureMaterialHint.setVisible(false); // Hide the hint by default
             if (lectureMaterialGlowTween) {
                 inside ? lectureMaterialGlowTween.resume() : lectureMaterialGlowTween.pause();
+            }
+            if (inside) {
+                const dist = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y, lectureMaterialPoint.x, lectureMaterialPoint.y
+                );
+                const closeEnough = dist < 100;
+
+                if (closeEnough) {
+                    lectureMaterialHint.setVisible(true);
+                    lectureMaterialHint.setPosition(lectureMaterialPoint.x - 40, lectureMaterialPoint.y + 45);
+                    if (this.justPressed(this.keyE)) {
+                        window.dispatchEvent(new Event('lecture-material-popup-opened'));
+                    }
+                }
             }
         }
     }

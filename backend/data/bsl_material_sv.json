@@ -21,7 +21,11 @@
       "level": 1,
       "title": "BSL-1 — Låg risk",
       "description": "BSL-1-organismer orsakar inte sjukdom hos friska vuxna. De används inom grundforskning och undervisning. Laboratoriet kräver ingen särskild inneslutning, och arbetet utförs på öppen bänk.",
-      "equipment": ["Labbrock", "Handskar vid behov", "Skyddsglasögon mot stänk"],
+      "equipment": [
+        "Labbrock (krävs)",
+        "Skyddsglasögon (krävs)",
+        "Inneskor, engångsfotskydd eller handskar — minst ett krävs"
+      ],
       "examples": "Bagerjäst, jordbakterier, laboratoriestammar av E. coli."
     },
     {
@@ -29,9 +33,11 @@
       "title": "BSL-2 — Måttlig risk",
       "description": "BSL-2-organismer kan orsaka sjukdom, men effektiv behandling eller vaccin finns oftast tillgängligt. Smitta kräver direkt kontakt (blod, sekret, mat) — sprids inte via luften. Tillträdet till laboratoriet är begränsat under pågående arbete.",
       "equipment": [
-        "Labbrock",
-        "Handskar hela tiden",
-        "Skyddsglasögon eller visir",
+        "Labbrock (krävs)",
+        "Munskydd (krävs)",
+        "Skyddsglasögon eller visir (krävs)",
+        "Handskar (krävs)",
+        "Inneskor eller engångsfotskydd (krävs)",
         "Dragskåp/biosäkerhetsbänk för hantering av aerosoler"
       ],
       "examples": "Salmonella, stafylokocker, vattkoppor, hepatit A, klamydia."
@@ -41,9 +47,11 @@
       "title": "BSL-3 — Hög risk",
       "description": "BSL-3-organismer kan orsaka allvarlig eller livshotande sjukdom, och vissa sprids via luften som aerosoler. Tillträdet är strikt kontrollerat, och laboratoriet har riktat luftflöde som förhindrar att patogener läcker ut.",
       "equipment": [
-        "Engångsoverall eller sluten heltäckande rock",
-        "Dubbla handskar",
-        "Andningsskydd (N95 eller bättre)",
+        "Engångsoverall (krävs)",
+        "Munskydd (krävs)",
+        "Dubbla handskar (krävs)",
+        "Skyddsglasögon eller visir (krävs)",
+        "Inneskor eller engångsfotskydd (krävs)",
         "Dusch vid utgång"
       ],
       "examples": "Tuberkulos, mjältbrand, covid-19 (virusodling), hiv, hepatit B och C, denguefeber."
@@ -53,8 +61,8 @@
       "title": "BSL-4 — Maximal risk",
       "description": "BSL-4-organismer orsakar ofta en dödlig sjukdom, och ingen effektiv behandling eller vaccin finns tillgänglig. Fullständig isolering från omgivningen och ett specialbyggt laboratorium krävs.",
       "equipment": [
-        "Helt sluten övertrycksdräkt med egen luftförsörjning",
-        "Handskar integrerade i dräkten",
+        "Helt sluten övertrycksdräkt (krävs)",
+        "Handskar som bärs med dräkten (krävs)",
         "Dusch och dekontaminering vid utgång",
         "Allt material autoklaveras"
       ],
@@ -89,7 +97,7 @@
       "note": "Hiv, hepatit B, hepatit C och denguefeber finns inte med i denna BSL-2-lista — de har flyttats till BSL-3 enligt finsk lagstiftning (se del 3).",
       "rows": [
         [16, "Influensa A", "Säsongsinfluensavirus", "Virus", "Vaccin finns tillgängligt"],
-        [17, "Mässling", "Morbillivirus", "Virus", "MPR-vaccin skyddar"],
+        [17, "Mässling", "Morbillivirus", "Virus", "MPR (eng. MMR)-vaccin skyddar"],
         [18, "Salmonella", "Salmonella Typhimurium", "Bakterie", "Livsmedelsburen"],
         [19, "Stafylokocker", "Staphylococcus aureus", "Bakterie", "MRSA-stammar resistenta"],
         [20, "Borrelios", "Borrelia burgdorferi", "Bakterie", "Fästingburen"],
