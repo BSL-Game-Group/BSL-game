@@ -1308,3 +1308,31 @@ test('resetting the game forgets which BSL room the player was in', () => {
 
   expect(screen.queryByTestId('bsl-airlock-status')).not.toBeInTheDocument()
 })
+
+// MainScene freezes movement and interactions on these two events. Only the
+// BSL-4 gear popup and the exit confirmation used to send them, so the closet
+// left the game running underneath: arrow keys still moved the player, and E
+// still worked on whatever was nearby, while the dialog was open.
+test('opening the closet freezes the scene, closing it lets it run again', () => {
+  startGame()
+
+  const opened = jest.fn()
+  const closed = jest.fn()
+  window.addEventListener('popup-opened', opened)
+  window.addEventListener('popup-closed', closed)
+
+  act(() => {
+    window.dispatchEvent(new Event('closet-popup-opened'))
+  })
+
+  expect(opened).toHaveBeenCalled()
+
+  act(() => {
+    screen.getByRole('button', { name: /^close$/i }).click()
+  })
+
+  expect(closed).toHaveBeenCalled()
+
+  window.removeEventListener('popup-opened', opened)
+  window.removeEventListener('popup-closed', closed)
+})

@@ -99,9 +99,6 @@ function App() {
   // Which BSL-3/BSL-4 airlock doors are currently open — the interlock in
   // Door.js already blocks movement on this, but nothing surfaced it.
   const [bslDoorOpen, setBslDoorOpen] = useState({})
-  // Mirrors MainScene's own isPopupOpen: same two events, same freeze contract.
-  // The objective toast must never appear on top of a popup.
-  const [anyPopupOpen, setAnyPopupOpen] = useState(false)
 
 
   // --- HOOKS (Preserved from original) ---
@@ -141,16 +138,6 @@ function App() {
     window.addEventListener('bsl-door-changed', handler)
     return () => window.removeEventListener('bsl-door-changed', handler)
   }, [])
-  useEffect(() => {
-    const handleOpen = () => setAnyPopupOpen(true)
-    const handleClose = () => setAnyPopupOpen(false)
-    window.addEventListener('popup-opened', handleOpen)
-    window.addEventListener('popup-closed', handleClose)
-    return () => {
-      window.removeEventListener('popup-opened', handleOpen)
-      window.removeEventListener('popup-closed', handleClose)
-    }
-  }, [])
 
   // Phaser's BSL interactables gate on this (rooms.js + BslInteraction.js) and
   // can't read React state, so the lecture visit has to be mirrored onto window.
@@ -168,6 +155,31 @@ function App() {
   // reads window.__lectureOpen. Computed early: several effects below (the
   // BSL4 door prompts) need it before they're declared.
   const bsl4Ready = Boolean(equipped.pressurized_suit) && Boolean(equipped.gloves) && ventilationConnected
+
+  // Every dialog that should freeze the game, in one place. Only the BSL-4
+  // gear popup and the exit confirmation used to announce themselves, so
+  // opening the closet, the info board, the microbe card, the lecture
+  // material or the answer popup left the scene running underneath: the
+  // player could walk out of the room with the arrow keys, or press E on
+  // something else, while reading a dialog about where they were standing.
+  const anyPopupOpen =
+    isPopupOpen ||
+    LectureMaterialOpen ||
+    answerOpen ||
+    infoOpen ||
+    microbeInfoOpen ||
+    lectureWarningOpen ||
+    exitConfirmOpen ||
+    bsl4NotReadyOpen ||
+    bsl4GearOpen ||
+    bslDoorRequiredOpen ||
+    washUpRequiredOpen
+
+  // MainScene gates movement and interactions on these two events; React owns
+  // the popups, so React is what has to tell it.
+  useEffect(() => {
+    window.dispatchEvent(new Event(anyPopupOpen ? 'popup-opened' : 'popup-closed'))
+  }, [anyPopupOpen])
 
   // App owns the worn-PPE state, so it is also what tells Phaser to redraw the
   // character.
@@ -201,11 +213,6 @@ function App() {
     }
   }, [])
 
-  // Lock movement while the gear popup is up — otherwise the player can walk
-  // out of BSL-4 with the arrow keys while it's still open, mid-decision.
-  useEffect(() => {
-    window.dispatchEvent(new Event(bsl4GearOpen ? 'popup-opened' : 'popup-closed'))
-  }, [bsl4GearOpen])
 
   // The suit cannot exist outside BSL-4 — Phaser fires this the instant the
   // player's position leaves the room while still suited (normally prevented
@@ -495,7 +502,6 @@ function App() {
   useEffect(() => {
     const handleExitOpen = () => {
       setExitConfirmOpen(true)
-      window.dispatchEvent(new Event('popup-opened'))
       saveRoundSoFar()
     }
     window.addEventListener('exit-popup-opened', handleExitOpen)
@@ -504,7 +510,6 @@ function App() {
 
   const handleExitCancel = () => {
     setExitConfirmOpen(false)
-    window.dispatchEvent(new Event('popup-closed'))
   }
 
   const handleExitConfirm = () => {
