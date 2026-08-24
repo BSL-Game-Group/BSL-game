@@ -17,8 +17,12 @@ export function resolveObjective({ progress, equipped, microbe, room } = {}) {
     return { id: 'await-microbe', target: null }
   }
 
+  // dressingRoom, not showerRoom: setupUndressPoint puts the wash-up spot
+  // inside ppeRoomZone and both quick-undress dispatchers are dressing-room
+  // only. The one shower on the map is in the BSL-4 airlock, so naming it
+  // sent a stuck player to the wrong side of the building.
   if (progress.awaitingUndress) {
-    return { id: 'wash-up', target: 'showerRoom' }
+    return { id: 'wash-up', target: 'dressingRoom' }
   }
 
   // Reading the card comes before the closet on purpose. The equipment follows
@@ -28,8 +32,13 @@ export function resolveObjective({ progress, equipped, microbe, room } = {}) {
     return { id: 'check-microbe', target: 'lectureRoom' }
   }
 
-  const missing = missingEquipment(microbe.bsl_level, equipped)
-  if (missing.length > 0) {
+  // wrongCount, not missing.length: a player wearing everything required plus
+  // one item that does not belong has nothing missing but still fails grading.
+  // Reading only `missing` sent them on to handle the microbe and then marked
+  // them wrong — the guidance and the grader disagreeing in exactly the case
+  // someone needs the guidance for.
+  const { missing, wrongCount } = equipmentGap(microbe.bsl_level, equipped)
+  if (wrongCount > 0) {
     return { id: 'suit-up', target: 'dressingRoom', missing }
   }
 
@@ -45,16 +54,19 @@ export function bslRoomFor(microbe) {
   return `BSL-${microbe.bsl_level}`
 }
 
-// Flattens the per-category slot result from evaluateEquipmentSlots into one
-// list of missing item ids, in category order — the same order the BSL
-// checklist (Vaihe 4) will want to render them.
-export function missingEquipment(bslLevel, equipped) {
+// The whole verdict for one outfit: how many categories are wrong (missing an
+// item or carrying one that does not belong) and which items are missing, in
+// category order.
+export function equipmentGap(bslLevel, equipped) {
   const chosen = Object.entries(equipped ?? {})
     .filter(([, isEquipped]) => isEquipped)
     .map(([itemId]) => itemId)
 
   const rules = getEquipmentRulesForBslLevel(bslLevel)
-  const { slots } = evaluateEquipmentSlots(rules, chosen)
+  const { slots, wrongCount } = evaluateEquipmentSlots(rules, chosen)
 
-  return Object.values(slots).flatMap((slot) => slot.missing)
+  return {
+    missing: Object.values(slots).flatMap((slot) => slot.missing),
+    wrongCount,
+  }
 }

@@ -1,4 +1,4 @@
-import { resolveObjective, bslRoomFor, missingEquipment } from '../src/utils/resolveObjective'
+import { resolveObjective, bslRoomFor, equipmentGap } from '../src/utils/resolveObjective'
 import { unequipAll } from '../src/components/ClosetPopup/ItemConfig'
 
 function baseState(overrides = {}) {
@@ -39,7 +39,7 @@ describe('resolveObjective', () => {
       progress: { lectureVisited: true, awaitingUndress: true },
     })
 
-    expect(resolveObjective(state)).toEqual({ id: 'wash-up', target: 'showerRoom' })
+    expect(resolveObjective(state)).toEqual({ id: 'wash-up', target: 'dressingRoom' })
   })
 
   test('asks the player to read the microbe card before the closet', () => {
@@ -56,7 +56,7 @@ describe('resolveObjective', () => {
       progress: { lectureVisited: true, awaitingUndress: true, microbeChecked: false },
     })
 
-    expect(resolveObjective(state)).toEqual({ id: 'wash-up', target: 'showerRoom' })
+    expect(resolveObjective(state)).toEqual({ id: 'wash-up', target: 'dressingRoom' })
   })
 
   test('sends the player to suit up when required equipment is missing', () => {
@@ -104,7 +104,7 @@ describe('bslRoomFor', () => {
   })
 })
 
-describe('missingEquipment', () => {
+describe('equipmentGap', () => {
   test('returns nothing when a valid outfit for the level is fully worn', () => {
     const equipped = {
       ...unequipAll(),
@@ -114,12 +114,23 @@ describe('missingEquipment', () => {
       indoor_shoes: true,
     }
 
-    expect(missingEquipment(1, equipped)).toEqual([])
+    expect(equipmentGap(1, equipped)).toEqual({ missing: [], wrongCount: 0 })
   })
 
   test('lists the required items for BSL-4 when nothing is worn', () => {
-    expect(missingEquipment(4, unequipAll())).toEqual(
+    expect(equipmentGap(4, unequipAll()).missing).toEqual(
       expect.arrayContaining(['pressurized_suit', 'gloves'])
     )
+  })
+
+  // Nothing is missing, but the extra item still fails grading — the objective
+  // has to keep the player at the closet rather than send them on to fail.
+  test('counts an item that does not belong even with nothing missing', () => {
+    const equipped = { ...unequipAll(), pressurized_suit: true, gloves: true, lab_coat: true }
+
+    const gap = equipmentGap(4, equipped)
+
+    expect(gap.missing).toEqual([])
+    expect(gap.wrongCount).toBeGreaterThan(0)
   })
 })
