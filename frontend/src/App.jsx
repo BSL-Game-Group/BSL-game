@@ -330,6 +330,13 @@ function App() {
     setBslDoorOpen({})
     // A new game is a new first round, so it gets the guidance again.
     setGuidanceSkipped(false)
+    // The lecture visit is progress like any other. Leaving it behind let a new
+    // game skip 'visit-lecture' entirely, and window.__lectureOpen stayed true,
+    // so the BSL rooms accepted E from the first second.
+    setLectureOpen(false)
+    // Same for the microbe card: if the fresh draw happened to return the same
+    // organism, the objective counted it as already read.
+    setCheckedMicrobeId(null)
     window.dispatchEvent(new Event('popup-closed'))
   }, [])
 
