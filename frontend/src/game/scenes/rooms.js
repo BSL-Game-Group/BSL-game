@@ -462,7 +462,7 @@ export function createRooms(scene) {
     // ---- ZONES (game logic) ----
     scene.lectureRoomZone = { x: 0, y: 0, width: 480, height: 290 };
     scene.ppeRoomZone = { x: 0, y: 430, width: 700, height: 290 };
-    scene.corridorZone = { x: 0, y: 290, width: 700, height: 140 };
+    scene.corridorZone = { x: 0, y: 250, width: 400, height: 140 };
     scene.bslRoomZones = [
         { key: 'BSL-1', x: 700, y: 470, width: 260, height: 250 },
         { key: 'BSL-2', x: 700, y: 0, width: 260, height: 250 },
