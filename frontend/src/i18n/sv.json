@@ -22,8 +22,8 @@
       "Tryck E vid den mörkt gröna ringen för att hantera mikroben.",
       "Spelet kontrollerar ditt arbete — var utrustningen och rummet rätt för denna mikrobе?",
       "Resultatet delar upp utrustningen i kategorier — ögonskydd, masker, klädsel, handskar och skor — markerar vilka karegorier gick rät eller fel. De specifika fela utrustningen namnges inte.",
-      "Om rummet eller utrustningen var fel får du ett nytt försök på samma mikrob. Mikrobens rätta BSL-nivå blir avslöjad efter ditt sista försök.",
-      "Tvätta dig vid duschen eller ögonduschstationen — BSL-rummen är stängda till dess, oavsett om du gör ett nytt försök.",
+      "Om rummet eller utrustningen var fel får du ett nytt försök på samma mikrob — du kan gå direkt tillbaka in utan att tvätta dig. Mikrobens rätta BSL-nivå blir avslöjad efter ditt sista försök.",
+      "När du är klar med mikroben går du till tvättstationen i påklädningsrummet — BSL-rummen är stängda till dess.",
       "Efter ditt sista försök lottas en ny mikrob.",
       "Feedback kommer efter varje mikrob du hanterar. I slutet ser du bara din slutpoäng — och om du inte är inloggad frågar spelet om du vill spara den.",
       "Om du fastnar på samma uppgift berättar spelet efter en stund längst ner på skärmen vad du ska göra härnäst.",
@@ -82,8 +82,14 @@
     "belongs": "{name} tillhör BSL-{level}.",
     "slotCorrect": "rätt",
     "slotIncorrect": "fel",
+    "pointsRoom": "Rum",
+    "pointsTotal": "Poäng från den här mikroben",
+    "pointsBanked": "redan intjänat",
     "tryAgain": "Försök igen",
-    "lastAttempt": "Det var ditt sista försök för den här mikroben."
+    "skipMicrobe": "Skippa den här mikroben",
+    "skipWashUp": "Om du skippar mikroben måste du gå till tvättstationen innan nästa.",
+    "washUpNext": "Gå till tvättstationen innan nästa mikrob.",
+    "lastAttempt": "Det var ditt sista försök för den här mikroben — gå till tvättstationen innan nästa."
   },
   "common": {
     "close": "Stäng",
@@ -119,6 +125,7 @@
     "pressE": "Tryck E",
     "closeTheDoorBehindYouFirst": "Stäng dörren bakom dig först.",
     "exitPrompt": "Tryck E för att lämna",
+    "lectureMaterialHint": "Tryck E för att öppna kursmaterialet",
     "washUp": "Tryck R eller klicka för att tvätta dig",
     "openmicrobeInfoHint": "Mikrobinformation — tryck E",
     "lectureMaterialHint": "Föreläsningsmaterial — tryck E",
@@ -190,7 +197,7 @@
     },
     "claim": {
       "title": "Rundan är slut",
-      "scoreLine": "Du fick {score} av {total} poäng.",
+      "scoreLine": "Du fick {score} poäng.",
       "guestWarning": "Resultatet finns bara i den här webbläsaren tills du sparar det.",
       "keepScore": "Spara mitt resultat",
       "savedToAccount": "Sparat på ditt konto.",

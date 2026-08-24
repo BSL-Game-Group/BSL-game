@@ -32,6 +32,9 @@ export default class HintManager {
 
         this.closetHint = createHint(greyStyle);
         this.undressHint = createHint(greyStyle);
+
+        // Simple string state (not a Phaser text object)
+        this.exitPromptText = 'Press E to exit';
     }
 
     updateTranslations(translations) {

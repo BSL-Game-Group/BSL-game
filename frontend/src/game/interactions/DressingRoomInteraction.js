@@ -10,6 +10,7 @@ export class DressingRoomInteraction extends BaseInteraction {
     seedPresence() {
         if (this.scene.ppeRoomZone) {
             this.playerInsideDressingRoom = this.isInside(this.scene.ppeRoomZone);
+            this.scene.playerInsideDressingRoom = this.playerInsideDressingRoom;
             if (this.playerInsideDressingRoom) {
                 this.scene.closetGlow?.setVisible(true);
                 this.scene.closetGlowTween?.resume();
@@ -35,13 +36,18 @@ export class DressingRoomInteraction extends BaseInteraction {
             closetGlowTween?.resume();
             undressGlow?.setVisible(true);
             undressGlowTween?.resume();
+            
             this.playerInsideDressingRoom = true;
+            this.scene.playerInsideDressingRoom = true;
         } else if (!inside && this.playerInsideDressingRoom) {
             closetGlow?.setVisible(false);
             closetGlowTween?.pause();
             undressGlow?.setVisible(false);
             undressGlowTween?.pause();
+
             this.playerInsideDressingRoom = false;
+            this.scene.playerInsideDressingRoom = false;
+
         }
 
         if (!inside) {

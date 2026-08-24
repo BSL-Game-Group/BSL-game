@@ -401,10 +401,10 @@ test('answer popup does NOT appear without event', () => {
   expect(screen.queryByText(/BSL-2/i)).not.toBeInTheDocument()
 })
 
-test('answer popup closes when close button is clicked', () => {
+test('answer popup closes when the skip button is clicked', () => {
   openAnswerPopup('BSL-2')
 
-  fireEvent.click(screen.getByRole('button', { name: /close/i }))
+  fireEvent.click(screen.getByRole('button', { name: /skip this microbe/i }))
 
   expect(screen.queryByText(/BSL-2/i)).not.toBeInTheDocument()
 })
@@ -458,7 +458,7 @@ describe('PPE removal gate', () => {
   test('closing the answer popup always asks the player to wash up, even with no PPE equipped', () => {
     openAnswerPopup('BSL-2')
 
-    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+    fireEvent.click(screen.getByRole('button', { name: /skip this microbe/i }))
 
     expect(EventBus.emit).toHaveBeenCalledWith('undress-required')
     expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
@@ -475,7 +475,7 @@ describe('PPE removal gate', () => {
 
     EventBus.emit.mockClear()
 
-    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+    fireEvent.click(screen.getByRole('button', { name: /skip this microbe/i }))
 
     expect(EventBus.emit).toHaveBeenCalledWith('undress-required')
     expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
@@ -484,7 +484,7 @@ describe('PPE removal gate', () => {
   test('requests a new microbe once the player washes up, regardless of PPE state', () => {
     openAnswerPopup('BSL-2')
 
-    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+    fireEvent.click(screen.getByRole('button', { name: /skip this microbe/i }))
     EventBus.emit.mockClear()
 
     washUp()
@@ -977,7 +977,7 @@ function answerCurrentMicrobe(level = 'BSL-1', microbe = identifiedMicrobe) {
   act(() => {
     window.dispatchEvent(new CustomEvent('answer-popup-opened', { detail: { level } }))
   })
-  fireEvent.click(screen.getByRole('button', { name: /close/i }))
+  fireEvent.click(screen.getByRole('button', { name: /skip this microbe/i }))
 }
 
 const reachExit = async () => {
@@ -1061,27 +1061,6 @@ test('handling a microbe moves the counter', () => {
   expect(screen.getByTestId('score-hud')).toHaveTextContent('Score: 0')
 })
 
-test('the score counts the correct answers already in the round', () => {
-  localStorage.setItem(
-    SAVED_GAME_KEY,
-    JSON.stringify({
-      ...defaultSnapshot(),
-      savedAt: Date.now(),
-      round: {
-        openRoundId: 5,
-        answers: [
-          { microbe_id: 1, chosen_level: 1, chosen_equipment: ['lab_coat'], correct: true },
-          { microbe_id: 2, chosen_level: 2, chosen_equipment: [], correct: false },
-        ],
-      },
-    })
-  )
-
-  renderApp()
-
-  expect(screen.getByTestId('score-hud')).toHaveTextContent('Score: 1')
-  expect(screen.getByTestId('score-hud')).toHaveTextContent('Microbes: 2')
-})
 
 test('the start screen has no score to show', () => {
   renderApp()
@@ -1114,7 +1093,7 @@ test('the exit popup reports the round it just saved', async () => {
   await reachExit()
 
   expect(screen.getByRole('heading', { name: 'Round finished' })).toBeInTheDocument()
-  expect(screen.getByText('You scored 0 out of 1.')).toBeInTheDocument()
+  expect(screen.getByText('You scored 0 points.')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Keep my score' })).toBeInTheDocument()
 })
 
@@ -1139,11 +1118,11 @@ describe('one retry per microbe', () => {
     })
   }
 
-  test('recording counts the answer and washing up hands out a new microbe', () => {
+  test('skipping counts the answer and washing up hands out a new microbe', () => {
     answerWrongly()
     EventBus.emit.mockClear()
 
-    fireEvent.click(screen.getByRole('button', { name: /^close$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /skip this microbe/i }))
 
     expect(screen.getByText(/microbes: 1/i)).toBeInTheDocument()
     expect(loadSavedGame().round.answers[0].attempt).toBe(1)
@@ -1153,32 +1132,38 @@ describe('one retry per microbe', () => {
     expect(EventBus.emit).toHaveBeenCalledWith('request-new-microbe')
   })
 
-  test('retrying records nothing and keeps the same microbe', () => {
+  // The first attempt is banked the moment Try again is pressed so its points reach
+  // the HUD right away, but the retry itself owes no wash-up and the microbe has
+  // still only been handled once.
+  test('retrying banks the first attempt, owes no wash-up, and keeps the same microbe', () => {
     answerWrongly()
     EventBus.emit.mockClear()
 
     fireEvent.click(screen.getByRole('button', { name: /try again/i }))
 
-    expect(screen.getByText(/microbes: 0/i)).toBeInTheDocument()
-    expect(loadSavedGame().round.answers).toEqual([])
-
-    washUp()
-
+    expect(screen.getByText(/microbes: 1/i)).toBeInTheDocument()
+    expect(loadSavedGame().round.answers.map((answer) => answer.attempt)).toEqual([1])
+    expect(window.__awaitingUndress).toBe(false)
+    expect(EventBus.emit).not.toHaveBeenCalledWith('undress-required')
     expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
 
+    // Stripping gear at the wash-up spot must not hand the spent try back.
+    washUp()
     reopenPopup()
 
     expect(screen.queryByRole('button', { name: /try again/i })).not.toBeInTheDocument()
+    expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
 
     fireEvent.click(screen.getByRole('button', { name: /^close$/i }))
 
-    expect(loadSavedGame().round.answers[0].attempt).toBe(2)
+    expect(loadSavedGame().round.answers.map((answer) => answer.attempt)).toEqual([1, 2])
+    expect(screen.getByText(/microbes: 1/i)).toBeInTheDocument()
+    expect(window.__awaitingUndress).toBe(true)
   })
 
   test('the last attempt reveals the microbe feedback and its true class', () => {
     answerWrongly()
     fireEvent.click(screen.getByRole('button', { name: /try again/i }))
-    washUp()
     reopenPopup()
 
     expect(screen.getByText(/wrong containment for this one/i)).toBeInTheDocument()
@@ -1188,7 +1173,6 @@ describe('one retry per microbe', () => {
   test('a new microbe restores the retry', () => {
     answerWrongly()
     fireEvent.click(screen.getByRole('button', { name: /try again/i }))
-    washUp()
 
     // The second try has to be spent and recorded: the wash-up that follows it is
     // what asks for the next microbe, and that request is what hands the retry back.
@@ -1207,7 +1191,7 @@ describe('one retry per microbe', () => {
 
 test('the wash-up prompt appears and the flag is visible to Phaser', () => {
   openAnswerPopupWithMicrobe('BSL-3', { ...testMicrobe, id: 1 })
-  fireEvent.click(screen.getByRole('button', { name: /^close$/i }))
+  fireEvent.click(screen.getByRole('button', { name: /skip this microbe/i }))
 
   expect(window.__awaitingUndress).toBe(true)
 
@@ -1262,7 +1246,6 @@ describe('a refresh does not hand back a spent retry', () => {
     boot()
     answerWrongly()
     fireEvent.click(screen.getByRole('button', { name: /try again/i }))
-    washUp()
     answerWrongly()
 
     expect(screen.queryByRole('button', { name: /try again/i })).not.toBeInTheDocument()
@@ -1273,7 +1256,7 @@ describe('a refresh does not hand back a spent retry', () => {
     expect(screen.getByText(/last try/i)).toBeInTheDocument()
   })
 
-  test('refreshing mid-retry still owes the same microbe, not a new one', () => {
+  test('a wash-up mid-retry does not hand out a new microbe', () => {
     boot()
     answerWrongly()
     fireEvent.click(screen.getByRole('button', { name: /try again/i }))
@@ -1370,4 +1353,25 @@ test('skipping the guidance stops the toast, not just its button', () => {
 
   expect(screen.queryByTestId('objective-toast-skip')).not.toBeInTheDocument()
   expect(screen.queryByText(/^Next: /)).not.toBeInTheDocument()
+})
+
+// A retry records its answer without setting awaitingUndress, so counting
+// answers alone made the first round look finished while the player was still
+// on their first microbe with a second attempt to make.
+test('the first-round toast survives a retry on the first microbe', () => {
+  clearSavedGame()
+  localStorage.clear()
+
+  enterLectureRoom()
+
+  act(() => {
+    EventBus.emit('current-microbe-updated', identifiedMicrobe)
+  })
+  act(() => {
+    window.dispatchEvent(new CustomEvent('answer-popup-opened', { detail: { level: 'BSL-3' } }))
+  })
+
+  fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+
+  expect(screen.getByTestId('objective-toast-skip')).toBeInTheDocument()
 })

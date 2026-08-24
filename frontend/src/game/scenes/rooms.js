@@ -106,19 +106,11 @@ function setupCloset(scene) {
     // in the room, so nothing needs to toggle this target on room entry/exit.
     scene.closetHit = scene.add
         .zone(closetX, closetY, radius * 2, radius * 2)
-        .setInteractive({ useHandCursor: true });
-
-    scene.closetHit.on('pointerover', () => {
-        if (!scene.playerInsideDressingRoom) {return;}
-        scene.closetHint.setVisible(true);
-    });
-    scene.closetHit.on('pointerout', () => {
-        scene.closetHint.setVisible(false);
-    });
-    scene.closetHit.on('pointerdown', () => {
-        if (!scene.playerInsideDressingRoom) {return;}
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+        if (!scene.playerInsideDressingRoom) {return};
         window.dispatchEvent(new Event('closet-popup-opened'));
-    });
+    });    
 }
 
 // Quick-undress inside the dressing room + a green glow
@@ -149,13 +141,11 @@ function setupUndressPoint(scene) {
 
     scene.undressZone = scene.add
         .zone(ux, uy, radius * 2.4, radius * 2.4)
-        .setInteractive({ useHandCursor: true });
-
-    // Both R and a click trigger the same wash-up.
-    scene.undressZone.on('pointerdown', () => {
-        if (!scene.playerInsideDressingRoom) {return;}
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+        if (!scene.playerInsideDressingRoom) {return};
         window.dispatchEvent(new Event('quick-undress'));
-    });
+    });    
 }
 
 // Green glow interactable inside each BSL room. 
@@ -472,7 +462,7 @@ export function createRooms(scene) {
     // ---- ZONES (game logic) ----
     scene.lectureRoomZone = { x: 0, y: 0, width: 480, height: 290 };
     scene.ppeRoomZone = { x: 0, y: 430, width: 700, height: 290 };
-    scene.corridorZone = { x: 0, y: 290, width: 700, height: 140 };
+    scene.corridorZone = { x: 0, y: 250, width: 400, height: 140 };
     scene.bslRoomZones = [
         { key: 'BSL-1', x: 700, y: 470, width: 260, height: 250 },
         { key: 'BSL-2', x: 700, y: 0, width: 260, height: 250 },

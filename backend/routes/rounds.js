@@ -3,8 +3,7 @@ const express = require('express')
 const db = require('../models')
 const { optionalAuth, requireAuth } = require('../middleware/auth')
 const { gradeAnswer } = require('../services/grading')
-const { scoreRound } = require('../services/scoring')
-
+const { calculateMultiRoundScore } = require('../services/scoring')
 const router = express.Router()
 
 const MAX_ANSWERS = 100
@@ -28,8 +27,6 @@ function isStorableInteger(value) {
   return Number.isInteger(value) && Math.abs(value) <= INT32_MAX
 }
 
-// There is exactly one retry, so a tampered client cannot claim a third attempt. Absent
-// means a client that predates the retry.
 function isWellFormedAttempt(value) {
   return value === undefined || value === 1 || value === 2
 }
@@ -91,35 +88,86 @@ async function validateAndGrade(body) {
     bslClasses.map((bslClass) => [bslClass.class_number, bslClass.required_equipment])
   )
 
-  // Graded here, never taken from the request: score, correct_count and every
-  // verdict are the server's answer, not the client's claim.
-  //
+  let totalScore = 0
+  let correctCount = 0
+
+  // Group answers by microbe_id so we can track multi-round attempts per microbe
+  const answersByMicrobe = new Map()
+  for (const answer of answers) {
+    if (!answersByMicrobe.has(answer.microbe_id)) {
+      answersByMicrobe.set(answer.microbe_id, [])
+    }
+    answersByMicrobe.get(answer.microbe_id).push(answer)
+  }
+
+  const graded = []
+
   // The rules come from the microbe's own level, not the room the player chose — the
   // organism on the bench decides what has to be worn, and App.jsx grades the same way.
-  const graded = answers.map((answer) => {
-    const microbe = microbeById.get(answer.microbe_id)
+  for (const [microbeId, microbeAnswers] of answersByMicrobe.entries()) {
+    const microbe = microbeById.get(microbeId)
+    const rules = rulesByLevel.get(Number(microbe.bsl_level)) ?? EMPTY_RULES
 
-    return {
-      microbe_id: answer.microbe_id,
-      chosen_level: Number(answer.chosen_level),
-      chosen_equipment: answer.chosen_equipment,
-      attempt: answer.attempt ?? 1,
-      ...gradeAnswer(answer, microbe, rulesByLevel.get(Number(microbe.bsl_level)) ?? EMPTY_RULES),
+    // Sort attempts chronologically (attempt 1 first, then attempt 2)
+    microbeAnswers.sort((a, b) => (a.attempt ?? 1) - (b.attempt ?? 1))
+
+    const roundsData = microbeAnswers.map((answer) => {
+      const chosenLevelNum = Number(answer.chosen_level)
+      const grade = gradeAnswer(answer, microbe, rules)
+
+      // Extract category correctness array from grade.equipment_slots
+      const slots = grade.equipment_slots || {}
+      const categoryIds = Object.keys(slots)
+      const equipmentCategories = categoryIds.map((id) => slots[id].status === 'ok')
+
+      return {
+        round: answer.attempt ?? 1,
+        roomCorrect: grade.level_correct,
+        equipmentCategories: equipmentCategories,
+        _rawAnswer: answer,
+        _chosenLevelNum: chosenLevelNum,
+        _grade: grade,
+      }
+    })
+
+    const microbeMultiRoundScore = calculateMultiRoundScore({
+      rounds: roundsData.map((r) => ({
+        roomCorrect: r.roomCorrect,
+        equipmentCategories: r.equipmentCategories,
+      })),
+    })
+
+    totalScore += microbeMultiRoundScore
+
+    // Determine final correctness based on the last attempt for this microbe
+    const finalRound = roundsData[roundsData.length - 1]
+    if (finalRound._grade.level_correct && finalRound._grade.equipment_correct) {
+      correctCount += 1
     }
-  })
+
+    // Format individual graded response records back out
+    for (const r of roundsData) {
+      graded.push({
+        microbe_id: microbeId,
+        chosen_level: r._chosenLevelNum,
+        chosen_equipment: r._rawAnswer.chosen_equipment,
+        attempt: r.round,
+        ...r._grade,
+      })
+    }
+  }
 
   return {
     sessionId,
     graded,
-    score: scoreRound(graded),
-    correctCount: graded.filter((answer) => answer.level_correct && answer.equipment_correct)
-      .length,
+    score: totalScore,
+    correctCount,
+    // Microbes handled, not rows stored: a retried microbe grades twice but is still
+    // one microbe, and correct_count is counted the same way.
+    microbeCount: answersByMicrobe.size,
   }
 }
 
-// Names its columns rather than spreading the graded answer. Sequelize would drop the
-// derived equipment_slots / equipment_wrong_count on its own; listing the columns is so
-// that what reaches the table is readable here instead of inferred from the model.
 function storableAnswer(answer, roundId) {
   return {
     round_id: roundId,
@@ -154,8 +202,6 @@ router.post('/rounds', optionalAuth, async (req, res) => {
     return res.status(result.error.status).json(result.error.body)
   }
 
-  // One transaction, so a round never exists without the answers that justify its
-  // score — which is what makes a stored round re-scorable.
   const round = await db.sequelize.transaction(async (transaction) => {
     const created = await db.Round.create(
       {
@@ -163,7 +209,7 @@ router.post('/rounds', optionalAuth, async (req, res) => {
         session_id: result.sessionId,
         score: result.score,
         correct_count: result.correctCount,
-        answer_count: result.graded.length,
+        answer_count: result.microbeCount,
         claimed_at: null,
       },
       { transaction }
@@ -214,7 +260,7 @@ router.patch('/rounds/:id', optionalAuth, async (req, res) => {
       {
         score: result.score,
         correct_count: result.correctCount,
-        answer_count: result.graded.length,
+        answer_count: result.microbeCount,
       },
       { transaction }
     )
@@ -244,7 +290,4 @@ router.get('/me/rounds', requireAuth, async (req, res) => {
 })
 
 module.exports = router
-
-// Exported for the test that pins this column list to the model. The router stays the
-// module's shape, so app.js is unchanged.
 module.exports.storableAnswer = storableAnswer

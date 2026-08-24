@@ -22,14 +22,17 @@ export class LectureInteraction extends BaseInteraction {
             lectureMaterialGlow,
             lectureMaterialPoint,
             lectureMaterialGlowTween,
-            openmicrobeInfoHint,
             lectureMaterialHint,
+            pressEText,
+            openmicrobeInfoHint,
         } = this.scene;
         if (!lectureRoomZone) {
             return;
         }
 
-        const inside = this.isInside(lectureRoomZone);
+        // The height value hardcoded as a new zone. If you change this, remember to update movement.test.jsx
+        const lectureRoomZoneModified = {...lectureRoomZone, height: 250}
+        const inside = this.isInside(lectureRoomZoneModified);
 
         // Track zone entry
         if (inside && !this.playerInsideLectureRoom) {
@@ -39,9 +42,10 @@ export class LectureInteraction extends BaseInteraction {
             this.playerInsideLectureRoom = false;
         }
 
-        // Proximity glow & prompt
+        // Microbe info proximity glow & prompt
         if (lectureGlow && lecturePoint) {
             lectureGlow.setVisible(inside);
+            openmicrobeInfoHint.setVisible(false); // Hide the hint by default
             if (lectureGlowTween) {
                 inside ? lectureGlowTween.resume() : lectureGlowTween.pause();
             }
@@ -58,41 +62,30 @@ export class LectureInteraction extends BaseInteraction {
                     if (this.justPressed(this.keyE)) {
                         window.dispatchEvent(new Event('microbe-info-popup-opened'));
                     }
-                } else {
-                    openmicrobeInfoHint.setVisible(false);
                 }
-            } else if (openmicrobeInfoHint) {
-                // Leaving the room has to hide it too. Without this the hint
-                // only ever changed while the player was inside, so walking
-                // out with it showing left it on screen for good.
-                openmicrobeInfoHint.setVisible(false);
             }
         }
 
-        // Lecture-room right-side Lecture material button glow
+        // Lecture material proximity glow & prompt
         if (lectureMaterialGlow) {
             lectureMaterialGlow.setVisible(inside);
+            lectureMaterialHint.setVisible(false); // Hide the hint by default
             if (lectureMaterialGlowTween) {
                 inside ? lectureMaterialGlowTween.resume() : lectureMaterialGlowTween.pause();
             }
-
-            if (inside && lectureMaterialPoint && lectureMaterialHint) {
-                const materialDist = Phaser.Math.Distance.Between(
+            if (inside) {
+                const dist = Phaser.Math.Distance.Between(
                     this.player.x, this.player.y, lectureMaterialPoint.x, lectureMaterialPoint.y
                 );
-                const closeToMaterial = materialDist < 80;
+                const closeEnough = dist < 100;
 
-                if (closeToMaterial) {
+                if (closeEnough) {
                     lectureMaterialHint.setVisible(true);
-                    lectureMaterialHint.setPosition(lectureMaterialPoint.x - 55, lectureMaterialPoint.y + 35);
+                    lectureMaterialHint.setPosition(lectureMaterialPoint.x - 40, lectureMaterialPoint.y + 45);
                     if (this.justPressed(this.keyE)) {
                         window.dispatchEvent(new Event('lecture-material-popup-opened'));
                     }
-                } else {
-                    lectureMaterialHint.setVisible(false);
                 }
-            } else if (lectureMaterialHint) {
-                lectureMaterialHint.setVisible(false);
             }
         }
     }

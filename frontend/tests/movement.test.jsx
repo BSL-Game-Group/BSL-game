@@ -853,7 +853,8 @@ test('hides the press E hint when inside the lecture room but too far from the i
   })
 
   scene.player.x = 300
-  scene.player.y = 300
+  // New y value that takes the changes in the LectureInteraction.js file into account.
+  scene.player.y = 250
 
   const handler = jest.fn()
   window.addEventListener('microbe-info-popup-opened', handler)
