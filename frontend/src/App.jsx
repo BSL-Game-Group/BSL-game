@@ -21,18 +21,6 @@ import { useAuth } from './auth/context'
 import roundsService from './services/rounds'
 import { loadSavedGame, patchSavedGame, flushSavedGame, clearSavedGame, MAX_ROUND_ANSWERS } from './state/savedGame'
 
-const initialEquipment = {
-  mask: false,
-  gloves: false,
-  closable_lab_coat: false,
-  disposable_overall: false,
-  respirator: false,
-  face_shield: false,
-  lab_coat: false,
-  glasses: false,
-  sunglasses: false,
-  pressurized_suit: false,
-}
 
 function App() {
   const { t, language } = useTranslation()
@@ -79,7 +67,8 @@ function App() {
 
   const [roundAnswers, setRoundAnswers] = useState(restored?.round.answers ?? [])
   const [openRoundId, setOpenRoundId] = useState(restored?.round.openRoundId ?? null)
-  const [roundResult, setRoundResult] = useState(null)
+  // 1. Initialize roundResult from restored saved game if it exists
+  const [roundResult, setRoundResult] = useState(restored?.round.roundResult ?? null)
 
 
   // --- HOOKS (Preserved from original) ---
@@ -307,6 +296,7 @@ function App() {
       round: {
         openRoundId,
         answers: roundAnswers,
+        roundResult,
       },
     })
   }, [
@@ -325,6 +315,7 @@ function App() {
     lectureWarningOpen,
     openRoundId,
     roundAnswers,
+    roundResult,
   ])
 
   // The scene's position writes are throttled, so make sure a pending one lands
@@ -348,37 +339,95 @@ function App() {
   const isEquipmentCorrect = equipmentEvaluation.wrongCount === 0
   const isCorrect = isLevelCorrect && isEquipmentCorrect
 
+  // A retry only pays for what was still wrong, so the popup has to re-grade the first
+  // attempt to tell "just earned" from "already banked". findLast, not find: the draw
+  // may hand the same microbe out again later in the round.
+  const firstAttempt =
+    attempt === 2 && Number.isInteger(currentMicrobe?.id)
+      ? roundAnswers.findLast(
+          (answer) => answer.microbe_id === currentMicrobe.id && answer.attempt === 1
+        )
+      : undefined
+  const previousAnswer = firstAttempt && {
+    roomCorrect: firstAttempt.chosen_level === correctLevel,
+    equipmentSlots: evaluateEquipmentSlots(equipmentRules, firstAttempt.chosen_equipment).slots,
+  }
+
   const roundScore = roundAnswers.filter((answer) => answer.correct).length
 
   // Recording an answer always requires a trip to the dressing room's wash-up
   // spot afterward — whether or not any PPE was actually worn — before the
   // next microbe is handed out.
-  const handleAnswerRecord = () => {
-    if (Number.isInteger(currentMicrobe?.id) && Number.isInteger(chosenLevel)) {
-      setRoundAnswers((answers) =>
-        answers.length >= MAX_ROUND_ANSWERS
-          ? answers
-          : [
-              ...answers,
-              {
-                microbe_id: currentMicrobe.id,
-                chosen_level: chosenLevel,
-                chosen_equipment: chosenEquipment,
-                correct: isCorrect,
-                attempt,
-              },
-            ]
-      )
+  const handleAnswerClose = () => {
+      if (Number.isInteger(currentMicrobe?.id) && Number.isInteger(chosenLevel)) {
+        setRoundAnswers((answers) => {
+          const nextAnswers =
+            answers.length >= MAX_ROUND_ANSWERS
+              ? answers
+              : [
+                  ...answers,
+                  {
+                    microbe_id: currentMicrobe.id,
+                    chosen_level: chosenLevel,
+                    chosen_equipment: chosenEquipment,
+                    correct: isCorrect,
+                    attempt,
+                  },
+                ];
+
+          // Trigger the save right away so the backend calculates the score immediately
+          saveRoundSoFarWithAnswers(nextAnswers);
+
+          return nextAnswers;
+        });
+      }
+
+      setAnswerOpen(false);
+      setAwaitingUndress(true);
+      EventBus.emit('undress-required');
     }
 
-    setAnswerOpen(false)
-    setAwaitingUndress(true)
-    EventBus.emit('undress-required')
-  }
+  const saveRoundSoFarWithAnswers = useCallback(async (answersToSave) => {
+    if (!answersToSave || answersToSave.length === 0) {
+      return
+    }
+        try {
+      const result = await roundsService.saveRound(answersToSave, token, openRoundId)
+
+      setOpenRoundId(result.id)
+      setRoundResult(result)
+    } catch (err) {
+      console.error('--- DEBUG: Error saving round ---', err)
+    }
+  }, [token, openRoundId])
+
 
   // A retry owes no wash-up: the player walks straight back into a room with whatever
   // PPE they have on, or changes it at the closet first.
   const handleAnswerRetry = () => {
+    if (Number.isInteger(currentMicrobe?.id) && Number.isInteger(chosenLevel)) {
+      setRoundAnswers((answers) => {
+        const nextAnswers =
+          answers.length >= MAX_ROUND_ANSWERS
+            ? answers
+            : [
+                ...answers,
+                {
+                  microbe_id: currentMicrobe.id,
+                  chosen_level: chosenLevel,
+                  chosen_equipment: chosenEquipment,
+                  correct: isCorrect,
+                  attempt,
+                },
+              ];
+
+        // Send attempt 1 to the backend immediately so the score updates on screen
+        saveRoundSoFarWithAnswers(nextAnswers);
+
+        return nextAnswers;
+      });
+    }
+
     setAttempt(2)
     setAnswerOpen(false)
   }
@@ -394,8 +443,6 @@ function App() {
       setOpenRoundId(result.id)
       setRoundResult(result)
     } catch {
-      // A failed save must not keep the player at the door. The answers stay in
-      // the buffer and the next visit to the exit tries again.
       setRoundResult(null)
     }
   }, [roundAnswers, token, openRoundId])
@@ -419,10 +466,6 @@ function App() {
     resetGameState()
   }
 
-  // Taking the suit off also unplugs the ventilation — same as walking away
-  // from it would mean physically. Note this does NOT hand out the next
-  // microbe: BSL4 still requires a separate trip to the dressing room's
-  // wash-up point afterward, same as everyone else.
   const handleToggleSuit = () => {
     if (equipped.pressurized_suit) {
       setEquipped((prev) => ({ ...prev, pressurized_suit: false }))
@@ -487,7 +530,12 @@ function App() {
 
       {/* HUD: Score (left) and Auth/Login (center-left), top of page */}
       <div className="position-fixed top-0 start-0 p-3 z-3 d-flex gap-3 align-items-start">
-        {gameStarted && <ScoreHud score={roundScore} answered={roundAnswers.length} />}
+        {gameStarted && (
+          <ScoreHud
+              score={roundResult?.score ?? 0}
+              answered={new Set(roundAnswers.map((answer) => answer.microbe_id)).size}
+          />
+        )}
         <AuthStatus />
       </div>
 
@@ -519,7 +567,7 @@ function App() {
       />
       <AnswerPopup
         open={answerOpen}
-        onClose={handleAnswerRecord}
+        onClose={handleAnswerClose}
         onRetry={!isCorrect && attempt === 1 ? handleAnswerRetry : undefined}
         attempt={attempt}
         isCorrect={isCorrect}
@@ -528,6 +576,7 @@ function App() {
         isLevelCorrect={isLevelCorrect}
         isEquipmentCorrect={isEquipmentCorrect}
         equipmentSlots={equipmentEvaluation.slots}
+        previousAnswer={previousAnswer}
       />
 
       {lectureWarningOpen && (
