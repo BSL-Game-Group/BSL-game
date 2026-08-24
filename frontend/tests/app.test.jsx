@@ -1353,3 +1353,21 @@ test('the first-round toast survives until the player has washed up', () => {
 
   expect(screen.getByText(/wash up/i)).toBeInTheDocument()
 })
+
+// Skipping used to gate only the button, not the toast, so pressing it took
+// the control away and left every following step still announcing itself.
+test('skipping the guidance stops the toast, not just its button', () => {
+  clearSavedGame()
+  localStorage.clear()
+
+  enterLectureRoom()
+
+  const skip = screen.getByTestId('objective-toast-skip')
+
+  act(() => {
+    skip.click()
+  })
+
+  expect(screen.queryByTestId('objective-toast-skip')).not.toBeInTheDocument()
+  expect(screen.queryByText(/^Next: /)).not.toBeInTheDocument()
+})

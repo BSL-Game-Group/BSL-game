@@ -616,15 +616,17 @@ function App() {
       </div>
 
       {/* Objective toast: appears briefly at top-center whenever the next
-          step changes, then fades on its own. First round only — see
-          isFirstRound above. */}
-      {gameStarted && isFirstRound && (
+          step changes, then fades on its own. Gated on isGuidedFirstRound,
+          not isFirstRound: skipping has to stop the guidance itself, and
+          gating on the latter only took the button away and left every
+          following step still announcing itself. */}
+      {gameStarted && isGuidedFirstRound && (
         <div className="position-fixed top-0 start-50 translate-middle-x p-3 z-3 objective-toast-anchor">
           <ObjectiveToast
             objective={objective}
             roomLabel={objectiveRoomLabel}
             suppressed={anyPopupOpen}
-            onSkipGuide={isGuidedFirstRound ? () => setGuidanceSkipped(true) : undefined}
+            onSkipGuide={() => setGuidanceSkipped(true)}
           />
         </div>
       )}
