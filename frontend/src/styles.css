@@ -440,15 +440,6 @@ body {
   font-weight: 600;
 }
 
-.airlock-interlock-notice {
-  padding: 8px 18px;
-  border-radius: 14px;
-  background: rgba(139, 30, 30, 0.95);
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 0.95rem;
-  text-align: center;
-}
 
 /* =========================================================
    AUTH

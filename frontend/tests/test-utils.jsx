@@ -57,7 +57,6 @@ const translationValue = {
       'bslAirlock.suitOff': 'The pressurized suit is not on',
       'bslAirlock.glovesOff': 'Gloves are not on',
       'bslAirlock.ventilationOff': 'Ventilation is not connected',
-      'bslAirlock.interlockBlocked': 'The other airlock door is open — close it first',
 
       'auth.guest': 'Playing as a guest',
       'auth.signedInAs': 'Signed in as {username}',

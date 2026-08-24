@@ -14,7 +14,6 @@ import NextStepHud from './components/NextStepHud'
 import BslAirlockStatus from './components/BslAirlockStatus'
 import { useStuckTimer } from './hooks/useStuckTimer'
 import { stuckStage, FIRST_ROUND_STUCK_THRESHOLDS_MS } from './utils/stuckStage'
-import { useEventPulse } from './hooks/useEventPulse'
 import AuthStatus from './auth/AuthStatus'
 import EndPopup from './components/EndPopup'
 import YourRounds from './auth/YourRounds'
@@ -439,7 +438,6 @@ function App() {
     stuckElapsedMs,
     isGuidedFirstRound ? FIRST_ROUND_STUCK_THRESHOLDS_MS : undefined
   )
-  const airlockInterlockBlocked = useEventPulse('airlock-interlock-blocked', 3000)
 
   // Handling a microbe always requires a trip to the dressing room's wash-up
   // spot afterward — whether or not any PPE was actually worn — before the
@@ -631,15 +629,6 @@ function App() {
             glovesOn={Boolean(equipped.gloves)}
             suppressed={anyPopupOpen}
           />
-        </div>
-      )}
-
-      {/* Airlock interlock notice: pulses for a few seconds whenever the
-          player tries to open a door whose paired door is already open —
-          the interlock itself gives no other feedback. */}
-      {gameStarted && airlockInterlockBlocked && (
-        <div className="position-fixed top-50 start-50 translate-middle p-3 z-3">
-          <div className="airlock-interlock-notice">{t('bslAirlock.interlockBlocked')}</div>
         </div>
       )}
 
