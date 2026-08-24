@@ -9,7 +9,7 @@ test.describe('reloading the page', () => {
     await game.waitForSceneReady();
 
     await page.reload();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await expect(page.getByRole('button', { name: /start game/i })).toHaveCount(0);
     await expect(game.canvas).toBeVisible();
@@ -52,7 +52,7 @@ test.describe('reloading the page', () => {
     await game.waitForSceneReady();
 
     await page.reload();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await expect(game.lectureMaterialPopup).toBeVisible();
   });
@@ -87,7 +87,7 @@ test.describe('reloading the page', () => {
     }, SAVED_GAME_KEY);
 
     await page.goto(FRONTEND_BASE);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1500);
 
     for (const modifier of ['Meta', 'Control']) {
@@ -108,9 +108,8 @@ test.describe('reloading the page', () => {
   test('a stale saved game falls back to the start screen', async ({ page }) => {
     await page.route('**/api/rooms/enter', (route) => route.abort('blockedbyclient'));
     await page.goto(FRONTEND_BASE);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
-    // Age the snapshot past the two-hour limit without waiting for it.
     await page.evaluate((key) => {
       const raw = window.localStorage.getItem(key);
       const snapshot = raw ? JSON.parse(raw) : { version: 1, player: { x: 590, y: 150 } };
@@ -119,7 +118,7 @@ test.describe('reloading the page', () => {
     }, SAVED_GAME_KEY);
 
     await page.reload();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     await expect(page.getByRole('button', { name: /start game/i })).toBeVisible();
   });
