@@ -394,10 +394,6 @@ function App() {
         try {
       const result = await roundsService.saveRound(answersToSave, token, openRoundId)
 
-      // --- DEBUG LOGS TO CHECK BACKEND RESPONSE ---
-      console.log('--- DEBUG: roundsService response ---', result)
-      console.log('--- DEBUG: extracted score ---', result?.score)
-
       setOpenRoundId(result.id)
       setRoundResult(result)
     } catch (err) {
@@ -504,9 +500,6 @@ function App() {
     window.addEventListener('quick-undress', handleWashUp)
     return () => window.removeEventListener('quick-undress', handleWashUp)
   }, [awaitingUndress])
-
-  // --- DEBUG LOGS BEFORE RENDER ---
-  console.log('--- DEBUG RENDER STATE ---', { roundResult, scoreBeingPassed: roundResult?.score ?? 0 })
 
   return (
     <Container fluid className="h-100">
