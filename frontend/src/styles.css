@@ -424,7 +424,10 @@ body {
 .bsl-airlock-status {
   padding: 10px 16px;
   border-radius: 14px;
-  background: rgba(139, 30, 30, 0.95);
+  /* #b4531b, the same burnt orange the next-step row uses for its border and
+     text. Red read as an error the player had already made, when these rows
+     are things still to do. */
+  background: rgba(180, 83, 27, 0.95);
   color: #ffffff;
   max-width: 260px;
   display: flex;
