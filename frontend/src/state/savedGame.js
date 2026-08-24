@@ -34,7 +34,6 @@ export function defaultSnapshot() {
       materialsUnlocked: false,
       awaitingUndress: false,
       attempt: 1,
-      retryPending: false,
       ventilationConnected: false,
     },
     popups: {
@@ -176,7 +175,6 @@ function validate(raw, now) {
       materialsUnlocked: raw.progress?.materialsUnlocked === true,
       awaitingUndress: raw.progress?.awaitingUndress === true,
       attempt: raw.progress?.attempt === 2 ? 2 : 1,
-      retryPending: raw.progress?.retryPending === true,
       ventilationConnected: raw.progress?.ventilationConnected === true,
     },
     popups: {

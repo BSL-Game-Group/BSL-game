@@ -1,18 +1,19 @@
+import type { Page } from '@playwright/test';
 import { test, expect } from './fixtures/gameFixture';
 
 const SAVED_GAME_KEY = 'bsl-game.saved-state.v1';
 
-const snap = (page) =>
-  page.evaluate((key) => {
+const snap = (page: Page) =>
+  page.evaluate((key: string) => {
     const raw = window.localStorage.getItem(key);
     return raw ? JSON.parse(raw) : null;
   }, SAVED_GAME_KEY);
 
 // The microbe is fetched after the scene is created, so a snapshot read any earlier
 // reports microbe: null and makes every later comparison look like a change.
-const waitForMicrobe = (page) =>
+const waitForMicrobe = (page: Page) =>
   page.waitForFunction(
-    (key) => typeof JSON.parse(window.localStorage.getItem(key) || '{}')?.microbe?.id === 'number',
+    (key: string) => typeof JSON.parse(window.localStorage.getItem(key) || '{}')?.microbe?.id === 'number',
     SAVED_GAME_KEY,
     { timeout: 15000 }
   );
@@ -42,18 +43,6 @@ test('a reload mid-retry keeps the same microbe and the spent attempt', async ({
   const restored = await snap(page);
 
   expect(restored.progress.attempt, 'the spent attempt survives the reload').toBe(2);
-  expect(restored.progress.retryPending, 'the redo is still owed').toBe(true);
+  expect(restored.progress.awaitingUndress, 'a retry owes no wash-up').toBe(false);
   expect(restored.microbe.id).toBe(before.microbe.id);
-
-  await page.evaluate(() => window.dispatchEvent(new Event('quick-undress')));
-
-  await expect
-    .poll(async () => (await snap(page)).progress.retryPending)
-    .toBe(false);
-
-  const washed = await snap(page);
-
-  expect(washed.microbe.id, 'washing up mid-retry must NOT hand out a new microbe').toBe(
-    before.microbe.id
-  );
 });

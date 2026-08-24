@@ -21,7 +21,7 @@ function AnswerPopup({
   const canRetry = Boolean(onRetry)
 
   // Keyed on whether the button exists, not on every render: an inline ref callback
-  // re-runs on each one and would drag focus back off Close.
+  // re-runs on each one and would drag focus back off the skip button.
   useEffect(() => {
     if (open && canRetry) { retryButton.current?.focus() }
   }, [open, canRetry])
@@ -57,15 +57,21 @@ function AnswerPopup({
   const equipmentFeedback = isEquipmentCorrect
     ? t('answerPopup.equipmentCorrect')
     : t('answerPopup.equipmentIncorrect')
-    
+
+  const reminderKey = canRetry
+    ? 'answerPopup.skipWashUp'
+    : (!isCorrect && attempt === 2 ? 'answerPopup.lastAttempt' : 'answerPopup.washUpNext')
+
   const boxClass = `popup-box ${!isCorrect ? 'popup-box--incorrect' : ''}`
 
   return (
     <div className="popup-overlay">
       <div className={boxClass} role="dialog" aria-modal="true" ref={dialogRef} tabIndex={-1}>
-        <button onClick={onClose} className="popup-close-button position-absolute top-0 end-0 m-3">
-          {t('common.close')}
-        </button>
+        {!canRetry && (
+          <button onClick={onClose} className="popup-close-button position-absolute top-0 end-0 m-3">
+            {t('common.close')}
+          </button>
+        )}
 
         <h2 style={{ margin: '0 0 12px', color: headlineColor }}>{headline}</h2>
         <p style={{ margin: 0, fontSize: '1.05rem' }}>{feedback}</p>
@@ -96,19 +102,18 @@ function AnswerPopup({
                 .replace('{level}', microbe.bsl_level)}
           </p>
         )}
-        {onRetry && (
-          <button
-            ref={retryButton}
-            onClick={onRetry}
-            className="btn btn-primary mt-3 align-self-start"
-          >
-            {t('answerPopup.tryAgain')}
-          </button>
-        )}
-        {!onRetry && !isCorrect && attempt === 2 && (
-          <p style={{ margin: '12px 0 0', fontSize: '0.95rem', fontStyle: 'italic' }}>
-            {t('answerPopup.lastAttempt')}
-          </p>
+        <p style={{ margin: '12px 0 0', fontSize: '0.95rem', fontStyle: 'italic' }}>
+          {t(reminderKey)}
+        </p>
+        {canRetry && (
+          <div className="d-flex gap-2 mt-3">
+            <button ref={retryButton} onClick={onRetry} className="btn btn-primary">
+              {t('answerPopup.tryAgain')}
+            </button>
+            <button onClick={onClose} className="btn btn-outline-secondary">
+              {t('answerPopup.skipMicrobe')}
+            </button>
+          </div>
         )}
       </div>
     </div>
