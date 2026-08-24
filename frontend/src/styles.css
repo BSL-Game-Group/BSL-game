@@ -27,25 +27,37 @@ body {
    ========================================================= */
 /* The wrapper ensures the game stays responsive */
 .game-wrapper-grid {
+  /* 1. Force a strict 16:9 aspect ratio */
+  aspect-ratio: 16 / 9;
+  
+  /* 2. Base width wants to fill the screen */
   width: 100%;
-  max-width: 1280px;
-  height: 100%;
-  max-height: 100vh;
-  margin: 0 auto;
-  padding: 16px;
-  /*aspect-ratio: 16 / 9;*/
+  
+  /* 3. The Magic Line: Caps width so height NEVER overflows the viewport.
+        Subtracting ~64px accounts for safe-zones, HUDs, or Bootstrap padding. */
+  max-width: min(100%, calc((100vh - 64px) * (16 / 9)));
+  
   background: #000;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
-  box-sizing: border-box;
+  margin: 0 auto; 
 }
 
-/* Ensure the Phaser canvas fills the grid wrapper */
+/* Ensure the Phaser canvas fills the grid wrapper perfectly */
 .game-wrapper-grid canvas {
   width: 100% !important;
   height: 100% !important;
   display: block;
+}
+
+/* Mobile responsive override */
+@media (max-width: 767px) {
+  .game-wrapper-grid {
+    /* Slightly smaller corner radius and adjusted safe-zone for mobile HUD */
+    border-radius: 8px;
+    max-width: min(100%, calc((100vh - 80px) * (16 / 9))); 
+  }
 }
 
 /* Desktop: larger padding for borders */
@@ -53,17 +65,6 @@ body {
   .game-wrapper-grid {
     padding: 32px;
     max-height: calc(100vh - 64px);
-  }
-}
-
-/* Mobile responsive override */
-@media (max-width: 767px) {
-  .game-wrapper-grid {
-    /* Let it inherit the 16/9 aspect ratio from the base class */
-    /*aspect-ratio: 16 / 9;*/
-    padding: 8px;
-    max-height: calc(100vh - 60px);
-    border-radius: 8px; /* Optional: slightly smaller corners on mobile */
   }
 }
 

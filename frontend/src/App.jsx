@@ -483,7 +483,7 @@ function App() {
           <HowToPlay />
         </div>
       ) : (
-          <Col xs={12} className="h-100 d-flex justify-content-center align-items-center">
+          <Col xs={12} className="h-100 d-flex justify-content-center align-items-center p-3 p-md-4">
             {/* MAIN GAME - CENTERED & FULLSCREEN */}
             <div className="game-wrapper-grid">
               {/* Only the game itself lives in the grid */}
