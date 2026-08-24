@@ -63,17 +63,78 @@ app.get('/api/microbes', async (req, res) => {
 app.get('/api/microbes/random', async (req, res) => {
   res.set('Cache-Control', 'no-store')
   try {
-    const microbe = await db.Microbe.findOne({
-      include: { model: db.BSLClass, as: 'bsl_class' },
-      order: db.sequelize.random(),
-      rejectOnEmpty: true
-    })
-    res.json(microbe)
+    const { session_id } = req.query;
+
+    // 1. If we don't have a session ID, just return a pure random microbe (failsafe)
+    if (!session_id) {
+      const randomMicrobe = await db.Microbe.findOne({
+        include: { model: db.BSLClass, as: 'bsl_class' },
+        order: db.sequelize.random(),
+        rejectOnEmpty: true
+      });
+      return res.json(randomMicrobe);
+    }
+
+    // 2. Find the current round, or create a blank one if the game just started
+    const [round] = await db.Round.findOrCreate({
+      where: { session_id: session_id },
+      defaults: {
+        score: 0,
+        correct_count: 0,
+        answer_count: 0,
+        seen_microbes: []
+      }
+    });
+
+    // 3. Get all microbe IDs
+    const allMicrobes = await db.Microbe.findAll({ attributes: ['id'] });
+    const allMicrobeIds = allMicrobes.map(m => m.id);
+
+    // 4. Filter out the ones we've already seen
+    let unseenIds = allMicrobeIds.filter(id => !round.seen_microbes.includes(id));
+
+    // 5. Reset the list if we've seen them all
+    if (unseenIds.length === 0) {
+      round.seen_microbes = [];
+      unseenIds = [...allMicrobeIds];
+    }
+
+    // 6. Pick a random microbe from the UNSEEN list
+    const nextMicrobeId = unseenIds[Math.floor(Math.random() * unseenIds.length)];
+
+    // 7. Add it to the database list and save
+    round.seen_microbes = [...round.seen_microbes, nextMicrobeId];
+    await round.save();
+
+    // 8. Fetch full microbe data to send to frontend
+    const microbe = await db.Microbe.findByPk(nextMicrobeId, {
+      include: { model: db.BSLClass, as: 'bsl_class' }
+    });
+
+    res.json(microbe);
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: 'Failed to fetch microbe' })
   }
 })
+
+app.post('/api/microbes/reset', async (req, res) => {
+  try {
+    const { session_id } = req.body;
+    
+    if (session_id) {
+      await db.Round.update(
+        { seen_microbes: [] },
+        { where: { session_id: session_id } }
+      );
+    }
+    
+    res.status(200).json({ message: 'Session reset successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to reset session microbes' });
+  }
+});
 
 app.get('/api/microbes/:id', async (req, res) => {
   try {

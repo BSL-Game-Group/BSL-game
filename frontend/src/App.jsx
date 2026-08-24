@@ -19,6 +19,7 @@ import { evaluateEquipmentSlots, getEquipmentRulesForBslLevel } from './utils/eq
 import { unequipAll } from './components/ClosetPopup/ItemConfig'
 import { useAuth } from './auth/context'
 import roundsService from './services/rounds'
+import microbeService from './services/microbes.js'
 import { loadSavedGame, patchSavedGame, flushSavedGame, clearSavedGame, MAX_ROUND_ANSWERS } from './state/savedGame'
 
 
@@ -234,6 +235,7 @@ function App() {
   // every piece of state back to its start-screen value. Dropping gameStarted
   // unmounts the Phaser game, so restarting builds a fresh scene.
   const resetGameState = useCallback(() => {
+    microbeService.resetSession()
     clearSavedGame()
     setGameStarted(false)
     setPopupOpen(false)
@@ -315,6 +317,7 @@ function App() {
     lectureWarningOpen,
     openRoundId,
     roundAnswers,
+    lectureOpen,
     roundResult,
   ])
 
