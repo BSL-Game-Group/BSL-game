@@ -35,16 +35,10 @@ test('renders nothing without an objective', () => {
   expect(screen.queryByTestId('next-step-hud')).not.toBeInTheDocument()
 })
 
-test('has no skip button when onSkipGuide is not provided', () => {
+// The skip control moved to the first-round toast: this row appears only
+// because the player is stuck, so offering to turn the guidance off here
+// offered it to the one player who had just shown they needed it.
+test('carries no skip button', () => {
   render(<NextStepHud objective={{ id: 'suit-up' }} stage="verbal" />)
   expect(screen.queryByTestId('next-step-hud-skip')).not.toBeInTheDocument()
-})
-
-test('clicking the skip button calls onSkipGuide', () => {
-  const onSkipGuide = jest.fn()
-  render(
-    <NextStepHud objective={{ id: 'suit-up' }} stage="verbal" onSkipGuide={onSkipGuide} />
-  )
-  screen.getByTestId('next-step-hud-skip').click()
-  expect(onSkipGuide).toHaveBeenCalledTimes(1)
 })

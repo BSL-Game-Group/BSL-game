@@ -66,3 +66,37 @@ test('renders nothing when there is no objective', () => {
 
   expect(screen.queryByRole('status')).not.toBeInTheDocument()
 })
+
+test('has no skip button when onSkipGuide is not provided', () => {
+  render(<ObjectiveToast objective={{ id: 'suit-up' }} />)
+
+  expect(screen.queryByTestId('objective-toast-skip')).not.toBeInTheDocument()
+})
+
+test('clicking the skip button calls onSkipGuide', () => {
+  const onSkipGuide = jest.fn()
+  render(<ObjectiveToast objective={{ id: 'suit-up' }} onSkipGuide={onSkipGuide} />)
+
+  screen.getByTestId('objective-toast-skip').click()
+
+  expect(onSkipGuide).toHaveBeenCalledTimes(1)
+})
+
+// The faded-out toast stays mounted at opacity 0, so a button left in it
+// would still be clickable over the game long after the text had gone.
+test('drops the skip button once the toast has faded out', () => {
+  const onSkipGuide = jest.fn()
+  render(<ObjectiveToast objective={{ id: 'suit-up' }} onSkipGuide={onSkipGuide} />)
+
+  expect(screen.getByTestId('objective-toast-skip')).toBeInTheDocument()
+
+  act(() => jest.advanceTimersByTime(3200))
+
+  expect(screen.queryByTestId('objective-toast-skip')).not.toBeInTheDocument()
+})
+
+test('hides the skip button while a popup is open', () => {
+  render(<ObjectiveToast objective={{ id: 'suit-up' }} suppressed onSkipGuide={jest.fn()} />)
+
+  expect(screen.queryByTestId('objective-toast-skip')).not.toBeInTheDocument()
+})

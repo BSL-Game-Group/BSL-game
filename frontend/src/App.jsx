@@ -599,6 +599,7 @@ function App() {
             objective={objective}
             roomLabel={objectiveRoomLabel}
             suppressed={anyPopupOpen}
+            onSkipGuide={isGuidedFirstRound ? () => setGuidanceSkipped(true) : undefined}
           />
         </div>
       )}
@@ -611,7 +612,6 @@ function App() {
             objective={objective}
             roomLabel={objectiveRoomLabel}
             stage={stage}
-            onSkipGuide={isGuidedFirstRound ? () => setGuidanceSkipped(true) : undefined}
           />
         </div>
       )}

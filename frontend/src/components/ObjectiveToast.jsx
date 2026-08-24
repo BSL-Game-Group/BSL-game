@@ -7,7 +7,12 @@ const VISIBLE_MS = 3200
 // resolveObjective's id changes and fades itself out a few seconds later.
 // It never fires twice for the same id (no flicker from walking back and
 // forth) and never appears while a popup has the game frozen.
-function ObjectiveToast({ objective, roomLabel, suppressed }) {
+//
+// This is also where the skip control lives. The toast only ever shows on the
+// player's first microbe, which is exactly the guidance someone who already
+// knows the loop wants gone — offering it from the stuck row instead meant
+// offering it to a player who had just proved they needed it.
+function ObjectiveToast({ objective, roomLabel, suppressed, onSkipGuide }) {
   const { t } = useTranslation()
   const [visible, setVisible] = useState(false)
   const lastIdRef = useRef(null)
@@ -42,7 +47,19 @@ function ObjectiveToast({ objective, roomLabel, suppressed }) {
       role="status"
       aria-live="polite"
     >
-      {text}
+      <span>{text}</span>
+      {/* Rendered only while actually visible: the faded-out toast stays in the
+          DOM at opacity 0, and a button in it would still take clicks. */}
+      {onSkipGuide && isVisible && (
+        <button
+          type="button"
+          className="objective-toast__skip"
+          data-testid="objective-toast-skip"
+          onClick={onSkipGuide}
+        >
+          {t('objective.skipGuide')}
+        </button>
+      )}
     </div>
   )
 }
