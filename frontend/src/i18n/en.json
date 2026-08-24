@@ -16,6 +16,8 @@
       "Go to the dressing room and open the closet (press E).",
       "Put on the protective equipment the level requires (lab coat, mask, glasses…).",
       "Go to the matching BSL room (1–4).",
+      "BSL-3 and BSL-4 are airlocks: close the airtight door behind you before handling the microbe. Only one airlock door can be open at a time.",
+      "BSL-4 also needs the pressurized suit and gloves, with the suit connected to the external ventilation. The panel in the bottom right names whatever is still missing.",
       "Press E at the dark green ring to handle the microbe.",
       "The game checks your work — were the equipment and room correct for this microbe?",
       "The result breaks your equipment down by category — eyewear, masks, body, gloves and footwear — marking each one right or wrong. It won't name the individual item you missed.",
@@ -23,6 +25,7 @@
       "Wash up at the shower or eyewash station — the BSL rooms stay shut until you do.",
       "After your last try, a new microbe is drawn.",
       "After several rounds, see your summary: score, correct vs. wrong, and the levels you mastered.",
+      "If you get stuck on the same task, the game will tell you what to do next along the bottom of the screen.",
       "You can leave any time through the Exit — the game shuts down."
     ],
     "controls": "Controls: Arrow keys / click to move · E or click to interact · Close button to close windows"

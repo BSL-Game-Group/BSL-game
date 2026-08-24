@@ -16,6 +16,8 @@
       "Gå till påklädningsrummet och öppna garderobsskåpet (tryck E).",
       "Sätt på den skyddsutrustning som nivån kräver (lab coat, mask, glasögon…).",
       "Gå till motsvarande BSL-rum (1–4).",
+      "BSL-3 och BSL-4 är slussar: stäng den lufttäta dörren bakom dig innan du hanterar mikroben. Endast en slussdörr kan vara öppen åt gången.",
+      "I BSL-4 behöver du dessutom den trycksatta dräkten och handskar, och dräkten måste kopplas till den externa ventilationen. Panelen nere till höger visar vad som fortfarande saknas.",
       "Tryck E vid den mörkt gröna ringen för att hantera mikroben.",
       "Spelet kontrollerar ditt arbete — var utrustningen och rummet rätt för denna mikrobе?",
       "Resultatet delar upp utrustningen i kategorier — ögonskydd, masker, klädsel, handskar och skor — markerar vilka karegorier gick rät eller fel. De specifika fela utrustningen namnges inte.",
@@ -23,6 +25,7 @@
       "Tvätta dig vid duschen eller ögonduschstationen — BSL-rummen är stängda till dess, oavsett om du gör ett nytt försök.",
       "Efter ditt sista försök lottas en ny mikrob.",
       "Efter flera rundor, se din sammanfattning: poäng, rätt vs. fel, och de nivåer du behärskade.",
+      "Om du fastnar på samma uppgift berättar spelet efter en stund längst ner på skärmen vad du ska göra härnäst.",
       "Du kan lämna när som helst genom utgången — spelet avslutas."
     ],
     "controls": "Kontroller: Piltangenter / klick för att röra sig · E eller klick för att interagera · Stäng-knapp för att stänga fönster"

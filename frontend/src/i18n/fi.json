@@ -16,6 +16,8 @@
       "Mene pukuhuoneeseen ja avaa kaappi (paina E).",
       "Pue tason vaatima suojavarustus (labratakki, maski, silmälasit…).",
       "Mene oikeaan BSL-huoneeseen (1–4).",
+      "BSL-3 ja BSL-4 ovat sulkutiloja: sulje ilmatiivis ovi takanasi ennen kuin käsittelet mikrobia. Vain yksi sulkutilan ovi voi olla auki kerrallaan.",
+      "BSL-4:ssä tarvitset lisäksi paineistetun puvun ja käsineet, ja puku on kytkettävä ulkoiseen ilmastointiin. Oikean alakulman paneeli kertoo, mikä vielä puuttuu.",
       "Paina E tummanvihreän renkaan kohdalla käsitelläksesi mikrobia.",
       "Peli tarkistaa työsi — olivatko varustus ja huone oikein tälle mikrobille?",
       "Tulos erittelee varustuksesi luokittain — silmäsuojat, maskit, vaatetus, käsineet ja jalkineet — ja merkitsee jokaisen oikeaksi tai vääräksi. Se ei kerro, mikä yksittäinen varuste puuttui.",
@@ -23,6 +25,7 @@
       "Peseydy suihkussa tai silmänhuuhtelupisteellä — BSL-huoneet pysyvät suljettuina siihen asti.",
       "Viimeisen yrityksen jälkeen arvotaan uusi mikrobi.",
       "Useamman kierroksen jälkeen näet yhteenvedon: pisteet, oikein vs. väärin, ja hallitsemasi tasot.",
+      "Jos jäät jumiin saman tehtävän kanssa, peli kertoo hetken kuluttua alalaidassa mitä seuraavaksi kannattaa tehdä.",
       "Voit poistua milloin tahansa Exitin kautta — peli sulkeutuu."
     ],
     "controls": "Ohjaimet: Nuolinäppäimet / klikkaus liikkumiseen · E tai klikkaus vuorovaikutukseen · Sulje-painike sulkee ikkunat"
