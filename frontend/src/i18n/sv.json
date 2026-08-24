@@ -46,7 +46,7 @@
     "title": "BSL-spelets material (biosäkerhetsnivåer)",
     "protectiveEquipment": "Skyddsutrustning:",
     "exampleOrganisms": "Exempelorganismer:",
-    "tableHeaders": ["#", "Vanligt namn", "Vetenskapligt namn", "Typ", "Anmärkning"],
+    "tableHeaders": ["#", "Allmänt namn", "Vetenskapligt namn", "Typ", "Anmärkning"],
     "sources": "Källor"
   },
   "task": {
@@ -55,7 +55,7 @@
   },
   "microbeInfoPopup": {
     "title": "Mikrobinformation",
-    "commonName": "Vanligt namn",
+    "commonName": "Allmänt namn",
     "scientificName": "Vetenskapligt namn",
     "type": "Typ",
     "description": "Beskrivning"
@@ -117,8 +117,10 @@
     "pressE": "Tryck E",
     "closeTheDoorBehindYouFirst": "Stäng dörren bakom dig först.",
     "exitPrompt": "Tryck E för att lämna",
+    "lectureMaterialHint": "Tryck E för att öppna kursmaterialet",
     "washUp": "Tryck R eller klicka för att tvätta dig",
-    "openmicrobeInfoHint": "Tryck E för mikrobinformation"
+    "openmicrobeInfoHint": "Tryck E för mikrobinformation",
+    "pressEOrClick": "Tryck E eller klicka"
   },
   "hud": {
     "score": "Poäng: {score}",

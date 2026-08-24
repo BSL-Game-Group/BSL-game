@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from '../../i18n/context'
 import { CATEGORY_CONFIG, CATEGORY_IDS } from '../../utils/equipmentCategories'
+import { useModalDialog } from '../../hooks/useModalDialog'
 
 function AnswerPopup({
   open,
@@ -14,9 +15,7 @@ function AnswerPopup({
   onRetry,
   attempt,
 }) {
-  useEffect(() => {
-    window.dispatchEvent(new Event(open ? 'popup-opened' : 'popup-closed'))
-  }, [open])
+  const dialogRef = useModalDialog(open, onClose)
 
   const retryButton = useRef(null)
   const canRetry = Boolean(onRetry)
@@ -67,7 +66,7 @@ function AnswerPopup({
 
   return (
     <div className="popup-overlay">
-      <div className={boxClass}>
+      <div className={boxClass} role="dialog" aria-modal="true" ref={dialogRef} tabIndex={-1}>
         {!canRetry && (
           <button onClick={onClose} className="popup-close-button position-absolute top-0 end-0 m-3">
             {t('common.close')}
