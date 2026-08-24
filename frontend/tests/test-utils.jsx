@@ -54,6 +54,7 @@ const translationValue = {
       'objective.go-to-room': 'Next: go to {room}',
 
       'bslAirlock.doorOpen': 'The airlock door is open — close it first',
+      'bslAirlock.suitOff': 'The pressurized suit is not on',
       'bslAirlock.ventilationOff': 'Ventilation is not connected',
       'bslAirlock.interlockBlocked': 'The other airlock door is open — close it first',
 

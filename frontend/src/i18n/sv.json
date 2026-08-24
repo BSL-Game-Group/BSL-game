@@ -135,6 +135,7 @@
     "skipGuide": "Hoppa över vägledningen"
   },
   "bslAirlock": {
+    "suitOff": "Den trycksatta dräkten är inte på",
     "doorOpen": "Slussdörren är öppen — stäng den först",
     "ventilationOff": "Ventilationen är inte ansluten",
     "interlockBlocked": "Den andra slussdörren är öppen — stäng den först"

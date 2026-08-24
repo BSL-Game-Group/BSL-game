@@ -616,6 +616,7 @@ function App() {
             roomKey={bslRoom}
             doorOpen={bslDoorOpen}
             ventilationConnected={ventilationConnected}
+            suitOn={Boolean(equipped.pressurized_suit)}
             suppressed={anyPopupOpen}
           />
         </div>
