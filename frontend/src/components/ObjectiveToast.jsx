@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from '../i18n/context'
 
 const VISIBLE_MS = 3200
+// Long enough to notice a button and decide, rather than only long enough to
+// read a line of text. Applies whenever the skip control is offered.
+const VISIBLE_WITH_SKIP_MS = 7000
 
 // A one-shot notice, not a persistent HUD row: it appears the moment
 // resolveObjective's id changes and fades itself out a few seconds later.
@@ -16,21 +19,33 @@ function ObjectiveToast({ objective, roomLabel, suppressed, onSkipGuide }) {
   const { t } = useTranslation()
   const [visible, setVisible] = useState(false)
   const lastIdRef = useRef(null)
-  const hideTimerRef = useRef(null)
+  // A boolean, not the callback itself: the callback is a new arrow on every
+  // render, and a dependency that changes every render is exactly what broke
+  // the timer below. Whether a skip is offered changes at most once.
+  const offersSkip = Boolean(onSkipGuide)
+
+  // Depends on the id, not the objective: resolveObjective builds a fresh
+  // object every render, and the stuck timer re-renders App twice a second.
+  // With the object as a dependency the effect re-ran on every tick, its
+  // cleanup cleared the pending hide, and the guard below then returned
+  // before setting a new one — so the toast stayed on screen for good.
+  const objectiveId = objective?.id ?? null
 
   useEffect(() => {
-    if (!objective || suppressed || objective.id === lastIdRef.current) {
+    if (!objectiveId || suppressed || objectiveId === lastIdRef.current) {
       return
     }
 
-    lastIdRef.current = objective.id
+    lastIdRef.current = objectiveId
     setVisible(true)
 
-    clearTimeout(hideTimerRef.current)
-    hideTimerRef.current = setTimeout(() => setVisible(false), VISIBLE_MS)
+    const timer = setTimeout(
+      () => setVisible(false),
+      offersSkip ? VISIBLE_WITH_SKIP_MS : VISIBLE_MS
+    )
 
-    return () => clearTimeout(hideTimerRef.current)
-  }, [objective, suppressed])
+    return () => clearTimeout(timer)
+  }, [objectiveId, suppressed, offersSkip])
 
   if (!objective) {
     return null
@@ -50,7 +65,7 @@ function ObjectiveToast({ objective, roomLabel, suppressed, onSkipGuide }) {
       <span>{text}</span>
       {/* Rendered only while actually visible: the faded-out toast stays in the
           DOM at opacity 0, and a button in it would still take clicks. */}
-      {onSkipGuide && isVisible && (
+      {offersSkip && isVisible && (
         <button
           type="button"
           className="objective-toast__skip"

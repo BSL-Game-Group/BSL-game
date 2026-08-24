@@ -90,7 +90,13 @@ test('drops the skip button once the toast has faded out', () => {
 
   expect(screen.getByTestId('objective-toast-skip')).toBeInTheDocument()
 
+  // A toast carrying the skip button stays up longer than a plain one: 3.2s
+  // is long enough to read a line, not to notice a button and decide.
   act(() => jest.advanceTimersByTime(3200))
+
+  expect(screen.getByTestId('objective-toast-skip')).toBeInTheDocument()
+
+  act(() => jest.advanceTimersByTime(7000))
 
   expect(screen.queryByTestId('objective-toast-skip')).not.toBeInTheDocument()
 })
@@ -99,4 +105,22 @@ test('hides the skip button while a popup is open', () => {
   render(<ObjectiveToast objective={{ id: 'suit-up' }} suppressed onSkipGuide={jest.fn()} />)
 
   expect(screen.queryByTestId('objective-toast-skip')).not.toBeInTheDocument()
+})
+
+// resolveObjective builds a fresh objective object on every render and the
+// stuck timer re-renders App twice a second. With the object as an effect
+// dependency, each of those re-renders cleared the pending hide and the guard
+// then returned before setting a new one, so the toast never faded.
+test('still fades out while the parent re-renders with an equal objective', () => {
+  const { rerender } = render(<ObjectiveToast objective={{ id: 'suit-up' }} />)
+
+  expect(screen.getByRole('status').className).toContain('objective-toast--visible')
+
+  // 8 x 500ms clears VISIBLE_MS (3200) with room to spare.
+  for (let tick = 0; tick < 8; tick += 1) {
+    act(() => jest.advanceTimersByTime(500))
+    rerender(<ObjectiveToast objective={{ id: 'suit-up' }} />)
+  }
+
+  expect(screen.getByRole('status').className).not.toContain('objective-toast--visible')
 })
