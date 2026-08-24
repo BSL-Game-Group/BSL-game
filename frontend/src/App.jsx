@@ -697,7 +697,7 @@ function App() {
           rather than floating over the middle of the map. The "Next: ..." row
           is bottom-centre, so the two do not overlap. */}
       {gameStarted && (
-        <div className="position-fixed bottom-0 end-0 p-3 z-3">
+        <div className="position-fixed bottom-0 end-0 p-3 z-3 bsl-airlock-status-anchor">
           <BslAirlockStatus
             roomKey={bslRoom}
             doorOpen={bslDoorOpen}

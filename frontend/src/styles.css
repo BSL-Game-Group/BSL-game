@@ -536,3 +536,12 @@ body {
 .next-step-hud-anchor {
   margin-bottom: 72px;
 }
+
+/* The three HUD anchors stay mounted for the whole game and sit on top of the
+   canvas, so an empty one still swallowed click-to-move presses. Only the skip
+   button inside the toast takes pointer events back. */
+.objective-toast-anchor,
+.next-step-hud-anchor,
+.bsl-airlock-status-anchor {
+  pointer-events: none;
+}
