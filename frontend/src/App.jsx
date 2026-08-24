@@ -431,10 +431,21 @@ function App() {
   const objectiveRoomLabel = objective?.target
     ? (objective.target.startsWith('BSL-') ? objective.target : t(`rooms.${objective.target}`))
     : ''
-  // The objective toast is a first-round courtesy: once the player has
-  // handled a microbe, repeating it every objective change for the rest of
-  // the session would just be noise for someone who already knows the loop.
-  const isFirstRound = roundAnswers.length === 0
+  // The objective toast is a first-round courtesy: once the player has been
+  // through the loop once, repeating it every objective change for the rest
+  // of the session would just be noise for someone who already knows it.
+  //
+  // "Been through the loop" has to include the wash-up. Counting answers
+  // alone ended the first round one step early, because handleAnswerRecord
+  // records the answer and sets awaitingUndress in the same call — so the
+  // toast switched off at the very moment the wash-up objective appeared,
+  // and that last step was the one step it could never announce.
+  //
+  // Distinct microbes, not answers: a wrong attempt with a retry left records
+  // two answers for the same organism, which is still one trip round the loop.
+  const microbesAnswered = new Set(roundAnswers.map((answer) => answer.microbe_id)).size
+  const isFirstRound =
+    microbesAnswered === 0 || (microbesAnswered === 1 && awaitingUndress)
   // The first round used to get a five-second fuse on the stuck row. It had
   // nothing to do: the toast is already walking that player through every
   // step, so the row only arrived on top of guidance they were reading. One

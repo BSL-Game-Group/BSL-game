@@ -1336,3 +1336,20 @@ test('opening the closet freezes the scene, closing it lets it run again', () =>
   window.removeEventListener('popup-opened', opened)
   window.removeEventListener('popup-closed', closed)
 })
+
+// handleAnswerRecord records the answer and sets awaitingUndress in the same
+// call, so counting answers ended the first round at the very moment the
+// wash-up objective appeared — the toast could never announce that last step.
+test('the first-round toast survives until the player has washed up', () => {
+  // The debounced save from the test above can land after beforeEach has run,
+  // which would restore a started game and hide the start screen.
+  clearSavedGame()
+  localStorage.clear()
+
+  // enterLectureRoom starts the game itself.
+  enterLectureRoom()
+
+  answerCurrentMicrobe('BSL-1')
+
+  expect(screen.getByText(/wash up/i)).toBeInTheDocument()
+})
