@@ -1,5 +1,30 @@
 # Architecture
 
+## Strenghts & Weaknesses in the project
+
+**Weaknesses**
+
+Structure:
+
+Bugs:
+- The character can go partly over the game area in BSL-2 and BSL-4 rooms.
+
+**Strenghts**
+
+Test coverage is high, and covers both frontend and backend
+
+**Continuity plans&ideas**
+
+New features that could be added
+- Character moves more realistically --hands and legs moving
+- Adjusting the player hitbox/room hitboxes
+- Add lives in the game -- example: game ends automatically if you loose 3 lives
+- The player can change the appearance of the character
+- Feedback when exiting the game
+- Tutorial guiding through the first round
+
+
+
 ## System architecture
 
 ```mermaid
@@ -192,6 +217,8 @@ docker compose down -v && docker compose up -d
 
 Read endpoints: `GET /api/bsl-classes`, `GET /api/microbes`, `GET /api/microbes/:id`.
 
+## Production
+
 Production uses its own separate database and secret
 (`bsl-backend-secret-prod`), requested and created the same way as the
 staging one above but kept apart — see atk-tietokannat@helsinki.fi for
@@ -203,7 +230,7 @@ To promote a build to production, edit `from.name` in
 `frontend/manifests/production/imagestream.yaml` to that build's
 known-good git-sha tag, then `oc apply` and commit the change.
 
-### `JWT_SECRET`
+### JWT_SECRET
 
 The backend signs session tokens with `JWT_SECRET` and **refuses to start without
 it**. There is deliberately no built-in default: a secret living in this repository
@@ -217,8 +244,10 @@ needs it in your environment:
 JWT_SECRET=anything-local npm start
 ```
 
-**On OpenShift it comes from the `bsl-backend-secret` secret, and must be added
-once before the next deploy** — `backend/manifests/deployment.yaml` requires the
+### Openshift guide
+
+On OpenShift it comes from the `bsl-backend-secret` secret, and must be added
+once before the next deploy — `backend/manifests/deployment.yaml` requires the
 key, so without it the pod fails with `CreateContainerConfigError`:
 
 ```bash
@@ -230,7 +259,7 @@ oc create secret generic bsl-backend-secret \
 That form patches the existing secret without disturbing `DB_URL`. Rotating the
 value signs everyone out; nothing else breaks.
 
-### Sequence diagram
+## Sequence diagrams
 
 Player choosing a equipment and dragging it on the character
 
