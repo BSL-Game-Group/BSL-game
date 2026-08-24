@@ -97,7 +97,6 @@ app.get('/api/microbes/random', async (req, res) => {
     if (unseenIds.length === 0) {
       round.seen_microbes = [];
       unseenIds = [...allMicrobeIds];
-      console.log(`\n🔄 [RESET] All microbes seen for session ${session_id}. Resetting list.`);
     }
 
     // 6. Pick a random microbe from the UNSEEN list
@@ -106,11 +105,6 @@ app.get('/api/microbes/random', async (req, res) => {
     // 7. Add it to the database list and save
     round.seen_microbes = [...round.seen_microbes, nextMicrobeId];
     await round.save();
-
-    // ⭐️ HERE IS YOUR CONSOLE LOG ⭐️
-    console.log(`\n🎮 [Session: ${session_id}]`);
-    console.log(`👀 Just drew Microbe ID: ${nextMicrobeId}`);
-    console.log(`📋 Total Seen List: [${round.seen_microbes.join(', ')}]\n`);
 
     // 8. Fetch full microbe data to send to frontend
     const microbe = await db.Microbe.findByPk(nextMicrobeId, {
@@ -133,7 +127,6 @@ app.post('/api/microbes/reset', async (req, res) => {
         { seen_microbes: [] },
         { where: { session_id: session_id } }
       );
-      console.log(`\n🧹 [RESET] Emptied microbe list for session ${session_id}\n`);
     }
     
     res.status(200).json({ message: 'Session reset successfully' });
