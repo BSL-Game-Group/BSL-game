@@ -4,7 +4,15 @@ export class BslInteraction extends BaseInteraction {
     seedPresence() {
         if (this.scene.bslGlows) {
             for (const entry of this.scene.bslGlows) {
-                entry.playerInside = this.isInside(entry.zone);
+                // Determine the zone to check, modifying it if it is BSL-2
+                let activeZone = entry.zone;
+                if (entry.key === 'BSL-2') {
+                    // Modify the properties (y, x, width, height) as needed here
+                    activeZone = { ...entry.zone, height: 210 }; 
+                }
+
+                entry.playerInside = this.isInside(activeZone);
+                
                 if (entry.key === 'BSL-4') {
                     this.scene.bsl4Occupied = entry.playerInside;
                 }
@@ -19,12 +27,20 @@ export class BslInteraction extends BaseInteraction {
     update() {
         const { bslGlows, bslHint } = this.scene;
         if (!bslGlows) {
-          return;}
+          return;
+        }
 
         let activeCenter = null;
 
         for (const entry of bslGlows) {
-            const inside = this.isInside(entry.zone);
+            // Determine the zone to check, modifying it if it is BSL-2
+            let activeZone = entry.zone;
+            if (entry.key === 'BSL-2') {
+                // Modify the properties (y, x, width, height) as needed here
+                activeZone = { ...entry.zone, height: 210 }; 
+            }
+
+            const inside = this.isInside(activeZone);
 
             if (inside && !entry.playerInside) {
                 entry.glow.setVisible(true);
