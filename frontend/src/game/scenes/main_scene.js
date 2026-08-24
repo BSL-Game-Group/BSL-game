@@ -112,8 +112,20 @@ class MainScene extends Phaser.Scene {
         
         this.isPopupOpen = this.savedGame?.popups.closet ?? false;
 
-        this.handlePopupOpen = () => { this.isPopupOpen = true; };
-        this.handlePopupClosed = () => { this.isPopupOpen = false; };
+        // Movement and E-presses already check isPopupOpen in update(), but the
+        // clickable hotspots in rooms.js fire straight off Phaser's input,
+        // which keeps running underneath an open dialog — the exit button could
+        // be clicked through the closet. Disabling the scene's input covers
+        // every hotspot at once, including any added later.
+        this.setPopupOpen = (open) => {
+            this.isPopupOpen = open;
+            this.input.enabled = !open;
+        };
+
+        this.setPopupOpen(this.isPopupOpen);
+
+        this.handlePopupOpen = () => this.setPopupOpen(true);
+        this.handlePopupClosed = () => this.setPopupOpen(false);
 
         window.addEventListener('popup-opened', this.handlePopupOpen);
         window.addEventListener('popup-closed', this.handlePopupClosed);

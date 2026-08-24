@@ -458,3 +458,22 @@ describe('restoring a saved game', () => {
     expect(scene.isPopupOpen).toBe(false)
   })
 })
+
+// The clickable hotspots in rooms.js fire straight off Phaser's input, which
+// keeps running under an open dialog — the exit button could be clicked
+// through the closet. Movement and E-presses were already gated in update().
+test('a popup disables the scene input, closing it enables it again', () => {
+  const scene = createScene()
+
+  scene.create()
+
+  expect(scene.input.enabled).toBe(true)
+
+  window.dispatchEvent(new Event('popup-opened'))
+  expect(scene.input.enabled).toBe(false)
+  expect(scene.isPopupOpen).toBe(true)
+
+  window.dispatchEvent(new Event('popup-closed'))
+  expect(scene.input.enabled).toBe(true)
+  expect(scene.isPopupOpen).toBe(false)
+})
