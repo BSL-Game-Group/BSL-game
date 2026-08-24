@@ -291,3 +291,89 @@ sequenceDiagram
     GameScene->>InventoryUI: Refresh inventory and character visuals
     InventoryUI-->>Player: Show equipped item feedback
 ```
+
+### Sequence diagram — signing in
+
+A returning player signing in, and the guest rounds they played before signing in being
+adopted by their account in the same request.
+
+```mermaid
+sequenceDiagram
+    actor Player
+    participant Form as React AuthForm
+    participant Provider as AuthProvider
+    participant Service as services/auth.js
+    participant Router as routes/auth.js
+    participant Claim as services/claim.js
+    participant DB as models/ + PostgreSQL
+
+    Player->>Form: Submit username and password
+    Form->>Form: preventDefault, mark submitting, clear the error code
+    Form->>Provider: login(username, password)
+
+    Provider->>Provider: Read or create the session id in localStorage
+    Provider->>Service: login(username, password, session_id)
+    Service->>Router: POST /api/auth/login
+
+    Router->>Router: loginLimiter, 10 failed attempts per username per 15 minutes
+    Router->>DB: Find user by lowercased username, with password_hash
+    DB-->>Router: User row
+    Router->>Router: bcrypt.compare(password, password_hash)
+
+    Router->>Claim: claimRoundsForSession(session_id, user.id)
+    Claim->>DB: Adopt this session's unowned rounds
+    DB-->>Claim: Number of rounds claimed
+    Claim-->>Router: claimed_rounds
+
+    Router->>Router: signToken(user), a JWT valid for 7 days
+    Router-->>Service: 200 with token, user and claimed_rounds
+    Service-->>Provider: Session payload
+
+    Provider->>Provider: Store the token, set user and claimedRounds
+    Provider-->>Form: Session payload
+    Form->>Form: Clear the inputs
+    Form-->>Player: onSuccess closes the form panel
+```
+
+Registering is the same flow with validation first and a `201`, and it claims guest rounds
+identically. Storing the new token also re-runs the provider's effect, so the confirmation
+below follows every login.
+
+### Sequence diagram — confirming a stored token
+
+A player returning to a page they were already signed in on. The token outlives the tab, so
+it has to be re-checked against the server before the player is treated as signed in.
+
+```mermaid
+sequenceDiagram
+    actor Player
+    participant Provider as AuthProvider
+    participant Service as services/auth.js
+    participant Router as routes/auth.js
+    participant DB as models/ + PostgreSQL
+
+    Player->>Provider: Open the game
+    Provider->>Provider: Read the stored token from localStorage
+    Provider->>Service: me(token)
+    Service->>Router: GET /api/auth/me with a Bearer token
+    Router->>Router: requireAuth verifies the JWT
+
+    alt Token verifies
+        Router->>DB: Find the user named by the token subject
+        DB-->>Router: User row
+        Router-->>Service: 200 with id and username
+        Service-->>Provider: Confirmed user
+        Provider->>Provider: Set user, clear loading
+        Provider-->>Player: Shown as signed in
+    else Expired, tampered with, or signed by someone else
+        Router-->>Service: 401 unauthenticated
+        Service-->>Provider: AuthError
+        Provider->>Provider: Clear the stored token and the user
+        Provider-->>Player: Shown as a guest
+    end
+```
+
+The effect is keyed on the token alone, so it cannot tell a restored token from one a login
+just produced — which is why it also runs after signing in, re-fetching a user the login
+response already carried. A token whose user has since been deleted takes the same `401`
+path.
