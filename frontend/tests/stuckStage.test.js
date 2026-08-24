@@ -15,21 +15,16 @@ describe('stuckStage', () => {
     expect(stuckStage(STUCK_THRESHOLDS_MS.verbal - 1)).toBe('subtle')
   })
 
-  test('becomes verbal at the second threshold', () => {
+  test('becomes verbal at the last threshold and stays there', () => {
     expect(stuckStage(STUCK_THRESHOLDS_MS.verbal)).toBe('verbal')
-    expect(stuckStage(STUCK_THRESHOLDS_MS.directional - 1)).toBe('verbal')
+    expect(stuckStage(STUCK_THRESHOLDS_MS.verbal * 100)).toBe('verbal')
   })
 
-  test('becomes directional at the third threshold and stays there', () => {
-    expect(stuckStage(STUCK_THRESHOLDS_MS.directional)).toBe('directional')
-    expect(stuckStage(STUCK_THRESHOLDS_MS.directional * 100)).toBe('directional')
-  })
+  test('accepts custom thresholds', () => {
+    const shortFuse = { subtle: 0, verbal: 8_000 }
 
-  test('accepts custom thresholds, e.g. the guided-first-round settings', () => {
-    const firstRoundThresholds = { subtle: 0, verbal: 0, directional: 8_000 }
-
-    expect(stuckStage(0, firstRoundThresholds)).toBe('verbal')
-    expect(stuckStage(8_000, firstRoundThresholds)).toBe('directional')
+    expect(stuckStage(0, shortFuse)).toBe('subtle')
+    expect(stuckStage(8_000, shortFuse)).toBe('verbal')
   })
 
   // The zero-length 'verbal' fuse this replaces made NextStepHud a permanent
@@ -39,7 +34,6 @@ describe('stuckStage', () => {
     expect(stuckStage(0, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('subtle')
     expect(stuckStage(4_999, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('subtle')
     expect(stuckStage(5_000, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('verbal')
-    expect(stuckStage(14_999, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('verbal')
-    expect(stuckStage(15_000, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('directional')
+    expect(stuckStage(500_000, FIRST_ROUND_STUCK_THRESHOLDS_MS)).toBe('verbal')
   })
 })

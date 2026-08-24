@@ -19,12 +19,12 @@ test('shows the objective text once verbal', () => {
   )
 })
 
-test('stays visible at the directional stage', () => {
+test('fills the room name into the objective text', () => {
   render(
     <NextStepHud
       objective={{ id: 'go-to-room', target: 'BSL-3' }}
       roomLabel="BSL-3"
-      stage="directional"
+      stage="verbal"
     />
   )
   expect(screen.getByTestId('next-step-hud')).toHaveTextContent('Next: go to BSL-3')
