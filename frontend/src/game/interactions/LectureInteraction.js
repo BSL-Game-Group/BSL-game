@@ -30,7 +30,9 @@ export class LectureInteraction extends BaseInteraction {
             return;
         }
 
-        const inside = this.isInside(lectureRoomZone);
+        // The height value hardcoded as a new zone. If you change this, remember to update movement.test.jsx
+        const lectureRoomZoneModified = {...lectureRoomZone, height: 250}
+        const inside = this.isInside(lectureRoomZoneModified);
 
         // Track zone entry
         if (inside && !this.playerInsideLectureRoom) {
