@@ -23,7 +23,6 @@ export class LectureInteraction extends BaseInteraction {
             lectureMaterialPoint,
             lectureMaterialGlowTween,
             lectureMaterialHint,
-            pressEText,
             openmicrobeInfoHint,
         } = this.scene;
         if (!lectureRoomZone) {
