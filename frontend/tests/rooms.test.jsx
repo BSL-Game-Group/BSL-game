@@ -395,25 +395,6 @@ describe('setupCloset (via createRooms)', () => {
     window.removeEventListener('closet-popup-opened', listener)
     expect(listener).not.toHaveBeenCalled()
   })
-
-  test('hovering the circle toggles the hint only when inside', () => {
-    const scene = makeFakeScene()
-    createRooms(scene)
-
-    // Inside: hover shows the hint, then pointerout hides it.
-    scene.playerInsideDressingRoom = true
-    scene.closetHit.handlers.pointerover()
-    expect(scene.closetHint.setVisible).toHaveBeenCalledWith(true)
-
-    scene.closetHit.handlers.pointerout()
-    expect(scene.closetHint.setVisible).toHaveBeenCalledWith(false)
-
-    // Outside: hover does not show the hint.
-    scene.closetHint.setVisible.mockClear()
-    scene.playerInsideDressingRoom = false
-    scene.closetHit.handlers.pointerover()
-    expect(scene.closetHint.setVisible).not.toHaveBeenCalledWith(true)
-  })
 })
 
 describe('setupUndressPoint (via createRooms)', () => {

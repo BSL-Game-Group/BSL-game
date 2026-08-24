@@ -19,8 +19,8 @@
       "Press E at the dark green ring to handle the microbe.",
       "The game checks your work — were the equipment and room correct for this microbe?",
       "The result breaks your equipment down by category — eyewear, masks, body, gloves and footwear — marking each one right or wrong. It won't name the individual item you missed.",
-      "If the room or the equipment was wrong, you get one retry on the same microbe. Until your last try, the microbe's own feedback and its BSL level stay hidden.",
-      "Wash up at the shower or eyewash station — the BSL rooms stay shut until you do.",
+      "If the room or the equipment was wrong, you get one retry on the same microbe — walk straight back in, no wash-up needed. Until your last try, the microbe's own feedback and its BSL level stay hidden.",
+      "Once you are done with a microbe, go to the wash-up point in the dressing room — the BSL rooms stay shut until you do.",
       "After your last try, a new microbe is drawn.",
       "After several rounds, see your summary: score, correct vs. wrong, and the levels you mastered.",
       "You can leave any time through the Exit — the game shuts down."
@@ -70,8 +70,14 @@
     "belongs": "{name} belongs to BSL-{level}.",
     "slotCorrect": "correct",
     "slotIncorrect": "incorrect",
+    "pointsRoom": "Room",
+    "pointsTotal": "Points from this microbe",
+    "pointsBanked": "already earned",
     "tryAgain": "Try again",
-    "lastAttempt": "That was your last try for this microbe."
+    "skipMicrobe": "Skip this microbe",
+    "skipWashUp": "Skipping means going to the wash-up point before the next microbe.",
+    "washUpNext": "Go to the wash-up point before the next microbe.",
+    "lastAttempt": "That was your last try for this microbe — go to the wash-up point before the next one."
   },
   "common": {
     "close": "Close",
@@ -114,6 +120,7 @@
     "pressE": "Press E",
     "closeTheDoorBehindYouFirst": "Close the door behind you first.",
     "exitPrompt": "Press E to exit",
+    "lectureMaterialHint": "Press E to open lecture material",
     "washUp": "Press R or click to wash up",
     "openmicrobeInfoHint": "Press E for microbe info",
     "pressEOrClick": "Press E or click"
@@ -166,7 +173,7 @@
     },
     "claim": {
       "title": "Round finished",
-      "scoreLine": "You scored {score} out of {total}.",
+      "scoreLine": "You scored {score} points.",
       "guestWarning": "This score only lives in this browser until you keep it.",
       "keepScore": "Keep my score",
       "savedToAccount": "Saved to your account.",
