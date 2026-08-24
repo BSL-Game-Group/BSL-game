@@ -13,7 +13,7 @@ import ObjectiveToast from './components/ObjectiveToast'
 import NextStepHud from './components/NextStepHud'
 import BslAirlockStatus from './components/BslAirlockStatus'
 import { useStuckTimer } from './hooks/useStuckTimer'
-import { stuckStage } from './utils/stuckStage'
+import { stuckStage, STUCK_THRESHOLDS_MS } from './utils/stuckStage'
 import AuthStatus from './auth/AuthStatus'
 import EndPopup from './components/EndPopup'
 import YourRounds from './auth/YourRounds'
@@ -475,7 +475,11 @@ function App() {
     microbesAnswered === 0 ||
     (microbesAnswered === 1 && (awaitingUndress || attempt === 2))
   const isGuidedFirstRound = isFirstRound && !guidanceSkipped
-  const stuckElapsedMs = useStuckTimer(objective?.id ?? null, anyPopupOpen)
+  const stuckElapsedMs = useStuckTimer(
+    objective?.id ?? null,
+    anyPopupOpen,
+    STUCK_THRESHOLDS_MS.verbal
+  )
   const stage = stuckStage(stuckElapsedMs)
 
   // Recording an answer always requires a trip to the dressing room's wash-up

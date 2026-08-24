@@ -64,3 +64,15 @@ test('resets to zero when the key changes', () => {
   act(() => jest.advanceTimersByTime(1000))
   expect(result.current).toBe(1000)
 })
+
+// Without a cap the interval kept firing for the whole session, re-rendering
+// App twice a second long after the last threshold had passed.
+test('stops ticking once the cap is reached', () => {
+  const { result } = renderHook(() => useStuckTimer('objective', false, 1000))
+
+  act(() => jest.advanceTimersByTime(1000))
+  expect(result.current).toBe(1000)
+
+  act(() => jest.advanceTimersByTime(10_000))
+  expect(result.current).toBe(1000)
+})
