@@ -88,9 +88,92 @@ graph TD
 
 ## Backend
 
-- Sequalize
-- PostreSQL
+- Sequelize
+- PostgreSQL
 - Express
+
+### Backend Component Diagram
+
+```mermaid
+graph TD
+
+    Client[Frontend services/]
+
+    Client --> Index
+
+    subgraph Backend
+        Index[index.js]
+        App[app.js]
+
+        Routes[routes/]
+        Middleware[middleware/]
+
+        Services[services/]
+        Models[models/]
+        Utils[utils/]
+
+        Config[config/]
+        Seed["migrations/ + seeders/"]
+        Data[data/]
+    end
+
+    DB[(PostgreSQL)]
+
+    Index --> App
+
+    App --> Middleware
+    App --> Routes
+
+    Routes --> Services
+    Routes --> Models
+    Middleware --> Utils
+    Middleware --> Models
+
+    Models --> Config
+    Models --> DB
+
+    Seed --> Data
+    Seed --> DB
+```
+
+The levels read the same way as the frontend diagram above: caller, entry point, root
+application, its two halves, the shared modules they lean on, and the store underneath.
+
+Two real dependencies are left off so the levels stay flat. Routers attach `requireAuth` and
+the rate limiters themselves, so `routes/` reaches `middleware/` as well as `app.js` does;
+and `services/claim.js` writes through `models/`, though `grading.js` and `scoring.js` are
+pure functions that touch nothing.
+
+`migrations/` and `seeders/` are on a different lifecycle from everything above them: they
+run once at startup, before the server accepts a request. See [Database](#database) below.
+
+| Component | Files | Responsibility |
+| --- | --- | --- |
+| Entry point | `index.js` | Opens the port (`PORT`, default 3001) and nothing else |
+| Application | `app.js` | Builds the Express app, applies `cors` + `express.json()`, mounts the routers, and serves the read-only content endpoints itself |
+| `routes/` | `auth.js`, `rounds.js`, `leaderboard.js` | Register, log in, delete account; submit and re-grade rounds; best-round-per-user board |
+| `middleware/` | `auth.js`, `rateLimit.js`, `errorHandler.js` | `requireAuth` / `optionalAuth`; per-username limiters on register and login; the last-resort error responder |
+| `services/` | `grading.js`, `scoring.js`, `claim.js` | Grade one answer against the level's rules; score a microbe across its attempts; adopt a guest session's rounds on sign-in |
+| `utils/` | `token.js` | Signs and verifies JWTs; refuses to load without `JWT_SECRET` outside `NODE_ENV=test` |
+| `models/` | `index.js` + 7 model files | The single Sequelize instance and every association — the only component that talks to Postgres |
+| `config/` | `config.js` | Resolves `DB_URL` or the discrete `DB_*` vars, and TLS when the URL asks for it |
+| `data/` | `*.json` | Seed content (microbes and BSL material in en/fi/sv) plus the username blocklist |
+| `migrations/`, `seeders/` | timestamped files | Schema changes and seed data, applied at startup rather than on any request |
+
+The content endpoints living directly in `app.js` are `/api/bsl-classes`, `/api/microbes`,
+`/api/microbes/random`, `/api/microbes/:id`, `/api/bsl-material` and `POST /api/rooms/enter`.
+`errorHandler` is registered last, so anything a router throws lands there.
+
+`services/grading.js` and `services/scoring.js` are deliberate ports of
+`frontend/src/utils/equipmentRules.js` and `frontend/src/utils/scoring.js`: the client shows
+the verdict, the server records it, and the two must agree.
+
+**Not in the diagram — open PR [#108](https://github.com/BSL-Game-Group/BSL-game/pull/108)**
+(`task/track_microbes`) adds a `rounds.seen_microbes` integer array, makes
+`GET /api/microbes/random?session_id=…` draw only from microbes that session has not seen
+yet (resetting once the pool is exhausted), adds `POST /api/microbes/reset`, and switches
+`POST /api/rounds` from `Round.create` to `Round.findOrCreate` so it adopts the row
+`/api/microbes/random` already made for that session. Nothing else in the backend moves.
 
 ## Database
 
