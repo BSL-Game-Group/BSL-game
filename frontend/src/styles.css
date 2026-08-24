@@ -510,3 +510,14 @@ body {
 .rounds-panel {
   max-width: 520px;
 }
+
+/* How far the two centred HUD messages sit from the top and bottom edges.
+   Bootstrap's largest step (mt-5/mb-5) is 48px, which still left them close
+   enough to the frame to read as part of it. One number each, tuned by eye. */
+.objective-toast-anchor {
+  margin-top: 72px;
+}
+
+.next-step-hud-anchor {
+  margin-bottom: 72px;
+}

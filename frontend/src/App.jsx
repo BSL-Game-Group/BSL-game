@@ -596,7 +596,7 @@ function App() {
           step changes, then fades on its own. First round only — see
           isFirstRound above. */}
       {gameStarted && isFirstRound && (
-        <div className="position-fixed top-0 start-50 translate-middle-x p-3 mt-5 z-3">
+        <div className="position-fixed top-0 start-50 translate-middle-x p-3 z-3 objective-toast-anchor">
           <ObjectiveToast
             objective={objective}
             roomLabel={objectiveRoomLabel}
@@ -608,7 +608,7 @@ function App() {
       {/* Persistent "Next: ..." row, bottom-center — only once the player has
           been stuck on the same objective for a while. */}
       {gameStarted && (
-        <div className="position-fixed bottom-0 start-50 translate-middle-x p-3 mb-5 z-3">
+        <div className="position-fixed bottom-0 start-50 translate-middle-x p-3 z-3 next-step-hud-anchor">
           <NextStepHud
             objective={objective}
             roomLabel={objectiveRoomLabel}
