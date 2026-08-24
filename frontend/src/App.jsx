@@ -318,6 +318,15 @@ function App() {
     setBsl4NotReadyOpen(false)
     setBsl4GearOpen(false)
     setBslDoorRequiredOpen(false)
+    // Where the player was standing is state like any other. Leaving it behind
+    // made the airlock panel describe the room they quit from: exiting inside
+    // BSL-4 and starting again showed "suit is not on / gloves are not on /
+    // ventilation is not connected" at the spawn point, because the reset had
+    // stripped the gear but not the room.
+    setBslRoom(null)
+    setBslDoorOpen({})
+    // A new game is a new first round, so it gets the guidance again.
+    setGuidanceSkipped(false)
     window.dispatchEvent(new Event('popup-closed'))
   }, [])
 
@@ -609,9 +618,11 @@ function App() {
         </div>
       )}
 
-      {/* BSL airlock/ventilation status, mid-right. */}
+      {/* BSL airlock/ventilation status, bottom-right — beside the BSL-3 lab
+          rather than floating over the middle of the map. The "Next: ..." row
+          is bottom-centre, so the two do not overlap. */}
       {gameStarted && (
-        <div className="position-fixed top-50 end-0 translate-middle-y p-3 z-3">
+        <div className="position-fixed bottom-0 end-0 p-3 z-3">
           <BslAirlockStatus
             roomKey={bslRoom}
             doorOpen={bslDoorOpen}

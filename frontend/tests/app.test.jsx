@@ -1285,3 +1285,26 @@ describe('a refresh does not hand back a spent retry', () => {
     expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
   })
 })
+
+// Quitting inside BSL-4 used to leave bslRoom set, so the next game opened with
+// the airlock panel listing suit, gloves and ventilation at the spawn point —
+// the reset stripped the gear but not the room the player had been standing in.
+test('resetting the game forgets which BSL room the player was in', () => {
+  startGame()
+
+  act(() => {
+    window.dispatchEvent(
+      new CustomEvent('bsl-room-changed', { detail: { key: 'BSL-4' } })
+    )
+  })
+
+  expect(screen.getByTestId('bsl-airlock-status')).toBeInTheDocument()
+
+  act(() => {
+    window.dispatchEvent(new Event('game-reset-state'))
+  })
+
+  fireEvent.click(screen.getByRole('button', { name: /start game/i }))
+
+  expect(screen.queryByTestId('bsl-airlock-status')).not.toBeInTheDocument()
+})
