@@ -7,9 +7,18 @@ import { useTranslation } from '../i18n/context'
 // part of the equipment guess the graded attempt tests. The equipment
 // checklist that used to sit beside this panel stayed removed for that reason.
 //
-// Rows follow the order the player has to do them in, the same order
-// bsl4NotReady.message uses: suit, ventilation, door.
-function BslAirlockStatus({ roomKey, doorOpen, ventilationConnected, suitOn, suppressed }) {
+// Rows follow the order the player has to do them in: suit, gloves,
+// ventilation, door. Suit, gloves and ventilation are exactly what
+// App.jsx's bsl4Ready gates handling on, so the panel and the refusal can
+// never disagree about what is missing.
+function BslAirlockStatus({
+  roomKey,
+  doorOpen,
+  ventilationConnected,
+  suitOn,
+  glovesOn,
+  suppressed,
+}) {
   const { t } = useTranslation()
 
   if (!roomKey || suppressed || (roomKey !== 'BSL-3' && roomKey !== 'BSL-4')) {
@@ -20,6 +29,9 @@ function BslAirlockStatus({ roomKey, doorOpen, ventilationConnected, suitOn, sup
 
   if (roomKey === 'BSL-4' && !suitOn) {
     rows.push(t('bslAirlock.suitOff'))
+  }
+  if (roomKey === 'BSL-4' && !glovesOn) {
+    rows.push(t('bslAirlock.glovesOff'))
   }
   if (roomKey === 'BSL-4' && !ventilationConnected) {
     rows.push(t('bslAirlock.ventilationOff'))

@@ -136,6 +136,7 @@
   },
   "bslAirlock": {
     "suitOff": "The pressurized suit is not on",
+    "glovesOff": "Gloves are not on",
     "doorOpen": "The airlock door is open — close it first",
     "ventilationOff": "Ventilation is not connected",
     "interlockBlocked": "The other airlock door is open — close it first"

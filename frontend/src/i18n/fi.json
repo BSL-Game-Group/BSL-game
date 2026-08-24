@@ -136,6 +136,7 @@
   },
   "bslAirlock": {
     "suitOff": "Paineistettu puku ei ole päällä",
+    "glovesOff": "Käsineet eivät ole päällä",
     "doorOpen": "Sulkutilan ovi on auki — sulje se ensin",
     "ventilationOff": "Ilmastointi ei ole kytketty",
     "interlockBlocked": "Toinen sulkutilan ovi on auki — sulje se ensin"

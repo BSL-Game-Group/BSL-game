@@ -617,6 +617,7 @@ function App() {
             doorOpen={bslDoorOpen}
             ventilationConnected={ventilationConnected}
             suitOn={Boolean(equipped.pressurized_suit)}
+            glovesOn={Boolean(equipped.gloves)}
             suppressed={anyPopupOpen}
           />
         </div>
