@@ -11,6 +11,7 @@
     "title": "How to play",
     "steps": [
       "Remember the BSL level — it decides everything. If you need to reread these instructions, visit the INFO desk in the corridor.",
+      "On your first microbe the game walks you through every step at the top of the screen. The guidance lasts one round, and a button turns it off.",
       "Go to the lecture room to read the microbe's details and its BSL level.",
       "Press E at the green ring in the lecture room to study the materials and learn about different microbes and BSL classes (1–4).",
       "Go to the dressing room and open the closet (press E).",
@@ -24,8 +25,9 @@
       "If the room or the equipment was wrong, you get one retry on the same microbe. Until your last try, the microbe's own feedback and its BSL level stay hidden.",
       "Wash up at the shower or eyewash station — the BSL rooms stay shut until you do.",
       "After your last try, a new microbe is drawn.",
-      "After several rounds, see your summary: score, correct vs. wrong, and the levels you mastered.",
+      "Feedback comes after each microbe you handle. At the end you only see your final score — and if you are not signed in, the game asks whether you want to keep it.",
       "If you get stuck on the same task, the game will tell you what to do next along the bottom of the screen.",
+      "You can sign in or create an account at any time.",
       "You can leave any time through the Exit — the game shuts down."
     ],
     "controls": "Controls: Arrow keys / click to move · E or click to interact · Close button to close windows"

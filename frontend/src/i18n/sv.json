@@ -11,6 +11,7 @@
     "title": "Hur man spelar",
     "steps": [
       "Kom ihåg BSL-nivån — den avgör allt. Om du behöver läsa om instruktionerna igen, besök INFO-desken i korridoren.",
+      "Vid din första mikrob vägleder spelet dig genom varje steg upptill. Vägledningen varar en runda och kan stängas av med en knapp.",
       "Gå till föreläsningsrummet för att läsa mikrobes detaljer och dess BSL-nivå.",
       "Tryck E vid den gröna ringen i föreläsningsrummet för att studera materialet och lära dig om olika mikrober och BSL-klasser (1–4).",
       "Gå till påklädningsrummet och öppna garderobsskåpet (tryck E).",
@@ -24,8 +25,9 @@
       "Om rummet eller utrustningen var fel får du ett nytt försök på samma mikrob. Mikrobens rätta BSL-nivå blir avslöjad efter ditt sista försök.",
       "Tvätta dig vid duschen eller ögonduschstationen — BSL-rummen är stängda till dess, oavsett om du gör ett nytt försök.",
       "Efter ditt sista försök lottas en ny mikrob.",
-      "Efter flera rundor, se din sammanfattning: poäng, rätt vs. fel, och de nivåer du behärskade.",
+      "Feedback kommer efter varje mikrob du hanterar. I slutet ser du bara din slutpoäng — och om du inte är inloggad frågar spelet om du vill spara den.",
       "Om du fastnar på samma uppgift berättar spelet efter en stund längst ner på skärmen vad du ska göra härnäst.",
+      "Du kan logga in eller skapa ett konto när som helst.",
       "Du kan lämna när som helst genom utgången — spelet avslutas."
     ],
     "controls": "Kontroller: Piltangenter / klick för att röra sig · E eller klick för att interagera · Stäng-knapp för att stänga fönster"
