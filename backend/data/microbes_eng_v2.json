@@ -165,7 +165,7 @@
     "scientific_name": "Measles morbillivirus",
     "type": "Virus",
     "bsl_level": 2,
-    "lecture_text": "One of the most contagious human viruses — spreads via airborne droplets and aerosols. Causes rash, fever, and can lead to pneumonia. An effective MMR vaccine provides protection.",
+    "lecture_text": "One of the most contagious human viruses — spreads via airborne droplets and aerosols. Causes rash, fever, and can lead to pneumonia. An effective MPR (MMR) vaccine provides protection.",
     "feedback_correct": "Correct! Measles virus is BSL-2 — vaccine provides protection.",
     "feedback_incorrect": "Incorrect! Measles virus is BSL-2 because an effective vaccine is available."
   },

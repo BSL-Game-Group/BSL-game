@@ -11,19 +11,26 @@
     "title": "Hur man spelar",
     "steps": [
       "Kom ihåg BSL-nivån — den avgör allt. Om du behöver läsa om instruktionerna igen, besök INFO-desken i korridoren.",
+      "Vid din första mikrob vägleder spelet dig genom varje steg upptill. Vägledningen varar en runda och kan stängas av med en knapp.",
       "Gå till föreläsningsrummet för att läsa mikrobes detaljer och dess BSL-nivå.",
       "Tryck E vid den gröna ringen i föreläsningsrummet för att studera materialet och lära dig om olika mikrober och BSL-klasser (1–4).",
       "Gå till påklädningsrummet och öppna garderobsskåpet (tryck E).",
       "Sätt på den skyddsutrustning som nivån kräver (lab coat, mask, glasögon…).",
       "Gå till motsvarande BSL-rum (1–4).",
+      "BSL-3 och BSL-4 är slussar: stäng den lufttäta dörren bakom dig innan du hanterar mikroben. Endast en slussdörr kan vara öppen åt gången.",
+      "I BSL-4 behöver du dessutom den trycksatta dräkten och handskar, och dräkten måste kopplas till den externa ventilationen. Panelen nere till höger visar vad som fortfarande saknas.",
       "Tryck E vid den mörkt gröna ringen för att hantera mikroben.",
       "Spelet kontrollerar ditt arbete — var utrustningen och rummet rätt för denna mikrobе?",
-      "Tvätta dig vid duschen eller ögonduschstationen för att dekontaminera innan du lämnar.",
-      "En ny mikrobе ritas — prova igen!",
-      "Efter flera rundor, se din sammanfattning: poäng, rätt vs. fel, och de nivåer du behärskade.",
+      "Resultatet delar upp utrustningen i kategorier — ögonskydd, masker, klädsel, handskar och skor — markerar vilka karegorier gick rät eller fel. De specifika fela utrustningen namnges inte.",
+      "Om rummet eller utrustningen var fel får du ett nytt försök på samma mikrob — du kan gå direkt tillbaka in utan att tvätta dig. Mikrobens rätta BSL-nivå blir avslöjad efter ditt sista försök.",
+      "När du är klar med mikroben går du till tvättstationen i påklädningsrummet — BSL-rummen är stängda till dess.",
+      "Efter ditt sista försök lottas en ny mikrob.",
+      "Feedback kommer efter varje mikrob du hanterar. I slutet ser du bara din slutpoäng — och om du inte är inloggad frågar spelet om du vill spara den.",
+      "Om du fastnar på samma uppgift berättar spelet efter en stund längst ner på skärmen vad du ska göra härnäst.",
+      "Du kan logga in eller skapa ett konto när som helst.",
       "Du kan lämna när som helst genom utgången — spelet avslutas."
     ],
-    "controls": "Kontroller: Piltangenter / klick för att röra sig · E eller klick för att interagera · Stäng-knapp för att stänga fönster"
+    "controls": "Kontroller: Piltangenter / klick för att röra sig · E eller klick för att interagera · R i påklädningsrummet tar av utrustningen och tvättar dig · Stäng-knapp för att stänga fönster"
   },
   "lectureRequired": {
   "title": "Besök föreläsningsrummet först",
@@ -44,7 +51,7 @@
     "title": "BSL-spelets material (biosäkerhetsnivåer)",
     "protectiveEquipment": "Skyddsutrustning:",
     "exampleOrganisms": "Exempelorganismer:",
-    "tableHeaders": ["#", "Vanligt namn", "Vetenskapligt namn", "Typ", "Anmärkning"],
+    "tableHeaders": ["#", "Allmänt namn", "Vetenskapligt namn", "Typ", "Anmärkning"],
     "sources": "Källor"
   },
   "task": {
@@ -53,7 +60,7 @@
   },
   "microbeInfoPopup": {
     "title": "Mikrobinformation",
-    "commonName": "Vanligt namn",
+    "commonName": "Allmänt namn",
     "scientificName": "Vetenskapligt namn",
     "type": "Typ",
     "description": "Beskrivning"
@@ -67,14 +74,22 @@
   "answerPopup": {
     "correct": "Rätt!",
     "incorrect": "Inte riktigt",
-    "correctFallback": "Det är rätt rum.",
-    "incorrectFallback": "Det är inte rätt rum.",
+    "correctFallback": "BSL-rummet du valde var rätt.",
+    "incorrectFallback": "BSL-rummet du valde var fel.",
     "equipmentCorrect": "Din skyddsutrustning upfyller BSL-kraven",
     "equipmentIncorrect": "Din skyddsutrustning upfyller inte BSL-kraven.",
     "chosenLevel": "Du valde {level}.",
     "belongs": "{name} tillhör BSL-{level}.",
     "slotCorrect": "rätt",
-    "slotIncorrect": "fel"
+    "slotIncorrect": "fel",
+    "pointsRoom": "Rum",
+    "pointsTotal": "Poäng från den här mikroben",
+    "pointsBanked": "redan intjänat",
+    "tryAgain": "Försök igen",
+    "skipMicrobe": "Skippa den här mikroben",
+    "skipWashUp": "Om du skippar mikroben måste du gå till tvättstationen innan nästa.",
+    "washUpNext": "Gå till tvättstationen innan nästa mikrob.",
+    "lastAttempt": "Det var ditt sista försök för den här mikroben — gå till tvättstationen innan nästa."
   },
   "common": {
     "close": "Stäng",
@@ -108,13 +123,34 @@
     "pressEToOpen": "Tryck E för att öppna",
     "openCloset": "Öppna garderobsskåpet",
     "pressE": "Tryck E",
+    "closeTheDoorBehindYouFirst": "Stäng dörren bakom dig först.",
     "exitPrompt": "Tryck E för att lämna",
     "washUp": "Tryck R eller klicka för att tvätta dig",
-    "openmicrobeInfoHint": "Tryck E för mikrobinformation"
+    "openmicrobeInfoHint": "Mikrobinformation — tryck E",
+    "lectureMaterialHint": "Föreläsningsmaterial — tryck E",
+    "closetPressE": "Utrustningsskåp — tryck E",
+    "infoPressE": "Info — tryck E",
+    "pressEOrClick": "Tryck E eller klicka"
   },
   "hud": {
     "score": "Poäng: {score}",
     "microbes": "Mikrober: {count}"
+  },
+  "objective": {
+    "visit-lecture": "Näst: besök föreläsningen",
+    "await-microbe": "Näst: väntar på en mikrob",
+    "check-microbe": "Näst: kolla mikrobens uppgifter",
+    "wash-up": "Näst: tvätta dig i {room}",
+    "suit-up": "Näst: ta på skyddsutrustningen",
+    "go-to-room": "Näst: gå till {room}",
+    "handle-microbe": "Näst: hantera mikroben",
+    "skipGuide": "Hoppa över vägledningen"
+  },
+  "bslAirlock": {
+    "suitOff": "Den trycksatta dräkten är inte på",
+    "glovesOff": "Handskarna är inte på",
+    "doorOpen": "Slussdörren är öppen — stäng den först",
+    "ventilationOff": "Ventilationen är inte ansluten"
   },
   "auth": {
     "guest": "Du spelar som gäst",
@@ -160,7 +196,7 @@
     },
     "claim": {
       "title": "Rundan är slut",
-      "scoreLine": "Du fick {score} av {total} poäng.",
+      "scoreLine": "Du fick {score} poäng.",
       "guestWarning": "Resultatet finns bara i den här webbläsaren tills du sparar det.",
       "keepScore": "Spara mitt resultat",
       "savedToAccount": "Sparat på ditt konto.",

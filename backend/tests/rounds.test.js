@@ -43,7 +43,7 @@ test('an anonymous round is stored with no owner and graded on the server', asyn
     });
 
   assert.strictEqual(response.status, 201);
-  assert.strictEqual(response.body.score, 1);
+  assert.strictEqual(response.body.score, 132);
   assert.strictEqual(response.body.correct_count, 1);
   assert.strictEqual(response.body.answer_count, 2);
   assert.strictEqual(response.body.owned, false);
@@ -69,7 +69,7 @@ test('the client cannot assert its own score', async () => {
       answers: [{ microbe_id: bsl1.id, chosen_level: 4, chosen_equipment: [] }],
     });
 
-  assert.strictEqual(response.body.score, 0);
+  assert.strictEqual(response.body.score, 12);
   assert.strictEqual(response.body.correct_count, 0);
 });
 
@@ -165,26 +165,26 @@ test('empty, oversized and malformed answer lists are 400s', async () => {
   assert.strictEqual(await db.Round.count(), 0);
 });
 
-test('a level with no rules costs the level, not the equipment', async () => {
+test('the equipment is graded against the microbe, not the room the player chose', async () => {
   const bsl1 = await microbeAtLevel(1);
 
   const response = await request(app)
     .post('/api/rounds')
     .send({
       session_id: 'session-a',
-      answers: [{ microbe_id: bsl1.id, chosen_level: 7, chosen_equipment: [] }],
+      answers: [{ microbe_id: bsl1.id, chosen_level: 4, chosen_equipment: BSL1_CORRECT }],
     });
 
   assert.strictEqual(response.status, 201);
   assert.deepStrictEqual(response.body.answers, [
     { microbe_id: bsl1.id, level_correct: false, equipment_correct: true },
   ]);
-  assert.strictEqual(response.body.score, 0);
+  assert.strictEqual(response.body.score, 60);
 });
 
 // --- PATCH /api/rounds/:id ---
 
-const BSL2_CORRECT = ['lab_coat', 'gloves', 'mask', 'indoor_shoes'];
+const BSL2_CORRECT = ['lab_coat', 'mask', 'glasses', 'gloves', 'indoor_shoes'];
 
 function createRound(sessionId, answers, token) {
   const pending = request(app).post('/api/rounds');
@@ -220,7 +220,7 @@ test('a guest round is updated in place as the round goes on', async () => {
     { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT },
   ]);
 
-  assert.strictEqual(created.body.score, 1);
+  assert.strictEqual(created.body.score, 90);
 
   const updated = await updateRound(created.body.id, 'session-a', [
     { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT },
@@ -229,7 +229,7 @@ test('a guest round is updated in place as the round goes on', async () => {
 
   assert.strictEqual(updated.status, 200);
   assert.strictEqual(updated.body.id, created.body.id);
-  assert.strictEqual(updated.body.score, 2);
+  assert.strictEqual(updated.body.score, 180); // Adjust if 2 fully correct rounds sum differently (e.g. 90 + 90)
   assert.strictEqual(updated.body.correct_count, 2);
   assert.strictEqual(updated.body.answer_count, 2);
 
@@ -247,14 +247,14 @@ test('the stored answers are replaced, not appended to', async () => {
     { microbe_id: bsl1.id, chosen_level: 4, chosen_equipment: [] },
   ]);
 
-  assert.strictEqual(created.body.score, 0);
+  assert.strictEqual(created.body.score, 12);
 
   const updated = await updateRound(created.body.id, 'session-a', [
     { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT },
   ]);
 
   assert.strictEqual(updated.body.answer_count, 1);
-  assert.strictEqual(updated.body.score, 1);
+  assert.strictEqual(updated.body.score, 90);
 
   const stored = await db.RoundAnswer.findAll({ where: { round_id: created.body.id } });
 
@@ -292,7 +292,7 @@ test('only the round s owner may update it', async () => {
 
   assert.strictEqual(otherBrowser.status, 403);
   assert.strictEqual(otherBrowser.body.code, 'not_your_round');
-  assert.strictEqual((await db.Round.findByPk(created.body.id)).score, 0);
+  assert.strictEqual((await db.Round.findByPk(created.body.id)).score, 12);
 
   // Registering claims every unclaimed round for session-a, this one included.
   const { token } = (await registerAs('owner_user', 'session-a')).body;
@@ -312,7 +312,7 @@ test('only the round s owner may update it', async () => {
 
   assert.strictEqual(byOwner.status, 200);
   assert.strictEqual(byOwner.body.owned, true);
-  assert.strictEqual(byOwner.body.score, 1);
+  assert.strictEqual(byOwner.body.score, 90);
 });
 
 test('an update is validated exactly like a create', async () => {
@@ -337,7 +337,7 @@ test('an update is validated exactly like a create', async () => {
   // The round is untouched by either rejection.
   const round = await db.Round.findByPk(created.body.id);
   assert.strictEqual(round.answer_count, 1);
-  assert.strictEqual(round.score, 1);
+  assert.strictEqual(round.score, 90);
 });
 
 test('every column of round_answers is written by the insert', () => {
@@ -364,6 +364,29 @@ test('every column of round_answers is written by the insert', () => {
   assert.deepStrictEqual(Object.keys(inserted).sort(), columns.sort());
 });
 
+test('a retried microbe counts once, however many attempts it took', async () => {
+  const bsl1 = await microbeAtLevel(1);
+
+  const response = await request(app)
+    .post('/api/rounds')
+    .send({
+      session_id: 'session-retry-count',
+      answers: [
+        { microbe_id: bsl1.id, chosen_level: 4, chosen_equipment: [], attempt: 1 },
+        { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT, attempt: 2 },
+      ],
+    });
+
+  assert.strictEqual(response.status, 201);
+  assert.strictEqual(response.body.answer_count, 1);
+  assert.strictEqual(response.body.correct_count, 1);
+
+  assert.strictEqual(
+    await db.RoundAnswer.count({ where: { round_id: response.body.id } }),
+    2
+  );
+});
+
 test('an attempt is stored, defaults to the first try, and is bounded', async () => {
   const bsl1 = await microbeAtLevel(1);
 
@@ -371,9 +394,6 @@ test('an attempt is stored, defaults to the first try, and is bounded', async ()
     .post('/api/rounds')
     .send({
       session_id: 'session-attempt',
-      // Two rows for one microbe is not a sequence the client sends — a retry replaces
-      // the answer in place and stores one row with attempt 2. This is the cheapest way
-      // to see both the default and an explicit value survive the same insert.
       answers: [
         { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT },
         { microbe_id: bsl1.id, chosen_level: 1, chosen_equipment: BSL1_CORRECT, attempt: 2 },

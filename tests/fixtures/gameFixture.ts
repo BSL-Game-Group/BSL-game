@@ -4,6 +4,7 @@ import { FRONTEND_BASE } from '../helpers/api';
 class Game {
   constructor(public page: Page) {}
 
+// fixtures/gameFixture.ts
   async start() {
     // Mock the room entry API to prevent network errors during tests
     await this.page.route('**/api/rooms/enter', (route) => {
@@ -11,13 +12,10 @@ class Game {
     });
 
     await this.page.goto(FRONTEND_BASE);
-    await this.page.waitForLoadState('networkidle');
     await this.page.getByRole('button', { name: /start game/i }).click();
-    await this.page.waitForLoadState('networkidle');
+    
     // The canvas only exists once <Game/> has mounted, which means React has
-    // finished the commit that attaches App's window listeners. Without this,
-    // a test dispatching an event immediately after start() can fire it into
-    // the void on a loaded-but-not-yet-mounted page.
+    // finished the commit that attaches App's window listeners.
     await this.canvas.waitFor({ state: 'visible' });
   }
 
@@ -52,6 +50,12 @@ class Game {
     return this.page.getByRole('heading', {
       name: /BSL Game Material \(Biosafety Levels\)/i,
     });
+  }
+
+  // Only rendered once /api/bsl-material has answered — the popup's title is
+  // already on screen during the loading state, so it can't stand in for this.
+  get lectureMaterialSources() {
+    return this.page.getByRole('heading', { name: /^sources$/i });
   }
 
   get closetPopup() {

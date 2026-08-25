@@ -4,6 +4,7 @@ import Phaser from 'phaser'
 import { SAVED_GAME_KEY, clearSavedGame } from '../src/state/savedGame'
 
 import PlayerController from '../src/game/player/PlayerController'
+import { PLAYER_CONFIG } from '../src/game/config/constants'
 // (If you haven't extracted one of these yet, just comment it out here and in the interactions array below)
 import { DressingRoomInteraction } from '../src/game/interactions/DressingRoomInteraction';
 import { BslInteraction } from '../src/game/interactions/BslInteraction'
@@ -117,7 +118,9 @@ function createScene(overrides = {}) {
     contains: jest.fn(() => true),
   };
 
-  scene.pressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
+  scene.closetPressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
+  scene.infoPressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
+  scene.exitPressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
   scene.doorHint = { setVisible: jest.fn(), setPosition: jest.fn() };
   scene.closetHint = { visible: false, setPosition: jest.fn() };
   scene.openmicrobeInfoHint = { setVisible: jest.fn(), setPosition: jest.fn() };
@@ -246,53 +249,125 @@ function createScene(overrides = {}) {
 
   scene.handleDoorInteraction = MainScene.prototype.handleDoorInteraction.bind(scene);
 
+  scene.hintManager = {
+    showDoorHint: jest.fn(),
+    showDoorFeedback: jest.fn(),
+  };
+
   return scene;
 }
 
 // MOVEMENT TESTS
+
+// Speed ramps up over ACCELERATION_MS rather than being applied outright, so
+// a single frame only ever applies a fraction of it — run enough frames for
+// the throttle to reach full.
+function runFrames(scene, frames = 10) {
+  for (let i = 0; i < frames; i += 1) {
+    scene.update()
+  }
+}
+
+function lastVelocity(scene) {
+  return {
+    x: scene.player.setVelocityX.mock.calls.at(-1)?.[0] ?? 0,
+    y: scene.player.setVelocityY.mock.calls.at(-1)?.[0] ?? 0,
+  }
+}
+
 describe('Player movement', () => {
   test('moves left with keyboard', () => {
     const scene = createScene()
     scene.cursors.left.isDown = true
-    scene.update()
+    runFrames(scene)
 
-    expect(scene.player.setVelocityX).toHaveBeenCalledWith(-160)
+    expect(scene.player.setVelocityX).toHaveBeenCalledWith(-PLAYER_CONFIG.speed)
   })
 
   test('moves right with keyboard', () => {
     const scene = createScene()
     scene.cursors.right.isDown = true
-    scene.update()
+    runFrames(scene)
 
-    expect(scene.player.setVelocityX).toHaveBeenCalledWith(160)
+    expect(scene.player.setVelocityX).toHaveBeenCalledWith(PLAYER_CONFIG.speed)
   })
 
   test('moves up with keyboard', () => {
     const scene = createScene()
     scene.cursors.up.isDown = true
-    scene.update()
+    runFrames(scene)
 
-    expect(scene.player.setVelocityY).toHaveBeenCalledWith(-160)
+    expect(scene.player.setVelocityY).toHaveBeenCalledWith(-PLAYER_CONFIG.speed)
   })
 
   test('moves down with keyboard', () => {
     const scene = createScene()
     scene.cursors.down.isDown = true
-    scene.update()
+    runFrames(scene)
 
-    expect(scene.player.setVelocityY).toHaveBeenCalledWith(160)
+    expect(scene.player.setVelocityY).toHaveBeenCalledWith(PLAYER_CONFIG.speed)
+  })
+
+  test('builds up to full speed instead of applying it on the first frame', () => {
+    const scene = createScene()
+    scene.cursors.right.isDown = true
+
+    scene.update()
+    const first = lastVelocity(scene).x
+
+    runFrames(scene)
+    const settled = lastVelocity(scene).x
+
+    expect(first).toBeGreaterThan(0)
+    expect(first).toBeLessThan(PLAYER_CONFIG.speed)
+    expect(settled).toBeCloseTo(PLAYER_CONFIG.speed)
+  })
+
+  test('coasts to a stop after the key is released', () => {
+    const scene = createScene()
+    scene.cursors.right.isDown = true
+    runFrames(scene)
+
+    scene.cursors.right.isDown = false
+    scene.update()
+    const coasting = lastVelocity(scene).x
+
+    expect(coasting).toBeGreaterThan(0)
+    expect(coasting).toBeLessThan(PLAYER_CONFIG.speed)
+
+    // Once stopped, no velocity is applied at all — update()'s setVelocity(0)
+    // is what holds the player still — so assert on the absence of new calls
+    // rather than on a final value.
+    runFrames(scene)
+    scene.player.setVelocityX.mockClear()
+    runFrames(scene)
+
+    expect(scene.player.setVelocityX).not.toHaveBeenCalled()
+  })
+
+  test('diagonal movement is no faster than moving along one axis', () => {
+    const scene = createScene()
+    scene.cursors.left.isDown = true
+    scene.cursors.up.isDown = true
+    runFrames(scene)
+
+    const { x, y } = lastVelocity(scene)
+
+    expect(Math.hypot(x, y)).toBeCloseTo(PLAYER_CONFIG.speed)
+    expect(x).toBeLessThan(0)
+    expect(y).toBeLessThan(0)
   })
 
   test('moves toward mouse click', () => {
     const scene = createScene()
     scene.input.activePointer.isDown = true
-    scene.update()
+    runFrames(scene)
 
-    expect(scene.physics.moveToObject).toHaveBeenCalledWith(
-      scene.player,
-      scene.input.activePointer,
-      160
-    )
+    // Pointer sits at (700, 500), the player at (640, 500) — due right.
+    const { x, y } = lastVelocity(scene)
+
+    expect(x).toBeCloseTo(PLAYER_CONFIG.speed)
+    expect(y).toBeCloseTo(0)
   })
 
   test('does not move if mouse click is too close', () => {
@@ -302,9 +377,10 @@ describe('Player movement', () => {
     scene.input.activePointer.y = 505
     scene.input.activePointer.isDown = true
 
-    scene.update()
+    runFrames(scene)
 
-    expect(scene.physics.moveToObject).not.toHaveBeenCalled()
+    expect(scene.player.setVelocityX).not.toHaveBeenCalled()
+    expect(scene.player.setVelocityY).not.toHaveBeenCalled()
   })
 })
 
@@ -332,10 +408,6 @@ test('preload loads all game assets', () => {
     'glasses',
     'assets/equipment/on_character/eyewear/glasses_on.png'
   )
-  expect(scene.load.image).toHaveBeenCalledWith(
-    'dresser',
-    'assets/dresser.png'
-  )
 })
 
 
@@ -346,7 +418,8 @@ test('pressing E triggers closet popup event when inside dressing room', () => {
   })
 
   scene.player.x = 50
-  scene.player.y = 50
+  // New y value that takes the changes in the DressingroomInteraction.js file into account.
+  scene.player.y = 500
 
   Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
 
@@ -369,7 +442,8 @@ test('pressing R triggers quick-undress from anywhere in the dressing room', () 
   })
 
   scene.player.x = 50
-  scene.player.y = 50
+  // New y value that takes the changes in the DressingroomInteraction.js file into account.
+  scene.player.y = 500
 
   Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
 
@@ -532,7 +606,7 @@ describe('Scene state logic', () => {
 
     scene.update()
 
-    expect(scene.player.setVelocityX).not.toHaveBeenCalledWith(-160)
+    expect(scene.player.setVelocityX).not.toHaveBeenCalledWith(-PLAYER_CONFIG.speed)
   })
 
   test('player inside zone returns true', () => {
@@ -562,7 +636,8 @@ describe('Closet behavior', () => {
     })
 
     scene.player.x = 100
-    scene.player.y = 100
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
 
     scene.update()
 
@@ -595,23 +670,26 @@ describe('Closet behavior', () => {
 
     scene.update()
 
-    expect(scene.pressEText.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.closetPressEText.setVisible).toHaveBeenCalledWith(false)
   })
 
   test('shows press E hint at the closet when close enough to it', () => {
     const scene = createScene({
       ppeRoomZone: { x: 0, y: 0, width: 1000, height: 1000 },
-      closetZone: { x: 55, y: 40, width: 80, height: 80 },
+      // New y value that takes the changes in the DressingroomInteraction.js file into account.
+      closetZone: { x: 55, y: 440, width: 80, height: 80 },
     })
 
     // closetCenter = (55+35, 40+60) = (90, 100)
     scene.player.x = 90
-    scene.player.y = 100
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
 
     scene.update()
 
-    expect(scene.pressEText.setVisible).toHaveBeenCalledWith(true)
-    expect(scene.pressEText.setPosition).toHaveBeenCalledWith(50, 20)
+    expect(scene.closetPressEText.setVisible).toHaveBeenCalledWith(true)
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    expect(scene.closetPressEText.setPosition).toHaveBeenCalledWith(50, 420)
   })
 
   test('shows the wash-up hint when close enough to the quick-undress spot', () => {
@@ -636,7 +714,8 @@ describe('Closet behavior', () => {
     })
 
     scene.player.x = 10
-    scene.player.y = 10
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 490
 
     scene.update()
 
@@ -649,7 +728,8 @@ describe('Closet behavior', () => {
     })
 
     scene.player.x = 100
-    scene.player.y = 100
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
 
     scene.update()
 
@@ -676,7 +756,8 @@ describe('Closet behavior', () => {
     })
 
     scene.player.x = 100
-    scene.player.y = 100
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
 
     scene.update()
 
@@ -772,7 +853,8 @@ test('hides the press E hint when inside the lecture room but too far from the i
   })
 
   scene.player.x = 300
-  scene.player.y = 300
+  // New y value that takes the changes in the LectureInteraction.js file into account.
+  scene.player.y = 250
 
   const handler = jest.fn()
   window.addEventListener('microbe-info-popup-opened', handler)
@@ -781,6 +863,78 @@ test('hides the press E hint when inside the lecture room but too far from the i
 
   expect(scene.lectureGlow.setVisible).toHaveBeenCalledWith(true)
   expect(scene.openmicrobeInfoHint.setVisible).toHaveBeenCalledWith(false)
+  expect(handler).not.toHaveBeenCalled()
+})
+
+// The hint used to be touched only from inside the "player is in the room"
+// branch, so walking out while it showed left it on screen permanently.
+test('hides the press E hint after the player leaves the lecture room', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 400, height: 400 },
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
+  })
+
+  scene.player.x = 50
+  scene.player.y = 50
+  scene.update()
+
+  expect(scene.openmicrobeInfoHint.setVisible).toHaveBeenLastCalledWith(true)
+
+  scene.player.x = 900
+  scene.player.y = 900
+  scene.update()
+
+  expect(scene.openmicrobeInfoHint.setVisible).toHaveBeenLastCalledWith(false)
+})
+
+test('shows the lecture material hint, and opens materials on E when close to it', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 400, height: 400 },
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
+    lectureMaterialPoint: { x: 300, y: 100 },
+    lectureMaterialGlow: { setVisible: jest.fn() },
+    lectureMaterialGlowTween: { pause: jest.fn(), resume: jest.fn() },
+    lectureMaterialHint: { setVisible: jest.fn(), setPosition: jest.fn() },
+  })
+
+  scene.player.x = 300
+  scene.player.y = 100
+  Phaser.Input.Keyboard.JustDown.mockReturnValueOnce(true)
+
+  const handler = jest.fn()
+  window.addEventListener('lecture-material-popup-opened', handler)
+  scene.update()
+  window.removeEventListener('lecture-material-popup-opened', handler)
+
+  expect(scene.lectureMaterialHint.setVisible).toHaveBeenCalledWith(true)
+  expect(handler).toHaveBeenCalledTimes(1)
+})
+
+test('hides the lecture material hint when too far from it', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 400, height: 400 },
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
+    lectureMaterialPoint: { x: 300, y: 100 },
+    lectureMaterialGlow: { setVisible: jest.fn() },
+    lectureMaterialGlowTween: { pause: jest.fn(), resume: jest.fn() },
+    lectureMaterialHint: { setVisible: jest.fn(), setPosition: jest.fn() },
+  })
+
+  scene.player.x = 10
+  scene.player.y = 10
+
+  const handler = jest.fn()
+  window.addEventListener('lecture-material-popup-opened', handler)
+  scene.update()
+  window.removeEventListener('lecture-material-popup-opened', handler)
+
+  expect(scene.lectureMaterialHint.setVisible).toHaveBeenCalledWith(false)
   expect(handler).not.toHaveBeenCalled()
 })
 
@@ -1057,7 +1211,8 @@ describe('modified keypresses are ignored', () => {
   function sceneInDressingRoom(keyOverrides) {
     const scene = createScene({ ppeRoomZone: dressingRoom })
     scene.player.x = 50
-    scene.player.y = 50
+    // New y value that takes the changes in the DressingroomInteraction.js file into account.
+    scene.player.y = 500
     scene.keyR = { ...scene.keyR, ...keyOverrides }
     scene.keyE = { ...scene.keyE, ...keyOverrides }
     Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
@@ -1105,5 +1260,56 @@ describe('modified keypresses are ignored', () => {
     )
 
     dispatchSpy.mockRestore()
+  })
+})
+describe('a BSL room stays shut while a wash-up is owed', () => {
+  const bsl2Zone = { key: 'BSL-2', x: 320, y: 0, width: 320, height: 250 }
+
+  function sceneInBsl2() {
+    const entry = {
+      key: bsl2Zone.key,
+      zone: bsl2Zone,
+      center: { x: bsl2Zone.x + 30, y: bsl2Zone.y + 30 },
+      glow: { setVisible: jest.fn() },
+      tween: { resume: jest.fn(), pause: jest.fn() },
+      playerInside: false,
+    }
+    const scene = createScene({ bslGlows: [entry] })
+
+    // BslInteraction calls this unconditionally on room entry.
+    scene.notifyRoomEntry = jest.fn()
+    scene.player.x = bsl2Zone.x + 30
+    scene.player.y = bsl2Zone.y + 30
+    Phaser.Input.Keyboard.JustDown.mockReturnValue(true)
+
+    return scene
+  }
+
+  test('E answers when nothing is owed, and asks for a wash-up when one is', () => {
+    window.__lectureOpen = true
+    window.__awaitingUndress = false
+
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent')
+
+    sceneInBsl2().update()
+
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'answer-popup-opened' })
+    )
+
+    dispatchSpy.mockClear()
+    window.__awaitingUndress = true
+
+    sceneInBsl2().update()
+
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'wash-up-required' })
+    )
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'answer-popup-opened' })
+    )
+
+    dispatchSpy.mockRestore()
+    window.__awaitingUndress = false
   })
 })

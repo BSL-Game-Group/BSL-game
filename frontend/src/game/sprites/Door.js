@@ -23,11 +23,18 @@ export default class Door extends Phaser.Physics.Arcade.Sprite {
         this.isOpen = false;
         this.triggerZone = scene.add.zone(triggerZoneX, triggerZoneY, triggerZoneWidth, triggerZoneHeight);
         this.triggerZone.parentDoor = this;
+        this.triggerZone.setInteractive();
+        this.wasClicked = false;
+        this.triggerZone.on('pointerdown', () => {
+            this.wasClicked = true;
+        });
         this.airlockDoorPairs = airlockDoorPairs;
     }
 
     tryToChangeDoorState() {
-        if (this.airlockDoorPairs.some((pair) => pair.isOpen)) {
+        if (!this.isOpenable()) {
+            // The caller shows the refusal next to the door itself — see
+            // MainScene's handleDoorPress and HintManager.showDoorFeedback.
             return false;
         }
         this.isOpen = !this.isOpen;
@@ -38,5 +45,9 @@ export default class Door extends Phaser.Physics.Arcade.Sprite {
 
     addAirlockDoorPair(pair) {
         this.airlockDoorPairs.push(pair);
+    }
+
+    isOpenable() {
+        return !this.airlockDoorPairs.some((pair) => pair.isOpen);
     }
 }

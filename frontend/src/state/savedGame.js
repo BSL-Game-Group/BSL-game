@@ -33,6 +33,7 @@ export function defaultSnapshot() {
       lectureVisited: false,
       materialsUnlocked: false,
       awaitingUndress: false,
+      attempt: 1,
       ventilationConnected: false,
     },
     popups: {
@@ -173,6 +174,7 @@ function validate(raw, now) {
       lectureVisited: raw.progress?.lectureVisited === true,
       materialsUnlocked: raw.progress?.materialsUnlocked === true,
       awaitingUndress: raw.progress?.awaitingUndress === true,
+      attempt: raw.progress?.attempt === 2 ? 2 : 1,
       ventilationConnected: raw.progress?.ventilationConnected === true,
     },
     popups: {

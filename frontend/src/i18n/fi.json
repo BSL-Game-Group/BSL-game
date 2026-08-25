@@ -11,19 +11,26 @@
     "title": "Näin pelaat",
     "steps": [
       "Muista BSL-taso — se ratkaisee kaiken. Jos haluat lukea ohjeet uudelleen, käy INFO-pisteellä käytävällä.",
+      "Ensimmäisellä mikrobilla peli opastaa jokaisen askeleen yläreunassa. Opastus kestää yhden kierroksen, ja sen voi ohittaa napista.",
       "Mene luentohuoneeseen lukemaan mikrobin tiedot ja sen BSL-taso.",
       "Paina E vihreän renkaan kohdalla luentohuoneessa opiskellaksesi materiaalia ja oppiaksesi eri mikrobeista ja BSL-luokista (1–4).",
       "Mene pukuhuoneeseen ja avaa kaappi (paina E).",
       "Pue tason vaatima suojavarustus (labratakki, maski, silmälasit…).",
       "Mene oikeaan BSL-huoneeseen (1–4).",
+      "BSL-3 ja BSL-4 ovat sulkutiloja: sulje ilmatiivis ovi takanasi ennen kuin käsittelet mikrobia. Vain yksi sulkutilan ovi voi olla auki kerrallaan.",
+      "BSL-4:ssä tarvitset lisäksi paineistetun puvun ja käsineet, ja puku on kytkettävä ulkoiseen ilmastointiin. Oikean alakulman paneeli kertoo, mikä vielä puuttuu.",
       "Paina E tummanvihreän renkaan kohdalla käsitelläksesi mikrobia.",
       "Peli tarkistaa työsi — olivatko varustus ja huone oikein tälle mikrobille?",
-      "Peseydy suihkussa tai silmänhuuhtelupisteellä ennen poistumista.",
-      "Uusi mikrobi arvotaan — yritä uudelleen!",
-      "Useamman kierroksen jälkeen näet yhteenvedon: pisteet, oikein vs. väärin, ja hallitsemasi tasot.",
+      "Tulos erittelee varustuksesi luokittain — silmäsuojat, maskit, vaatetus, käsineet ja jalkineet — ja merkitsee jokaisen oikeaksi tai vääräksi. Se ei kerro, mikä yksittäinen varuste puuttui.",
+      "Jos huone tai varustus oli väärin, saat yhden uuden yrityksen samalle mikrobille — voit palata suoraan huoneeseen ilman peseytymistä. Viimeiseen yritykseen asti mikrobin oma palaute ja sen BSL-taso pysyvät piilossa.",
+      "Kun olet käsitellyt mikrobin, käy peseytymispisteellä pukuhuoneessa — BSL-huoneet pysyvät suljettuina siihen asti.",
+      "Viimeisen yrityksen jälkeen arvotaan uusi mikrobi.",
+      "Palaute tulee aina yhden mikrobin käsittelyn jälkeen. Lopussa näet vain loppupistemääräsi — ja jos et ole kirjautunut, peli kysyy haluatko tallentaa tuloksen.",
+      "Jos jäät jumiin saman tehtävän kanssa, peli kertoo hetken kuluttua alalaidassa mitä seuraavaksi kannattaa tehdä.",
+      "Voit kirjautua sisään tai luoda käyttäjän milloin tahansa.",
       "Voit poistua milloin tahansa Exitin kautta — peli sulkeutuu."
     ],
-    "controls": "Ohjaimet: Nuolinäppäimet / klikkaus liikkumiseen · E tai klikkaus vuorovaikutukseen · Sulje-painike sulkee ikkunat"
+    "controls": "Ohjaimet: Nuolinäppäimet / klikkaus liikkumiseen · E tai klikkaus vuorovaikutukseen · R pukuhuoneessa riisuu varusteet ja peseytyy · Sulje-painike sulkee ikkunat"
   },
   "lectureRequired": {
     "title": "Käy ensin luentohuoneessa",
@@ -67,14 +74,22 @@
   "answerPopup": {
     "correct": "Oikein!",
     "incorrect": "Ei aivan",
-    "correctFallback": "Se on oikea huone.",
-    "incorrectFallback": "Se ei ole oikea huone.",
+    "correctFallback": "Valitsemasi BSL-huone oli oikea.",
+    "incorrectFallback": "Valitsemasi BSL-huone ei ollut oikea.",
     "equipmentCorrect": "Suojavarustuksesi vastasi vaadittua varustusta.",
     "equipmentIncorrect": "Suojavarustuksesi ei vastannut täysin vaadittua varustusta.",
     "chosenLevel": "Valitsit {level}.",
     "belongs": "{name} kuuluu tasolle BSL-{level}.",
     "slotCorrect": "oikein",
-    "slotIncorrect": "väärin"
+    "slotIncorrect": "väärin",
+    "pointsRoom": "Huone",
+    "pointsTotal": "Pisteet tästä mikrobista",
+    "pointsBanked": "jo ansaittu",
+    "tryAgain": "Yritä uudelleen",
+    "skipMicrobe": "Ohita tämä mikrobi",
+    "skipWashUp": "Jos ohitat mikrobin, käy peseytymispisteellä ennen seuraavaa.",
+    "washUpNext": "Käy peseytymispisteellä ennen seuraavaa mikrobia.",
+    "lastAttempt": "Tämä oli viimeinen yrityksesi tälle mikrobille — käy peseytymispisteellä ennen seuraavaa."
   },
   "common": {
     "close": "Sulje",
@@ -108,13 +123,34 @@
     "pressEToOpen": "Paina E avataksesi",
     "openCloset": "Avaa kaappi",
     "pressE": "Paina E",
+    "closeTheDoorBehindYouFirst": "Sulje takanasi oleva ovi ensin.",
     "exitPrompt": "Paina E poistutuaksesi",
     "washUp": "Paina R tai klikkaa peseytyäksesi",
-    "openmicrobeInfoHint": "Paina E nähdäksesi tutkittavan mikrobin tiedot"
+    "openmicrobeInfoHint": "Mikrobin tiedot — paina E",
+    "lectureMaterialHint": "Luentomateriaali — paina E",
+    "closetPressE": "Varustekaappi — paina E",
+    "infoPressE": "Info — paina E",
+    "pressEOrClick": "Paina E tai klikkaa"
   },
   "hud": {
     "score": "Pisteet: {score}",
     "microbes": "Mikrobit: {count}"
+  },
+  "objective": {
+    "visit-lecture": "Seuraavaksi: käy luennolla",
+    "await-microbe": "Seuraavaksi: odota mikrobia",
+    "check-microbe": "Seuraavaksi: katso mikrobin tiedot",
+    "wash-up": "Seuraavaksi: peseydy tilassa {room}",
+    "suit-up": "Seuraavaksi: pukeudu suoja-asuun",
+    "go-to-room": "Seuraavaksi: siirry huoneeseen {room}",
+    "handle-microbe": "Seuraavaksi: käsittele mikrobi",
+    "skipGuide": "Ohita opastus"
+  },
+  "bslAirlock": {
+    "suitOff": "Paineistettu puku ei ole päällä",
+    "glovesOff": "Käsineet eivät ole päällä",
+    "doorOpen": "Sulkutilan ovi on auki — sulje se ensin",
+    "ventilationOff": "Ilmastointi ei ole kytketty"
   },
   "auth": {
     "guest": "Pelaat vieraana",
@@ -160,7 +196,7 @@
     },
     "claim": {
       "title": "Kierros päättyi",
-      "scoreLine": "Sait {score} pistettä {total} mahdollisesta.",
+      "scoreLine": "Sait {score} pistettä.",
       "guestWarning": "Tulos säilyy vain tässä selaimessa, ellet tallenna sitä.",
       "keepScore": "Tallenna tulokseni",
       "savedToAccount": "Tallennettu tilillesi.",

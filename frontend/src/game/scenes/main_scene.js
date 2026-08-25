@@ -2,13 +2,14 @@ import Phaser from 'phaser';
 import { createRooms } from './rooms';
 import microbeService from '../../services/microbes';
 import { notifyRoomEntry } from '../services/tracking';
-import { createWoodFloor, createLabFloor } from '../environment/EnvironmentBuilder';
+import { createLabFloor } from '../environment/EnvironmentBuilder';
 import HintManager from '../managers/HintManager';
 import { EventBus } from '../EventBus';
 import DoorGroup from '../groups/DoorGroup.js';
 import { loadSavedGame, savePlayerPosition } from '../../state/savedGame';
 import { getOrCreateSessionId } from '../../state/session';
 import { loadAssets } from '../assets/loadAssets.js';
+import { isTypingInField } from '../utils/isTypingInField';
 import EquipmentManager from "../player/EquipmentManager";
 import PlayerController from "../player/PlayerController";
 import { PLAYER_CONFIG, DOORS_CONFIG } from '../config/constants';
@@ -28,9 +29,6 @@ class MainScene extends Phaser.Scene {
 
     preload() {
         loadAssets(this);
-        
-        // Restored for backward compatibility with tests expecting this specific call
-        this.load.image('dresser', 'assets/dresser.png');
     }
 
     create() {
@@ -43,7 +41,6 @@ class MainScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, gameWidth, gameHeight);
         this.playArea = new Phaser.Geom.Rectangle(0, 0, gameWidth, gameHeight);
 
-        createWoodFloor(this);
         createLabFloor(this);
 
         // The id is owned by state/session.js so the login UI can read it before
@@ -69,16 +66,15 @@ class MainScene extends Phaser.Scene {
         this.hintManager = new HintManager(this);
 
         // Temporary Backwards Compatibility:
-        this.pressEText = this.hintManager.pressEText;
+        this.closetPressEText = this.hintManager.closetPressEText;
+        this.infoPressEText = this.hintManager.infoPressEText;
+        this.exitPressEText = this.hintManager.exitPressEText;
         this.closetHint = this.hintManager.closetHint;
         this.undressHint = this.hintManager.undressHint;
         this.bslHint = this.hintManager.bslHint;
         this.doorHint = this.hintManager.doorHint;
         this.openmicrobeInfoHint = this.hintManager.openmicrobeInfoHint;
-        
-        Object.defineProperty(this, 'exitPromptText', {
-            get: () => this.hintManager.exitPromptText
-        });
+        this.lectureMaterialHint = this.hintManager.lectureMaterialHint;
 
         // Apply initial translations
         this.hintManager.updateTranslations({
@@ -86,13 +82,21 @@ class MainScene extends Phaser.Scene {
             openCloset: window.__translations?.openCloset ?? 'Open Closet',
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
-            openmicrobeInfoHint: window.__translations?.openMicrobeInfo ?? 'Press E for microbe info',
+            closeTheDoorBehindYouFirst: window.__translations?.closeTheDoorBehindYouFirst ?? 'Close the door behind you first.',
+            // App.jsx publishes this as openMicrobeInfoHint — reading it as
+            // openMicrobeInfo silently fell through to the English default.
+            openmicrobeInfoHint: window.__translations?.openMicrobeInfoHint ?? 'Microbe info — press E',
+            lectureMaterialHint: window.__translations?.lectureMaterialHint ?? 'Lecture material — press E',
+            closetPressE: window.__translations?.closetPressE ?? 'Equipment closet — press E',
+            infoPressE: window.__translations?.infoPressE ?? 'Info — press E',
+            exitPrompt: window.__translations?.exitPrompt ?? 'Press E to exit',
+            pressEOrClick: window.__translations?.pressEOrClick ?? 'Press E or click',
         });
 
         this.doors = this.initializeDoors(this.player);
 
         this.equipmentManager = new EquipmentManager(this, this.player);
-        
+
         // Backward compatibility for tests expecting scene.equipment to exist
         this.equipment = this.equipmentManager.equipment || this.equipmentManager.sprites || {};
 
@@ -108,18 +112,47 @@ class MainScene extends Phaser.Scene {
         
         this.isPopupOpen = this.savedGame?.popups.closet ?? false;
 
-        this.handlePopupOpen = () => { this.isPopupOpen = true; };
-        this.handlePopupClosed = () => { this.isPopupOpen = false; };
+        // Movement and E-presses already check isPopupOpen in update(), but the
+        // clickable hotspots in rooms.js fire straight off Phaser's input,
+        // which keeps running underneath an open dialog — the exit button could
+        // be clicked through the closet. Disabling the scene's input covers
+        // every hotspot at once, including any added later.
+        this.setPopupOpen = (open) => {
+            this.isPopupOpen = open;
+            this.input.enabled = !open;
+        };
+
+        this.setPopupOpen(this.isPopupOpen);
+
+        this.handlePopupOpen = () => this.setPopupOpen(true);
+        this.handlePopupClosed = () => this.setPopupOpen(false);
 
         window.addEventListener('popup-opened', this.handlePopupOpen);
         window.addEventListener('popup-closed', this.handlePopupClosed);
+
+        // Anything that mirrors the player's position has to run here rather
+        // than in update(). Arcade Physics integrates the body during the
+        // scene's UPDATE event but only copies the result onto the player
+        // sprite in Body.postUpdate, which runs on POST_UPDATE — i.e. after
+        // update() has already returned. Positioning equipment from update()
+        // therefore used last frame's player position, leaving it a frame
+        // (~2.7px at 160px/s and 60fps) behind the body on screen.
+        //
+        // The physics plugin registers its own POST_UPDATE handler when the
+        // scene starts, before create() runs, so this listener is called
+        // after it and sees the synced position.
+        this.handleScenePostUpdate = () => {
+            this.equipmentManager?.updatePositions();
+            this.playerController?.updateFollowers();
+        };
+
+        this.events.on('postupdate', this.handleScenePostUpdate);
 
         const cleanupListeners = () => {
             window.removeEventListener('equipment-changed', this.handleEquipmentChange);
             window.removeEventListener('popup-opened', this.handlePopupOpen);
             window.removeEventListener('popup-closed', this.handlePopupClosed);
-
-            // FIX: Match the correct event name for handleNewMicrobeRequest
+            this.events.off('postupdate', this.handleScenePostUpdate);
             if (this.handleNewMicrobeRequest) {
                 EventBus.off('request-current-microbe', this.handleNewMicrobeRequest);
             }
@@ -136,8 +169,12 @@ class MainScene extends Phaser.Scene {
         this.events.once('shutdown', cleanupListeners);
         this.events.once('destroy', cleanupListeners);
 
-        this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-        this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+        // enableCapture defaults to true, which calls preventDefault() on the
+        // native keydown for this key globally, regardless of DOM focus —
+        // that silently ate "e"/"r" keystrokes typed into any text field on
+        // the page (e.g. the login form's username input).
+        this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E, false);
+        this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R, false);
         
         this.physics.add.collider(this.player, walls);
         
@@ -191,10 +228,10 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    update() {
+    update(time, delta) {
         // Guarded for isolated unit tests that bypass create()
         if (this.playerController) {
-            this.playerController.update();
+            this.playerController.update(time, delta);
         }
 
         if (
@@ -210,7 +247,7 @@ class MainScene extends Phaser.Scene {
             }
         }
 
-        if (this.player && this.doors) {
+        if (this.player && this.doors && !this.isPopupOpen) {
             this.physics.overlap(
                 this.player,
                 this.doors,
@@ -224,11 +261,10 @@ class MainScene extends Phaser.Scene {
             this.hintManager.update(this.input.activePointer);
         }
 
-        if (this.equipmentManager) {
-            this.equipmentManager.updatePositions();
-        }
+        // Equipment positioning deliberately lives in the POST_UPDATE handler
+        // registered in create(), not here — see the comment there.
 
-        if (this.interactions) {
+        if (this.interactions && !this.isPopupOpen) {
             this.interactions.forEach(interaction => interaction.update());
         }
 
@@ -269,20 +305,32 @@ class MainScene extends Phaser.Scene {
 
     handleDoorInteraction(player, zone) {
         const door = zone.parentDoor;
-        this.doorHint.setVisible(true);
-        this.doorHint.setPosition(door.x, door.y);
+        this.hintManager.showDoorHint(door);
 
-        if (!(this.keyE && Phaser.Input.Keyboard.JustDown(this.keyE) &&
-            !this.keyE.ctrlKey && !this.keyE.metaKey && !this.keyE.altKey)) {
+        const ePressed =
+            this.keyE &&
+            Phaser.Input.Keyboard.JustDown(this.keyE) &&
+            !this.keyE.ctrlKey &&
+            !this.keyE.metaKey &&
+            !this.keyE.altKey;
+
+        const mouseClicked = door.wasClicked;
+
+        if ((!ePressed && !mouseClicked) || isTypingInField()) {
             return;
         }
+
+        door.wasClicked = false;
 
         if (door === this.bsl4Door) {
             this.handleBsl4DoorPress(door);
             return;
         }
 
-        door.tryToChangeDoorState();
+        const doorStateChanged = door.tryToChangeDoorState();
+        if (!doorStateChanged) {
+            this.hintManager.showDoorFeedback(door);
+        }
     }
 
     // Entering BSL-4 is unrestricted — the suiting-up prompt fires once the
@@ -300,7 +348,10 @@ class MainScene extends Phaser.Scene {
             return;
         }
 
-        door.tryToChangeDoorState();
+        const doorStateChanged = door.tryToChangeDoorState();
+        if (!doorStateChanged) {
+            this.hintManager.showDoorFeedback(door);
+        }
     }
 }
 

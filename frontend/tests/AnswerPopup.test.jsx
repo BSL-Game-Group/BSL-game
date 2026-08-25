@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from './test-utils'
+import { render, screen, fireEvent, within } from './test-utils'
 import { render as rtlRender } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import AnswerPopup from '../src/components/AnswerPopup/AnswerPopup'
@@ -31,8 +31,8 @@ function renderPopupWithLanguage(language, props = {}) {
   const translations = {
     'answerPopup.correct': 'Correct!',
     'answerPopup.incorrect': 'Not quite',
-    'answerPopup.correctFallback': "That's the right room.",
-    'answerPopup.incorrectFallback': "That isn't the right room.",
+    'answerPopup.correctFallback': 'The BSL room you chose was correct.',
+    'answerPopup.incorrectFallback': 'The BSL room you chose was not correct.',
     'answerPopup.chosenLevel': 'You chose {level}.',
     'answerPopup.belongs': '{name} belongs to BSL-{level}.',
     'common.close': 'Close',
@@ -198,9 +198,12 @@ describe('equipment breakdown', () => {
       expect(screen.getByText(label)).toBeInTheDocument()
     }
 
+    // Scoped to the list: the room gets a verdict row of its own below it.
+    const breakdown = within(screen.getByRole('list'))
+
     expect(screen.getByText('Masks').closest('li')).toHaveTextContent('incorrect')
-    expect(screen.getAllByText('correct')).toHaveLength(4)
-    expect(screen.getAllByText('incorrect')).toHaveLength(1)
+    expect(breakdown.getAllByText('correct')).toHaveLength(4)
+    expect(breakdown.getAllByText('incorrect')).toHaveLength(1)
     expect(screen.queryByText(/bsl3_respirator|missing/i)).not.toBeInTheDocument()
   })
 
@@ -208,5 +211,190 @@ describe('equipment breakdown', () => {
     renderPopup()
 
     expect(screen.queryByText('Eyewear')).not.toBeInTheDocument()
+  })
+})
+
+describe('points breakdown', () => {
+  const OK = { status: 'ok', missing: [], extra: [] }
+  const WRONG = { status: 'wrong', missing: ['mask'], extra: [] }
+
+  const allOk = { eyewear: OK, masks: OK, body: OK, gloves: OK, footwear: OK }
+
+  function pointsFor(label) {
+    const row = screen.getByText(label).closest('li, div')
+
+    return row.lastChild.textContent
+  }
+
+  test('pays each of the five categories 12 and the room 30', () => {
+    renderPopup({ microbe: { bsl_level: 2 }, level: 'BSL-2', equipmentSlots: allOk })
+
+    for (const label of ['Eyewear', 'Masks', 'Body', 'Gloves', 'Footwear']) {
+      expect(pointsFor(label)).toBe('+12')
+    }
+
+    expect(pointsFor('Room')).toBe('+30')
+    expect(screen.getByText('Points from this microbe').closest('div')).toHaveTextContent('+90')
+  })
+
+  // Every level is graded on all five, so the payout gives nothing away about which
+  // room the microbe belongs in — the same ✓ is worth 12 at BSL-1 and at BSL-4.
+  test.each([1, 4])('BSL-%i pays the same 12 a category', (bslLevel) => {
+    renderPopup({
+      microbe: { bsl_level: bslLevel },
+      level: `BSL-${bslLevel}`,
+      equipmentSlots: allOk,
+    })
+
+    expect(pointsFor('Body')).toBe('+12')
+    expect(pointsFor('Masks')).toBe('+12')
+    expect(screen.getByText('Points from this microbe').closest('div')).toHaveTextContent('+90')
+  })
+
+  test('a wrong category and a wrong room pay nothing', () => {
+    renderPopup({
+      microbe: { bsl_level: 2 },
+      isCorrect: false,
+      isLevelCorrect: false,
+      isEquipmentCorrect: false,
+      equipmentSlots: { ...allOk, masks: WRONG },
+    })
+
+    expect(pointsFor('Masks')).toBe('+0')
+    expect(pointsFor('Room')).toBe('+0')
+    expect(screen.getByText('Points from this microbe').closest('div')).toHaveTextContent('+48')
+  })
+
+  test('a retry pays half, and nothing twice for what was already right', () => {
+    renderPopup({
+      microbe: { bsl_level: 2 },
+      attempt: 2,
+      equipmentSlots: allOk,
+      previousAnswer: { roomCorrect: false, equipmentSlots: { ...allOk, masks: WRONG } },
+    })
+
+    expect(pointsFor('Masks')).toBe('+6')
+    expect(pointsFor('Eyewear')).toBe('+0 (already earned)')
+    expect(pointsFor('Room')).toBe('+15')
+    expect(screen.getByText('Points from this microbe').closest('div')).toHaveTextContent('+21')
+  })
+})
+
+describe('retry affordance', () => {
+  test('offers a focused retry when the answer is wrong and a retry is left', () => {
+    const onRetry = jest.fn()
+
+    renderPopup({ isCorrect: false, attempt: 1, onRetry })
+
+    const button = screen.getByRole('button', { name: /try again/i })
+
+    expect(button).toHaveFocus()
+
+    fireEvent.click(button)
+
+    expect(onRetry).toHaveBeenCalledTimes(1)
+  })
+
+  test('a re-render does not drag focus back off the skip button', () => {
+    const props = { open: true, onClose: jest.fn(), isCorrect: false, isLevelCorrect: false,
+      isEquipmentCorrect: true, level: 'BSL-2', attempt: 1, onRetry: jest.fn() }
+
+    const { rerender } = render(<AnswerPopup {...props} />)
+
+    const skip = screen.getByRole('button', { name: /skip this microbe/i })
+
+    skip.focus()
+    rerender(<AnswerPopup {...props} />)
+
+    expect(skip).toHaveFocus()
+  })
+
+  // A bare "Close" alongside "Try again" gives up on the microbe without saying so.
+  test('giving up on the retry is a labelled choice that owns the wash-up', () => {
+    const onClose = jest.fn()
+
+    renderPopup({ isCorrect: false, attempt: 1, onRetry: jest.fn(), onClose })
+
+    expect(screen.queryByRole('button', { name: /^close$/i })).not.toBeInTheDocument()
+    expect(screen.getByText(/skipping means going to the wash-up point/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /skip this microbe/i }))
+
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  test.each([
+    ['no retry is left', { isCorrect: false, attempt: 2 }, /last try.*wash-up point/i],
+    ['the answer was correct', { isCorrect: true, attempt: 1 }, /^go to the wash-up point/i],
+  ])('offers no retry when %s, and asks for a wash-up', (_label, props, reminder) => {
+    renderPopup(props)
+
+    expect(screen.queryByRole('button', { name: /try again/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^close$/i })).toBeInTheDocument()
+    expect(screen.getByText(reminder)).toBeInTheDocument()
+  })
+})
+
+// Every microbe feedback string names the correct level, so the prose gives the
+// answer away just as much as the "belongs to" line. Both have to wait until the
+// player has nothing left to retry, or the retry is pointless.
+describe('the answer is withheld while a retry is on offer', () => {
+  const microbe = {
+    common_name: 'E. coli',
+    bsl_level: 1,
+    feedback_correct: 'Great, that organism belongs at this level.',
+    feedback_incorrect: 'Careful, that organism belongs elsewhere.',
+  }
+
+  test('a retry hides the microbe feedback and the true class', () => {
+    renderPopup({
+      isCorrect: false,
+      isLevelCorrect: false,
+      level: 'BSL-3',
+      microbe,
+      attempt: 1,
+      onRetry: jest.fn(),
+    })
+
+    expect(screen.queryByText(/that organism belongs elsewhere/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/E\. coli belongs to BSL-1/i)).not.toBeInTheDocument()
+    expect(screen.getByText(/the BSL room you chose was not correct/i)).toBeInTheDocument()
+  })
+
+  test('the last attempt reveals both', () => {
+    renderPopup({
+      isCorrect: false,
+      isLevelCorrect: false,
+      level: 'BSL-3',
+      microbe,
+      attempt: 2,
+    })
+
+    expect(screen.getByText(/that organism belongs elsewhere/i)).toBeInTheDocument()
+    expect(screen.getByText(/E\. coli belongs to BSL-1/i)).toBeInTheDocument()
+  })
+
+  test('getting it right first try still reveals both', () => {
+    renderPopup({ isCorrect: true, isLevelCorrect: true, level: 'BSL-1', microbe, attempt: 1 })
+
+    expect(screen.getByText(/that organism belongs at this level/i)).toBeInTheDocument()
+    expect(screen.getByText(/E\. coli belongs to BSL-1/i)).toBeInTheDocument()
+  })
+
+  // The withheld line describes the ROOM, so the right room with the wrong gear
+  // must not be told it picked the wrong room.
+  test('the right room with the wrong gear is not told the room was wrong', () => {
+    renderPopup({
+      isCorrect: false,
+      isLevelCorrect: true,
+      isEquipmentCorrect: false,
+      level: 'BSL-1',
+      microbe,
+      attempt: 1,
+      onRetry: jest.fn(),
+    })
+
+    expect(screen.getByText(/the BSL room you chose was correct/i)).toBeInTheDocument()
+    expect(screen.queryByText(/the BSL room you chose was not correct/i)).not.toBeInTheDocument()
   })
 })

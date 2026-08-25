@@ -20,14 +20,18 @@ export class LectureInteraction extends BaseInteraction {
             lecturePoint,
             lectureGlowTween,
             lectureMaterialGlow,
+            lectureMaterialPoint,
             lectureMaterialGlowTween,
+            lectureMaterialHint,
             openmicrobeInfoHint,
         } = this.scene;
         if (!lectureRoomZone) {
             return;
         }
 
-        const inside = this.isInside(lectureRoomZone);
+        // The height value hardcoded as a new zone. If you change this, remember to update movement.test.jsx
+        const lectureRoomZoneModified = {...lectureRoomZone, height: 250}
+        const inside = this.isInside(lectureRoomZoneModified);
 
         // Track zone entry
         if (inside && !this.playerInsideLectureRoom) {
@@ -37,9 +41,10 @@ export class LectureInteraction extends BaseInteraction {
             this.playerInsideLectureRoom = false;
         }
 
-        // Proximity glow & prompt
+        // Microbe info proximity glow & prompt
         if (lectureGlow && lecturePoint) {
             lectureGlow.setVisible(inside);
+            openmicrobeInfoHint.setVisible(false); // Hide the hint by default
             if (lectureGlowTween) {
                 inside ? lectureGlowTween.resume() : lectureGlowTween.pause();
             }
@@ -52,21 +57,34 @@ export class LectureInteraction extends BaseInteraction {
 
                 if (closeEnough) {
                     openmicrobeInfoHint.setVisible(true);
-                    openmicrobeInfoHint.setPosition(lecturePoint.x - 40, lecturePoint.y + 45);
+                    openmicrobeInfoHint.setPosition(lecturePoint.x - 40, lecturePoint.y - 45);
                     if (this.justPressed(this.keyE)) {
                         window.dispatchEvent(new Event('microbe-info-popup-opened'));
                     }
-                } else {
-                    openmicrobeInfoHint.setVisible(false);
                 }
             }
         }
 
-        // Lecture-room right-side Lecture material button glow
+        // Lecture material proximity glow & prompt
         if (lectureMaterialGlow) {
             lectureMaterialGlow.setVisible(inside);
+            lectureMaterialHint.setVisible(false); // Hide the hint by default
             if (lectureMaterialGlowTween) {
                 inside ? lectureMaterialGlowTween.resume() : lectureMaterialGlowTween.pause();
+            }
+            if (inside) {
+                const dist = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y, lectureMaterialPoint.x, lectureMaterialPoint.y
+                );
+                const closeEnough = dist < 100;
+
+                if (closeEnough) {
+                    lectureMaterialHint.setVisible(true);
+                    lectureMaterialHint.setPosition(lectureMaterialPoint.x - 40, lectureMaterialPoint.y + 45);
+                    if (this.justPressed(this.keyE)) {
+                        window.dispatchEvent(new Event('lecture-material-popup-opened'));
+                    }
+                }
             }
         }
     }

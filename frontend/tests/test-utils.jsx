@@ -18,8 +18,8 @@ const translationValue = {
 
       'answerPopup.correct': 'Correct!',
       'answerPopup.incorrect': 'Not quite',
-      'answerPopup.correctFallback': "That's the right room.",
-      'answerPopup.incorrectFallback': "That isn't the right room.",
+      'answerPopup.correctFallback': 'The BSL room you chose was correct.',
+      'answerPopup.incorrectFallback': 'The BSL room you chose was not correct.',
 
       'answerPopup.chosenLevel': 'You chose {level}.',
       'answerPopup.belongs': '{name} belongs to BSL-{level}.',
@@ -27,6 +27,15 @@ const translationValue = {
       'answerPopup.equipmentIncorrect': 'Your protective equipment did not fully match the required setup.',
       'answerPopup.slotCorrect': 'correct',
       'answerPopup.slotIncorrect': 'incorrect',
+      'answerPopup.pointsRoom': 'Room',
+      'answerPopup.pointsTotal': 'Points from this microbe',
+      'answerPopup.pointsBanked': 'already earned',
+      'answerPopup.tryAgain': 'Try again',
+      'answerPopup.skipMicrobe': 'Skip this microbe',
+      'answerPopup.skipWashUp': 'Skipping means going to the wash-up point before the next microbe.',
+      'answerPopup.washUpNext': 'Go to the wash-up point before the next microbe.',
+      'answerPopup.lastAttempt':
+        'That was your last try for this microbe — go to the wash-up point before the next one.',
 
       'closet.title': 'Closet',
       'closet.nothingAvailable': 'Nothing available',
@@ -46,6 +55,19 @@ const translationValue = {
 
       'hud.score': 'Score: {score}',
       'hud.microbes': 'Microbes: {count}',
+
+      'objective.visit-lecture': 'Next: visit the lecture',
+      'objective.suit-up': 'Next: put on your protective equipment',
+      'objective.go-to-room': 'Next: go to {room}',
+      'objective.wash-up': 'Next: wash up in the {room}',
+      'objective.handle-microbe': 'Next: handle the microbe',
+      'objective.await-microbe': 'Next: waiting for a microbe',
+      'objective.check-microbe': 'Next: check the microbe details',
+
+      'bslAirlock.doorOpen': 'The airlock door is open — close it first',
+      'bslAirlock.suitOff': 'The pressurized suit is not on',
+      'bslAirlock.glovesOff': 'Gloves are not on',
+      'bslAirlock.ventilationOff': 'Ventilation is not connected',
 
       'auth.guest': 'Playing as a guest',
       'auth.signedInAs': 'Signed in as {username}',
@@ -70,7 +92,7 @@ const translationValue = {
       'auth.leaderboard.empty': 'No rounds played.',
       'auth.leaderboard.openButton': 'Leaderboard',
       'auth.claim.title': 'Round finished',
-      'auth.claim.scoreLine': 'You scored {score} out of {total}.',
+      'auth.claim.scoreLine': 'You scored {score} points.',
       'auth.claim.guestWarning': 'This score only lives in this browser until you keep it.',
       'auth.claim.keepScore': 'Keep my score',
       'auth.claim.savedToAccount': 'Saved to your account.',

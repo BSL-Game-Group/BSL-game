@@ -29,6 +29,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      seen_microbes: {
+        type: DataTypes.ARRAY(DataTypes.INTEGER),
+        allowNull: false,
+        defaultValue: [],
+      },
       claimed_at: {
         type: DataTypes.DATE,
         allowNull: true,

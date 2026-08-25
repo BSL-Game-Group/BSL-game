@@ -10,6 +10,7 @@ export class DressingRoomInteraction extends BaseInteraction {
     seedPresence() {
         if (this.scene.ppeRoomZone) {
             this.playerInsideDressingRoom = this.isInside(this.scene.ppeRoomZone);
+            this.scene.playerInsideDressingRoom = this.playerInsideDressingRoom;
             if (this.playerInsideDressingRoom) {
                 this.scene.closetGlow?.setVisible(true);
                 this.scene.closetGlowTween?.resume();
@@ -20,26 +21,33 @@ export class DressingRoomInteraction extends BaseInteraction {
     }
 
     update() {
-        const { ppeRoomZone, closetGlow, closetGlowTween, undressGlow, undressGlowTween, 
-                closetZone, undressPoint, pressEText, undressHint } = this.scene;
+        const { ppeRoomZone, closetGlow, closetGlowTween, undressGlow, undressGlowTween,
+                closetZone, undressPoint, closetPressEText, undressHint } = this.scene;
 
         if (!ppeRoomZone) {
           return;}
 
-        const inside = this.isInside(ppeRoomZone);
+        // The new y value is hardcoded in the movement.test.jsx. If you change this value, remember to update the test too!
+        const ppeRoomZoneModified = { ...ppeRoomZone, y: 480}
+        const inside = this.isInside(ppeRoomZoneModified);
 
         if (inside && !this.playerInsideDressingRoom) {
             closetGlow?.setVisible(true);
             closetGlowTween?.resume();
             undressGlow?.setVisible(true);
             undressGlowTween?.resume();
+            
             this.playerInsideDressingRoom = true;
+            this.scene.playerInsideDressingRoom = true;
         } else if (!inside && this.playerInsideDressingRoom) {
             closetGlow?.setVisible(false);
             closetGlowTween?.pause();
             undressGlow?.setVisible(false);
             undressGlowTween?.pause();
+
             this.playerInsideDressingRoom = false;
+            this.scene.playerInsideDressingRoom = false;
+
         }
 
         if (!inside) {
@@ -60,9 +68,9 @@ export class DressingRoomInteraction extends BaseInteraction {
             : Infinity;
         const closeToCloset = Boolean(closetCenter) && closetDist < 90;
 
-        pressEText.setVisible(closeToCloset);
+        closetPressEText.setVisible(closeToCloset);
         if (closeToCloset) {
-            pressEText.setPosition(closetCenter.x - 40, closetCenter.y - 80);
+            closetPressEText.setPosition(closetCenter.x - 40, closetCenter.y - 80);
         }
 
         // Undress hint positioning

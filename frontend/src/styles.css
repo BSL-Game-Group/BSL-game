@@ -27,25 +27,37 @@ body {
    ========================================================= */
 /* The wrapper ensures the game stays responsive */
 .game-wrapper-grid {
+  /* 1. Force a strict 16:9 aspect ratio */
+  aspect-ratio: 16 / 9;
+  
+  /* 2. Base width wants to fill the screen */
   width: 100%;
-  max-width: 1280px;
-  height: 100%;
-  max-height: 100vh;
-  margin: 0 auto;
-  padding: 16px;
-  /*aspect-ratio: 16 / 9;*/
+  
+  /* 3. The Magic Line: Caps width so height NEVER overflows the viewport.
+        Subtracting ~64px accounts for safe-zones, HUDs, or Bootstrap padding. */
+  max-width: min(100%, calc((100vh - 64px) * (16 / 9)));
+  
   background: #000;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
-  box-sizing: border-box;
+  margin: 0 auto; 
 }
 
-/* Ensure the Phaser canvas fills the grid wrapper */
+/* Ensure the Phaser canvas fills the grid wrapper perfectly */
 .game-wrapper-grid canvas {
   width: 100% !important;
   height: 100% !important;
   display: block;
+}
+
+/* Mobile responsive override */
+@media (max-width: 767px) {
+  .game-wrapper-grid {
+    /* Slightly smaller corner radius and adjusted safe-zone for mobile HUD */
+    border-radius: 8px;
+    max-width: min(100%, calc((100vh - 80px) * (16 / 9))); 
+  }
 }
 
 /* Desktop: larger padding for borders */
@@ -53,17 +65,6 @@ body {
   .game-wrapper-grid {
     padding: 32px;
     max-height: calc(100vh - 64px);
-  }
-}
-
-/* Mobile responsive override */
-@media (max-width: 767px) {
-  .game-wrapper-grid {
-    /* Let it inherit the 16/9 aspect ratio from the base class */
-    /*aspect-ratio: 16 / 9;*/
-    padding: 8px;
-    max-height: calc(100vh - 60px);
-    border-radius: 8px; /* Optional: slightly smaller corners on mobile */
   }
 }
 
@@ -361,6 +362,109 @@ body {
   line-height: 1.2;
 }
 
+.objective-toast {
+  padding: 8px 18px;
+  border-radius: 14px;
+  background: rgba(11, 102, 35, 0.92);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* The toast must never swallow a click meant for the game; the skip button
+     inside it turns pointer events back on for itself alone. */
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.objective-toast--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .objective-toast {
+    transition: opacity 0.35s ease;
+    transform: none;
+  }
+}
+
+.next-step-hud {
+  padding: 8px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid #b4531b;
+  color: #b4531b;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.objective-toast__skip {
+  padding: 2px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: transparent;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  pointer-events: auto;
+  white-space: nowrap;
+}
+
+.objective-toast__skip:hover {
+  background: #ffffff;
+  color: #0b6623;
+}
+
+.next-step-hud__skip {
+  padding: 2px 10px;
+  border-radius: 10px;
+  border: 1px solid #b4531b;
+  background: transparent;
+  color: #b4531b;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.next-step-hud__skip:hover {
+  background: #b4531b;
+  color: #fff;
+}
+
+
+
+
+
+.bsl-airlock-status {
+  padding: 10px 16px;
+  border-radius: 14px;
+  /* Deliberately the only red in the HUD. These rows are hard blockers — the
+     room refuses to work until they are cleared — so they should not read as
+     the same kind of message as the orange next-step nudge. */
+  background: rgba(139, 30, 30, 0.95);
+  color: #ffffff;
+  max-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bsl-airlock-status__row {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+
 /* =========================================================
    AUTH
    ========================================================= */
@@ -420,4 +524,24 @@ body {
 
 .rounds-panel {
   max-width: 520px;
+}
+
+/* How far the two centred HUD messages sit from the top and bottom edges.
+   Bootstrap's largest step (mt-5/mb-5) is 48px, which still left them close
+   enough to the frame to read as part of it. One number each, tuned by eye. */
+.objective-toast-anchor {
+  margin-top: 72px;
+}
+
+.next-step-hud-anchor {
+  margin-bottom: 72px;
+}
+
+/* The three HUD anchors stay mounted for the whole game and sit on top of the
+   canvas, so an empty one still swallowed click-to-move presses. Only the skip
+   button inside the toast takes pointer events back. */
+.objective-toast-anchor,
+.next-step-hud-anchor,
+.bsl-airlock-status-anchor {
+  pointer-events: none;
 }

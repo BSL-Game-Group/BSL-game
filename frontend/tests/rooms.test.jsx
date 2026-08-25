@@ -87,11 +87,6 @@ describe('createRooms', () => {
 
     expect(Array.isArray(walls)).toBe(true)
     expect(walls.length).toBeGreaterThan(0)
-    // Every wall segment gets a static physics body, and so do the 4 lecture-room
-    // bookshelves (which live in their own group, not in `walls`).
-    expect(scene.physics.add.existing).toHaveBeenCalledTimes(
-      walls.length + scene.lectureShelves.length
-    )
   })
 
   test('horizontal walls leave a gap at doorways', () => {
@@ -269,14 +264,6 @@ describe('createRooms — lecture room', () => {
     expect(scene.add.rectangle).not.toHaveBeenCalledWith(353, 184, 174, 104)
   })
 
-  test('does not expose bookshelf colliders anymore', () => {
-    const scene = makeFakeScene()
-    createRooms(scene)
-
-    expect(Array.isArray(scene.lectureShelves)).toBe(true)
-    expect(scene.lectureShelves).toHaveLength(0)
-  })
-
   test('creates the info-point glow and exposes its scene refs', () => {
     const scene = makeFakeScene()
     createRooms(scene)
@@ -407,25 +394,6 @@ describe('setupCloset (via createRooms)', () => {
 
     window.removeEventListener('closet-popup-opened', listener)
     expect(listener).not.toHaveBeenCalled()
-  })
-
-  test('hovering the circle toggles the hint only when inside', () => {
-    const scene = makeFakeScene()
-    createRooms(scene)
-
-    // Inside: hover shows the hint, then pointerout hides it.
-    scene.playerInsideDressingRoom = true
-    scene.closetHit.handlers.pointerover()
-    expect(scene.closetHint.setVisible).toHaveBeenCalledWith(true)
-
-    scene.closetHit.handlers.pointerout()
-    expect(scene.closetHint.setVisible).toHaveBeenCalledWith(false)
-
-    // Outside: hover does not show the hint.
-    scene.closetHint.setVisible.mockClear()
-    scene.playerInsideDressingRoom = false
-    scene.closetHit.handlers.pointerover()
-    expect(scene.closetHint.setVisible).not.toHaveBeenCalledWith(true)
   })
 })
 

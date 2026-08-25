@@ -129,6 +129,14 @@ function createScene() {
       setOrigin: jest.fn().mockReturnThis(),
       setDepth: jest.fn().mockReturnThis(),
     })),
+
+    graphics: jest.fn(() => ({
+      setDepth: jest.fn().mockReturnThis(),
+      setVisible: jest.fn().mockReturnThis(),
+      clear: jest.fn().mockReturnThis(),
+      fillStyle: jest.fn().mockReturnThis(),
+      fillTriangle: jest.fn().mockReturnThis(),
+    })),
   }
 
   scene.input = {
@@ -302,6 +310,46 @@ test('create registers shutdown handler', () => {
   )
 })
 
+// Regression guard. Arcade Physics only copies the integrated body position
+// onto the player sprite in Body.postUpdate, which runs on POST_UPDATE — after
+// update() has returned. Positioning equipment from update() reads last
+// frame's player position, so it renders a frame behind the body: the
+// "clothing drags behind the character" bug. Moving this call back into
+// update() looks perfectly natural in the code, hence this test.
+test('positions equipment on post-update, not during update', () => {
+  const scene = createScene()
+
+  scene.create()
+
+  expect(scene.events.on).toHaveBeenCalledWith(
+    'postupdate',
+    expect.any(Function)
+  )
+
+  const postUpdate = scene.events.on.mock.calls
+    .find(([event]) => event === 'postupdate')[1]
+
+  scene.equipmentManager = { updatePositions: jest.fn() }
+  scene.playerController = { update: jest.fn(), updateFollowers: jest.fn() }
+
+  // update() walks the collision flags before it gets anywhere near equipment;
+  // the shared sprite stub has no body state, so give it just enough.
+  scene.player.body.embedded = false
+  scene.player.body.touching = { none: true }
+  scene.player.body.wasTouching = { none: true }
+  scene.physics.overlap = jest.fn(() => false)
+  scene.doors = null
+  scene.interactions = []
+  scene.hintManager = null
+
+  scene.update()
+  expect(scene.equipmentManager.updatePositions).not.toHaveBeenCalled()
+
+  postUpdate()
+  expect(scene.equipmentManager.updatePositions).toHaveBeenCalled()
+  expect(scene.playerController.updateFollowers).toHaveBeenCalled()
+})
+
 // -----------------------------
 // RESTORING A SAVED GAME
 // -----------------------------
@@ -409,4 +457,23 @@ describe('restoring a saved game', () => {
 
     expect(scene.isPopupOpen).toBe(false)
   })
+})
+
+// The clickable hotspots in rooms.js fire straight off Phaser's input, which
+// keeps running under an open dialog — the exit button could be clicked
+// through the closet. Movement and E-presses were already gated in update().
+test('a popup disables the scene input, closing it enables it again', () => {
+  const scene = createScene()
+
+  scene.create()
+
+  expect(scene.input.enabled).toBe(true)
+
+  window.dispatchEvent(new Event('popup-opened'))
+  expect(scene.input.enabled).toBe(false)
+  expect(scene.isPopupOpen).toBe(true)
+
+  window.dispatchEvent(new Event('popup-closed'))
+  expect(scene.input.enabled).toBe(true)
+  expect(scene.isPopupOpen).toBe(false)
 })
