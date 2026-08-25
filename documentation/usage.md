@@ -20,6 +20,8 @@ Please read the instructions in the front page and set preferred language in the
 
 ![The front page: the language selector in the top right, the Start Game button, and the full How to play list](images/front-page.png)
 
+The game starts after pressing the "Start Game" button.
+
 ### Creating an account
 
 This game gives players a possibility to login and save their progress. It can be done in the top right corner of the front page. But don't worry it can also be done later inside the gameloop or when quitting the game.
@@ -30,8 +32,8 @@ NOTE: Login is optional
 
 There is no password recovery, so write your password down somewhere safe.
 
-The game starts after pressing "Start Game" button — it is on the front page
-above, under the subtitle.
+Until you sign in the game calls you a guest, and the **Leaderboard** button
+beside the login controls shows the best rounds so far.
 
 ### Guidance on your first microbe
 
@@ -102,14 +104,14 @@ you, and only then open the one ahead.
 ### BSL-4: suit, gloves and ventilation
 
 BSL-4 also needs the pressurized suit and gloves, with the suit connected to the
-external ventilation. The panel in the bottom right names whatever is still
-missing, so check it before you try to handle the microbe.
+external ventilation. All three are handled from a popup of its own, with a
+button for each: **Take off suit**, **Take off gloves** and **Connect
+ventilation**.
 
 ![The BSL-4 gear popup with the Take off suit, Take off gloves and Connect ventilation buttons](images/bsl4-suit-and-ventilation.png)
 
-The suit, the gloves and the ventilation are handled from a popup of their own,
-with a button for each: **Take off suit**, **Take off gloves** and **Connect
-ventilation**.
+If you lose track of what is still missing, the status panel in the bottom right
+corner names it.
 
 Getting out of BSL-4 is the same procedure in reverse. The door will not open
 until you have taken the pressurized suit off and disconnected the external
@@ -170,8 +172,8 @@ If you get stuck on the same task, the game will tell you what to do next along
 the bottom of the screen. You do not have to ask for it — wait a moment and the
 hint appears on its own.
 
-In the laboratory screenshot above the hint reads "Next: put on your protective
-equipment", and the ring it is pointing at glows green.
+In the laboratory screenshot under [Moving](#moving) the hint reads "Next: put on
+your protective equipment", and the ring it is pointing at glows green.
 
 ## Exit the game
 
