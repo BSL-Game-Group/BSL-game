@@ -17,7 +17,7 @@
       "Gå till omklädningsrummet och öppna skåpet (tryck E).",
       "Sätt på den skyddsutrustning som nivån kräver (labbrock, mask, glasögon…).",
       "Gå till motsvarande BSL-rum (1–4).",
-      "BSL-3 och BSL-4 är slussar: stäng den lufttäta dörren bakom dig innan du hanterar mikroben. Endast en slussdörr kan vara öppen åt gången.",
+      "BSL-3 och BSL-4 är luftslussar: stäng den lufttäta dörren bakom dig innan du hanterar mikroben. Endast en luftslussdörr kan vara öppen åt gången.",
       "I BSL-4 behöver du dessutom den trycksatta dräkten och handskar, och dräkten måste kopplas till den externa ventilationen. Panelen nere till höger visar vad som fortfarande saknas.",
       "Tryck E vid den mörkgröna ringen för att hantera mikroben.",
       "Spelet kontrollerar ditt arbete — var utrustningen och rummet rätt för denna mikrobе?",
@@ -149,7 +149,7 @@
   "bslAirlock": {
     "suitOff": "Den trycksatta dräkten är inte på",
     "glovesOff": "Handskarna är inte på",
-    "doorOpen": "Slussdörren är öppen — stäng den först",
+    "doorOpen": "Luftslussdörren är öppen — stäng den först",
     "ventilationOff": "Ventilationen är inte ansluten"
   },
   "auth": {
