@@ -12,6 +12,11 @@ Test coverage goal: 80%
 [![Frontend Coverage](https://codecov.io/github/BSL-Game-Group/BSL-game/branch/main/graph/badge.svg?flag=frontend)](https://app.codecov.io/github/BSL-Game-Group/BSL-game/flags/frontend)
 [![Backend Coverage](https://codecov.io/github/BSL-Game-Group/BSL-game/branch/main/graph/badge.svg?flag=backend)](https://app.codecov.io/github/BSL-Game-Group/BSL-game/flags/backend)
 
+Frontend:
+
+Backend:
+[![Backend Coverage](/images/backend-coverage.png)]
+
 ## Test instrunctions:
 
 Install dependencies:
