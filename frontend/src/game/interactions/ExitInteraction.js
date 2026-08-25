@@ -14,7 +14,7 @@ export class ExitInteraction extends BaseInteraction {
     }
 
     update() {
-        const { exitGlow, exitButtonPoint, exitGlowTween, pressEText, exitPromptText } = this.scene;
+        const { exitGlow, exitButtonPoint, exitGlowTween, exitPressEText } = this.scene;
         if (!exitGlow || !exitButtonPoint) {
             return;
         }
@@ -33,14 +33,13 @@ export class ExitInteraction extends BaseInteraction {
         }
 
         if (closeToButton) {
-            pressEText?.setVisible(true);
-            pressEText?.setText(exitPromptText || 'Press E to exit');
-            pressEText?.setPosition(exitButtonPoint.x - 50, exitButtonPoint.y - 45);
+            exitPressEText?.setVisible(true);
+            exitPressEText?.setPosition(exitButtonPoint.x - 50, exitButtonPoint.y - 45);
             if (this.justPressed(this.keyE)) {
                 window.dispatchEvent(new Event('exit-popup-opened'));
             }
         } else {
-            pressEText?.setVisible(false);
+            exitPressEText?.setVisible(false);
         }
     }
 }

@@ -21,8 +21,8 @@ export class DressingRoomInteraction extends BaseInteraction {
     }
 
     update() {
-        const { ppeRoomZone, closetGlow, closetGlowTween, undressGlow, undressGlowTween, 
-                closetZone, undressPoint, pressEText, undressHint } = this.scene;
+        const { ppeRoomZone, closetGlow, closetGlowTween, undressGlow, undressGlowTween,
+                closetZone, undressPoint, closetPressEText, undressHint } = this.scene;
 
         if (!ppeRoomZone) {
           return;}
@@ -68,9 +68,9 @@ export class DressingRoomInteraction extends BaseInteraction {
             : Infinity;
         const closeToCloset = Boolean(closetCenter) && closetDist < 90;
 
-        pressEText.setVisible(closeToCloset);
+        closetPressEText.setVisible(closeToCloset);
         if (closeToCloset) {
-            pressEText.setPosition(closetCenter.x - 40, closetCenter.y - 80);
+            closetPressEText.setPosition(closetCenter.x - 40, closetCenter.y - 80);
         }
 
         // Undress hint positioning

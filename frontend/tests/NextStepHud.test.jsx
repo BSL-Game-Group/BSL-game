@@ -1,0 +1,44 @@
+import { render, screen } from './test-utils'
+import '@testing-library/jest-dom'
+import NextStepHud from '../src/components/NextStepHud'
+
+test('is hidden while silent or subtle', () => {
+  render(<NextStepHud objective={{ id: 'suit-up' }} stage="silent" />)
+  expect(screen.queryByTestId('next-step-hud')).not.toBeInTheDocument()
+})
+
+test('is hidden during the subtle stage too', () => {
+  render(<NextStepHud objective={{ id: 'suit-up' }} stage="subtle" />)
+  expect(screen.queryByTestId('next-step-hud')).not.toBeInTheDocument()
+})
+
+test('shows the objective text once verbal', () => {
+  render(<NextStepHud objective={{ id: 'suit-up' }} stage="verbal" />)
+  expect(screen.getByTestId('next-step-hud')).toHaveTextContent(
+    'Next: put on your protective equipment'
+  )
+})
+
+test('fills the room name into the objective text', () => {
+  render(
+    <NextStepHud
+      objective={{ id: 'go-to-room', target: 'BSL-3' }}
+      roomLabel="BSL-3"
+      stage="verbal"
+    />
+  )
+  expect(screen.getByTestId('next-step-hud')).toHaveTextContent('Next: go to BSL-3')
+})
+
+test('renders nothing without an objective', () => {
+  render(<NextStepHud objective={null} stage="verbal" />)
+  expect(screen.queryByTestId('next-step-hud')).not.toBeInTheDocument()
+})
+
+// The skip control moved to the first-round toast: this row appears only
+// because the player is stuck, so offering to turn the guidance off here
+// offered it to the one player who had just shown they needed it.
+test('carries no skip button', () => {
+  render(<NextStepHud objective={{ id: 'suit-up' }} stage="verbal" />)
+  expect(screen.queryByTestId('next-step-hud-skip')).not.toBeInTheDocument()
+})

@@ -118,7 +118,9 @@ function createScene(overrides = {}) {
     contains: jest.fn(() => true),
   };
 
-  scene.pressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
+  scene.closetPressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
+  scene.infoPressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
+  scene.exitPressEText = { setVisible: jest.fn(), setPosition: jest.fn() };
   scene.doorHint = { setVisible: jest.fn(), setPosition: jest.fn() };
   scene.closetHint = { visible: false, setPosition: jest.fn() };
   scene.openmicrobeInfoHint = { setVisible: jest.fn(), setPosition: jest.fn() };
@@ -668,7 +670,7 @@ describe('Closet behavior', () => {
 
     scene.update()
 
-    expect(scene.pressEText.setVisible).toHaveBeenCalledWith(false)
+    expect(scene.closetPressEText.setVisible).toHaveBeenCalledWith(false)
   })
 
   test('shows press E hint at the closet when close enough to it', () => {
@@ -685,9 +687,9 @@ describe('Closet behavior', () => {
 
     scene.update()
 
-    expect(scene.pressEText.setVisible).toHaveBeenCalledWith(true)
+    expect(scene.closetPressEText.setVisible).toHaveBeenCalledWith(true)
     // New y value that takes the changes in the DressingroomInteraction.js file into account.
-    expect(scene.pressEText.setPosition).toHaveBeenCalledWith(50, 420)
+    expect(scene.closetPressEText.setPosition).toHaveBeenCalledWith(50, 420)
   })
 
   test('shows the wash-up hint when close enough to the quick-undress spot', () => {
@@ -861,6 +863,78 @@ test('hides the press E hint when inside the lecture room but too far from the i
 
   expect(scene.lectureGlow.setVisible).toHaveBeenCalledWith(true)
   expect(scene.openmicrobeInfoHint.setVisible).toHaveBeenCalledWith(false)
+  expect(handler).not.toHaveBeenCalled()
+})
+
+// The hint used to be touched only from inside the "player is in the room"
+// branch, so walking out while it showed left it on screen permanently.
+test('hides the press E hint after the player leaves the lecture room', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 400, height: 400 },
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
+  })
+
+  scene.player.x = 50
+  scene.player.y = 50
+  scene.update()
+
+  expect(scene.openmicrobeInfoHint.setVisible).toHaveBeenLastCalledWith(true)
+
+  scene.player.x = 900
+  scene.player.y = 900
+  scene.update()
+
+  expect(scene.openmicrobeInfoHint.setVisible).toHaveBeenLastCalledWith(false)
+})
+
+test('shows the lecture material hint, and opens materials on E when close to it', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 400, height: 400 },
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
+    lectureMaterialPoint: { x: 300, y: 100 },
+    lectureMaterialGlow: { setVisible: jest.fn() },
+    lectureMaterialGlowTween: { pause: jest.fn(), resume: jest.fn() },
+    lectureMaterialHint: { setVisible: jest.fn(), setPosition: jest.fn() },
+  })
+
+  scene.player.x = 300
+  scene.player.y = 100
+  Phaser.Input.Keyboard.JustDown.mockReturnValueOnce(true)
+
+  const handler = jest.fn()
+  window.addEventListener('lecture-material-popup-opened', handler)
+  scene.update()
+  window.removeEventListener('lecture-material-popup-opened', handler)
+
+  expect(scene.lectureMaterialHint.setVisible).toHaveBeenCalledWith(true)
+  expect(handler).toHaveBeenCalledTimes(1)
+})
+
+test('hides the lecture material hint when too far from it', () => {
+  const scene = createScene({
+    lectureRoomZone: { x: 0, y: 0, width: 400, height: 400 },
+    lecturePoint: { x: 50, y: 50 },
+    lectureGlow: { setVisible: jest.fn() },
+    lectureGlowTween: { pause: jest.fn(), resume: jest.fn() },
+    lectureMaterialPoint: { x: 300, y: 100 },
+    lectureMaterialGlow: { setVisible: jest.fn() },
+    lectureMaterialGlowTween: { pause: jest.fn(), resume: jest.fn() },
+    lectureMaterialHint: { setVisible: jest.fn(), setPosition: jest.fn() },
+  })
+
+  scene.player.x = 10
+  scene.player.y = 10
+
+  const handler = jest.fn()
+  window.addEventListener('lecture-material-popup-opened', handler)
+  scene.update()
+  window.removeEventListener('lecture-material-popup-opened', handler)
+
+  expect(scene.lectureMaterialHint.setVisible).toHaveBeenCalledWith(false)
   expect(handler).not.toHaveBeenCalled()
 })
 

@@ -1268,3 +1268,110 @@ describe('a refresh does not hand back a spent retry', () => {
     expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
   })
 })
+
+// Quitting inside BSL-4 used to leave bslRoom set, so the next game opened with
+// the airlock panel listing suit, gloves and ventilation at the spawn point —
+// the reset stripped the gear but not the room the player had been standing in.
+test('resetting the game forgets which BSL room the player was in', () => {
+  startGame()
+
+  act(() => {
+    window.dispatchEvent(
+      new CustomEvent('bsl-room-changed', { detail: { key: 'BSL-4' } })
+    )
+  })
+
+  expect(screen.getByTestId('bsl-airlock-status')).toBeInTheDocument()
+
+  act(() => {
+    window.dispatchEvent(new Event('game-reset-state'))
+  })
+
+  fireEvent.click(screen.getByRole('button', { name: /start game/i }))
+
+  expect(screen.queryByTestId('bsl-airlock-status')).not.toBeInTheDocument()
+})
+
+// MainScene freezes movement and interactions on these two events. Only the
+// BSL-4 gear popup and the exit confirmation used to send them, so the closet
+// left the game running underneath: arrow keys still moved the player, and E
+// still worked on whatever was nearby, while the dialog was open.
+test('opening the closet freezes the scene, closing it lets it run again', () => {
+  startGame()
+
+  const opened = jest.fn()
+  const closed = jest.fn()
+  window.addEventListener('popup-opened', opened)
+  window.addEventListener('popup-closed', closed)
+
+  act(() => {
+    window.dispatchEvent(new Event('closet-popup-opened'))
+  })
+
+  expect(opened).toHaveBeenCalled()
+
+  act(() => {
+    screen.getByRole('button', { name: /^close$/i }).click()
+  })
+
+  expect(closed).toHaveBeenCalled()
+
+  window.removeEventListener('popup-opened', opened)
+  window.removeEventListener('popup-closed', closed)
+})
+
+// handleAnswerRecord records the answer and sets awaitingUndress in the same
+// call, so counting answers ended the first round at the very moment the
+// wash-up objective appeared — the toast could never announce that last step.
+test('the first-round toast survives until the player has washed up', () => {
+  // The debounced save from the test above can land after beforeEach has run,
+  // which would restore a started game and hide the start screen.
+  clearSavedGame()
+  localStorage.clear()
+
+  // enterLectureRoom starts the game itself.
+  enterLectureRoom()
+
+  answerCurrentMicrobe('BSL-1')
+
+  expect(screen.getByText(/wash up/i)).toBeInTheDocument()
+})
+
+// Skipping used to gate only the button, not the toast, so pressing it took
+// the control away and left every following step still announcing itself.
+test('skipping the guidance stops the toast, not just its button', () => {
+  clearSavedGame()
+  localStorage.clear()
+
+  enterLectureRoom()
+
+  const skip = screen.getByTestId('objective-toast-skip')
+
+  act(() => {
+    skip.click()
+  })
+
+  expect(screen.queryByTestId('objective-toast-skip')).not.toBeInTheDocument()
+  expect(screen.queryByText(/^Next: /)).not.toBeInTheDocument()
+})
+
+// A retry records its answer without setting awaitingUndress, so counting
+// answers alone made the first round look finished while the player was still
+// on their first microbe with a second attempt to make.
+test('the first-round toast survives a retry on the first microbe', () => {
+  clearSavedGame()
+  localStorage.clear()
+
+  enterLectureRoom()
+
+  act(() => {
+    EventBus.emit('current-microbe-updated', identifiedMicrobe)
+  })
+  act(() => {
+    window.dispatchEvent(new CustomEvent('answer-popup-opened', { detail: { level: 'BSL-3' } }))
+  })
+
+  fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+
+  expect(screen.getByTestId('objective-toast-skip')).toBeInTheDocument()
+})

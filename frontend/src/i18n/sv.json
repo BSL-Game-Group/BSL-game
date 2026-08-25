@@ -11,21 +11,26 @@
     "title": "Hur man spelar",
     "steps": [
       "Kom ihåg BSL-nivån — den avgör allt. Om du behöver läsa om instruktionerna igen, besök INFO-desken i korridoren.",
+      "Vid din första mikrob vägleder spelet dig genom varje steg upptill. Vägledningen varar en runda och kan stängas av med en knapp.",
       "Gå till föreläsningsrummet för att läsa mikrobes detaljer och dess BSL-nivå.",
       "Tryck E vid den gröna ringen i föreläsningsrummet för att studera materialet och lära dig om olika mikrober och BSL-klasser (1–4).",
       "Gå till påklädningsrummet och öppna garderobsskåpet (tryck E).",
       "Sätt på den skyddsutrustning som nivån kräver (lab coat, mask, glasögon…).",
       "Gå till motsvarande BSL-rum (1–4).",
+      "BSL-3 och BSL-4 är slussar: stäng den lufttäta dörren bakom dig innan du hanterar mikroben. Endast en slussdörr kan vara öppen åt gången.",
+      "I BSL-4 behöver du dessutom den trycksatta dräkten och handskar, och dräkten måste kopplas till den externa ventilationen. Panelen nere till höger visar vad som fortfarande saknas.",
       "Tryck E vid den mörkt gröna ringen för att hantera mikroben.",
       "Spelet kontrollerar ditt arbete — var utrustningen och rummet rätt för denna mikrobе?",
       "Resultatet delar upp utrustningen i kategorier — ögonskydd, masker, klädsel, handskar och skor — markerar vilka karegorier gick rät eller fel. De specifika fela utrustningen namnges inte.",
       "Om rummet eller utrustningen var fel får du ett nytt försök på samma mikrob — du kan gå direkt tillbaka in utan att tvätta dig. Mikrobens rätta BSL-nivå blir avslöjad efter ditt sista försök.",
       "När du är klar med mikroben går du till tvättstationen i påklädningsrummet — BSL-rummen är stängda till dess.",
       "Efter ditt sista försök lottas en ny mikrob.",
-      "Efter flera rundor, se din sammanfattning: poäng, rätt vs. fel, och de nivåer du behärskade.",
+      "Feedback kommer efter varje mikrob du hanterar. I slutet ser du bara din slutpoäng — och om du inte är inloggad frågar spelet om du vill spara den.",
+      "Om du fastnar på samma uppgift berättar spelet efter en stund längst ner på skärmen vad du ska göra härnäst.",
+      "Du kan logga in eller skapa ett konto när som helst.",
       "Du kan lämna när som helst genom utgången — spelet avslutas."
     ],
-    "controls": "Kontroller: Piltangenter / klick för att röra sig · E eller klick för att interagera · Stäng-knapp för att stänga fönster"
+    "controls": "Kontroller: Piltangenter / klick för att röra sig · E eller klick för att interagera · R i påklädningsrummet tar av utrustningen och tvättar dig · Stäng-knapp för att stänga fönster"
   },
   "lectureRequired": {
   "title": "Besök föreläsningsrummet först",
@@ -120,14 +125,32 @@
     "pressE": "Tryck E",
     "closeTheDoorBehindYouFirst": "Stäng dörren bakom dig först.",
     "exitPrompt": "Tryck E för att lämna",
-    "lectureMaterialHint": "Tryck E för att öppna kursmaterialet",
     "washUp": "Tryck R eller klicka för att tvätta dig",
-    "openmicrobeInfoHint": "Tryck E för mikrobinformation",
+    "openmicrobeInfoHint": "Mikrobinformation — tryck E",
+    "lectureMaterialHint": "Föreläsningsmaterial — tryck E",
+    "closetPressE": "Utrustningsskåp — tryck E",
+    "infoPressE": "Info — tryck E",
     "pressEOrClick": "Tryck E eller klicka"
   },
   "hud": {
     "score": "Poäng: {score}",
     "microbes": "Mikrober: {count}"
+  },
+  "objective": {
+    "visit-lecture": "Näst: besök föreläsningen",
+    "await-microbe": "Näst: väntar på en mikrob",
+    "check-microbe": "Näst: kolla mikrobens uppgifter",
+    "wash-up": "Näst: tvätta dig i {room}",
+    "suit-up": "Näst: ta på skyddsutrustningen",
+    "go-to-room": "Näst: gå till {room}",
+    "handle-microbe": "Näst: hantera mikroben",
+    "skipGuide": "Hoppa över vägledningen"
+  },
+  "bslAirlock": {
+    "suitOff": "Den trycksatta dräkten är inte på",
+    "glovesOff": "Handskarna är inte på",
+    "doorOpen": "Slussdörren är öppen — stäng den först",
+    "ventilationOff": "Ventilationen är inte ansluten"
   },
   "auth": {
     "guest": "Du spelar som gäst",

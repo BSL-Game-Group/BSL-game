@@ -20,10 +20,9 @@ export class LectureInteraction extends BaseInteraction {
             lecturePoint,
             lectureGlowTween,
             lectureMaterialGlow,
-            lectureMaterialGlowTween,
             lectureMaterialPoint,
+            lectureMaterialGlowTween,
             lectureMaterialHint,
-            pressEText,
             openmicrobeInfoHint,
         } = this.scene;
         if (!lectureRoomZone) {
@@ -58,7 +57,7 @@ export class LectureInteraction extends BaseInteraction {
 
                 if (closeEnough) {
                     openmicrobeInfoHint.setVisible(true);
-                    openmicrobeInfoHint.setPosition(lecturePoint.x - 40, lecturePoint.y + 45);
+                    openmicrobeInfoHint.setPosition(lecturePoint.x - 40, lecturePoint.y - 45);
                     if (this.justPressed(this.keyE)) {
                         window.dispatchEvent(new Event('microbe-info-popup-opened'));
                     }

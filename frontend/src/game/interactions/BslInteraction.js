@@ -1,6 +1,15 @@
 import { BaseInteraction } from './BaseInteraction';
 
 export class BslInteraction extends BaseInteraction {
+    constructor(scene) {
+        super(scene);
+        this.lastActiveKey = null;
+        // null (not undefined) so the very first frame always reports the
+        // door's real state, whatever it restored to.
+        this.lastBsl3DoorOpen = null;
+        this.lastBsl4DoorOpen = null;
+    }
+
     seedPresence() {
         if (this.scene.bslGlows) {
             for (const entry of this.scene.bslGlows) {
@@ -31,6 +40,7 @@ export class BslInteraction extends BaseInteraction {
         }
 
         let activeCenter = null;
+        let activeKey = null;
 
         for (const entry of bslGlows) {
             // Determine the zone to check, modifying it if it is BSL-2
@@ -72,6 +82,7 @@ export class BslInteraction extends BaseInteraction {
 
             if (inside) {
                 activeCenter = entry.center;
+                activeKey = entry.key;
 
                 if (this.justPressed(this.keyE)) {
                     if (!window.__lectureOpen) {
@@ -93,11 +104,31 @@ export class BslInteraction extends BaseInteraction {
             }
         }
 
+        if (activeKey !== this.lastActiveKey) {
+            this.lastActiveKey = activeKey;
+            window.dispatchEvent(new CustomEvent('bsl-room-changed', { detail: { key: activeKey } }));
+        }
+
+        if (this.scene.bsl3Door && this.scene.bsl3Door.isOpen !== this.lastBsl3DoorOpen) {
+            this.lastBsl3DoorOpen = this.scene.bsl3Door.isOpen;
+            window.dispatchEvent(new CustomEvent('bsl-door-changed', {
+                detail: { key: 'BSL-3', isOpen: this.lastBsl3DoorOpen }
+            }));
+        }
+        if (this.scene.bsl4Door && this.scene.bsl4Door.isOpen !== this.lastBsl4DoorOpen) {
+            this.lastBsl4DoorOpen = this.scene.bsl4Door.isOpen;
+            window.dispatchEvent(new CustomEvent('bsl-door-changed', {
+                detail: { key: 'BSL-4', isOpen: this.lastBsl4DoorOpen }
+            }));
+        }
+
         if (bslHint) {
             if (activeCenter) {
                 const hintY = activeCenter.y > 80
                     ? activeCenter.y - 48
                     : activeCenter.y + 36;
+                const pressELabel = this.scene.hintManager?.pressELabel || 'Press E';
+                bslHint.setText(activeKey ? `${activeKey} — ${pressELabel}` : pressELabel);
                 bslHint.setVisible(true);
                 bslHint.setPosition(activeCenter.x - 28, hintY);
             } else {

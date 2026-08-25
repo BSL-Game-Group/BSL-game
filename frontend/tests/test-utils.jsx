@@ -56,6 +56,19 @@ const translationValue = {
       'hud.score': 'Score: {score}',
       'hud.microbes': 'Microbes: {count}',
 
+      'objective.visit-lecture': 'Next: visit the lecture',
+      'objective.suit-up': 'Next: put on your protective equipment',
+      'objective.go-to-room': 'Next: go to {room}',
+      'objective.wash-up': 'Next: wash up in the {room}',
+      'objective.handle-microbe': 'Next: handle the microbe',
+      'objective.await-microbe': 'Next: waiting for a microbe',
+      'objective.check-microbe': 'Next: check the microbe details',
+
+      'bslAirlock.doorOpen': 'The airlock door is open — close it first',
+      'bslAirlock.suitOff': 'The pressurized suit is not on',
+      'bslAirlock.glovesOff': 'Gloves are not on',
+      'bslAirlock.ventilationOff': 'Ventilation is not connected',
+
       'auth.guest': 'Playing as a guest',
       'auth.signedInAs': 'Signed in as {username}',
       'auth.loginButton': 'Log in',

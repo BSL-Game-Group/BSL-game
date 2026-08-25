@@ -66,17 +66,15 @@ class MainScene extends Phaser.Scene {
         this.hintManager = new HintManager(this);
 
         // Temporary Backwards Compatibility:
-        this.pressEText = this.hintManager.pressEText;
+        this.closetPressEText = this.hintManager.closetPressEText;
+        this.infoPressEText = this.hintManager.infoPressEText;
+        this.exitPressEText = this.hintManager.exitPressEText;
         this.closetHint = this.hintManager.closetHint;
         this.undressHint = this.hintManager.undressHint;
         this.bslHint = this.hintManager.bslHint;
         this.doorHint = this.hintManager.doorHint;
-        this.lectureMaterialHint = this.hintManager.lectureMaterialHint;
         this.openmicrobeInfoHint = this.hintManager.openmicrobeInfoHint;
-        
-        Object.defineProperty(this, 'exitPromptText', {
-            get: () => this.hintManager.exitPromptText
-        });
+        this.lectureMaterialHint = this.hintManager.lectureMaterialHint;
 
         // Apply initial translations
         this.hintManager.updateTranslations({
@@ -84,9 +82,14 @@ class MainScene extends Phaser.Scene {
             openCloset: window.__translations?.openCloset ?? 'Open Closet',
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
-            lectureMaterialHint: window.__translations?.lectureMaterialHint ?? 'Press E to open lecture material',
             closeTheDoorBehindYouFirst: window.__translations?.closeTheDoorBehindYouFirst ?? 'Close the door behind you first.',
-            openmicrobeInfoHint: window.__translations?.openMicrobeInfo ?? 'Press E for microbe info',
+            // App.jsx publishes this as openMicrobeInfoHint — reading it as
+            // openMicrobeInfo silently fell through to the English default.
+            openmicrobeInfoHint: window.__translations?.openMicrobeInfoHint ?? 'Microbe info — press E',
+            lectureMaterialHint: window.__translations?.lectureMaterialHint ?? 'Lecture material — press E',
+            closetPressE: window.__translations?.closetPressE ?? 'Equipment closet — press E',
+            infoPressE: window.__translations?.infoPressE ?? 'Info — press E',
+            exitPrompt: window.__translations?.exitPrompt ?? 'Press E to exit',
             pressEOrClick: window.__translations?.pressEOrClick ?? 'Press E or click',
         });
 
@@ -109,8 +112,20 @@ class MainScene extends Phaser.Scene {
         
         this.isPopupOpen = this.savedGame?.popups.closet ?? false;
 
-        this.handlePopupOpen = () => { this.isPopupOpen = true; };
-        this.handlePopupClosed = () => { this.isPopupOpen = false; };
+        // Movement and E-presses already check isPopupOpen in update(), but the
+        // clickable hotspots in rooms.js fire straight off Phaser's input,
+        // which keeps running underneath an open dialog — the exit button could
+        // be clicked through the closet. Disabling the scene's input covers
+        // every hotspot at once, including any added later.
+        this.setPopupOpen = (open) => {
+            this.isPopupOpen = open;
+            this.input.enabled = !open;
+        };
+
+        this.setPopupOpen(this.isPopupOpen);
+
+        this.handlePopupOpen = () => this.setPopupOpen(true);
+        this.handlePopupClosed = () => this.setPopupOpen(false);
 
         window.addEventListener('popup-opened', this.handlePopupOpen);
         window.addEventListener('popup-closed', this.handlePopupClosed);

@@ -11,21 +11,26 @@
     "title": "How to play",
     "steps": [
       "Remember the BSL level — it decides everything. If you need to reread these instructions, visit the INFO desk in the corridor.",
+      "On your first microbe the game walks you through every step at the top of the screen. The guidance lasts one round, and a button turns it off.",
       "Go to the lecture room to read the microbe's details and its BSL level.",
       "Press E at the green ring in the lecture room to study the materials and learn about different microbes and BSL classes (1–4).",
       "Go to the dressing room and open the closet (press E).",
       "Put on the protective equipment the level requires (lab coat, mask, glasses…).",
       "Go to the matching BSL room (1–4).",
+      "BSL-3 and BSL-4 are airlocks: close the airtight door behind you before handling the microbe. Only one airlock door can be open at a time.",
+      "BSL-4 also needs the pressurized suit and gloves, with the suit connected to the external ventilation. The panel in the bottom right names whatever is still missing.",
       "Press E at the dark green ring to handle the microbe.",
       "The game checks your work — were the equipment and room correct for this microbe?",
       "The result breaks your equipment down by category — eyewear, masks, body, gloves and footwear — marking each one right or wrong. It won't name the individual item you missed.",
       "If the room or the equipment was wrong, you get one retry on the same microbe — walk straight back in, no wash-up needed. Until your last try, the microbe's own feedback and its BSL level stay hidden.",
       "Once you are done with a microbe, go to the wash-up point in the dressing room — the BSL rooms stay shut until you do.",
       "After your last try, a new microbe is drawn.",
-      "After several rounds, see your summary: score, correct vs. wrong, and the levels you mastered.",
+      "Feedback comes after each microbe you handle. At the end you only see your final score — and if you are not signed in, the game asks whether you want to keep it.",
+      "If you get stuck on the same task, the game will tell you what to do next along the bottom of the screen.",
+      "You can sign in or create an account at any time.",
       "You can leave any time through the Exit — the game shuts down."
     ],
-    "controls": "Controls: Arrow keys / click to move · E or click to interact · Close button to close windows"
+    "controls": "Controls: Arrow keys / click to move · E or click to interact · R in the dressing room takes your gear off and washes up · Close button to close windows"
   },
   "lectureRequired": {
   "title": "Visit the lecture room first",
@@ -120,14 +125,32 @@
     "pressE": "Press E",
     "closeTheDoorBehindYouFirst": "Close the door behind you first.",
     "exitPrompt": "Press E to exit",
-    "lectureMaterialHint": "Press E to open lecture material",
     "washUp": "Press R or click to wash up",
-    "openmicrobeInfoHint": "Press E for microbe info",
+    "openmicrobeInfoHint": "Microbe info — press E",
+    "lectureMaterialHint": "Lecture material — press E",
+    "closetPressE": "Equipment closet — press E",
+    "infoPressE": "Info — press E",
     "pressEOrClick": "Press E or click"
   },
   "hud": {
     "score": "Score: {score}",
     "microbes": "Microbes: {count}"
+  },
+  "objective": {
+    "visit-lecture": "Next: visit the lecture",
+    "await-microbe": "Next: waiting for a microbe",
+    "check-microbe": "Next: check the microbe details",
+    "wash-up": "Next: wash up in the {room}",
+    "suit-up": "Next: put on your protective equipment",
+    "go-to-room": "Next: go to {room}",
+    "handle-microbe": "Next: handle the microbe",
+    "skipGuide": "Skip guidance"
+  },
+  "bslAirlock": {
+    "suitOff": "The pressurized suit is not on",
+    "glovesOff": "Gloves are not on",
+    "doorOpen": "The airlock door is open — close it first",
+    "ventilationOff": "Ventilation is not connected"
   },
   "auth": {
     "guest": "Playing as a guest",

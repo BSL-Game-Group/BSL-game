@@ -33,6 +33,8 @@ export default class Door extends Phaser.Physics.Arcade.Sprite {
 
     tryToChangeDoorState() {
         if (!this.isOpenable()) {
+            // The caller shows the refusal next to the door itself — see
+            // MainScene's handleDoorPress and HintManager.showDoorFeedback.
             return false;
         }
         this.isOpen = !this.isOpen;

@@ -9,6 +9,11 @@ import HowToPlay from './components/HowToPlay'
 import InfoPopup from './components/InfoPopup/InfoPopup'
 import LanguageSelector from './components/LanguageSelector'
 import ScoreHud from './components/ScoreHud'
+import ObjectiveToast from './components/ObjectiveToast'
+import NextStepHud from './components/NextStepHud'
+import BslAirlockStatus from './components/BslAirlockStatus'
+import { useStuckTimer } from './hooks/useStuckTimer'
+import { stuckStage, STUCK_THRESHOLDS_MS } from './utils/stuckStage'
 import AuthStatus from './auth/AuthStatus'
 import EndPopup from './components/EndPopup'
 import YourRounds from './auth/YourRounds'
@@ -21,6 +26,7 @@ import { useAuth } from './auth/context'
 import roundsService from './services/rounds'
 import microbeService from './services/microbes.js'
 import { loadSavedGame, patchSavedGame, flushSavedGame, clearSavedGame, MAX_ROUND_ANSWERS } from './state/savedGame'
+import { resolveObjective } from './utils/resolveObjective'
 
 
 function App() {
@@ -67,9 +73,26 @@ function App() {
   )
 
   const [roundAnswers, setRoundAnswers] = useState(restored?.round.answers ?? [])
+  // "Ohitettavissa yhdellä painalluksella" — a player who already knows the
+  // loop shouldn't be forced through the guided first round. Deliberately
+  // not persisted to savedGame: it's a per-session courtesy, not progress.
+  const [guidanceSkipped, setGuidanceSkipped] = useState(false)
+  // The microbe whose card the player has opened. Storing the id rather than a
+  // flag means a new organism asks to be read again without anything having to
+  // reset it. Guidance only, so it is not persisted: a reload asks once more,
+  // which costs one keypress and never blocks anything.
+  const [checkedMicrobeId, setCheckedMicrobeId] = useState(null)
   const [openRoundId, setOpenRoundId] = useState(restored?.round.openRoundId ?? null)
   // 1. Initialize roundResult from restored saved game if it exists
   const [roundResult, setRoundResult] = useState(restored?.round.roundResult ?? null)
+
+  // Which BSL room (if any) the player is currently standing in — the only
+  // piece resolveObjective needs that isn't already tracked here, since the
+  // Phaser scene is the sole owner of room geometry.
+  const [bslRoom, setBslRoom] = useState(null)
+  // Which BSL-3/BSL-4 airlock doors are currently open — the interlock in
+  // Door.js already blocks movement on this, but nothing surfaced it.
+  const [bslDoorOpen, setBslDoorOpen] = useState({})
 
 
   // --- HOOKS (Preserved from original) ---
@@ -94,6 +117,21 @@ function App() {
     window.addEventListener('lecture-room-entered', handler)
     return () => window.removeEventListener('lecture-room-entered', handler)
   }, [])
+  useEffect(() => {
+    const handler = (e) => setBslRoom(e.detail?.key ?? null)
+    window.addEventListener('bsl-room-changed', handler)
+    return () => window.removeEventListener('bsl-room-changed', handler)
+  }, [])
+  useEffect(() => {
+    const handler = (e) => {
+      const { key, isOpen } = e.detail ?? {}
+      if (key) {
+        setBslDoorOpen((prev) => ({ ...prev, [key]: isOpen }))
+      }
+    }
+    window.addEventListener('bsl-door-changed', handler)
+    return () => window.removeEventListener('bsl-door-changed', handler)
+  }, [])
 
   // Phaser's BSL interactables gate on this (rooms.js + BslInteraction.js) and
   // can't read React state, so the lecture visit has to be mirrored onto window.
@@ -111,6 +149,31 @@ function App() {
   // reads window.__lectureOpen. Computed early: several effects below (the
   // BSL4 door prompts) need it before they're declared.
   const bsl4Ready = Boolean(equipped.pressurized_suit) && Boolean(equipped.gloves) && ventilationConnected
+
+  // Every dialog that should freeze the game, in one place. Only the BSL-4
+  // gear popup and the exit confirmation used to announce themselves, so
+  // opening the closet, the info board, the microbe card, the lecture
+  // material or the answer popup left the scene running underneath: the
+  // player could walk out of the room with the arrow keys, or press E on
+  // something else, while reading a dialog about where they were standing.
+  const anyPopupOpen =
+    isPopupOpen ||
+    LectureMaterialOpen ||
+    answerOpen ||
+    infoOpen ||
+    microbeInfoOpen ||
+    lectureWarningOpen ||
+    exitConfirmOpen ||
+    bsl4NotReadyOpen ||
+    bsl4GearOpen ||
+    bslDoorRequiredOpen ||
+    washUpRequiredOpen
+
+  // MainScene gates movement and interactions on these two events; React owns
+  // the popups, so React is what has to tell it.
+  useEffect(() => {
+    window.dispatchEvent(new Event(anyPopupOpen ? 'popup-opened' : 'popup-closed'))
+  }, [anyPopupOpen])
 
   // App owns the worn-PPE state, so it is also what tells Phaser to redraw the
   // character.
@@ -144,11 +207,6 @@ function App() {
     }
   }, [])
 
-  // Lock movement while the gear popup is up — otherwise the player can walk
-  // out of BSL-4 with the arrow keys while it's still open, mid-decision.
-  useEffect(() => {
-    window.dispatchEvent(new Event(bsl4GearOpen ? 'popup-opened' : 'popup-closed'))
-  }, [bsl4GearOpen])
 
   // The suit cannot exist outside BSL-4 — Phaser fires this the instant the
   // player's position leaves the room while still suited (normally prevented
@@ -198,10 +256,13 @@ function App() {
     return () => window.removeEventListener('info-popup-opened', handleInfoOpen)
   }, [])
   useEffect(() => {
-    const handleMicrobeInfoOpen = () => setMicrobeInfoOpen(true)
+    const handleMicrobeInfoOpen = () => {
+      setMicrobeInfoOpen(true)
+      setCheckedMicrobeId(currentMicrobe?.id ?? null)
+    }
     window.addEventListener('microbe-info-popup-opened', handleMicrobeInfoOpen)
     return () => window.removeEventListener('microbe-info-popup-opened', handleMicrobeInfoOpen)
-  }, [])
+  }, [currentMicrobe?.id])
   useEffect(() => {
     const handleLectureMaterialOpen = () => setLectureMaterialOpen(true)
     window.addEventListener('lecture-material-popup-opened', handleLectureMaterialOpen)
@@ -223,8 +284,10 @@ function App() {
       closeTheDoorBehindYouFirst: t('phaser.closeTheDoorBehindYouFirst'),
       exitPrompt: t('phaser.exitPrompt'),
       washUp: t('phaser.washUp'),
-      lectureMaterialHint: t('phaser.lectureMaterialHint'),
       openMicrobeInfoHint: t('phaser.openmicrobeInfoHint'),
+      lectureMaterialHint: t('phaser.lectureMaterialHint'),
+      closetPressE: t('phaser.closetPressE'),
+      infoPressE: t('phaser.infoPressE'),
       pressEOrClick: t('phaser.pressEOrClick'),
     }
     window.__translations = translations
@@ -258,6 +321,22 @@ function App() {
     setBsl4NotReadyOpen(false)
     setBsl4GearOpen(false)
     setBslDoorRequiredOpen(false)
+    // Where the player was standing is state like any other. Leaving it behind
+    // made the airlock panel describe the room they quit from: exiting inside
+    // BSL-4 and starting again showed "suit is not on / gloves are not on /
+    // ventilation is not connected" at the spawn point, because the reset had
+    // stripped the gear but not the room.
+    setBslRoom(null)
+    setBslDoorOpen({})
+    // A new game is a new first round, so it gets the guidance again.
+    setGuidanceSkipped(false)
+    // The lecture visit is progress like any other. Leaving it behind let a new
+    // game skip 'visit-lecture' entirely, and window.__lectureOpen stayed true,
+    // so the BSL rooms accepted E from the first second.
+    setLectureOpen(false)
+    // Same for the microbe card: if the fresh draw happened to return the same
+    // organism, the objective counted it as already read.
+    setCheckedMicrobeId(null)
     window.dispatchEvent(new Event('popup-closed'))
   }, [])
 
@@ -358,6 +437,51 @@ function App() {
 
   const roundScore = roundAnswers.filter((answer) => answer.correct).length
 
+  const objective = gameStarted
+    ? resolveObjective({
+        progress: {
+          lectureVisited: lectureOpen,
+          awaitingUndress,
+          microbeChecked: currentMicrobe !== null && checkedMicrobeId === currentMicrobe.id,
+        },
+        equipped,
+        microbe: currentMicrobe,
+        room: bslRoom,
+      })
+    : null
+  // BSL room targets (e.g. "BSL-3") are already a self-explanatory label —
+  // only the named rooms need a translation lookup.
+  const objectiveRoomLabel = objective?.target
+    ? (objective.target.startsWith('BSL-') ? objective.target : t(`rooms.${objective.target}`))
+    : ''
+  // The objective toast is a first-round courtesy: once the player has been
+  // through the loop once, repeating it every objective change for the rest
+  // of the session would just be noise for someone who already knows it.
+  //
+  // "Been through the loop" has to include the wash-up. Counting answers
+  // alone ended the first round one step early, because recording an answer
+  // sets awaitingUndress in the same call — so the toast switched off at the
+  // very moment the wash-up objective appeared, and that last step was the
+  // one step it could never announce.
+  //
+  // Distinct microbes, not answers: a wrong attempt with a retry left records
+  // two answers for the same organism, which is still one trip round the loop.
+  //
+  // attempt === 2 is the other half of that. A retry records its answer without
+  // setting awaitingUndress — it owes no wash-up — so the first microbe can sit
+  // with one answer banked, nothing to wash off, and the loop still unfinished.
+  const microbesAnswered = new Set(roundAnswers.map((answer) => answer.microbe_id)).size
+  const isFirstRound =
+    microbesAnswered === 0 ||
+    (microbesAnswered === 1 && (awaitingUndress || attempt === 2))
+  const isGuidedFirstRound = isFirstRound && !guidanceSkipped
+  const stuckElapsedMs = useStuckTimer(
+    objective?.id ?? null,
+    anyPopupOpen,
+    STUCK_THRESHOLDS_MS.verbal
+  )
+  const stage = stuckStage(stuckElapsedMs)
+
   // Recording an answer always requires a trip to the dressing room's wash-up
   // spot afterward — whether or not any PPE was actually worn — before the
   // next microbe is handed out.
@@ -453,7 +577,6 @@ function App() {
   useEffect(() => {
     const handleExitOpen = () => {
       setExitConfirmOpen(true)
-      window.dispatchEvent(new Event('popup-opened'))
       saveRoundSoFar()
     }
     window.addEventListener('exit-popup-opened', handleExitOpen)
@@ -462,7 +585,6 @@ function App() {
 
   const handleExitCancel = () => {
     setExitConfirmOpen(false)
-    window.dispatchEvent(new Event('popup-closed'))
   }
 
   const handleExitConfirm = () => {
@@ -546,6 +668,50 @@ function App() {
       <div className="position-fixed top-0 end-0 p-3 z-3">
         <LanguageSelector />
       </div>
+
+      {/* Objective toast: appears briefly at top-center whenever the next
+          step changes, then fades on its own. Gated on isGuidedFirstRound,
+          not isFirstRound: skipping has to stop the guidance itself, and
+          gating on the latter only took the button away and left every
+          following step still announcing itself. */}
+      {gameStarted && isGuidedFirstRound && (
+        <div className="position-fixed top-0 start-50 translate-middle-x p-3 z-3 objective-toast-anchor">
+          <ObjectiveToast
+            objective={objective}
+            roomLabel={objectiveRoomLabel}
+            suppressed={anyPopupOpen}
+            onSkipGuide={() => setGuidanceSkipped(true)}
+          />
+        </div>
+      )}
+
+      {/* Persistent "Next: ..." row, bottom-center — only once the player has
+          been stuck on the same objective for a while. */}
+      {gameStarted && (
+        <div className="position-fixed bottom-0 start-50 translate-middle-x p-3 z-3 next-step-hud-anchor">
+          <NextStepHud
+            objective={objective}
+            roomLabel={objectiveRoomLabel}
+            stage={stage}
+          />
+        </div>
+      )}
+
+      {/* BSL airlock/ventilation status, bottom-right — beside the BSL-3 lab
+          rather than floating over the middle of the map. The "Next: ..." row
+          is bottom-centre, so the two do not overlap. */}
+      {gameStarted && (
+        <div className="position-fixed bottom-0 end-0 p-3 z-3 bsl-airlock-status-anchor">
+          <BslAirlockStatus
+            roomKey={bslRoom}
+            doorOpen={bslDoorOpen}
+            ventilationConnected={ventilationConnected}
+            suitOn={Boolean(equipped.pressurized_suit)}
+            glovesOn={Boolean(equipped.gloves)}
+            suppressed={anyPopupOpen}
+          />
+        </div>
+      )}
 
       {/* --- ALL POPUPS RENDERED AT ROOT LEVEL (Outside of the grid) --- */}
       <ClosetPopup
