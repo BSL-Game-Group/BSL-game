@@ -1,11 +1,8 @@
 # Installation
 
 ## Requirements
-
 - Docker
 - Docker Compose
-- Node.js (recommended 18.x or later)
-- npm
 
 ## Repository setup
 
@@ -14,19 +11,6 @@
 ```bash
 git clone https://github.com/MildMunshin/BSL-game.git
 cd BSL-game
-```
-
-2. Install root development dependencies for Playwright and project tooling:
-
-```bash
-npm install
-```
-
-3. Install frontend and backend dependencies separately if you want to work on either service directly:
-
-```bash
-npm --prefix frontend install
-npm --prefix backend install
 ```
 
 ## Run with Docker Compose

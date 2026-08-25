@@ -29,7 +29,7 @@ start the game:
 docker compose up --build -d
 ```
 
-Run  end-to-end Jest tests:
+Run end-to-end Playwright tests:
 ```bash
 npm test
 ```
@@ -40,12 +40,6 @@ npm run test:ui
 frontend unit tests (run from the repo root):
 ```bash
 npm --prefix frontend test
-```
-
-
-Backend unit tests (run from the repo root, no database required):
-```bash
-npm --prefix backend test
 ```
 
 Backend unit tests. **These talk to a real Postgres**, so start the database and
