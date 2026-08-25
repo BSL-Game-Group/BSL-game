@@ -5,21 +5,21 @@
   "startScreen": {
     "subtitle": "Hantera mikrober på ett säkert sätt — välj rätt skyddsutrustning och rätt laboratorium.",
     "startButton": "Starta spelet",
-    "quitButton": "Avsluta spelet (rensa tillstånd)"
+    "quitButton": "Avsluta spelet (återställ tillståndet)"
   },
   "howToPlay": {
     "title": "Hur man spelar",
     "steps": [
-      "Kom ihåg BSL-nivån — den avgör allt. Om du behöver läsa om instruktionerna igen, besök INFO-desken i korridoren.",
+      "Kom ihåg BSL-nivån — den avgör allt. Om du behöver läsa om instruktionerna igen, besök INFO-disken i korridoren.",
       "Vid din första mikrob vägleder spelet dig genom varje steg upptill. Vägledningen varar en runda och kan stängas av med en knapp.",
-      "Gå till föreläsningsrummet för att läsa mikrobes detaljer och dess BSL-nivå.",
+      "Gå till föreläsningsrummet för att läsa mikrobens detaljer och dess BSL-nivå.",
       "Tryck E vid den gröna ringen i föreläsningsrummet för att studera materialet och lära dig om olika mikrober och BSL-klasser (1–4).",
-      "Gå till påklädningsrummet och öppna garderobsskåpet (tryck E).",
-      "Sätt på den skyddsutrustning som nivån kräver (lab coat, mask, glasögon…).",
+      "Gå till omklädningsrummet och öppna skåpet (tryck E).",
+      "Sätt på den skyddsutrustning som nivån kräver (labbrock, mask, glasögon…).",
       "Gå till motsvarande BSL-rum (1–4).",
-      "BSL-3 och BSL-4 är slussar: stäng den lufttäta dörren bakom dig innan du hanterar mikroben. Endast en slussdörr kan vara öppen åt gången.",
+      "BSL-3 och BSL-4 är luftslussar: stäng den lufttäta dörren bakom dig innan du hanterar mikroben. Endast en luftslussdörr kan vara öppen åt gången.",
       "I BSL-4 behöver du dessutom den trycksatta dräkten och handskar, och dräkten måste kopplas till den externa ventilationen. Panelen nere till höger visar vad som fortfarande saknas.",
-      "Tryck E vid den mörkt gröna ringen för att hantera mikroben.",
+      "Tryck E vid den mörkgröna ringen för att hantera mikroben.",
       "Spelet kontrollerar ditt arbete — var utrustningen och rummet rätt för denna mikrobе?",
       "Resultatet delar upp utrustningen i kategorier — ögonskydd, masker, klädsel, handskar och skor — markerar vilka karegorier gick rät eller fel. De specifika fela utrustningen namnges inte.",
       "Om rummet eller utrustningen var fel får du ett nytt försök på samma mikrob — du kan gå direkt tillbaka in utan att tvätta dig. Mikrobens rätta BSL-nivå blir avslöjad efter ditt sista försök.",
@@ -149,7 +149,7 @@
   "bslAirlock": {
     "suitOff": "Den trycksatta dräkten är inte på",
     "glovesOff": "Handskarna är inte på",
-    "doorOpen": "Slussdörren är öppen — stäng den först",
+    "doorOpen": "Luftslussdörren är öppen — stäng den först",
     "ventilationOff": "Ventilationen är inte ansluten"
   },
   "auth": {
