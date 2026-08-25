@@ -16,7 +16,8 @@ visit the INFO desk in the corridor.
 
 ## Starting the game
 
-Please read the instructions in the front page and set preferred language in the top right corner. The game is available in English, Finnish, and Swedish.
+Read the instructions on the front page, and set your language in the top right
+corner. The game is available in English, Finnish and Swedish.
 
 ![The front page: the language selector in the top right, the Start Game button, and the full How to play list](images/front-page.png)
 
@@ -24,9 +25,11 @@ The game starts after pressing the "Start Game" button.
 
 ### Creating an account
 
-This game gives players a possibility to login and save their progress. It can be done in the top right corner of the front page. But don't worry it can also be done later inside the gameloop or when quitting the game.
+You can log in and save your progress from the top right corner of the front
+page. You do not have to decide now — you can also do it during the game, or
+when you quit.
 
-NOTE: Login is optional
+Logging in is optional.
 
 ![The sign-up form, with the note that there is no password recovery](images/create-account.png)
 
@@ -49,7 +52,7 @@ guidance off for good.
 
 ## Moving
 
-The Character moves in the game with keyboard arrows or when clicking with mouse to wanted directions.
+The character moves with the arrow keys, or by clicking where you want to go.
 
 ![The laboratory: the INFO desk and lecture room on the left, the dressing room and decontamination area below, and BSL 1–4 on the right](images/map-and-hint.png)
 
@@ -77,7 +80,8 @@ that microbe, and comes with the result.
 Go to the dressing room and open the closet by pressing E. Put on the protective
 equipment the level requires — lab coat, mask, glasses and so on.
 
-Selecting protective gear can be done by clicking the gear or dragging them with mouse on the character. Same logic works for undressing the gear.
+Put gear on by clicking it, or by dragging it onto the character. Taking it off
+works the same way.
 
 ![The Closet popup with the Eyewear, Masks, Body, Gloves and Footwear tabs, and the character preview](images/closet.png)
 
