@@ -90,7 +90,8 @@ shows what you are currently wearing.
 Go to the BSL room that matches the microbe's level (1–4). Getting the room
 wrong counts as a wrong answer just like getting the gear wrong.
 
-> 📷 **Screenshot needed** — the corridor with the four BSL room doors.
+The whole laboratory is on screen the whole time, so all four rooms are in view
+from wherever you are standing — see the map under [Moving](#moving).
 
 ### Airlocks: BSL-3 and BSL-4
 
@@ -159,16 +160,6 @@ Once you are done with a microbe, go to the wash-up point in the dressing room �
 the BSL rooms stay shut until you do. After your last try, a new microbe is
 drawn.
 
-## Score and saving your result
-
-Feedback comes after each microbe you handle. At the end you only see your final
-score — and if you are not signed in, the game asks whether you want to keep it.
-
-You can sign in or create an account at any time, so an unplanned good run does
-not have to go unsaved.
-
-> 📷 **Screenshot needed** — the end screen with the final score and the save prompt.
-
 ## If you get stuck
 
 If you get stuck on the same task, the game will tell you what to do next along
@@ -178,16 +169,20 @@ hint appears on its own.
 In the laboratory screenshot under [Moving](#moving) the hint reads "Next: put on
 your protective equipment", and the ring it is pointing at glows green.
 
+## Score and saving your result
+
+Feedback comes after each microbe you handle. At the end you only see your final
+score — and if you are not signed in, the game asks whether you want to keep it.
+
+![The Round finished popup with the final score and the Keep my score button, and the Exit door prompting "Press E to exit"](images/end-screen.png)
+
+The round ends with a **Round finished** popup naming your score. Until you press
+**Keep my score** that score only lives in this browser, so keep it before you
+leave if you want it on the leaderboard. You can sign in or create an account at
+any time, so an unplanned good run does not have to go unsaved.
+
 ## Exit the game
 
-You can leave any time through the Exit — the game shuts down.
-
-> 📷 **Screenshot needed** — the Exit room.
-
----
-
-**Still missing screenshots.** The 📷 lines above mark the shots that have not
-been taken yet: the corridor with the BSL room doors, the end screen and the
-Exit room. To fill one in, save the image under
-`documentation/images/` and replace the 📷 line with a link, for example
-`![The closet](images/closet.png)`.
+You can leave any time through the Exit, in the top middle of the laboratory. It
+prompts "Press E to exit" when you stand at it, and then asks whether you want to
+leave the game and return to the start page — the same popup as above.
