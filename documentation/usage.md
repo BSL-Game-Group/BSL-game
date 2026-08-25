@@ -93,6 +93,40 @@ individual item you missed.
 
 KUVA
 
+## Retrying
+
+If the room or the equipment was wrong, you get one retry on the same microbe —
+walk straight back in, no wash-up needed. Until your last try, the microbe's own
+feedback and its BSL level stay hidden.
+
+KUVA
+
+## Washing up
+
+Once you are done with a microbe, go to the wash-up point in the dressing room —
+the BSL rooms stay shut until you do. After your last try, a new microbe is
+drawn.
+
+KUVA
+
+## Score and saving your result
+
+Feedback comes after each microbe you handle. At the end you only see your final
+score — and if you are not signed in, the game asks whether you want to keep it.
+
+You can sign in or create an account at any time, so an unplanned good run does
+not have to go unsaved.
+
+KUVA
+
+## If you get stuck
+
+If you get stuck on the same task, the game will tell you what to do next along
+the bottom of the screen. You do not have to ask for it — wait a moment and the
+hint appears on its own.
+
+KUVA
+
 ## Exit the game
 
 You can leave any time through the Exit — the game shuts down.
