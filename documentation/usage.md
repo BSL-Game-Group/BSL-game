@@ -28,7 +28,7 @@ This game gives players a possibility to login and save their progress. It can b
 
 NOTE: Login is optional
 
-![The sign-up form, with the note that there is no password recovery](images/create-account-and-guidance.png)
+![The sign-up form, with the note that there is no password recovery](images/create-account.png)
 
 There is no password recovery, so write your password down somewhere safe.
 
@@ -41,8 +41,11 @@ On your first microbe the game walks you through every step at the top of the
 screen. The guidance lasts one round, and a button turns it off if you would
 rather find your own way.
 
-The banner reads "Next: visit the lecture" at the start of the round, with a
-**Skip guidance** button beside it — both are visible in the screenshot above.
+![The guidance banner reading "Next: visit the lecture", with the Skip guidance button beside it](images/guidance-banner.png)
+
+The banner sits at the top of the screen and names the next thing to do — here
+"Next: visit the lecture". The **Skip guidance** button beside it turns the
+guidance off for good.
 
 ## Moving
 
