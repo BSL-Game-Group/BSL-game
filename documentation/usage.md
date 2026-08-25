@@ -104,7 +104,9 @@ missing, so check it before you try to handle the microbe.
 
 ## Handling the microbe
 
-Press E at the dark green ring to handle the microbe.
+Press E at the dark green ring to handle the microbe. The ring is labelled with
+the room and the key — "BSL-2 — Press E" — so you can tell at a glance which
+room you are standing in.
 
 > 📷 **Screenshot needed** — the dark green ring inside a BSL room.
 
