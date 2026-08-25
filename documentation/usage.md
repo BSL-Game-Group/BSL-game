@@ -108,7 +108,7 @@ you, and only then open the one ahead.
 ### BSL-4: suit, gloves and ventilation
 
 BSL-4 also needs the pressurized suit and gloves, with the suit connected to the
-external ventilation. All three are handled from a popup of its own, with a
+external ventilation. All three are handled from a popup of their own, with a
 button for each: **Take off suit**, **Take off gloves** and **Connect
 ventilation**.
 
