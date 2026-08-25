@@ -60,6 +60,22 @@ wrong counts as a wrong answer just like getting the gear wrong.
 
 KUVA
 
+### Airlocks: BSL-3 and BSL-4
+
+BSL-3 and BSL-4 are airlocks: close the airtight door behind you before handling
+the microbe. Only one airlock door can be open at a time, so the room will
+refuse to let you work until the door you came through is shut.
+
+KUVA
+
+### BSL-4: suit, gloves and ventilation
+
+BSL-4 also needs the pressurized suit and gloves, with the suit connected to the
+external ventilation. The panel in the bottom right names whatever is still
+missing, so check it before you try to handle the microbe.
+
+KUVA
+
 ## Handling the microbe
 
 Press E at the dark green ring to handle the microbe.
