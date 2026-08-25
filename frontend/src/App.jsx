@@ -521,8 +521,7 @@ function App() {
         try {
       const result = await roundsService.saveRound(answersToSave, token, openRoundId)
 
-      //setOpenRoundId(result.id)
-      //setRoundResult(result)
+      setRoundResult(result)
     } catch (err) {
       console.error('--- DEBUG: Error saving round ---', err)
     }

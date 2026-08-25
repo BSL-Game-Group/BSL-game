@@ -83,9 +83,7 @@ class MainScene extends Phaser.Scene {
             pressE: window.__translations?.pressE ?? 'Press E',
             washUp: window.__translations?.washUp ?? 'Press R or click to wash up',
             closeTheDoorBehindYouFirst: window.__translations?.closeTheDoorBehindYouFirst ?? 'Close the door behind you first.',
-            // App.jsx publishes this as openMicrobeInfoHint — reading it as
-            // openMicrobeInfo silently fell through to the English default.
-            openmicrobeInfoHint: window.__translations?.openMicrobeInfoHint ?? 'Microbe info — press E',
+            openMicrobeInfoHint: window.__translations?.openMicrobeInfoHint ?? 'Microbe info — press E',
             lectureMaterialHint: window.__translations?.lectureMaterialHint ?? 'Lecture material — press E',
             closetPressE: window.__translations?.closetPressE ?? 'Equipment closet — press E',
             infoPressE: window.__translations?.infoPressE ?? 'Info — press E',

@@ -477,3 +477,39 @@ test('a popup disables the scene input, closing it enables it again', () => {
   expect(scene.input.enabled).toBe(true)
   expect(scene.isPopupOpen).toBe(false)
 })
+
+// Picking a language on the start screen only updates window.__translations —
+// the scene does not exist yet to receive the translations-updated event, so
+// create() has to read every hint out of it under the key App.jsx published.
+describe('translations already chosen before the scene starts', () => {
+  afterEach(() => {
+    window.__translations = undefined
+  })
+
+  test('create applies the published hint translations', () => {
+    window.__translations = {
+      openMicrobeInfoHint: 'Mikrobin tiedot — paina E',
+      lectureMaterialHint: 'Luentomateriaali — paina E',
+      closetPressE: 'Varustekaappi — paina E',
+      infoPressE: 'Info — paina E',
+      exitPrompt: 'Paina E poistutuaksesi',
+      pressE: 'Paina E',
+      pressEOrClick: 'Paina E tai klikkaa',
+      openCloset: 'Avaa kaappi',
+      washUp: 'Paina R tai klikkaa peseytyäksesi',
+      closeTheDoorBehindYouFirst: 'Sulje takanasi oleva ovi ensin.',
+    }
+
+    const scene = createScene()
+    scene.create()
+
+    expect(scene.hintManager.openmicrobeInfoHint.setText)
+      .toHaveBeenCalledWith('Mikrobin tiedot — paina E')
+    expect(scene.hintManager.lectureMaterialHint.setText)
+      .toHaveBeenCalledWith('Luentomateriaali — paina E')
+    expect(scene.hintManager.closetPressEText.setText)
+      .toHaveBeenCalledWith('Varustekaappi — paina E')
+    expect(scene.hintManager.exitPressEText.setText)
+      .toHaveBeenCalledWith('Paina E poistutuaksesi')
+  })
+})

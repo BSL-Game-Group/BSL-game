@@ -968,16 +968,24 @@ describe('saving state', () => {
 // ROUND TESTS
 // -----------------------------
 
+// Skip and Try again both start a background round save, and the graded score it
+// resolves with is what the HUD shows. Flush it here, or the update lands after
+// the test has finished and React reports it as happening outside act().
+const clickAnswerButton = async (name) => {
+  fireEvent.click(screen.getByRole('button', { name }))
+  await act(async () => {})
+}
+
 const identifiedMicrobe = { ...testMicrobe, id: 7 }
 
-function answerCurrentMicrobe(level = 'BSL-1', microbe = identifiedMicrobe) {
+async function answerCurrentMicrobe(level = 'BSL-1', microbe = identifiedMicrobe) {
   act(() => {
     EventBus.emit('current-microbe-updated', microbe)
   })
   act(() => {
     window.dispatchEvent(new CustomEvent('answer-popup-opened', { detail: { level } }))
   })
-  fireEvent.click(screen.getByRole('button', { name: /skip this microbe/i }))
+  await clickAnswerButton(/skip this microbe/i)
 }
 
 const reachExit = async () => {
@@ -988,7 +996,7 @@ const reachExit = async () => {
 
 test('reaching the exit saves what the player has answered so far', async () => {
   startGame()
-  answerCurrentMicrobe('BSL-1')
+  await answerCurrentMicrobe('BSL-1')
 
   await reachExit()
 
@@ -1008,7 +1016,7 @@ test('a second visit to the exit updates the same round', async () => {
     owned: false,
   })
   startGame()
-  answerCurrentMicrobe('BSL-1')
+  await answerCurrentMicrobe('BSL-1')
 
   await reachExit()
   fireEvent.click(screen.getByRole('button', { name: /no/i }))
@@ -1026,9 +1034,9 @@ test('the exit popup still opens when there is nothing to save', async () => {
   expect(screen.getByRole('button', { name: /yes/i })).toBeInTheDocument()
 })
 
-test('the answers and the open round are written to the snapshot', () => {
+test('the answers and the open round are written to the snapshot', async () => {
   startGame()
-  answerCurrentMicrobe('BSL-1')
+  await answerCurrentMicrobe('BSL-1')
 
   expect(loadSavedGame().round.answers).toEqual([
     { microbe_id: 7, chosen_level: 1, chosen_equipment: [], correct: false, attempt: 1 },
@@ -1037,7 +1045,7 @@ test('the answers and the open round are written to the snapshot', () => {
 
 test('leaving for the start screen abandons the round', async () => {
   startGame()
-  answerCurrentMicrobe('BSL-1')
+  await answerCurrentMicrobe('BSL-1')
   await reachExit()
 
   fireEvent.click(screen.getByRole('button', { name: /yes/i }))
@@ -1052,15 +1060,34 @@ test('the score is on screen from the first moment of play', () => {
   expect(screen.getByTestId('score-hud')).toHaveTextContent('Microbes: 0')
 })
 
-test('handling a microbe moves the counter', () => {
+test('handling a microbe moves the counter', async () => {
   startGame()
 
-  answerCurrentMicrobe('BSL-1')
+  await answerCurrentMicrobe('BSL-1')
 
   expect(screen.getByTestId('score-hud')).toHaveTextContent('Microbes: 1')
   expect(screen.getByTestId('score-hud')).toHaveTextContent('Score: 0')
 })
 
+
+// The HUD is the only place a player sees their score while they are still
+// playing. It reads the graded round the backend sends back, so every in-play
+// save has to publish that result — not just the one the exit popup triggers.
+test('the score on the HUD follows each answer, without reaching the exit', async () => {
+  roundsService.saveRound.mockResolvedValue({
+    id: 42,
+    score: 90,
+    correct_count: 1,
+    answer_count: 1,
+    owned: false,
+  })
+  startGame()
+
+  await answerCurrentMicrobe('BSL-1')
+
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Score: 90')
+  expect(screen.getByTestId('score-hud')).toHaveTextContent('Microbes: 1')
+})
 
 test('the start screen has no score to show', () => {
   renderApp()
@@ -1088,7 +1115,7 @@ test('the exit popup reports the round it just saved', async () => {
     owned: false,
   })
   startGame()
-  answerCurrentMicrobe('BSL-1')
+  await answerCurrentMicrobe('BSL-1')
 
   await reachExit()
 
@@ -1118,11 +1145,11 @@ describe('one retry per microbe', () => {
     })
   }
 
-  test('skipping counts the answer and washing up hands out a new microbe', () => {
+  test('skipping counts the answer and washing up hands out a new microbe', async () => {
     answerWrongly()
     EventBus.emit.mockClear()
 
-    fireEvent.click(screen.getByRole('button', { name: /skip this microbe/i }))
+    await clickAnswerButton(/skip this microbe/i)
 
     expect(screen.getByText(/microbes: 1/i)).toBeInTheDocument()
     expect(loadSavedGame().round.answers[0].attempt).toBe(1)
@@ -1135,11 +1162,11 @@ describe('one retry per microbe', () => {
   // The first attempt is banked the moment Try again is pressed so its points reach
   // the HUD right away, but the retry itself owes no wash-up and the microbe has
   // still only been handled once.
-  test('retrying banks the first attempt, owes no wash-up, and keeps the same microbe', () => {
+  test('retrying banks the first attempt, owes no wash-up, and keeps the same microbe', async () => {
     answerWrongly()
     EventBus.emit.mockClear()
 
-    fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+    await clickAnswerButton(/try again/i)
 
     expect(screen.getByText(/microbes: 1/i)).toBeInTheDocument()
     expect(loadSavedGame().round.answers.map((answer) => answer.attempt)).toEqual([1])
@@ -1154,30 +1181,30 @@ describe('one retry per microbe', () => {
     expect(screen.queryByRole('button', { name: /try again/i })).not.toBeInTheDocument()
     expect(EventBus.emit).not.toHaveBeenCalledWith('request-new-microbe')
 
-    fireEvent.click(screen.getByRole('button', { name: /^close$/i }))
+    await clickAnswerButton(/^close$/i)
 
     expect(loadSavedGame().round.answers.map((answer) => answer.attempt)).toEqual([1, 2])
     expect(screen.getByText(/microbes: 1/i)).toBeInTheDocument()
     expect(window.__awaitingUndress).toBe(true)
   })
 
-  test('the last attempt reveals the microbe feedback and its true class', () => {
+  test('the last attempt reveals the microbe feedback and its true class', async () => {
     answerWrongly()
-    fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+    await clickAnswerButton(/try again/i)
     reopenPopup()
 
     expect(screen.getByText(/wrong containment for this one/i)).toBeInTheDocument()
     expect(screen.getByText(/E\. coli belongs to BSL-1/i)).toBeInTheDocument()
   })
 
-  test('a new microbe restores the retry', () => {
+  test('a new microbe restores the retry', async () => {
     answerWrongly()
-    fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+    await clickAnswerButton(/try again/i)
 
     // The second try has to be spent and recorded: the wash-up that follows it is
     // what asks for the next microbe, and that request is what hands the retry back.
     reopenPopup()
-    fireEvent.click(screen.getByRole('button', { name: /^close$/i }))
+    await clickAnswerButton(/^close$/i)
     washUp()
 
     act(() => {
@@ -1189,9 +1216,9 @@ describe('one retry per microbe', () => {
   })
 })
 
-test('the wash-up prompt appears and the flag is visible to Phaser', () => {
+test('the wash-up prompt appears and the flag is visible to Phaser', async () => {
   openAnswerPopupWithMicrobe('BSL-3', { ...testMicrobe, id: 1 })
-  fireEvent.click(screen.getByRole('button', { name: /skip this microbe/i }))
+  await clickAnswerButton(/skip this microbe/i)
 
   expect(window.__awaitingUndress).toBe(true)
 
@@ -1242,10 +1269,10 @@ describe('a refresh does not hand back a spent retry', () => {
     })
   }
 
-  test('refreshing on the last try does not bring the button back', () => {
+  test('refreshing on the last try does not bring the button back', async () => {
     boot()
     answerWrongly()
-    fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+    await clickAnswerButton(/try again/i)
     answerWrongly()
 
     expect(screen.queryByRole('button', { name: /try again/i })).not.toBeInTheDocument()
@@ -1256,10 +1283,10 @@ describe('a refresh does not hand back a spent retry', () => {
     expect(screen.getByText(/last try/i)).toBeInTheDocument()
   })
 
-  test('a wash-up mid-retry does not hand out a new microbe', () => {
+  test('a wash-up mid-retry does not hand out a new microbe', async () => {
     boot()
     answerWrongly()
-    fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+    await clickAnswerButton(/try again/i)
 
     reload()
     EventBus.emit.mockClear()
@@ -1323,7 +1350,7 @@ test('opening the closet freezes the scene, closing it lets it run again', () =>
 // handleAnswerRecord records the answer and sets awaitingUndress in the same
 // call, so counting answers ended the first round at the very moment the
 // wash-up objective appeared — the toast could never announce that last step.
-test('the first-round toast survives until the player has washed up', () => {
+test('the first-round toast survives until the player has washed up', async () => {
   // The debounced save from the test above can land after beforeEach has run,
   // which would restore a started game and hide the start screen.
   clearSavedGame()
@@ -1332,7 +1359,7 @@ test('the first-round toast survives until the player has washed up', () => {
   // enterLectureRoom starts the game itself.
   enterLectureRoom()
 
-  answerCurrentMicrobe('BSL-1')
+  await answerCurrentMicrobe('BSL-1')
 
   expect(screen.getByText(/wash up/i)).toBeInTheDocument()
 })
@@ -1358,7 +1385,7 @@ test('skipping the guidance stops the toast, not just its button', () => {
 // A retry records its answer without setting awaitingUndress, so counting
 // answers alone made the first round look finished while the player was still
 // on their first microbe with a second attempt to make.
-test('the first-round toast survives a retry on the first microbe', () => {
+test('the first-round toast survives a retry on the first microbe', async () => {
   clearSavedGame()
   localStorage.clear()
 
@@ -1371,7 +1398,7 @@ test('the first-round toast survives a retry on the first microbe', () => {
     window.dispatchEvent(new CustomEvent('answer-popup-opened', { detail: { level: 'BSL-3' } }))
   })
 
-  fireEvent.click(screen.getByRole('button', { name: /try again/i }))
+  await clickAnswerButton(/try again/i)
 
   expect(screen.getByTestId('objective-toast-skip')).toBeInTheDocument()
 })
