@@ -92,7 +92,11 @@ BSL-3 and BSL-4 are airlocks: close the airtight door behind you before handling
 the microbe. Only one airlock door can be open at a time, so the room will
 refuse to let you work until the door you came through is shut.
 
-> 📷 **Screenshot needed** — an airlock with one door open and the other shut.
+![The BSL-4 airlock: the antechamber between the corridor and the laboratory, with the door prompting "Press E or click"](images/airlock-doors.png)
+
+The airlock is an antechamber between the corridor and the laboratory. Each door
+prompts "Press E or click" when you stand at it — step in, shut the door behind
+you, and only then open the one ahead.
 
 ### BSL-4: suit, gloves and ventilation
 
@@ -100,15 +104,22 @@ BSL-4 also needs the pressurized suit and gloves, with the suit connected to the
 external ventilation. The panel in the bottom right names whatever is still
 missing, so check it before you try to handle the microbe.
 
-> 📷 **Screenshot needed** — the BSL-4 status panel in the bottom right, listing what is missing.
+![The BSL-4 gear popup with the Take off suit, Take off gloves and Connect ventilation buttons](images/bsl4-suit-and-ventilation.png)
+
+The suit, the gloves and the ventilation are handled from a popup of their own,
+with a button for each: **Take off suit**, **Take off gloves** and **Connect
+ventilation**.
+
+Getting out of BSL-4 is the same procedure in reverse. The door will not open
+until you have taken the pressurized suit off and disconnected the external
+ventilation, and the game says so — "Decontaminate before leaving" — rather than
+leaving you to guess why the door is stuck.
 
 ## Handling the microbe
 
 Press E at the dark green ring to handle the microbe. The ring is labelled with
 the room and the key — "BSL-2 — Press E" — so you can tell at a glance which
 room you are standing in.
-
-> 📷 **Screenshot needed** — the dark green ring inside a BSL room.
 
 ## Checking your answer
 
@@ -142,8 +153,6 @@ Once you are done with a microbe, go to the wash-up point in the dressing room �
 the BSL rooms stay shut until you do. After your last try, a new microbe is
 drawn.
 
-> 📷 **Screenshot needed** — the wash-up point in the dressing room.
-
 ## Score and saving your result
 
 Feedback comes after each microbe you handle. At the end you only see your final
@@ -172,8 +181,7 @@ You can leave any time through the Exit — the game shuts down.
 ---
 
 **Still missing screenshots.** The 📷 lines above mark the shots that have not
-been taken yet: the BSL room doors, an airlock with one door open, the BSL-4
-status panel, the dark green ring inside a BSL room, the wash-up point, the end
-screen and the Exit room. To fill one in, save the image under
+been taken yet: the corridor with the BSL room doors, the end screen and the
+Exit room. To fill one in, save the image under
 `documentation/images/` and replace the 📷 line with a link, for example
 `![The closet](images/closet.png)`.
