@@ -8,17 +8,21 @@ The game is available in [BSL-game](https://bsl-frontend-prod-route-bsl-game-oht
 
 ## Instructions
 
+### Playing the game
+
+See the player's manual in [usage.md](documentation/usage.md)
+
 ### Installation & Running the project with docker
 
-See instuctions in [installation.md](https://github.com/BSL-Game-Group/BSL-game/blob/task/documentation/documentation/installation.md)
+See instructions in [installation.md](documentation/installation.md)
 
 ### Architecture
 
-See further information on project arhitecture in [architecture.md](https://github.com/BSL-Game-Group/BSL-game/blob/task/documentation/documentation/architecture.md)
+See further information on project architecture in [architecture.md](documentation/architecture.md)
 
 ### Testing
 
-You can find testing instructions in here [testing.md](https://github.com/BSL-Game-Group/BSL-game/blob/task/documentation/documentation/testing.md)
+You can find testing instructions in here [testing.md](documentation/testing.md)
 
 
 ## Work Management
