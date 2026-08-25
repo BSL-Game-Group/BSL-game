@@ -53,9 +53,9 @@ throughout.
 
 ## The lecture room
 
-Go to the lecture room to read the microbe's details and its BSL level. This is
-the first stop of every round — the game will not let you handle a microbe you
-have not read about.
+Go to the lecture room to read the microbe's details. This is the first stop of
+every round — the game will not let you handle a microbe you have not read
+about.
 
 Press E at the green ring in the lecture room to study the materials and learn
 about different microbes and BSL classes (1–4).
@@ -63,8 +63,9 @@ about different microbes and BSL classes (1–4).
 ![The Microbe Information popup: scientific name, common name, type and description](images/microbe-information.png)
 
 The card gives you the scientific name, the common name, the type and a
-description. Note that it does **not** state the BSL level outright — working
-that out from the description is the point of the game.
+description. It does **not** tell you the BSL level — working that out from the
+description is the whole task. The level stays hidden until your last try on
+that microbe, and comes with the result.
 
 ## Dressing and undressing protective gear
 
