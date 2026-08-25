@@ -14,6 +14,7 @@ Test coverage goal: 80%
 
 Frontend:
 ![Frontend Coverage](./images/frontend-coverage.png)
+
 Backend:
 ![Backend Coverage](./images/backend-coverage.png)
 
