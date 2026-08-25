@@ -18,7 +18,7 @@ visit the INFO desk in the corridor.
 
 Please read the instructions in the front page and set preferred language in the top right corner. The game is available in English, Finnish, and Swedish.
 
-> 📷 **Screenshot needed** — the front page, and the language selector in the top right corner.
+![The front page: the language selector in the top right, the Start Game button, and the full How to play list](images/front-page.png)
 
 ### Creating an account
 
@@ -26,11 +26,12 @@ This game gives players a possibility to login and save their progress. It can b
 
 NOTE: Login is optional
 
-> 📷 **Screenshot needed** — the login and sign-up controls in the top right corner.
+![The sign-up form, with the note that there is no password recovery](images/create-account-and-guidance.png)
 
-The game starts after pressing "Start Game" button.
+There is no password recovery, so write your password down somewhere safe.
 
-> 📷 **Screenshot needed** — the "Start Game" button on the front page.
+The game starts after pressing "Start Game" button — it is on the front page
+above, under the subtitle.
 
 ### Guidance on your first microbe
 
@@ -38,13 +39,17 @@ On your first microbe the game walks you through every step at the top of the
 screen. The guidance lasts one round, and a button turns it off if you would
 rather find your own way.
 
-> 📷 **Screenshot needed** — the guidance banner at the top of the screen, with its skip button.
+The banner reads "Next: visit the lecture" at the start of the round, with a
+**Skip guidance** button beside it — both are visible in the screenshot above.
 
 ## Moving
 
 The Character moves in the game with keyboard arrows or when clicking with mouse to wanted directions.
 
-> 📷 **Screenshot needed** — the character in the corridor.
+![The laboratory: the INFO desk and lecture room on the left, the dressing room and decontamination area below, and BSL 1–4 on the right](images/map-and-hint.png)
+
+The score and the number of microbes handled sit in the top left corner
+throughout.
 
 ## The lecture room
 
@@ -55,7 +60,11 @@ have not read about.
 Press E at the green ring in the lecture room to study the materials and learn
 about different microbes and BSL classes (1–4).
 
-> 📷 **Screenshot needed** — the microbe card, and the green ring in the lecture room.
+![The Microbe Information popup: scientific name, common name, type and description](images/microbe-information.png)
+
+The card gives you the scientific name, the common name, the type and a
+description. Note that it does **not** state the BSL level outright — working
+that out from the description is the point of the game.
 
 ## Dressing and undressing protective gear
 
@@ -64,7 +73,11 @@ equipment the level requires — lab coat, mask, glasses and so on.
 
 Selecting protective gear can be done by clicking the gear or dragging them with mouse on the character. Same logic works for undressing the gear.
 
-> 📷 **Screenshot needed** — the closet open, with gear on the character.
+![The Closet popup with the Eyewear, Masks, Body, Gloves and Footwear tabs, and the character preview](images/closet.png)
+
+The closet is organised by the same five categories the result will grade you
+on: Eyewear, Masks, Body, Gloves and Footwear. The character preview on the left
+shows what you are currently wearing.
 
 ## Entering a BSL room
 
@@ -107,7 +120,7 @@ individual item you missed.
 The room you chose is listed as a row of its own alongside those categories, and
 each row carries the points it earned, with the total for the microbe underneath.
 
-> 📷 **Screenshot needed** — the result popup with the category breakdown.
+![The result popup: each category marked right or wrong with its points, the room among them, and the total underneath](images/result-breakdown.png)
 
 ## Retrying
 
@@ -119,7 +132,7 @@ The result offers two ways on: **Try again** takes the retry, and **Skip this
 microbe** gives it up. Skipping means going to the wash-up point before the next
 microbe, so the retry is the cheaper of the two.
 
-> 📷 **Screenshot needed** — the result popup offering the retry.
+Both buttons are at the bottom of the result popup shown above.
 
 ## Washing up
 
@@ -145,7 +158,8 @@ If you get stuck on the same task, the game will tell you what to do next along
 the bottom of the screen. You do not have to ask for it — wait a moment and the
 hint appears on its own.
 
-> 📷 **Screenshot needed** — the hint along the bottom of the screen.
+In the laboratory screenshot above the hint reads "Next: put on your protective
+equipment", and the ring it is pointing at glows green.
 
 ## Exit the game
 
@@ -155,6 +169,9 @@ You can leave any time through the Exit — the game shuts down.
 
 ---
 
-**Adding the screenshots:** save them under `documentation/images/` and replace
-each 📷 line with an image link, for example
+**Still missing screenshots.** The 📷 lines above mark the shots that have not
+been taken yet: the BSL room doors, an airlock with one door open, the BSL-4
+status panel, the dark green ring inside a BSL room, the wash-up point, the end
+screen and the Exit room. To fill one in, save the image under
+`documentation/images/` and replace the 📷 line with a link, for example
 `![The closet](images/closet.png)`.
