@@ -104,6 +104,9 @@ The result breaks your equipment down by category — eyewear, masks, body,
 gloves and footwear — marking each one right or wrong. It won't name the
 individual item you missed.
 
+The room you chose is listed as a row of its own alongside those categories, and
+each row carries the points it earned, with the total for the microbe underneath.
+
 > 📷 **Screenshot needed** — the result popup with the category breakdown.
 
 ## Retrying
@@ -111,6 +114,10 @@ individual item you missed.
 If the room or the equipment was wrong, you get one retry on the same microbe —
 walk straight back in, no wash-up needed. Until your last try, the microbe's own
 feedback and its BSL level stay hidden.
+
+The result offers two ways on: **Try again** takes the retry, and **Skip this
+microbe** gives it up. Skipping means going to the wash-up point before the next
+microbe, so the retry is the cheaper of the two.
 
 > 📷 **Screenshot needed** — the result popup offering the retry.
 
