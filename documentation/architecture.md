@@ -176,7 +176,28 @@ Data persists in the `postgres_data` Docker volume across restarts. To wipe and 
 docker compose down -v && docker compose up -d
 ```
 
-Read endpoints: `GET /api/bsl-classes`, `GET /api/microbes`, `GET /api/microbes/:id`.
+### Endpoints
+
+Content is served straight from `app.js`; the rest come from the routers it
+mounts.
+
+| Area | Endpoint | |
+| --- | --- | --- |
+| Content | `GET /api/bsl-classes` | The four levels and their required equipment |
+| | `GET /api/microbes` | Every microbe |
+| | `GET /api/microbes/random` | Draws one the session has not seen yet |
+| | `GET /api/microbes/:id` | One microbe |
+| | `GET /api/bsl-material` | The lecture room's material |
+| | `POST /api/microbes/reset` | Clears the seen-microbe pool |
+| | `POST /api/rooms/enter` | Records a room entry |
+| Auth | `POST /api/auth/register` | Create an account |
+| | `POST /api/auth/login` | Sign in, adopting the guest session's rounds |
+| | `GET /api/auth/me` | Confirm a stored token |
+| | `DELETE /api/auth/me` | Delete the account |
+| Rounds | `POST /api/rounds` | Start or adopt a round |
+| | `PATCH /api/rounds/:id` | Add an answer and re-grade |
+| | `GET /api/me/rounds` | The signed-in player's rounds |
+| Leaderboard | `GET /api/leaderboard` | Best round per user |
 
 ## Production
 
