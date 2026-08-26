@@ -1,24 +1,22 @@
 # Architecture
 
-## Strenghts & Weaknesses in the project
+## Strengths & Weaknesses in the project
 
 **Weaknesses**
-
-Structure:
 
 Bugs:
 - The character can go partly over the game area in BSL-2 and BSL-4 rooms.
 
-**Strenghts**
+**Strengths**
 
 Test coverage is high, and covers both frontend and backend
 
-**Continuity plans&ideas**
+**Continuity plans & ideas**
 
 New features that could be added
 - Character moves more realistically --hands and legs moving
 - Adjusting the player hitbox/room hitboxes
-- Add lives in the game -- example: game ends automatically if you loose 3 lives
+- Add lives in the game -- example: game ends automatically if you lose 3 lives
 - The player can change the appearance of the character
 - Feedback when exiting the game
 - Tutorial guiding through the first round
