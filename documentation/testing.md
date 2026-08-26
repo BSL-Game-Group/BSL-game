@@ -60,6 +60,7 @@ npm run test:db:prepare   # migrate + seed bsldb_test (re-run after new migratio
 npm test
 ```
 
-`npm test` sets `NODE_ENV=test` and blanks `DB_URL`, so it can never touch the
-development database — `bsldb_test` is separate from `bsldb` and is safe to drop
-and rebuild at any time.
+The backend's own `npm test` — the one run from `backend/`, not the Playwright
+run at the repo root — sets `NODE_ENV=test` and blanks `DB_URL`, so it can never
+touch the development database. `bsldb_test` is separate from `bsldb` and is
+safe to drop and rebuild at any time.
