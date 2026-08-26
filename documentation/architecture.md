@@ -182,14 +182,58 @@ Read endpoints: `GET /api/bsl-classes`, `GET /api/microbes`, `GET /api/microbes/
 
 Production uses its own separate database and secret
 (`bsl-backend-secret-prod`), requested and created the same way as the
-staging one above but kept apart — see atk-tietokannat@helsinki.fi for
+staging one below but kept apart — see atk-tietokannat@helsinki.fi for
 requesting a new production database.
 
 Deploys to production are manual: pushing to main only updates staging.
-To promote a build to production, edit `from.name` in
+Staging's imagestreams carry `scheduled: true`, so OpenShift re-imports
+`:staging` on its own within about fifteen minutes. The production
+imagestreams carry `scheduled: false` and never update by themselves.
+
+### Promoting a build to production
+
+> **The backend rollout runs migrations against the production database.**
+> `backend/manifests/production/deployment.yaml` has a `db-init`
+> initContainer running `npm run db:init`, so every promotion applies
+> whatever migrations and seeders have landed since the last one. Check
+> `backend/migrations/` for what is pending before you promote — an image
+> can be rolled back, a migration cannot.
+
+Requires eduroam or the university VPN.
+
+```bash
+oc login --web https://api.okd-cs-test-0.k8s.cs.helsinki.fi:6443
+oc import-image bsl-backend-service-prod:production
+oc import-image bsl-frontend-prod:production
+```
+
+`import-image` re-reads the `from.name` the imagestream already declares —
+which is the moving `bslgame/bsl-<part>:staging` tag — so this promotes
+whatever staging is running at that moment. Changing the tag fires the
+deployment's `image.openshift.io/triggers` annotation and the rollout
+starts on its own. Both parts have to be promoted; leaving one behind
+gives you a mismatched production.
+
+Check afterwards:
+
+```bash
+oc rollout status deploy/bsl-backend-prod
+oc rollout status deploy/bsl-frontend-prod
+```
+
+To roll back, re-point the tag at the digest that was live before:
+
+```bash
+oc tag bslgame/bsl-backend:<git-sha> bsl-backend-service-prod:production --source=docker
+```
+
+For a release pinned to a known-good build rather than to whatever
+staging holds, edit `from.name` in
 `backend/manifests/production/imagestream.yaml` and
-`frontend/manifests/production/imagestream.yaml` to that build's
-known-good git-sha tag, then `oc apply` and commit the change.
+`frontend/manifests/production/imagestream.yaml` to that build's git-sha
+tag, then `oc apply` and commit the change. CI pushes a `<git-sha>` tag
+alongside `:staging` on every push to main, so any green build can be
+named this way.
 
 ### JWT_SECRET
 
