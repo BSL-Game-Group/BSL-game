@@ -64,8 +64,15 @@ flowchart TB
 
 ## Deployment
 
-- Docker
-- Docker Compose
+Locally the stack runs on Docker and Docker Compose.
+
+Staging and production both run on the university's OKD cluster, in the
+namespace `bsl-game-ohtu-k2026`. Pushing to main builds both images and
+pushes them to Docker Hub under two tags, `:staging` and `:<git-sha>`.
+An OpenShift ImageStream tracks the tag, and an
+`image.openshift.io/triggers` annotation on the Deployment rolls the new
+image out as soon as the stream changes. Staging follows `:staging`
+automatically; production does not — see [Production](#production).
 
 ## Frontend
 
