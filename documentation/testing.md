@@ -2,7 +2,7 @@
 
 ## Structure
 
-The game has end-to-end tests made with Jest. Playwright and React testing library tests are for frontend logic and component behavior.
+The game has end-to-end tests made with Playwright. Jest and React Testing Library cover the frontend logic and component behaviour.
 
 ## Coverage
 
