@@ -261,7 +261,7 @@ tag, then `oc apply` and commit the change. CI pushes a `<git-sha>` tag
 alongside `:staging` on every push to main, so any green build can be
 named this way.
 
-### JWT_SECRET
+## JWT_SECRET
 
 The backend signs session tokens with `JWT_SECRET` and **refuses to start without
 it**. There is deliberately no built-in default: a secret living in this repository
@@ -275,11 +275,13 @@ needs it in your environment:
 JWT_SECRET=anything-local npm start
 ```
 
-### Openshift guide
+### On OpenShift
 
-On OpenShift it comes from the `bsl-backend-secret` secret, and must be added
-once before the next deploy — `backend/manifests/deployment.yaml` requires the
-key, so without it the pod fails with `CreateContainerConfigError`:
+Each environment carries its own secret: staging reads `bsl-backend-secret`,
+production reads `bsl-backend-secret-prod`. Both hold `DB_URL` and `JWT_SECRET`,
+and each has to be created once before that environment's next deploy —
+`backend/manifests/deployment.yaml` requires the key, so without it the pod
+fails with `CreateContainerConfigError`. For staging:
 
 ```bash
 oc create secret generic bsl-backend-secret \
