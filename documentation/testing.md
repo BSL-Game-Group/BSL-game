@@ -18,11 +18,16 @@ Frontend:
 Backend:
 ![Backend Coverage](./images/backend-coverage.png)
 
-## Test instrunctions:
+## Test instructions
 
 Install dependencies:
 ```bash
 npm install
+```
+Install the Playwright browsers. `npm install` does not fetch them, and the
+end-to-end run fails with `Executable doesn't exist` until you do this once:
+```bash
+npm run test:browsers
 ```
 start the game:
 ```bash
