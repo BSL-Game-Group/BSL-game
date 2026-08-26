@@ -3,13 +3,15 @@
 ## Requirements
 - Docker
 - Docker Compose
+- Node.js 20.19+ or 22.12+, and npm — needed for the test suites and for running
+  either service outside Docker. The images build on `node:22`.
 
 ## Repository setup
 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/MildMunshin/BSL-game.git
+git clone https://github.com/BSL-Game-Group/BSL-game.git
 cd BSL-game
 ```
 
