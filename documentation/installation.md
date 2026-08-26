@@ -60,7 +60,8 @@ Data persists in the `postgres_data` Docker volume across restarts. To wipe and 
 docker compose down -v && docker compose up -d
 ```
 
-Read endpoints: `GET /api/bsl-classes`, `GET /api/microbes`, `GET /api/microbes/:id`.
+The endpoints the backend serves are listed in
+[architecture.md](architecture.md#database).
 
 ## Notes
 
