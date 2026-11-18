@@ -8,7 +8,8 @@ on:
 jobs:
   test:
     name: Test (Full Stack via Docker)
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     # Host port 5433, not 5432: `docker compose up` later in this same job starts
     # its own Postgres publishing 5432, and two containers cannot bind the same
@@ -165,7 +166,8 @@ jobs:
   build-and-push:
     name: Build & Push Docker Images
     needs: test
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
