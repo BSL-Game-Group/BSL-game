@@ -14,7 +14,8 @@ spec:
     - name: production
       from:
         kind: DockerImage
-        name: bslgame/bsl-backend:staging
+        # name: bslgame/bsl-backend:staging
+        name: bslgame/bsl-backend:bc24697d174e774e047d07e06bf91a3b4d35d709
       importPolicy:
         scheduled: false
       referencePolicy:
